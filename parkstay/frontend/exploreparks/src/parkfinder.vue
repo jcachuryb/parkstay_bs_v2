@@ -114,7 +114,7 @@
                         <p><i id="mapPopupPrice"></i></p>
                         <img class="thumbnail" id="mapPopupImage" />
                         <div id="mapPopupDescription" style="font-size: 0.75rem;"/>
-                        <a id="mapPopupBook" class="button formButton1" style="margin-bottom: 0; margin-top: 1em;" target="_blank">Book now</a>
+                        <a id="mapPopupBook" class="button formButton1" style="margin-bottom: 0; margin-top: 1em;" target="_self">Book now</a>
                         <a id="mapPopupInfo" class="button formButton" style="margin-bottom: 0;" target="_blank">More Info</a>
                     </div>
                 </div>
@@ -138,7 +138,7 @@
                                 <!-- This line has to be changed to use a v-if/else clause
                                  Changed again to utilize changes in api to further enable forwarding offline sites to availability app
                                  -->
-                                <a v-if="f.campground_type == 0" class="button formButton1" v-bind:href="parkstayUrl+'/availability/?site_id='+f.id+'&'+bookingParam" target="_blank">Book now</a>
+                                <a v-if="f.campground_type == 0" class="button formButton1" v-bind:href="parkstayUrl+'/availability/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
                                 <a v-else-if="f.campground_type == 1" class="button formButton" v-bind:href="f.info_url" target="_blank">More Info</a>
                                 <a v-else class="button formButton2" v-bind:href="f.info_url" target="_blank">More info</a>
                                 <!-- End of change -->
