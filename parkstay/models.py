@@ -20,7 +20,8 @@ from django.db.models.signals import post_delete, pre_save, post_save, pre_delet
 from django.core.cache import cache
 from ledger.payments.models import Invoice
 from ledger.accounts.models import EmailUser
-
+from ledger.payments.bpoint.models import BpointTransaction
+from ledger.payments.cash.models import CashTransaction
 
 PARKING_SPACE_CHOICES = (
     (0, 'Parking within site.'),
@@ -944,9 +945,56 @@ class Booking(models.Model):
     confirmation_sent = models.BooleanField(default=False)
     created = models.DateTimeField(default=timezone.now)
     canceled_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, blank=True, null=True, related_name='canceled_bookings')
+    property_cache = JSONField(null=True, blank=True, default={})
 
     # Properties
     # =================================
+    def save(self, *args,**kwargs):
+        self.update_property_cache(False)
+        super(Booking,self).save(*args,**kwargs)
+
+    def get_property_cache(self):
+        if 'invoices' in self.property_cache:
+            total_bpoint_transactions = 0
+            bpoint_changes = False
+            if 'total_bpoint_transactions' in self.property_cache:
+                for i in self.property_cache['invoices']:
+                    t = BpointTransaction.objects.filter(crn1=i).count()
+                    c = CashTransaction.objects.filter(invoice__reference=i).count()
+                    total_bpoint_transactions = total_bpoint_transactions + t + c
+                if self.property_cache['total_bpoint_transactions'] != total_bpoint_transactions:
+                     bpoint_changes = True 
+            else:
+                 bpoint_changes = True
+        if len(self.property_cache) == 0 or bpoint_changes is True:
+            print ("Updating"+str(self.id))
+            self.update_property_cache()
+        return self.property_cache
+
+    def update_property_cache(self, save=True):
+        self.property_cache['amount_paid'] = str(self.amount_paid)
+        self.property_cache['refund_status'] = self.refund_status
+        self.property_cache['outstanding'] = str(self.outstanding)
+        self.property_cache['status'] = self.status
+        #self.property_cache['invoice_status'] = self.invoice_status
+        self.property_cache['has_history'] = self.has_history
+        self.property_cache['vehicle_payment_status'] = self.vehicle_payment_status
+        self.property_cache['cancellation_reason'] = self.cancellation_reason
+        self.property_cache['paid'] = self.paid
+        self.property_cache['invoices'] = [i.invoice_reference for i in self.invoices.all()]
+        self.property_cache['active_invoices'] = [i.invoice_reference for i in self.invoices.all() if i.active]
+        self.property_cache['regos'] = [{r.type: r.rego} for r in self.regos.all()]
+        self.property_cache['campsite_name_list'] = self.campsite_name_list
+        total_bpoint_transactions = 0
+        for i in self.property_cache['invoices']:
+            t = BpointTransaction.objects.filter(crn1=i).count()
+            c = CashTransaction.objects.filter(invoice__reference=i).count()
+            total_bpoint_transactions = total_bpoint_transactions + t + c
+        self.property_cache['total_bpoint_transactions'] = total_bpoint_transactions
+        if save is True:
+           self.save()
+        return self.property_cache
+
     @property
     def num_days(self):
         return (self.departure - self.arrival).days
@@ -1347,6 +1395,9 @@ class BookingInvoice(models.Model):
             pass
         return False
 
+    def save(self, *args,**kwargs):
+        super(BookingInvoice,self).save(*args,**kwargs)
+        self.booking.update_property_cache()
 
 class BookingVehicleRego(models.Model):
     """docstring for BookingVehicleRego."""
