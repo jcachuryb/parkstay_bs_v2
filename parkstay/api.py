@@ -1,6 +1,7 @@
 import traceback
 import base64
 import geojson
+import hashlib
 from six.moves.urllib.parse import urlparse
 from wsgiref.util import FileWrapper
 from django.db import connection, transaction
@@ -395,56 +396,61 @@ class CampgroundMapFilterViewSet(viewsets.ReadOnlyModelViewSet):
             "num_infant": request.GET.get('num_infant', 0),
             "gear_type": request.GET.get('gear_type', 'all')
         }
+        #data_hash = hashlib.sha224(b"D {}".format(request.GET.get('arrival', None))).hexdigest()
+        data_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
+        print (data_hash)
+        queryset = cache.get('CampgroundMapFilterViewSet'+data_hash)
+        if queryset is None:
 
-        serializer = CampgroundCampsiteFilterSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        scrubbed = serializer.validated_data
-        context = {}
-        # filter to the campsites by gear allowed (if specified), else show the lot
-        if scrubbed['gear_type'] != 'all':
-            context = {scrubbed['gear_type']: True}
+            serializer = CampgroundCampsiteFilterSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            scrubbed = serializer.validated_data
+            context = {}
+            # filter to the campsites by gear allowed (if specified), else show the lot
+            if scrubbed['gear_type'] != 'all':
+                context = {scrubbed['gear_type']: True}
 
-        # if a date range is set, filter out campgrounds that are unavailable for the whole stretch
-        if scrubbed['arrival'] and scrubbed['departure'] and (scrubbed['arrival'] < scrubbed['departure']):
-            sites = Campsite.objects.filter(**context)
-            ground_ids = utils.get_open_campgrounds(sites, scrubbed['arrival'], scrubbed['departure'])
+            # if a date range is set, filter out campgrounds that are unavailable for the whole stretch
+            if scrubbed['arrival'] and scrubbed['departure'] and (scrubbed['arrival'] < scrubbed['departure']):
+                sites = Campsite.objects.filter(**context)
+                ground_ids = utils.get_open_campgrounds(sites, scrubbed['arrival'], scrubbed['departure'])
 
-        else:  # show all of the campgrounds with campsites
-            ground_ids = set((x[0] for x in Campsite.objects.filter(**context).values_list('campground')))
+            else:  # show all of the campgrounds with campsites
+                ground_ids = set((x[0] for x in Campsite.objects.filter(**context).values_list('campground')))
 
-            # we need to be tricky here. for the default search (all, no timestamps),
-            # we want to include all of the "campgrounds" that don't have any campsites in the model! (e.g. third party)
-            if scrubbed['gear_type'] == 'all':
-                ground_ids.update((x[0] for x in Campground.objects.filter(campsites__isnull=True).values_list('id')))
+                # we need to be tricky here. for the default search (all, no timestamps),
+                # we want to include all of the "campgrounds" that don't have any campsites in the model! (e.g. third party)
+                if scrubbed['gear_type'] == 'all':
+                    ground_ids.update((x[0] for x in Campground.objects.filter(campsites__isnull=True).values_list('id')))
 
-        # Filter out for the max period
-        today = date.today()
-        if scrubbed['arrival']:
-            start_date = scrubbed['arrival']
-        else:
-            start_date = today
-        if scrubbed['departure']:
-            end_date = scrubbed['departure']
-        else:
-            end_date = today + timedelta(days=1)
-
-        temp_queryset = Campground.objects.filter(id__in=ground_ids).order_by('name')
-        queryset = []
-        for q in temp_queryset:
-            # Get the current stay history
-            stay_history = CampgroundStayHistory.objects.filter(
-                Q(range_start__lte=start_date, range_end__gte=start_date) |  # filter start date is within period
-                Q(range_start__lte=end_date, range_end__gte=end_date) |  # filter end date is within period
-                Q(Q(range_start__gt=start_date, range_end__lt=end_date) & Q(range_end__gt=today)),  # filter start date is before and end date after period
-                campground=q
-            )
-            if stay_history:
-                max_days = min([x.max_days for x in stay_history])
+            # Filter out for the max period
+            today = date.today()
+            if scrubbed['arrival']:
+                start_date = scrubbed['arrival']
             else:
-                max_days = settings.PS_MAX_BOOKING_LENGTH
-            if (end_date - start_date).days <= max_days:
-                queryset.append(q)
+                start_date = today
+            if scrubbed['departure']:
+                end_date = scrubbed['departure']
+            else:
+                end_date = today + timedelta(days=1)
 
+            temp_queryset = Campground.objects.filter(id__in=ground_ids).order_by('name')
+            queryset = []
+            for q in temp_queryset:
+                # Get the current stay history
+                stay_history = CampgroundStayHistory.objects.filter(
+                    Q(range_start__lte=start_date, range_end__gte=start_date) |  # filter start date is within period
+                    Q(range_start__lte=end_date, range_end__gte=end_date) |  # filter end date is within period
+                    Q(Q(range_start__gt=start_date, range_end__lt=end_date) & Q(range_end__gt=today)),  # filter start date is before and end date after period
+                    campground=q
+                )
+                if stay_history:
+                    max_days = min([x.max_days for x in stay_history])
+                else:
+                    max_days = settings.PS_MAX_BOOKING_LENGTH
+                if (end_date - start_date).days <= max_days:
+                    queryset.append(q)
+            cache.set('CampgroundMapFilterViewSet'+data_hash, queryset, 3600)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
