@@ -22,6 +22,7 @@ from ledger.payments.models import Invoice
 from ledger.accounts.models import EmailUser
 from ledger.payments.bpoint.models import BpointTransaction
 from ledger.payments.cash.models import CashTransaction
+from rest_framework import viewsets, serializers, status, generics, views
 
 PARKING_SPACE_CHOICES = (
     (0, 'Parking within site.'),
@@ -959,11 +960,12 @@ class Booking(models.Model):
             bpoint_changes = False
             if 'total_bpoint_transactions' in self.property_cache:
                 for i in self.property_cache['invoices']:
-                    t = BpointTransaction.objects.filter(crn1=i).count()
-                    c = CashTransaction.objects.filter(invoice__reference=i).count()
-                    total_bpoint_transactions = total_bpoint_transactions + t + c
-                if self.property_cache['total_bpoint_transactions'] != total_bpoint_transactions:
-                     bpoint_changes = True 
+                    pass
+                    #t = BpointTransaction.objects.filter(crn1=i).count()
+                    #c = CashTransaction.objects.filter(invoice__reference=i).count()
+                    #total_bpoint_transactions = total_bpoint_transactions + t + c
+                #if self.property_cache['total_bpoint_transactions'] != total_bpoint_transactions:
+                #     bpoint_changes = True 
             else:
                  bpoint_changes = True
         if len(self.property_cache) == 0 or bpoint_changes is True:
@@ -985,6 +987,8 @@ class Booking(models.Model):
         self.property_cache['active_invoices'] = [i.invoice_reference for i in self.invoices.all() if i.active]
         self.property_cache['regos'] = [{r.type: r.rego} for r in self.regos.all()]
         self.property_cache['campsite_name_list'] = self.campsite_name_list
+        #self.property_cache['campground'] = serializers.serialize('json',self.campground)
+        self.property_cache['first_campsite_list2'] = self.first_campsite_list2
         total_bpoint_transactions = 0
         for i in self.property_cache['invoices']:
             t = BpointTransaction.objects.filter(crn1=i).count()
@@ -1051,6 +1055,21 @@ class Booking(models.Model):
     def first_campsite(self):
         cb = self.campsites.all().first()
         return cb.campsite if cb else None
+
+
+    @property
+    def first_campsite_list2(self):
+        cbs = self.campsites.distinct('campsite')
+        first_campsite_list = []
+        for item in cbs:
+            site_type = ''
+            if item:
+                if item.campsite.campground:
+                    if item.campsite.campground.site_type:
+                        site_type = item.campsite.campground.site_type
+            first_campsite_list.append({'name': item.campsite.name, 'type': item.campsite.type, 'site_type': item.campsite.campground.site_type})
+        return first_campsite_list
+
 
     @property
     def first_campsite_list(self):

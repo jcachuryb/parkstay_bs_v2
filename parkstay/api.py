@@ -1585,10 +1585,10 @@ class BookingViewSet(viewsets.ModelViewSet):
 
             sql = ''
             http_status = status.HTTP_200_OK
-            sqlSelect = 'select distinct parkstay_booking.id as id,parkstay_booking.created,parkstay_booking.customer_id, parkstay_campground.name as campground_name,parkstay_region.name as campground_region,parkstay_booking.legacy_name,\
+            sqlSelect = 'select parkstay_booking.id as id,parkstay_booking.created,parkstay_booking.customer_id, parkstay_campground.name as campground_name,parkstay_region.name as campground_region,parkstay_booking.legacy_name,\
                 parkstay_booking.legacy_id,parkstay_campground.site_type as campground_site_type,\
                 parkstay_booking.arrival as arrival, parkstay_booking.departure as departure,parkstay_campground.id as campground_id,coalesce(accounts_emailuser.first_name || \' \' || accounts_emailuser.last_name) as full_name'
-            sqlCount = 'select count(distinct parkstay_booking.id)'
+            sqlCount = 'select count(parkstay_booking.id)'
 
             sqlFrom = ' from parkstay_booking\
                 join parkstay_campground on parkstay_campground.id = parkstay_booking.campground_id\
@@ -1665,8 +1665,10 @@ class BookingViewSet(viewsets.ModelViewSet):
             sql += ';'
             print("MLINE 4.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             cursor = connection.cursor()
-            cursor.execute("Select count(*) from parkstay_booking ")
-            recordsTotal = cursor.fetchone()[0]
+            #cursor.execute("Select count(*) from parkstay_booking ")
+            recordsTotal = Booking.objects.all().count()
+            #recordsTotal = cursor.fetchone()[0]
+
             cursor.execute(sqlCount, sqlParams)
             print("MLINE 5.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             recordsFiltered = cursor.fetchone()[0]
@@ -1679,16 +1681,25 @@ class BookingViewSet(viewsets.ModelViewSet):
                 for row in cursor.fetchall()
             ]
             print("MLINE 7.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-            bookings_qs = Booking.objects.filter(id__in=[b['id'] for b in data]).prefetch_related('campground', 'campsites', 'campsites__campsite', 'customer', 'regos', 'history', 'invoices', 'canceled_by')
+            #for b in data:
+            #   print (b['id'])
+            sql_id=Q()
+            for b in data:
+                sql_id |= Q(id=b['id'])
+            bookings_qs = Booking.objects.filter(sql_id).prefetch_related('campground', 'campsites', 'campsites__campsite', 'customer', 'regos', 'history', 'invoices', 'canceled_by')
+            #bookings_qs = Booking.objects.filter(id__in=[b['id'] for b in data]) #.values('id','campground', 'campsites', 'campsites__campsite', 'customer', 'regos', 'history', 'invoices', 'canceled_by')
             booking_map = {b.id: b for b in bookings_qs}
             clean_data = []
             print("MLINE 8.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))  
+
             for bk in data:
+                print("MLINE 9.00", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 cg = None
                 booking = booking_map[bk['id']]
-                cg = booking.campground
+                #cg = booking.campground
                 get_property_cache = booking.get_property_cache()
-                if 'active_invoices' not in get_property_cache or 'invoices' not in get_property_cache:
+                if 'active_invoices' not in get_property_cache or 'invoices' not in get_property_cache or 'first_campsite_list2' not in get_property_cache:
+                     print ("Sending Update Cache Request")
                      get_property_cache = booking.update_property_cache()
 
                 print("MLINE 9.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
@@ -1704,7 +1715,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                 bk['is_canceled'] = 'Yes' if booking.is_canceled else 'No'
                 print("MLINE 9.21", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 bk['cancelation_reason'] = booking.cancellation_reason
-                bk['canceled_by'] = booking.canceled_by.get_full_name() if booking.canceled_by else ''
+                bk['canceled_by'] = '' #booking.canceled_by.get_full_name() if booking.canceled_by else ''
                 bk['cancelation_time'] = booking.cancelation_time if booking.cancelation_time else ''
                 bk['paid'] = get_property_cache['paid']  #booking.paid
                 bk['invoices'] = get_property_cache['invoices'] #[i.invoice_reference for i in booking.invoices.all()]
@@ -1739,13 +1750,13 @@ class BookingViewSet(viewsets.ModelViewSet):
                     if booking.is_canceled:
                         bk['campground_site_type'] = ""
                     else:
-                        first_campsite_list = booking.first_campsite_list
+                        first_campsite_list = get_property_cache['first_campsite_list2']
                         campground_site_type = []
                         for item in first_campsite_list:
                             campground_site_type.append({
-                                "name": '{}'.format(item.name if item else ""),
-                                "type": '{}'.format(item.type if item.type else ""),
-                                "campground_type": item.campground.site_type,
+                                "name": '{}'.format(item['name'] if item else ""),
+                                "type": '{}'.format(item['type'] if item['type'] else ""),
+                                "campground_type": item['site_type'],
                             })
                         bk['campground_site_type'] = campground_site_type
                 else:
@@ -1757,7 +1768,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                         if refund_status == 'All':
                             clean_data.append(bk)
                         else:
-                            if refund_status == booking.refund_status:
+                            if refund_status == get_property_cache['refund_status']: #booking.refund_status:
                                 clean_data.append(bk)
                 else:
                     clean_data.append(bk)
