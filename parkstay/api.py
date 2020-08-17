@@ -1566,6 +1566,7 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
+            print("MLINE 1.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             search = request.GET.get('search[value]')
             draw = request.GET.get('draw') if request.GET.get('draw') else 1
             start = request.GET.get('start') if request.GET.get('draw') else 0
@@ -1576,6 +1577,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             region = request.GET.get('region')
             canceled = request.GET.get('canceled', None)
             refund_status = request.GET.get('refund_status', None)
+            print("MLINE 2.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             if canceled:
                 canceled = True if canceled.lower() in ['yes', 'true', 't', '1'] else False
 
@@ -1600,7 +1602,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             sql = sqlSelect + sqlFrom + " where "
             sqlCount = sqlCount + sqlFrom + " where "
             sqlParams = {}
-
+            print("MLINE 3.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # Filter the camgrounds that the current user is allowed to view
             sqlFilterUser = ' cm.emailuser_id = %(user)s'
             sql += sqlFilterUser
@@ -1661,22 +1663,26 @@ class BookingViewSet(viewsets.ModelViewSet):
                 sqlParams['start'] = start
 
             sql += ';'
-
+            print("MLINE 4.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             cursor = connection.cursor()
             cursor.execute("Select count(*) from parkstay_booking ")
             recordsTotal = cursor.fetchone()[0]
             cursor.execute(sqlCount, sqlParams)
+            print("MLINE 5.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             recordsFiltered = cursor.fetchone()[0]
-
             cursor.execute(sql, sqlParams)
+            print("MLINE 6.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
             columns = [col[0] for col in cursor.description]
             data = [
                 dict(zip(columns, row))
                 for row in cursor.fetchall()
             ]
+            print("MLINE 7.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             bookings_qs = Booking.objects.filter(id__in=[b['id'] for b in data]).prefetch_related('campground', 'campsites', 'campsites__campsite', 'customer', 'regos', 'history', 'invoices', 'canceled_by')
             booking_map = {b.id: b for b in bookings_qs}
             clean_data = []
+            print("MLINE 8.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))  
             for bk in data:
                 cg = None
                 booking = booking_map[bk['id']]
@@ -1685,28 +1691,32 @@ class BookingViewSet(viewsets.ModelViewSet):
                 if 'active_invoices' not in get_property_cache or 'invoices' not in get_property_cache:
                      get_property_cache = booking.update_property_cache()
 
-
+                print("MLINE 9.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 bk['editable'] = booking.editable
                 bk['status'] = get_property_cache['status'] #booking.status
                 bk['booking_type'] = booking.booking_type
-                bk['has_history'] = booking.has_history
+                bk['has_history'] = get_property_cache['has_history'] #booking.has_history
+                print("MLINE 9.11", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 bk['cost_total'] = booking.cost_total
                 bk['amount_paid'] = get_property_cache['amount_paid'] #booking.amount_paid
                 bk['vehicle_payment_status'] = get_property_cache['vehicle_payment_status'] #booking.vehicle_payment_status
                 bk['refund_status'] = get_property_cache['refund_status'] #booking.refund_status
                 bk['is_canceled'] = 'Yes' if booking.is_canceled else 'No'
+                print("MLINE 9.21", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 bk['cancelation_reason'] = booking.cancellation_reason
                 bk['canceled_by'] = booking.canceled_by.get_full_name() if booking.canceled_by else ''
                 bk['cancelation_time'] = booking.cancelation_time if booking.cancelation_time else ''
                 bk['paid'] = get_property_cache['paid']  #booking.paid
                 bk['invoices'] = get_property_cache['invoices'] #[i.invoice_reference for i in booking.invoices.all()]
+                print("MLINE 9.31", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 bk['active_invoices'] = get_property_cache['active_invoices']  #[i.invoice_reference for i in booking.invoices.all() if i.active]
                 bk['guests'] = booking.guests
                 bk['campsite_names'] = get_property_cache['campsite_name_list'] #booking.campsite_name_list
+                print("MLINE 9.41", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 bk['regos'] = get_property_cache['regos'] #[{r.type: r.rego} for r in booking.regos.all()]
                 bk['firstname'] = booking.details.get('first_name', '')
                 bk['lastname'] = booking.details.get('last_name', '')
-
+                print("MLINE 9.51", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 if booking.override_reason:
                     bk['override_reason'] = booking.override_reason.text
                 if booking.override_reason_info:
@@ -1717,6 +1727,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                     bk['discount'] = booking.discount
                 if not get_property_cache['paid']: #booking.paid:
                     bk['payment_callback_url'] = '/api/booking/{}/payment_callback.json'.format(booking.id)
+                print("MLINE 9.61", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 if booking.customer:
                     bk['email'] = booking.customer.email if booking.customer and booking.customer.email else ""
                     if booking.customer.phone_number:
@@ -1739,6 +1750,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                         bk['campground_site_type'] = campground_site_type
                 else:
                     bk['campground_site_type'] = ""
+                print("MLINE 9.71", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 if refund_status and canceled == 't':
                     refund_statuses = ['All', 'Partially Refunded', 'Not Refunded', 'Refunded']
                     if refund_status in refund_statuses:
@@ -1749,12 +1761,13 @@ class BookingViewSet(viewsets.ModelViewSet):
                                 clean_data.append(bk)
                 else:
                     clean_data.append(bk)
-
+                print("MLINE 9.81", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             return Response(OrderedDict([
                 ('recordsTotal', recordsTotal),
                 ('recordsFiltered', recordsFiltered),
                 ('results', clean_data)
             ]), status=status.HTTP_200_OK)
+            print("MLINE 9.91", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         except serializers.ValidationError:
             print(traceback.print_exc())
             raise
