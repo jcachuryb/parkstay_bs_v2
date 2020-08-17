@@ -90,6 +90,7 @@ class BookingAdmin(admin.ModelAdmin):
     search_fileds = ('arrival', 'departure')
     list_filter = ('arrival', 'departure', 'campground')
     inlines = [BookingInvoiceInline, CampsiteBookingInline]
+    readonly_fields=('created','property_cache',)
 
     def has_add_permission(self, request, obj=None):
         return False

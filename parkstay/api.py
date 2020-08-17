@@ -1606,7 +1606,6 @@ class BookingViewSet(viewsets.ModelViewSet):
             sql += sqlFilterUser
             sqlCount += sqlFilterUser
             sqlParams['user'] = request.user.id
-
             if campground:
                 sqlCampground = ' parkstay_campground.id = %(campground)s'
                 sql = sql + " and " + sqlCampground
@@ -1682,26 +1681,32 @@ class BookingViewSet(viewsets.ModelViewSet):
                 cg = None
                 booking = booking_map[bk['id']]
                 cg = booking.campground
+                get_property_cache = booking.get_property_cache()
+                if 'active_invoices' not in get_property_cache or 'invoices' not in get_property_cache:
+                     get_property_cache = booking.update_property_cache()
+
+
                 bk['editable'] = booking.editable
-                bk['status'] = booking.status
+                bk['status'] = get_property_cache['status'] #booking.status
                 bk['booking_type'] = booking.booking_type
                 bk['has_history'] = booking.has_history
                 bk['cost_total'] = booking.cost_total
-                bk['amount_paid'] = booking.amount_paid
-                bk['vehicle_payment_status'] = booking.vehicle_payment_status
-                bk['refund_status'] = booking.refund_status
+                bk['amount_paid'] = get_property_cache['amount_paid'] #booking.amount_paid
+                bk['vehicle_payment_status'] = get_property_cache['vehicle_payment_status'] #booking.vehicle_payment_status
+                bk['refund_status'] = get_property_cache['refund_status'] #booking.refund_status
                 bk['is_canceled'] = 'Yes' if booking.is_canceled else 'No'
                 bk['cancelation_reason'] = booking.cancellation_reason
                 bk['canceled_by'] = booking.canceled_by.get_full_name() if booking.canceled_by else ''
                 bk['cancelation_time'] = booking.cancelation_time if booking.cancelation_time else ''
-                bk['paid'] = booking.paid
-                bk['invoices'] = [i.invoice_reference for i in booking.invoices.all()]
-                bk['active_invoices'] = [i.invoice_reference for i in booking.invoices.all() if i.active]
+                bk['paid'] = get_property_cache['paid']  #booking.paid
+                bk['invoices'] = get_property_cache['invoices'] #[i.invoice_reference for i in booking.invoices.all()]
+                bk['active_invoices'] = get_property_cache['active_invoices']  #[i.invoice_reference for i in booking.invoices.all() if i.active]
                 bk['guests'] = booking.guests
-                bk['campsite_names'] = booking.campsite_name_list
-                bk['regos'] = [{r.type: r.rego} for r in booking.regos.all()]
+                bk['campsite_names'] = get_property_cache['campsite_name_list'] #booking.campsite_name_list
+                bk['regos'] = get_property_cache['regos'] #[{r.type: r.rego} for r in booking.regos.all()]
                 bk['firstname'] = booking.details.get('first_name', '')
                 bk['lastname'] = booking.details.get('last_name', '')
+
                 if booking.override_reason:
                     bk['override_reason'] = booking.override_reason.text
                 if booking.override_reason_info:
@@ -1710,7 +1715,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                     bk['send_invoice'] = booking.send_invoice
                 if booking.override_price is not None and booking.override_price >= 0:
                     bk['discount'] = booking.discount
-                if not booking.paid:
+                if not get_property_cache['paid']: #booking.paid:
                     bk['payment_callback_url'] = '/api/booking/{}/payment_callback.json'.format(booking.id)
                 if booking.customer:
                     bk['email'] = booking.customer.email if booking.customer and booking.customer.email else ""
