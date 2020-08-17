@@ -961,11 +961,11 @@ class Booking(models.Model):
             if 'total_bpoint_transactions' in self.property_cache:
                 for i in self.property_cache['invoices']:
                     pass
-                    #t = BpointTransaction.objects.filter(crn1=i).count()
-                    #c = CashTransaction.objects.filter(invoice__reference=i).count()
-                    #total_bpoint_transactions = total_bpoint_transactions + t + c
-                #if self.property_cache['total_bpoint_transactions'] != total_bpoint_transactions:
-                #     bpoint_changes = True 
+                    t = BpointTransaction.objects.filter(crn1=i).count()
+                    c = CashTransaction.objects.filter(invoice__reference=i).count()
+                    total_bpoint_transactions = total_bpoint_transactions + t + c
+                if self.property_cache['total_bpoint_transactions'] != total_bpoint_transactions:
+                     bpoint_changes = True 
             else:
                  bpoint_changes = True
         if len(self.property_cache) == 0 or bpoint_changes is True:
