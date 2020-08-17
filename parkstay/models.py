@@ -959,11 +959,14 @@ class Booking(models.Model):
             total_bpoint_transactions = 0
             bpoint_changes = False
             if 'total_bpoint_transactions' in self.property_cache:
+                iv = Q()
+                ir = Q()
                 for i in self.property_cache['invoices']:
-                    pass
-                    t = BpointTransaction.objects.filter(crn1=i).count()
-                    c = CashTransaction.objects.filter(invoice__reference=i).count()
-                    total_bpoint_transactions = total_bpoint_transactions + t + c
+                    iv |= Q(crn1=i)
+                    ir |= Q(invoice__reference=i)
+                t = BpointTransaction.objects.filter(iv).count()
+                c = CashTransaction.objects.filter(ir).count()
+                total_bpoint_transactions = total_bpoint_transactions + t + c
                 if self.property_cache['total_bpoint_transactions'] != total_bpoint_transactions:
                      bpoint_changes = True 
             else:
@@ -990,10 +993,14 @@ class Booking(models.Model):
         #self.property_cache['campground'] = serializers.serialize('json',self.campground)
         self.property_cache['first_campsite_list2'] = self.first_campsite_list2
         total_bpoint_transactions = 0
+        iv = Q()
+        ir = Q()
         for i in self.property_cache['invoices']:
-            t = BpointTransaction.objects.filter(crn1=i).count()
-            c = CashTransaction.objects.filter(invoice__reference=i).count()
-            total_bpoint_transactions = total_bpoint_transactions + t + c
+            iv |= Q(crn1=i)
+            ir |= Q(invoice__reference=i)
+        t = BpointTransaction.objects.filter(iv).count()
+        c = CashTransaction.objects.filter(ir).count()
+        total_bpoint_transactions = total_bpoint_transactions + t + c
         self.property_cache['total_bpoint_transactions'] = total_bpoint_transactions
         if save is True:
            self.save()
