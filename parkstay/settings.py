@@ -5,10 +5,17 @@ confy.read_environment_file(BASE_DIR+"/.env")
 os.environ.setdefault("BASE_DIR", BASE_DIR)
 from ledger.settings_base import *
 
-
+print (BASE_DIR)
 ROOT_URLCONF = 'parkstay.urls'
 SITE_ID = 1
-
+DATABASES['site_queue_manager'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR+'/parkstay/cache/site_manager_db.sqlite3',
+    } 
+DATABASE_ROUTERS.append('django_site_queue.models.SiteQueueManagerDBRouter')
+DATABASE_APPS_MAPPING['site_queue_manager'] = 'site_queue_manager'
+print (DATABASE_APPS_MAPPING)
+print (DATABASE_ROUTERS)
 # number of seconds before expiring a temporary booking
 BOOKING_TIMEOUT = 600
 
