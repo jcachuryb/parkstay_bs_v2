@@ -8,8 +8,10 @@ ENV SECRET_KEY="ThisisNotRealKey"
 RUN apt-get clean
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install --no-install-recommends -y wget git libmagic-dev gcc binutils libproj-dev gdal-bin python3 python3-setuptools python3-dev python3-pip tzdata libreoffice
+RUN apt-get install --no-install-recommends -y wget git libmagic-dev gcc binutils libproj-dev gdal-bin python3 python3-setuptools python3-dev python3-pip tzdata libreoffice cron rsyslog 
 RUN apt-get install --no-install-recommends -y libpq-dev
+RUN apt-get install --no-install-recommends -y postgresql-client mtr
+RUN apt-get install --no-install-recommends -y sqlite3 vim postgresql-client ssh
 RUN ln -s /usr/bin/python3 /usr/bin/python 
 RUN ln -s /usr/bin/pip3 /usr/bin/pip
 RUN pip install --upgrade pip
@@ -25,13 +27,28 @@ RUN pip3 install --no-cache-dir -r requirements.txt \
 
 # Install the project (ensure that frontend projects have been built prior to this step).
 FROM python_libs_parkstay
+COPY timezone /etc/timezone
+ENV TZ=Australia/Perth
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+COPY cron /etc/cron.d/dockercron
+COPY startup.sh /
+RUN service rsyslog start
+RUN chmod 0644 /etc/cron.d/dockercron
+RUN crontab /etc/cron.d/dockercron
+RUN touch /var/log/cron.log
+RUN service cron start
+RUN chmod 755 /startup.sh
 COPY gunicorn.ini manage.py ./
 #COPY ledger ./ledger
 RUN touch /app/.env
 COPY parkstay ./parkstay
+RUN mkdir /app/parkstay/cache/
+RUN chmod 777 /app/parkstay/cache/
 RUN python manage.py collectstatic --noinput
 RUN apt-get install --no-install-recommends -y python-pil
 EXPOSE 8080
 HEALTHCHECK --interval=1m --timeout=5s --start-period=10s --retries=3 CMD ["wget", "-q", "-O", "-", "http://localhost:8080/"]
-CMD ["gunicorn", "parkstay.wsgi", "--bind", ":8080", "--config", "gunicorn.ini"]
+CMD ["/startup.sh"]
+#CMD ["gunicorn", "parkstay.wsgi", "--bind", ":8080", "--config", "gunicorn.ini"]
 
