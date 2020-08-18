@@ -371,15 +371,30 @@ class CampgroundStayHistoryViewSet(viewsets.ModelViewSet):
 
 
 class CampgroundMapViewSet(viewsets.ReadOnlyModelViewSet):
-
     #queryset = Campground.objects.exclude(campground_type=3).annotate(Min('campsites__rates__rate__adult'))
 
     #Changed to speed up the loading of icons in map
 
-    queryset = Campground.objects.exclude(campground_type=3)
+    queryset = Campground.objects.filter(campground_type=9)
+    #queryset = []
     serializer_class = CampgroundMapSerializer
     permission_classes = []
+    def get_queryset(self):
+        """ allow rest api to filter by submissions """
+        #queryset = Prpk.objects.all().order_by('begin')
+        #highway = self.request.query_params.get('highway', None)
+        #if highway is not None:
+        #    queryset = queryset.filter(highway=highway)
+        queryset = cache.get('CampgroundMapViewSet')
+        if queryset is None:
+            queryset = Campground.objects.exclude(campground_type=3)
+            cache.set('CampgroundMapViewSet', queryset, 3600)
+        return queryset
 
+    #def list(self, request, *args, **kwargs):
+    #    
+    #    serializer = self.get_serializer(queryset, many=True)
+    #    return Response(serializer.data)
 
 class CampgroundMapFilterViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Campground.objects.exclude(campground_type=3)
