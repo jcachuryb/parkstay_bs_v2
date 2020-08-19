@@ -12,6 +12,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css">
         <link type="text/css" href="{% static 'ps/css/base.css' %}" rel="stylesheet"/>
+        <input id='waiting_queue_enabled' type='hidden' value='{{ WAITING_QUEUE_ENABLED }}'>
         {% block extra_css %}
         {% endblock %}
         {% block extra_js %}
@@ -29,7 +30,7 @@
         {% endblock %}
         </header>
         {% block menu %}
-
+        
         <div class="topbar">
             <div class="container-fluid">
                 <nav class="navbar navbar-default">
@@ -127,7 +128,9 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
         {% endblock %}
+        {% if WAITING_QUEUE_ENABLED == "True" %}
         <script src="/static/js/django_queue_manager/site-queue-manager.js?ver={{ VERSION_NO  }}"></script>
+        {% endif %}
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-108679294-1"></script>
         <script>
             window.dataLayer = window.dataLayer || [];

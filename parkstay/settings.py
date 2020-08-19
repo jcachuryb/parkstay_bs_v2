@@ -14,8 +14,7 @@ DATABASES['site_queue_manager'] = {
     } 
 DATABASE_ROUTERS.append('django_site_queue.models.SiteQueueManagerDBRouter')
 DATABASE_APPS_MAPPING['site_queue_manager'] = 'site_queue_manager'
-print (DATABASE_APPS_MAPPING)
-print (DATABASE_ROUTERS)
+
 # number of seconds before expiring a temporary booking
 BOOKING_TIMEOUT = 600
 
@@ -88,6 +87,7 @@ LOGGING['loggers']['booking_checkout'] = {
 SYSTEM_NAME = env('SYSTEM_NAME', 'Parkstay WA')
 EMAIL_FROM = env('EMAIL_FROM', ADMINS[0])
 DEFAULT_FROM_EMAIL = EMAIL_FROM
+WAITING_QUEUE_ENABLED = env('WAITING_QUEUE_ENABLED',"False")
 PS_PAYMENT_SYSTEM_ID = env('PS_PAYMENT_SYSTEM_ID', 'S019')
 if not VALID_SYSTEMS:
     VALID_SYSTEMS = [PS_PAYMENT_SYSTEM_ID]
