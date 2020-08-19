@@ -12,5 +12,6 @@ def parkstay_url(request):
         'PARKSTAY_EXTERNAL_URL': settings.PARKSTAY_EXTERNAL_URL,
         'DEV_STATIC': settings.DEV_STATIC,
         'DEV_STATIC_URL': settings.DEV_STATIC_URL,
-        'VERSION_NO': settings.VERSION_NO
+        'VERSION_NO': settings.VERSION_NO,
+        'WAITING_QUEUE_ENABLED': settings.WAITING_QUEUE_ENABLED
     }

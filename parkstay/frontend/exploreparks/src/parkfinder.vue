@@ -892,11 +892,14 @@ export default {
                   console.log("Site Queue Loaded");
                   // jQuery is loaded
             } else {
+                 var waiting_queue_enabled = $('#waiting_queue_enabled').val();
+                 if (waiting_queue_enabled == 'True') { 
                  var scriptTag = document.createElement('script');
                  scriptTag.src = vm.parkstayUrl+'/static/js/django_queue_manager/site-queue-manager.js';
                  document.head.appendChild(scriptTag);
                  setTimeout(function() { if (window.sitequeuemanager) { sitequeuemanager.init(); }  vm.load_site_queue(); }, 200);
                  console.log("Deploying Waiting Queue");
+		 }
             }
         },
     },
