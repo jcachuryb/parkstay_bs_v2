@@ -5,7 +5,6 @@ confy.read_environment_file(BASE_DIR+"/.env")
 os.environ.setdefault("BASE_DIR", BASE_DIR)
 from ledger.settings_base import *
 
-print (BASE_DIR)
 ROOT_URLCONF = 'parkstay.urls'
 SITE_ID = 1
 DATABASES['site_queue_manager'] = {
@@ -83,6 +82,7 @@ LOGGING['loggers']['booking_checkout'] = {
     'handlers': ['console'],
     'level': 'INFO'
 }
+os.environ['LEDGER_REFUND_TRANSACTION_CALLBACK_MODULE'] = 'parkstay:parkstay.api.refund_transaction_callback'
 
 SYSTEM_NAME = env('SYSTEM_NAME', 'Parkstay WA')
 EMAIL_FROM = env('EMAIL_FROM', ADMINS[0])
