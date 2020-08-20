@@ -955,28 +955,13 @@ class Booking(models.Model):
         super(Booking,self).save(*args,**kwargs)
 
     def get_property_cache(self):
-        if 'invoices' in self.property_cache:
-            total_bpoint_transactions = 0
-            bpoint_changes = False
-            if 'total_bpoint_transactions' in self.property_cache:
-                iv = Q()
-                ir = Q()
-                for i in self.property_cache['invoices']:
-                    iv |= Q(crn1=i)
-                    ir |= Q(invoice__reference=i)
-                t = BpointTransaction.objects.filter(iv).count()
-                c = CashTransaction.objects.filter(ir).count()
-                total_bpoint_transactions = total_bpoint_transactions + t + c
-                if self.property_cache['total_bpoint_transactions'] != total_bpoint_transactions:
-                     bpoint_changes = True 
-            else:
-                 bpoint_changes = True
-        if len(self.property_cache) == 0 or bpoint_changes is True:
+        if len(self.property_cache) == 0:
             print ("Updating"+str(self.id))
             self.update_property_cache()
         return self.property_cache
 
     def update_property_cache(self, save=True):
+        print ("updating property_cache for "+str(self.id))
         self.property_cache['amount_paid'] = str(self.amount_paid)
         self.property_cache['refund_status'] = self.refund_status
         self.property_cache['outstanding'] = str(self.outstanding)
@@ -992,16 +977,6 @@ class Booking(models.Model):
         self.property_cache['campsite_name_list'] = self.campsite_name_list
         #self.property_cache['campground'] = serializers.serialize('json',self.campground)
         self.property_cache['first_campsite_list2'] = self.first_campsite_list2
-        total_bpoint_transactions = 0
-        iv = Q()
-        ir = Q()
-        for i in self.property_cache['invoices']:
-            iv |= Q(crn1=i)
-            ir |= Q(invoice__reference=i)
-        t = BpointTransaction.objects.filter(iv).count()
-        c = CashTransaction.objects.filter(ir).count()
-        total_bpoint_transactions = total_bpoint_transactions + t + c
-        self.property_cache['total_bpoint_transactions'] = total_bpoint_transactions
         if save is True:
            self.save()
         return self.property_cache
