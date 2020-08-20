@@ -1665,16 +1665,20 @@ class BookingViewSet(viewsets.ModelViewSet):
             sql += ' and parkstay_booking.booking_type <> 3'
             sqlCount += ' and parkstay_booking.booking_type <> 3'
             if search:
-                sqlsearch = ' lower(parkstay_campground.name) LIKE lower(%(wildSearch)s)\
-                or lower(parkstay_region.name) LIKE lower(%(wildSearch)s)\
-                or lower(parkstay_booking.details->>\'first_name\') LIKE lower(%(wildSearch)s)\
-                or lower(parkstay_booking.details->>\'last_name\') LIKE lower(%(wildSearch)s)\
-                or lower(parkstay_booking.legacy_name) LIKE lower(%(wildSearch)s)\
-                or lower(parkstay_booking.legacy_name) LIKE lower(%(wildSearch)s)'
-                sqlParams['wildSearch'] = '%{}%'.format(search)
-                if search.isdigit:
-                    sqlsearch += ' or CAST (parkstay_booking.id as TEXT) like %(upperSearch)s'
-                    sqlParams['upperSearch'] = '{}%'.format(search)
+                if search[:2] == 'PS':
+                    bid = search.replace("PS","")
+                    sqlsearch = "parkstay_booking.id = '"+bid+"' " 
+                else:
+                    sqlsearch = ' lower(parkstay_campground.name) LIKE lower(%(wildSearch)s)\
+                    or lower(parkstay_region.name) LIKE lower(%(wildSearch)s)\
+                    or lower(parkstay_booking.details->>\'first_name\') LIKE lower(%(wildSearch)s)\
+                    or lower(parkstay_booking.details->>\'last_name\') LIKE lower(%(wildSearch)s)\
+                    or lower(parkstay_booking.legacy_name) LIKE lower(%(wildSearch)s)\
+                    or lower(parkstay_booking.legacy_name) LIKE lower(%(wildSearch)s)'
+                    sqlParams['wildSearch'] = '%{}%'.format(search)
+                    if search.isdigit:
+                        sqlsearch += ' or CAST (parkstay_booking.id as TEXT) like %(upperSearch)s'
+                        sqlParams['upperSearch'] = '{}%'.format(search)
 
                 sql += " and ( " + sqlsearch + " )"
                 sqlCount += " and  ( " + sqlsearch + " )"
