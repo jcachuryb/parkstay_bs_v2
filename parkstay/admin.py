@@ -85,11 +85,11 @@ class CampsiteBookingInline(admin.TabularInline):
 @admin.register(models.Booking)
 class BookingAdmin(admin.ModelAdmin):
     raw_id_fields = ('customer','overridden_by','canceled_by',)
-    list_display = ('id','customer','arrival', 'departure', 'campground', 'legacy_id', 'legacy_name', 'cost_total')
+    list_display = ('id','customer','arrival', 'departure', 'campground','booking_type', 'cost_total', 'legacy_id', 'legacy_name',)
     ordering = ('-id',)
     #search_fields = ('id','arrival', 'departure')
     search_fields = ('id',)
-    list_filter = ('arrival', 'departure', 'campground', 'booking_type')
+    list_filter = ('booking_type','arrival', 'departure', 'campground', )
     inlines = [BookingInvoiceInline, CampsiteBookingInline]
     readonly_fields=('created','property_cache',)
 
