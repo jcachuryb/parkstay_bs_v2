@@ -36,6 +36,7 @@ from parkstay.models import (Campground,
                              CampsiteClass,
                              CampsiteRate,
                              Booking,
+                             BookingInvoice,
                              CampgroundBookingRange,
                              CampsiteBookingRange,
                              CampsiteStayHistory,
@@ -1230,6 +1231,13 @@ class AvailabilityAdminViewSet(BaseAvailabilityViewSet):
     def retrieve(self, request, *args, **kwargs):
         return super(AvailabilityAdminViewSet, self).retrieve(request, *args, show_all=True, **kwargs)
 
+
+def refund_transaction_callback(invoice_ref,bpoint_tid):
+      print ('refund call back '+invoice_ref)
+      bi = BookingInvoice.objects.filter(invoice_reference=invoice_ref) 
+      for i in bi:
+         i.booking.save()
+     
 
 @csrf_exempt
 @require_http_methods(['POST'])
