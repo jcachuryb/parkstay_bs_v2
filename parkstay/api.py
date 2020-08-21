@@ -1624,7 +1624,10 @@ class BookingViewSet(viewsets.ModelViewSet):
                  booking_query &= Q(departure__gt=arrival_date)
             if departure:
                   booking_query &= Q(arrival__gt=departure_date)
-            if search:
+            if refund_status:
+                  if refund_status != 'All':
+                      booking_query &= Q(property_cache__refund_status=refund_status)
+            if search or refund_status:
                 if search[:2] == 'PS':
                     bid = search.replace("PS","")
                     booking_query &= Q(id=int(bid))
@@ -1646,6 +1649,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                     booking_query_search |= Q(details__phone__contains=search)
                     booking_query_search |= Q(customer__first_name__icontains=search)
                     booking_query_search |= Q(customer__last_name__icontains=search)
+                 
                     #if refund_status and canceled == 't':
                     booking_query &= Q(booking_query_search)
                     #sqlsearch = ' lower(parkstay_campground.name) LIKE lower(%(wildSearch)s)\
@@ -1661,7 +1665,7 @@ class BookingViewSet(viewsets.ModelViewSet):
 
             recordsTotal = Booking.objects.all().count()
             filteredresultscount = Booking.objects.filter(booking_query).exclude(booking_type=3).count()
-            data_hash = hashlib.md5(str(str(booking_query)+':'+start+':'+length+":"+str(filteredresultscount)).encode('utf-8')).hexdigest()
+            data_hash = hashlib.md5(str(str(booking_query)+':'+str(start)+':'+str(length)+":"+str(filteredresultscount)).encode('utf-8')).hexdigest()
             print (data_hash)
             bookings = cache.get('BookingViewSet'+data_hash)
             if bookings is None:
