@@ -952,6 +952,7 @@ class Booking(models.Model):
     # =================================
     def save(self, *args,**kwargs):
         self.update_property_cache(False)
+        print ("SAVE BOOKING")
         super(Booking,self).save(*args,**kwargs)
 
     def get_property_cache(self):
@@ -962,6 +963,7 @@ class Booking(models.Model):
 
     def update_property_cache(self, save=True):
         print ("updating property_cache for "+str(self.id))
+        self.property_cache['cache_version'] = settings.BOOKING_PROPERTY_CACHE_VERSION 
         self.property_cache['amount_paid'] = str(self.amount_paid)
         self.property_cache['refund_status'] = self.refund_status
         self.property_cache['outstanding'] = str(self.outstanding)
@@ -975,8 +977,18 @@ class Booking(models.Model):
         self.property_cache['active_invoices'] = [i.invoice_reference for i in self.invoices.all() if i.active]
         self.property_cache['regos'] = [{r.type: r.rego} for r in self.regos.all()]
         self.property_cache['campsite_name_list'] = self.campsite_name_list
+        self.property_cache['guests'] = self.guests
         #self.property_cache['campground'] = serializers.serialize('json',self.campground)
         self.property_cache['first_campsite_list2'] = self.first_campsite_list2
+        self.property_cache['customer_phone_number'] = None
+        self.property_cache['customer_mobile_number'] = None
+        if self.customer:
+            if self.customer.phone_number:
+                self.property_cache['customer_phone_number'] = self.customer.phone_number
+            if self.customer.mobile_number:
+               self.property_cache['customer_mobile_number'] = self.customer.mobile_number
+ 
+
         if save is True:
            self.save()
         return self.property_cache

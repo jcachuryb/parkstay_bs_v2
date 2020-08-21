@@ -1,6 +1,7 @@
 import traceback
 import base64
 import geojson
+import re
 import hashlib
 from six.moves.urllib.parse import urlparse
 from wsgiref.util import FileWrapper
@@ -1590,226 +1591,386 @@ class CampsiteClassViewSet(viewsets.ModelViewSet):
 
 
 class BookingViewSet(viewsets.ModelViewSet):
-    queryset = Booking.objects.all()
+    queryset = Booking.objects.all()[:0]
     serializer_class = BookingSerializer
 
     def list(self, request, *args, **kwargs):
         try:
-            print("MLINE 1.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #print("MLINE 1.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             search = request.GET.get('search[value]')
             draw = request.GET.get('draw') if request.GET.get('draw') else 1
             start = request.GET.get('start') if request.GET.get('draw') else 0
             length = request.GET.get('length') if request.GET.get('draw') else 'all'
             arrival = str(datetime.strptime(request.GET.get('arrival'), '%d/%m/%Y')) if request.GET.get('arrival') else ''
+            arrival_date = datetime.strptime(request.GET.get('arrival'), '%d/%m/%Y') if request.GET.get('arrival') else ''
             departure = str(datetime.strptime(request.GET.get('departure'), '%d/%m/%Y')) if request.GET.get('departure') else ''
+            departure_date = datetime.strptime(request.GET.get('departure'), '%d/%m/%Y') if request.GET.get('departure') else ''
             campground = request.GET.get('campground')
             region = request.GET.get('region')
             canceled = request.GET.get('canceled', None)
             refund_status = request.GET.get('refund_status', None)
             print("MLINE 2.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
+
             if canceled:
                 canceled = True if canceled.lower() in ['yes', 'true', 't', '1'] else False
-
-            canceled = 't' if canceled else 'f'
-
-            sql = ''
-            http_status = status.HTTP_200_OK
-            sqlSelect = 'select parkstay_booking.id as id,parkstay_booking.created,parkstay_booking.customer_id, parkstay_campground.name as campground_name,parkstay_region.name as campground_region,parkstay_booking.legacy_name,\
-                parkstay_booking.legacy_id,parkstay_campground.site_type as campground_site_type,\
-                parkstay_booking.arrival as arrival, parkstay_booking.departure as departure,parkstay_campground.id as campground_id,coalesce(accounts_emailuser.first_name || \' \' || accounts_emailuser.last_name) as full_name'
-            sqlCount = 'select count(parkstay_booking.id)'
-
-            sqlFrom = ' from parkstay_booking\
-                join parkstay_campground on parkstay_campground.id = parkstay_booking.campground_id\
-                join parkstay_park on parkstay_campground.park_id = parkstay_park.id\
-                join parkstay_district on parkstay_park.district_id = parkstay_district.id\
-                full outer join accounts_emailuser on parkstay_booking.customer_id = accounts_emailuser.id\
-                join parkstay_region on parkstay_district.region_id = parkstay_region.id\
-                left outer join parkstay_campgroundgroup_campgrounds cg on cg.campground_id = parkstay_booking.campground_id\
-                full outer join parkstay_campgroundgroup_members cm on cm.campgroundgroup_id = cg.campgroundgroup_id'
-
-            sql = sqlSelect + sqlFrom + " where "
-            sqlCount = sqlCount + sqlFrom + " where "
-            sqlParams = {}
-            print("MLINE 3.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-            # Filter the camgrounds that the current user is allowed to view
-            sqlFilterUser = ' cm.emailuser_id = %(user)s'
-            sql += sqlFilterUser
-            sqlCount += sqlFilterUser
-            sqlParams['user'] = request.user.id
+            print ("MLINE 2.20", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            booking_query = Q(is_canceled=canceled)
             if campground:
-                sqlCampground = ' parkstay_campground.id = %(campground)s'
-                sql = sql + " and " + sqlCampground
-                sqlCount = sqlCount + " and " + sqlCampground
-                sqlParams['campground'] = campground
+                booking_query &= Q(campground__id=campground)
             if region:
-                sqlRegion = " parkstay_region.id = %(region)s"
-                sql = sql + " and " + sqlRegion
-                sqlCount = sqlCount + " and " + sqlRegion
-                sqlParams['region'] = region
+                booking_query &= Q(campground__park__district__region__id=region)
             if arrival:
-                sqlArrival = ' parkstay_booking.departure > %(arrival)s'
-                sqlCount = sqlCount + " and " + sqlArrival
-                sql = sql + " and " + sqlArrival
-                sqlParams['arrival'] = arrival
+                 booking_query &= Q(departure__gt=arrival_date)
             if departure:
-                sqlDeparture = ' parkstay_booking.arrival <= %(departure)s'
-                sqlCount = sqlCount + ' and ' + sqlDeparture
-                sql = sql + ' and ' + sqlDeparture
-                sqlParams['departure'] = departure
-            # Search for cancelled bookings
-            sql += ' and parkstay_booking.is_canceled = %(canceled)s'
-            sqlCount += ' and parkstay_booking.is_canceled = %(canceled)s'
-            sqlParams['canceled'] = canceled
-            # Remove temporary bookings
-            sql += ' and parkstay_booking.booking_type <> 3'
-            sqlCount += ' and parkstay_booking.booking_type <> 3'
+                  booking_query &= Q(arrival__gt=departure_date)
             if search:
                 if search[:2] == 'PS':
                     bid = search.replace("PS","")
-                    sqlsearch = "parkstay_booking.id = '"+bid+"' " 
+                    booking_query &= Q(id=int(bid))
                 else:
-                    sqlsearch = ' lower(parkstay_campground.name) LIKE lower(%(wildSearch)s)\
-                    or lower(parkstay_region.name) LIKE lower(%(wildSearch)s)\
-                    or lower(parkstay_booking.details->>\'first_name\') LIKE lower(%(wildSearch)s)\
-                    or lower(parkstay_booking.details->>\'last_name\') LIKE lower(%(wildSearch)s)\
-                    or lower(parkstay_booking.legacy_name) LIKE lower(%(wildSearch)s)\
-                    or lower(parkstay_booking.legacy_name) LIKE lower(%(wildSearch)s)'
-                    sqlParams['wildSearch'] = '%{}%'.format(search)
-                    if search.isdigit:
-                        sqlsearch += ' or CAST (parkstay_booking.id as TEXT) like %(upperSearch)s'
-                        sqlParams['upperSearch'] = '{}%'.format(search)
-
-                sql += " and ( " + sqlsearch + " )"
-                sqlCount += " and  ( " + sqlsearch + " )"
-
-            sql += ' ORDER BY parkstay_booking.arrival DESC'
-
-            if length != 'all':
-                sql = sql + ' limit %(length)s offset %(start)s'
-                sqlParams['length'] = length
-                sqlParams['start'] = start
-
-            if length == 'all':
-                sql = sql + ' limit %(length)s offset %(start)s'
-                sqlParams['length'] = 2000
-                sqlParams['start'] = start
-
-            sql += ';'
-            print("MLINE 4.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-            cursor = connection.cursor()
-            #cursor.execute("Select count(*) from parkstay_booking ")
-            recordsTotal = Booking.objects.all().count()
-            #recordsTotal = cursor.fetchone()[0]
-
-            cursor.execute(sqlCount, sqlParams)
-            print("MLINE 5.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-            recordsFiltered = cursor.fetchone()[0]
-            cursor.execute(sql, sqlParams)
-            print("MLINE 6.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-
-            columns = [col[0] for col in cursor.description]
-            data = [
-                dict(zip(columns, row))
-                for row in cursor.fetchall()
-            ]
-            print("MLINE 7.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-            #for b in data:
-            #   print (b['id'])
-            sql_id=Q()
-            for b in data:
-                sql_id |= Q(id=b['id'])
-            bookings_qs = Booking.objects.filter(sql_id).prefetch_related('campground', 'campsites', 'campsites__campsite', 'customer', 'regos', 'history', 'invoices', 'canceled_by')
-            #bookings_qs = Booking.objects.filter(id__in=[b['id'] for b in data]) #.values('id','campground', 'campsites', 'campsites__campsite', 'customer', 'regos', 'history', 'invoices', 'canceled_by')
-            booking_map = {b.id: b for b in bookings_qs}
-            clean_data = []
-            print("MLINE 8.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))  
-
-            for bk in data:
-                print("MLINE 9.00", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                cg = None
-                booking = booking_map[bk['id']]
-                #cg = booking.campground
-                get_property_cache = booking.get_property_cache()
-                if 'active_invoices' not in get_property_cache or 'invoices' not in get_property_cache or 'first_campsite_list2' not in get_property_cache:
-                     print ("Sending Update Cache Request")
-                     get_property_cache = booking.update_property_cache()
-
-                print("MLINE 9.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                bk['editable'] = booking.editable
-                bk['status'] = get_property_cache['status'] #booking.status
-                bk['booking_type'] = booking.booking_type
-                bk['has_history'] = get_property_cache['has_history'] #booking.has_history
-                print("MLINE 9.11", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                bk['cost_total'] = booking.cost_total
-                bk['amount_paid'] = get_property_cache['amount_paid'] #booking.amount_paid
-                bk['vehicle_payment_status'] = get_property_cache['vehicle_payment_status'] #booking.vehicle_payment_status
-                bk['refund_status'] = get_property_cache['refund_status'] #booking.refund_status
-                bk['is_canceled'] = 'Yes' if booking.is_canceled else 'No'
-                print("MLINE 9.21", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                bk['cancelation_reason'] = booking.cancellation_reason
-                bk['canceled_by'] = '' #booking.canceled_by.get_full_name() if booking.canceled_by else ''
-                bk['cancelation_time'] = booking.cancelation_time if booking.cancelation_time else ''
-                bk['paid'] = get_property_cache['paid']  #booking.paid
-                bk['invoices'] = get_property_cache['invoices'] #[i.invoice_reference for i in booking.invoices.all()]
-                print("MLINE 9.31", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                bk['active_invoices'] = get_property_cache['active_invoices']  #[i.invoice_reference for i in booking.invoices.all() if i.active]
-                bk['guests'] = booking.guests
-                bk['campsite_names'] = get_property_cache['campsite_name_list'] #booking.campsite_name_list
-                print("MLINE 9.41", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                bk['regos'] = get_property_cache['regos'] #[{r.type: r.rego} for r in booking.regos.all()]
-                bk['firstname'] = booking.details.get('first_name', '')
-                bk['lastname'] = booking.details.get('last_name', '')
-                print("MLINE 9.51", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                if booking.override_reason:
-                    bk['override_reason'] = booking.override_reason.text
-                if booking.override_reason_info:
-                    bk['override_reason_info'] = booking.override_reason_info
-                if booking.send_invoice:
-                    bk['send_invoice'] = booking.send_invoice
-                if booking.override_price is not None and booking.override_price >= 0:
-                    bk['discount'] = booking.discount
-                if not get_property_cache['paid']: #booking.paid:
-                    bk['payment_callback_url'] = '/api/booking/{}/payment_callback.json'.format(booking.id)
-                print("MLINE 9.61", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                if booking.customer:
-                    bk['email'] = booking.customer.email if booking.customer and booking.customer.email else ""
-                    if booking.customer.phone_number:
-                        bk['phone'] = booking.customer.phone_number
-                    elif booking.customer.mobile_number:
-                        bk['phone'] = booking.customer.mobile_number
-                    else:
-                        bk['phone'] = ''
-                    if booking.is_canceled:
-                        bk['campground_site_type'] = ""
-                    else:
-                        first_campsite_list = get_property_cache['first_campsite_list2']
-                        campground_site_type = []
-                        for item in first_campsite_list:
-                            campground_site_type.append({
-                                "name": '{}'.format(item['name'] if item else ""),
-                                "type": '{}'.format(item['type'] if item['type'] else ""),
-                                "campground_type": item['site_type'],
-                            })
-                        bk['campground_site_type'] = campground_site_type
-                else:
-                    bk['campground_site_type'] = ""
-                print("MLINE 9.71", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                if refund_status and canceled == 't':
-                    refund_statuses = ['All', 'Partially Refunded', 'Not Refunded', 'Refunded']
-                    if refund_status in refund_statuses:
-                        if refund_status == 'All':
-                            clean_data.append(bk)
+                    pass
+                    search_only_digit = re.sub('[^0-9]','', search)
+                    search_only_words = re.sub('[^a-z|A-Z]','', search)
+                    booking_query_search = Q()
+                    if search_only_digit:
+                        if search_only_words:
+                          pass
                         else:
-                            if refund_status == get_property_cache['refund_status']: #booking.refund_status:
-                                clean_data.append(bk)
-                else:
-                    clean_data.append(bk)
-                print("MLINE 9.81", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+                          booking_query_search |= Q(id=int(search_only_digit))
+                    booking_query_search |= Q(campground__name__icontains=search)
+                    booking_query_search |= Q(campground__park__district__region__name__icontains=search)
+                    booking_query_search |= Q(details__first_name__contains=search ) 
+                    booking_query_search |= Q(details__last_name__contains=search )
+                    booking_query_search |= Q(legacy_name__icontains=search)
+                    booking_query_search |= Q(details__phone__contains=search)
+                    booking_query_search |= Q(customer__first_name__icontains=search)
+                    booking_query_search |= Q(customer__last_name__icontains=search)
+                    #if refund_status and canceled == 't':
+                    booking_query &= Q(booking_query_search)
+                    #sqlsearch = ' lower(parkstay_campground.name) LIKE lower(%(wildSearch)s)\
+                    #or lower(parkstay_region.name) LIKE lower(%(wildSearch)s)\
+                    #or lower(parkstay_booking.details->>\'first_name\') LIKE lower(%(wildSearch)s)\
+                    #or lower(parkstay_booking.details->>\'last_name\') LIKE lower(%(wildSearch)s)\
+                    #or lower(parkstay_booking.legacy_name) LIKE lower(%(wildSearch)s)\
+                    #or lower(parkstay_booking.legacy_name) LIKE lower(%(wildSearch)s)'
+                    #sqlParams['wildSearch'] = '%{}%'.format(search)
+                    #if search.isdigit:
+                    #    sqlsearch += ' or CAST (parkstay_booking.id as TEXT) like %(upperSearch)s'
+                    #    sqlParams['upperSearch'] = '{}%'.format(search)
+
+            data_hash = hashlib.md5(str(str(booking_query)+':'+start+':'+length).encode('utf-8')).hexdigest()
+            print (data_hash)
+            bookings = cache.get('BookingViewSet'+data_hash)
+            if bookings is None:
+                 if length == 'all':
+                      bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time',).order_by('campground__name','campground__park__district__region__name')
+                 else:
+                      bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time',).order_by('campground__name','campground__park__district__region__name')[int(start):int(start)+int(length)]
+                 cache.set('BookingViewSet'+data_hash, bookings, 1200)
+
+        
+            filteredresultscount = Booking.objects.filter(booking_query).exclude(booking_type=3).count()
+ 
+            recordsTotal = Booking.objects.all().count()
+            recordsFiltered = filteredresultscount
+            filteredResults = []
+            rowcount = 0
+            for b in bookings:
+                  
+                  editable = False
+                  today = datetime.now().date()
+                  discount = float('0.00')
+                  if b['override_price']:
+                     discount = float(b['cost_total']) - float(b['override_price'])
+                    
+                  if today <= b['departure']:
+                      if not b['is_canceled']:
+                          editable = True
+                  pc = b['property_cache']
+                  try:
+                        print (b['property_cache']['cache_version'])
+                        print ("EXISTS")
+                  except:
+                        print ("NOT")
+                        bk = Booking.objects.get(id=b['id'])
+                        pc = bk.update_property_cache(True)
+                        b['property_cache'] = pc
+                        cache.delete('BookingViewSet'+data_hash)
+                  if len(b['property_cache']) == 0 or 'cache_version' in b['property_cache']:
+                        if 'cache_version' in b['property_cache']:
+                             if b['property_cache']['cache_version'] != settings.BOOKING_PROPERTY_CACHE_VERSION:
+                                bk = Booking.objects.get(id=b['id'])
+                                pc = bk.update_property_cache()
+                                b['property_cache'] = pc
+                                cache.delete('BookingViewSet'+data_hash)
+                             else:
+                                  pass
+
+                        else:
+                            bk = Booking.objects.get(id=b['id'])
+                            pc = bk.get_property_cache()
+                            b['property_cache'] = pc 
+                            cache.delete('BookingViewSet'+data_hash)
+                  row = {}
+                  row['id'] = b['id'] 
+                  row['created'] = b['created']
+                  row['campground_name'] = b['campground__name']
+                  row['campground_region'] = b['campground__park__district__region__name']
+                  row['editable'] = editable
+                  row['status'] = b['property_cache']['status']
+                  row['booking_type'] = b['booking_type']
+                  row['has_history'] = b['property_cache']['has_history']
+                  row['cost_total'] = b['cost_total']
+                  row['amount_paid'] = b['property_cache']['amount_paid']
+                  row['vehicle_payment_status'] = b['property_cache']['vehicle_payment_status']
+                  row['refund_status'] = b['property_cache']['refund_status'] 
+                  row['is_canceled'] = 'Yes' if b['is_canceled'] else 'No'
+                  row['cancelation_reason'] = b['cancellation_reason']
+                  row['canceled_by'] = ''
+                  row['cancelation_time'] = ''
+                  if row['is_canceled'] == 'Yes':
+                      row['canceled_by'] = utils.clean_none_to_empty(b['canceled_by__first_name'])+' '+utils.clean_none_to_empty(b['canceled_by__last_name'])
+                      row['cancelation_time'] = b['cancelation_time'] 
+                  row['paid'] = b['property_cache']['paid']  
+                  row['invoices'] = b['property_cache']['invoices']
+                  row['active_invoices'] = b['property_cache']['active_invoices']
+                  row['guests'] = b['property_cache']['guests']
+                  row['campsite_names'] = b['property_cache']['campsite_name_list'] #booking.campsite_name_list
+                  row['regos'] = b['property_cache']['regos'] #[{r.type: r.rego} for r in booking.regos.all()]
+                  row['firstname'] = b['details'].get('first_name','')
+                  row['lastname'] = b['details'].get('last_name','')
+                  row['override_reason'] = b['override_reason__text']
+                  row['override_reason_info'] = b['override_reason_info']
+                  row['send_invoice'] = b['send_invoice'] 
+                  #if booking.override_price is not None and booking.override_price >= 0:
+                  row['discount'] = discount
+
+                  if b['property_cache']['customer_phone_number'] is not None:
+                      row['phone'] = b['property_cache']['customer_phone_number'] 
+                  elif b['property_cache']['customer_mobile_number'] is not None:
+                      row['phone'] = b['property_cache']['customer_mobile_number']
+                  else:
+                      row['phone'] = ''
+
+                  first_campsite_list = b['property_cache']['first_campsite_list2']
+                  campground_site_type = []
+                  for item in first_campsite_list:
+                      campground_site_type.append({
+                          "name": '{}'.format(item['name'] if item else ""),
+                          "type": '{}'.format(item['type'] if item['type'] else ""),
+                          "campground_type": item['site_type'],
+                      })
+                  row['campground_site_type'] = campground_site_type
+
+                  rowcount = rowcount + 1
+                  filteredResults.append(row)
+                  if length != 'all': 
+                      if rowcount > int(length):
+                          break
+
+            #print (bookings)
+
+            #canceled = 't' if canceled else 'f'
+            #
+            #sql = ''
+            #http_status = status.HTTP_200_OK
+            #sqlSelect = 'select parkstay_booking.id as id,parkstay_booking.created,parkstay_booking.customer_id, parkstay_campground.name as campground_name,parkstay_region.name as campground_region,parkstay_booking.legacy_name,\
+            #    parkstay_booking.legacy_id,parkstay_campground.site_type as campground_site_type,\
+            #    parkstay_booking.arrival as arrival, parkstay_booking.departure as departure,parkstay_campground.id as campground_id,coalesce(accounts_emailuser.first_name || \' \' || accounts_emailuser.last_name) as full_name'
+            #sqlCount = 'select count(parkstay_booking.id)'
+
+            #sqlFrom = ' from parkstay_booking\
+            #    join parkstay_campground on parkstay_campground.id = parkstay_booking.campground_id\
+            #    join parkstay_park on parkstay_campground.park_id = parkstay_park.id\
+            #    join parkstay_district on parkstay_park.district_id = parkstay_district.id\
+            #    full outer join accounts_emailuser on parkstay_booking.customer_id = accounts_emailuser.id\
+            #    join parkstay_region on parkstay_district.region_id = parkstay_region.id\
+            #    left outer join parkstay_campgroundgroup_campgrounds cg on cg.campground_id = parkstay_booking.campground_id\
+            #    full outer join parkstay_campgroundgroup_members cm on cm.campgroundgroup_id = cg.campgroundgroup_id'
+
+            #sql = sqlSelect + sqlFrom + " where "
+            #sqlCount = sqlCount + sqlFrom + " where "
+            #sqlParams = {}
+            #print("MLINE 3.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            ## Filter the camgrounds that the current user is allowed to view
+            #sqlFilterUser = ' cm.emailuser_id = %(user)s'
+            #sql += sqlFilterUser
+            #sqlCount += sqlFilterUser
+            #sqlParams['user'] = request.user.id
+            #if campground:
+            #    sqlCampground = ' parkstay_campground.id = %(campground)s'
+            #    sql = sql + " and " + sqlCampground
+            #    sqlCount = sqlCount + " and " + sqlCampground
+            #    sqlParams['campground'] = campground
+            #if region:
+            #    sqlRegion = " parkstay_region.id = %(region)s"
+            #    sql = sql + " and " + sqlRegion
+            #    sqlCount = sqlCount + " and " + sqlRegion
+            #    sqlParams['region'] = region
+            #if arrival:
+            #    sqlArrival = ' parkstay_booking.departure > %(arrival)s'
+            #    sqlCount = sqlCount + " and " + sqlArrival
+            #    sql = sql + " and " + sqlArrival
+            #    sqlParams['arrival'] = arrival
+            #if departure:
+            #    sqlDeparture = ' parkstay_booking.arrival <= %(departure)s'
+            #    sqlCount = sqlCount + ' and ' + sqlDeparture
+            #    sql = sql + ' and ' + sqlDeparture
+            #    sqlParams['departure'] = departure
+            ## Search for cancelled bookings
+            #sql += ' and parkstay_booking.is_canceled = %(canceled)s'
+            #sqlCount += ' and parkstay_booking.is_canceled = %(canceled)s'
+            #sqlParams['canceled'] = canceled
+            ## Remove temporary bookings
+            #sql += ' and parkstay_booking.booking_type <> 3'
+            #sqlCount += ' and parkstay_booking.booking_type <> 3'
+            #if search:
+            #    if search[:2] == 'PS':
+            #        bid = search.replace("PS","")
+            #        sqlsearch = "parkstay_booking.id = '"+bid+"' " 
+            #    else:
+            #        sqlsearch = ' lower(parkstay_campground.name) LIKE lower(%(wildSearch)s)\
+            #        or lower(parkstay_region.name) LIKE lower(%(wildSearch)s)\
+            #        or lower(parkstay_booking.details->>\'first_name\') LIKE lower(%(wildSearch)s)\
+            #        or lower(parkstay_booking.details->>\'last_name\') LIKE lower(%(wildSearch)s)\
+            #        or lower(parkstay_booking.legacy_name) LIKE lower(%(wildSearch)s)\
+            #        or lower(parkstay_booking.legacy_name) LIKE lower(%(wildSearch)s)'
+            #        sqlParams['wildSearch'] = '%{}%'.format(search)
+            #        if search.isdigit:
+            #            sqlsearch += ' or CAST (parkstay_booking.id as TEXT) like %(upperSearch)s'
+            #            sqlParams['upperSearch'] = '{}%'.format(search)
+
+            #    sql += " and ( " + sqlsearch + " )"
+            #    sqlCount += " and  ( " + sqlsearch + " )"
+
+            #sql += ' ORDER BY parkstay_booking.arrival DESC'
+
+            #if length != 'all':
+            #    sql = sql + ' limit %(length)s offset %(start)s'
+            #    sqlParams['length'] = length
+            #    sqlParams['start'] = start
+
+            #if length == 'all':
+            #    sql = sql + ' limit %(length)s offset %(start)s'
+            #    sqlParams['length'] = 2000
+            #    sqlParams['start'] = start
+
+            #sql += ';'
+            #print("MLINE 4.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #cursor = connection.cursor()
+            ##cursor.execute("Select count(*) from parkstay_booking ")
+            #recordsTotal = Booking.objects.all().count()
+            ##recordsTotal = cursor.fetchone()[0]
+
+            #cursor.execute(sqlCount, sqlParams)
+            #print("MLINE 5.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #recordsFiltered = cursor.fetchone()[0]
+            #cursor.execute(sql, sqlParams)
+            #print("MLINE 6.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
+            #columns = [col[0] for col in cursor.description]
+            #data = [
+            #    dict(zip(columns, row))
+            #    for row in cursor.fetchall()
+            #]
+            #print("MLINE 7.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            ##for b in data:
+            ##   print (b['id'])
+            #sql_id=Q()
+            #for b in data:
+            #    sql_id |= Q(id=b['id'])
+            #bookings_qs = Booking.objects.filter(sql_id).prefetch_related('campground', 'campsites', 'campsites__campsite', 'customer', 'regos', 'history', 'invoices', 'canceled_by')
+            ##bookings_qs = Booking.objects.filter(id__in=[b['id'] for b in data]) #.values('id','campground', 'campsites', 'campsites__campsite', 'customer', 'regos', 'history', 'invoices', 'canceled_by')
+            #booking_map = {b.id: b for b in bookings_qs}
+            #clean_data = []
+            #print("MLINE 8.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))  
+
+            #for bk in data:
+            #    print("MLINE 9.00", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #    cg = None
+            #    booking = booking_map[bk['id']]
+            #    #cg = booking.campground
+            #    get_property_cache = booking.get_property_cache()
+            #    if 'active_invoices' not in get_property_cache or 'invoices' not in get_property_cache or 'first_campsite_list2' not in get_property_cache:
+            #         print ("Sending Update Cache Request")
+            #         get_property_cache = booking.update_property_cache()
+
+            #    print("MLINE 9.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #    bk['editable'] = booking.editable
+            #    bk['status'] = get_property_cache['status'] #booking.status
+            #    bk['booking_type'] = booking.booking_type
+            #    bk['has_history'] = get_property_cache['has_history'] #booking.has_history
+            #    print("MLINE 9.11", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #    bk['cost_total'] = booking.cost_total
+            #    bk['amount_paid'] = get_property_cache['amount_paid'] #booking.amount_paid
+            #    bk['vehicle_payment_status'] = get_property_cache['vehicle_payment_status'] #booking.vehicle_payment_status
+            #    bk['refund_status'] = get_property_cache['refund_status'] #booking.refund_status
+            #    bk['is_canceled'] = 'Yes' if booking.is_canceled else 'No'
+            #    print("MLINE 9.21", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #    bk['cancelation_reason'] = booking.cancellation_reason
+            #    bk['canceled_by'] = '' #booking.canceled_by.get_full_name() if booking.canceled_by else ''
+            #    bk['cancelation_time'] = booking.cancelation_time if booking.cancelation_time else ''
+            #    bk['paid'] = get_property_cache['paid']  #booking.paid
+            #    bk['invoices'] = get_property_cache['invoices'] #[i.invoice_reference for i in booking.invoices.all()]
+            #    print("MLINE 9.31", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #    bk['active_invoices'] = get_property_cache['active_invoices']  #[i.invoice_reference for i in booking.invoices.all() if i.active]
+            #    bk['guests'] = booking.guests
+            #    bk['campsite_names'] = get_property_cache['campsite_name_list'] #booking.campsite_name_list
+            #    print("MLINE 9.41", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #    bk['regos'] = get_property_cache['regos'] #[{r.type: r.rego} for r in booking.regos.all()]
+            #    bk['firstname'] = booking.details.get('first_name', '')
+            #    bk['lastname'] = booking.details.get('last_name', '')
+            #    print("MLINE 9.51", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #    if booking.override_reason:
+            #        bk['override_reason'] = booking.override_reason.text
+            #    if booking.override_reason_info:
+            #        bk['override_reason_info'] = booking.override_reason_info
+            #    if booking.send_invoice:
+            #        bk['send_invoice'] = booking.send_invoice
+            #    if booking.override_price is not None and booking.override_price >= 0:
+            #        bk['discount'] = booking.discount
+            #    if not get_property_cache['paid']: #booking.paid:
+            #        bk['payment_callback_url'] = '/api/booking/{}/payment_callback.json'.format(booking.id)
+            #    print("MLINE 9.61", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #    if booking.customer:
+            #        bk['email'] = booking.customer.email if booking.customer and booking.customer.email else ""
+            #        if booking.customer.phone_number:
+            #            bk['phone'] = booking.customer.phone_number
+            #        elif booking.customer.mobile_number:
+            #            bk['phone'] = booking.customer.mobile_number
+            #        else:
+            #            bk['phone'] = ''
+            #        if booking.is_canceled:
+            #            bk['campground_site_type'] = ""
+            #        else:
+            #            first_campsite_list = get_property_cache['first_campsite_list2']
+            #            campground_site_type = []
+            #            for item in first_campsite_list:
+            #                campground_site_type.append({
+            #                    "name": '{}'.format(item['name'] if item else ""),
+            #                    "type": '{}'.format(item['type'] if item['type'] else ""),
+            #                    "campground_type": item['site_type'],
+            #                })
+            #            bk['campground_site_type'] = campground_site_type
+            #    else:
+            #        bk['campground_site_type'] = ""
+            #    print("MLINE 9.71", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #    if refund_status and canceled == 't':
+            #        refund_statuses = ['All', 'Partially Refunded', 'Not Refunded', 'Refunded']
+            #        if refund_status in refund_statuses:
+            #            if refund_status == 'All':
+            #                clean_data.append(bk)
+            #            else:
+            #                if refund_status == get_property_cache['refund_status']: #booking.refund_status:
+            #                    clean_data.append(bk)
+            #    else:
+            #        clean_data.append(bk)
+            #    print("MLINE 9.81", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             return Response(OrderedDict([
                 ('recordsTotal', recordsTotal),
                 ('recordsFiltered', recordsFiltered),
-                ('results', clean_data)
+                ('results', filteredResults)
             ]), status=status.HTTP_200_OK)
             print("MLINE 9.91", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         except serializers.ValidationError:
