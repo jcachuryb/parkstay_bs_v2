@@ -377,7 +377,7 @@ class CampgroundMapViewSet(viewsets.ReadOnlyModelViewSet):
 
     #Changed to speed up the loading of icons in map
 
-    queryset = Campground.objects.filter(campground_type=9)
+    queryset = Campground.objects.filter(campground_type=9)[:1]
     #queryset = []
     serializer_class = CampgroundMapSerializer
     permission_classes = []
