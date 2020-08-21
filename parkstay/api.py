@@ -1659,7 +1659,9 @@ class BookingViewSet(viewsets.ModelViewSet):
                     #    sqlsearch += ' or CAST (parkstay_booking.id as TEXT) like %(upperSearch)s'
                     #    sqlParams['upperSearch'] = '{}%'.format(search)
 
-            data_hash = hashlib.md5(str(str(booking_query)+':'+start+':'+length).encode('utf-8')).hexdigest()
+            recordsTotal = Booking.objects.all().count()
+            filteredresultscount = Booking.objects.filter(booking_query).exclude(booking_type=3).count()
+            data_hash = hashlib.md5(str(str(booking_query)+':'+start+':'+length+":"+str(filteredresultscount)).encode('utf-8')).hexdigest()
             print (data_hash)
             bookings = cache.get('BookingViewSet'+data_hash)
             if bookings is None:
@@ -1670,9 +1672,6 @@ class BookingViewSet(viewsets.ModelViewSet):
                  cache.set('BookingViewSet'+data_hash, bookings, 1200)
 
         
-            filteredresultscount = Booking.objects.filter(booking_query).exclude(booking_type=3).count()
- 
-            recordsTotal = Booking.objects.all().count()
             recordsFiltered = filteredresultscount
             filteredResults = []
             rowcount = 0
