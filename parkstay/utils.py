@@ -939,6 +939,10 @@ def create_or_update_booking(request, booking_details, updating=False, override_
         booking.save()
     return booking
 
+def clean_none_to_empty(value):
+     if value is None:
+         return ''
+     return value
 
 def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=False):
     basket_params = {
