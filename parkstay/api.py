@@ -415,7 +415,6 @@ class CampgroundMapFilterViewSet(viewsets.ReadOnlyModelViewSet):
         }
         #data_hash = hashlib.sha224(b"D {}".format(request.GET.get('arrival', None))).hexdigest()
         data_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
-        print (data_hash)
         queryset = cache.get('CampgroundMapFilterViewSet'+data_hash)
         if queryset is None:
 
