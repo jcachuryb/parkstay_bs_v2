@@ -10,7 +10,7 @@ from django_site_queue import urls as site_queue_urls
 
 # API patterns
 router = routers.DefaultRouter()
-router.register(r'campground_map', api.CampgroundMapViewSet)
+#router.register(r'campground_map', api.CampgroundMapViewSet)
 router.register(r'campground_map_filter', api.CampgroundMapFilterViewSet)
 router.register(r'availability', api.AvailabilityViewSet, 'availability')
 router.register(r'availability_admin', api.AvailabilityAdminViewSet)
@@ -49,6 +49,7 @@ api_patterns = [
     url(r'^api/bulkPricing', api.BulkPricingView.as_view(), name='bulkpricing-api'),
     url(r'^api/search_suggest', api.search_suggest, name='search_suggest'),
     url(r'^api/create_booking', api.create_booking, name='create_booking'),
+    url(r'^api/campground_map', api.campground_map_view, name='campground_map'),
     url(r'^api/get_confirmation/(?P<booking_id>[0-9]+)/$', api.get_confirmation, name='get_confirmation'),
     url(r'^api/reports/booking_refunds$', api.BookingRefundsReportView.as_view(), name='booking-refunds-report'),
     url(r'^api/reports/bookings$', api.BookingReportView.as_view(), name='bookings-report'),
