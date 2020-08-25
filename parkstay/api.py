@@ -1244,11 +1244,13 @@ def campground_map_view(request, *args, **kwargs):
      from django.core import serializers
      dumped_data = cache.get('CampgroundMapViewSet')
      if dumped_data is None:
+         print ("Recreating Campground Cache")
          queryset = Campground.objects.exclude(campground_type=3)
          queryset_obj = serializers.serialize('json', queryset)
          serializer_camp = CampgroundMapSerializer(data=queryset, many=True)
          serializer_camp.is_valid()
          dumped_data = geojson.dumps(serializer_camp.data)
+         cache.set('CampgroundMapViewSet', dumped_data,  3600)
      return HttpResponse(dumped_data, content_type='application/json')
 
 
