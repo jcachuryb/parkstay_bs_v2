@@ -14,25 +14,25 @@ class Command(BaseCommand):
     help = 'Rebuild mooring booking property cache.'
 
     def handle(self, *args, **options):
-        print ("current version" + settings.BOOKING_PROPERTY_CACHE_VERSION)
+        print ("current version: " + settings.BOOKING_PROPERTY_CACHE_VERSION)
         try:
-           bookings = models.Booking.objects.exclude(property_cache__cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION).order_by('-id')
+           bookings = models.Booking.objects.all().order_by('-id')
            print (bookings)
            globalcount = 0
            for b in bookings:
-               globalcount = globalcount + 1
                t = None
-               try: 
+               try:
+               
                    b.property_cache['cache_version']
                    print (b.property_cache['cache_version'])
                    if b.property_cache['cache_version'] != settings.BOOKING_PROPERTY_CACHE_VERSION:
                        print ("Rebuilding :"+str(b.id))
                        t = threading.Thread(target=update_cache,args=[b.id,],daemon=False)
- 
+                       globalcount = globalcount + 1
                except:
                     #b.update_property_cache()
                     t = threading.Thread(target=update_cache,args=[b.id,],daemon=False)
-
+                    globalcount = globalcount + 1
                #if b.property_cache['cache_version'] != settings.BOOKING_PROPERTY_CACHE_VERSION:
                #     print ("Rebuilding :"+str(b.id))
                #     t = threading.Thread(target=update_cache,args=[b.id,],daemon=True)
