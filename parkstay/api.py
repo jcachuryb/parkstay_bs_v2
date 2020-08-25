@@ -415,8 +415,8 @@ class CampgroundMapFilterViewSet(viewsets.ReadOnlyModelViewSet):
         }
         #data_hash = hashlib.sha224(b"D {}".format(request.GET.get('arrival', None))).hexdigest()
         data_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
-        queryset = cache.get('CampgroundMapFilterViewSet'+data_hash)
-        if queryset is None:
+        dumped_data = cache.get('CampgroundMapFilterViewSet'+data_hash)
+        if dumped_data is None:
 
             serializer = CampgroundCampsiteFilterSerializer(data=data)
             serializer.is_valid(raise_exception=True)
@@ -466,9 +466,10 @@ class CampgroundMapFilterViewSet(viewsets.ReadOnlyModelViewSet):
                     max_days = settings.PS_MAX_BOOKING_LENGTH
                 if (end_date - start_date).days <= max_days:
                     queryset.append(q)
-            cache.set('CampgroundMapFilterViewSet'+data_hash, queryset, 3600)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+            serializer = self.get_serializer(queryset, many=True)
+            dumped_data = serializer.data
+            cache.set('CampgroundMapFilterViewSet'+data_hash, dumped_data, 3600)
+        return Response(dumped_data)
 
 
 @require_http_methods(['GET'])
@@ -1244,11 +1245,13 @@ def campground_map_view(request, *args, **kwargs):
      from django.core import serializers
      dumped_data = cache.get('CampgroundMapViewSet')
      if dumped_data is None:
+         print ("Recreating Campground Cache")
          queryset = Campground.objects.exclude(campground_type=3)
          queryset_obj = serializers.serialize('json', queryset)
          serializer_camp = CampgroundMapSerializer(data=queryset, many=True)
          serializer_camp.is_valid()
          dumped_data = geojson.dumps(serializer_camp.data)
+         cache.set('CampgroundMapViewSet', dumped_data,  3600)
      return HttpResponse(dumped_data, content_type='application/json')
 
 
