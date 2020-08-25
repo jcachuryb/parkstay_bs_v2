@@ -17,7 +17,7 @@ class Command(BaseCommand):
         print ("current version: " + settings.BOOKING_PROPERTY_CACHE_VERSION)
         try:
            bookings = models.Booking.objects.all().order_by('-id')
-           print (bookings)
+           print (bookings.count())
            globalcount = 0
            for b in bookings:
                t = None
