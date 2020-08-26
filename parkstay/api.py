@@ -1685,9 +1685,9 @@ class BookingViewSet(viewsets.ModelViewSet):
             bookings = cache.get('BookingViewSet'+data_hash)
             if bookings is None:
                  if length == 'all':
-                      bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time',).order_by('campground__name','campground__park__district__region__name','id')
+                      bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time',).order_by('campground__name','campground__park__district__region__name','id')
                  else:
-                      bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time',).order_by('campground__name','campground__park__district__region__name','id')[int(start):int(start)+int(length)]
+                      bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time',).order_by('campground__name','campground__park__district__region__name','id')[int(start):int(start)+int(length)]
                  #cache.set('BookingViewSet'+data_hash, bookings, 1200)
 
         
@@ -1731,7 +1731,10 @@ class BookingViewSet(viewsets.ModelViewSet):
                             b['property_cache'] = pc 
                             cache.delete('BookingViewSet'+data_hash)
                   row = {}
-                  row['id'] = b['id'] 
+                  row['id'] = b['id']
+                  row['arrival'] = b['arrival'] 
+                  row['departure'] = b['departure']
+
                   row['created'] = b['created']
                   row['campground_name'] = b['campground__name']
                   row['campground_region'] = b['campground__park__district__region__name']
