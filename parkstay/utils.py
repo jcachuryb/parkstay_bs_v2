@@ -1089,17 +1089,26 @@ def bind_booking(request, booking, invoice_ref):
             request.session['ps_last_booking'] = booking.id
 
             # send out the invoice before the confirmation is sent
-            send_booking_invoice(booking)
+            #send_booking_invoice(booking)
             print("MLINE 1.50", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # for fully paid bookings, fire off confirmation email
             print ("BOOKING PAID")
             print (booking.paid)
-            if booking.paid:
-                print("MLINE 1.60", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                t = threading.Thread(target=send_booking_confirmation,args=[booking.id,],daemon=False)
-                t.start()
-                #send_booking_confirmation(booking, request)
-                print("MLINE 1.70", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #if booking.paid:
+            print("MLINE 1.60", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            # because it slow the success page 
+            #t = threading.Thread(target=send_booking_confirmation_email,args=[booking.id,],daemon=False)
+            #t.start()
+            #send_booking_confirmation(booking, request)
+            print("MLINE 1.70", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
+def send_booking_confirmation_email(booking_id):
+    booking = Booking.objects.get(id=int(booking_id))
+    if booking.paid:
+        send_booking_confirmation(booking_id)
+ 
+
+
 
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):

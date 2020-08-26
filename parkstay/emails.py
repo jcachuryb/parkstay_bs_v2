@@ -41,6 +41,8 @@ def send_booking_invoice(booking):
 
     campground_email = booking.campground.email if booking.campground.email else default_campground_email
     email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, attachments=[(filename, invoice_pdf, 'application/pdf')])
+    booking.send_invoice = True
+    booking.save()
 
 
 def send_booking_confirmation(booking_id):
