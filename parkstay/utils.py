@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, date
 import logging
 import traceback
+import threading
 from decimal import Decimal
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -1082,7 +1083,7 @@ def bind_booking(request, booking, invoice_ref):
             # set booking to be permanent fixture
             booking.booking_type = 1  # internet booking
             booking.expiry_time = None
-            booking.save(rebuild_cache=False)
+            booking.save()
             print("MLINE 1.40", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             delete_session_booking(request.session)
             request.session['ps_last_booking'] = booking.id
@@ -1091,9 +1092,13 @@ def bind_booking(request, booking, invoice_ref):
             send_booking_invoice(booking)
             print("MLINE 1.50", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # for fully paid bookings, fire off confirmation email
+            print ("BOOKING PAID")
+            print (booking.paid)
             if booking.paid:
                 print("MLINE 1.60", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                send_booking_confirmation(booking, request)
+                t = threading.Thread(target=send_booking_confirmation,args=[booking.id,],daemon=False)
+                t.start()
+                #send_booking_confirmation(booking, request)
                 print("MLINE 1.70", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
 def daterange(start_date, end_date):
@@ -1104,7 +1109,6 @@ def daterange(start_date, end_date):
 def oracle_integration(date, override):
     system = '0019'
     oracle_codes = oracle_parser(date, system, 'Parkstay', override=override)
-
 
 
 

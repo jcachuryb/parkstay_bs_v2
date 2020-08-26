@@ -8,6 +8,7 @@ from parkstay import models
 from datetime import datetime
 import json
 import time
+from parkstay import property_cache
 from datetime import timedelta
 globalcount = 0
 class Command(BaseCommand):
@@ -61,8 +62,9 @@ class Command(BaseCommand):
 
 def update_cache(booking_id):
      print ('New Rebuild for: '+str(booking_id))
-     b= models.Booking.objects.get(id=int(booking_id))
-     b.update_property_cache(True)
+     #b= models.Booking.objects.get(id=int(booking_id))
+     #b.update_property_cache(True)
+     property_cache.update_property_cache(booking_id)
      print ('Finished :'+str(booking_id))
 
 

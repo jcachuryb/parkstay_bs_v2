@@ -1,6 +1,7 @@
 from io import BytesIO
 from django.conf import settings
 from parkstay import pdf
+from parkstay import models
 from ledger.payments.pdf import create_invoice_pdf_bytes
 from ledger.payments.models import Invoice
 from ledger.emails.emails import EmailBase
@@ -42,7 +43,9 @@ def send_booking_invoice(booking):
     email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, attachments=[(filename, invoice_pdf, 'application/pdf')])
 
 
-def send_booking_confirmation(booking, request):
+def send_booking_confirmation(booking_id):
+    print ("Sending Booking Confirmation for: "+str(booking_id))
+    booking = models.Booking.objects.get(id=booking_id)    
     #PARKSTAY_EXTERNAL_URL
     email_obj = TemplateEmailBase()
     email_obj.subject = 'Your booking {} at {} is confirmed'.format(booking.confirmation_number, booking.campground.name)
@@ -105,7 +108,7 @@ def send_booking_confirmation(booking, request):
     email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PS{}.pdf'.format(booking.id), pdf_buffer, 'application/pdf'),])
 
     booking.confirmation_sent = True
-    booking.save(rebuild_cache=False)
+    booking.save()
 
 
 def send_booking_cancelation(booking, request):

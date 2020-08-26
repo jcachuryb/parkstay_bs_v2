@@ -952,20 +952,17 @@ class Booking(models.Model):
     canceled_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, blank=True, null=True, related_name='canceled_bookings')
     property_cache = JSONField(null=True, blank=True, default={})
     property_cache_version = models.CharField(max_length=10, blank=True, null=True)
-
+    property_cache_stale = models.BooleanField(default=True)
     # Properties
     # =================================
     def save(self, *args,**kwargs):
-        rebuild_cache=True
-        if 'rebuild_cache' in kwargs:
-             if kwargs['rebuild_cache'] is False:
-                 rebuild_cache=False
-             del kwargs['rebuild_cache']
-        if rebuild_cache is True:
-            #self.update_property_cache(save=False)
-            t = threading.Thread(target=property_cache.update_property_cache,args=[self.id,],daemon=False)
-            t.start()
         print ("SAVE BOOKING")
+        self.property_cache_stale = True
+        if 'cache_updated' in kwargs:
+            if kwargs['cache_updated'] is True:
+                self.property_cache_stale = False 
+                del kwargs['cache_updated']
+        print (kwargs) 
         super(Booking,self).save(*args,**kwargs)
 
     def get_property_cache(self):
@@ -995,6 +992,7 @@ class Booking(models.Model):
         self.property_cache['first_campsite_list2'] = self.first_campsite_list2
         self.property_cache['customer_phone_number'] = None
         self.property_cache['customer_mobile_number'] = None
+        self.property_cache_stale = False
         if self.customer:
             if self.customer.phone_number:
                 self.property_cache['customer_phone_number'] = self.customer.phone_number
@@ -1424,7 +1422,8 @@ class BookingInvoice(models.Model):
     def save(self, *args,**kwargs):
         print ("SAVING INVOICE")
         super(BookingInvoice,self).save(*args,**kwargs)
-        self.booking.update_property_cache()
+        # Set cache Status to Stale
+        self.booking.save()
 
 class BookingVehicleRego(models.Model):
     """docstring for BookingVehicleRego."""

@@ -28,6 +28,7 @@ from ledger.address.models import Country
 from ledger.payments.models import Invoice
 from parkstay import doctopdf
 from parkstay import utils
+from parkstay import property_cache 
 from parkstay.helpers import can_view_campground
 from parkstay.models import (Campground,
                              District,
@@ -1685,9 +1686,9 @@ class BookingViewSet(viewsets.ModelViewSet):
             bookings = cache.get('BookingViewSet'+data_hash)
             if bookings is None:
                  if length == 'all':
-                      bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time',).order_by('campground__name','campground__park__district__region__name','id')
+                      bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale').order_by('campground__name','campground__park__district__region__name','id')
                  else:
-                      bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time',).order_by('campground__name','campground__park__district__region__name','id')[int(start):int(start)+int(length)]
+                      bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale').order_by('campground__name','campground__park__district__region__name','id')[int(start):int(start)+int(length)]
                  #cache.set('BookingViewSet'+data_hash, bookings, 1200)
 
         
@@ -1705,29 +1706,41 @@ class BookingViewSet(viewsets.ModelViewSet):
                   if today <= b['departure']:
                       if not b['is_canceled']:
                           editable = True
+                  if b['property_cache_stale'] is True:
+                       property_cache.update_property_cache(b['id'])
+                       bk = Booking.objects.get(id=b['id'])
+                       pc = bk.property_cache
+                       b['property_cache'] = pc
+
                   pc = b['property_cache']
+
+
                   try:
                         print (b['property_cache']['cache_version'])
                         print ("EXISTS")
                   except:
                         print ("NOT")
+                        property_cache.update_property_cache(b['id'])
                         bk = Booking.objects.get(id=b['id'])
-                        pc = bk.update_property_cache(True)
+                        pc = bk.property_cache
                         b['property_cache'] = pc
                         cache.delete('BookingViewSet'+data_hash)
+                  
                   if len(b['property_cache']) == 0 or 'cache_version' in b['property_cache']:
                         if 'cache_version' in b['property_cache']:
                              if b['property_cache']['cache_version'] != settings.BOOKING_PROPERTY_CACHE_VERSION:
+                                property_cache.update_property_cache(b['id'])
                                 bk = Booking.objects.get(id=b['id'])
-                                pc = bk.update_property_cache()
+                                pc = bk.property_cache
                                 b['property_cache'] = pc
                                 cache.delete('BookingViewSet'+data_hash)
                              else:
                                   pass
 
                         else:
+                            property_cache.update_property_cache(b['id'])
                             bk = Booking.objects.get(id=b['id'])
-                            pc = bk.get_property_cache()
+                            pc = bk.property_cache
                             b['property_cache'] = pc 
                             cache.delete('BookingViewSet'+data_hash)
                   row = {}

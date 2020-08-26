@@ -44,6 +44,6 @@ class SendBookingsConfirmationCronJob(CronJobBase):
             if unconfirmed:
                 for b in unconfirmed:
                     if b.paid:
-                        send_booking_confirmation(b)
+                        send_booking_confirmation(b.id)
         except:
             raise
