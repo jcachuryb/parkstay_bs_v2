@@ -16,36 +16,43 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print ("current version: " + settings.BOOKING_PROPERTY_CACHE_VERSION)
         try:
-           bookings = models.Booking.objects.exclude(property_cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION).order_by('-id')
-           print ("COUNT: "+str(bookings.count()))
-           globalcount = 0
-           for b in bookings:
-               t = None
-               try:
-               
-                   b.property_cache['cache_version']
-                   print (b.property_cache['cache_version'])
-                   if b.property_cache_version != settings.BOOKING_PROPERTY_CACHE_VERSION:
-                       print ("Rebuilding :"+str(b.id))
-                       t = threading.Thread(target=update_cache,args=[b.id,],daemon=False)
-                       globalcount = globalcount + 1
-               except:
-                    #b.update_property_cache()
-                    t = threading.Thread(target=update_cache,args=[b.id,],daemon=False)
-                    globalcount = globalcount + 1
-               #if b.property_cache['cache_version'] != settings.BOOKING_PROPERTY_CACHE_VERSION:
-               #     print ("Rebuilding :"+str(b.id))
-               #     t = threading.Thread(target=update_cache,args=[b.id,],daemon=True)
-               #print ('thread')
-               #print (t)
-               if t is not None:
-                    if globalcount > 9:
-                         print ("Sleeping")      
-                         time.sleep(10)
-                         globalcount = 0
-                    t.start()
-
-                    #b.update_property_cache()
+           total_uncached_bookings = 1000
+           while total_uncached_bookings > 0:
+               bookings = models.Booking.objects.exclude(property_cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION)
+               total_uncached_bookings = bookings.count()
+               print ("---==========================---")
+               print ("COUNT: "+str(total_uncached_bookings))
+               print ("---==========================---")
+               globalcount = 0
+               bookings = models.Booking.objects.exclude(property_cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION).order_by('-id')[:100]
+               for b in bookings:
+                   t = None
+                   try:
+                   
+                       b.property_cache['cache_version']
+                       print (b.property_cache['cache_version'])
+                       if b.property_cache_version != settings.BOOKING_PROPERTY_CACHE_VERSION:
+                           print ("Rebuilding :"+str(b.id))
+                           t = threading.Thread(target=update_cache,args=[b.id,],daemon=False)
+                           globalcount = globalcount + 1
+                   except:
+                        #b.update_property_cache()
+                        t = threading.Thread(target=update_cache,args=[b.id,],daemon=False)
+                        globalcount = globalcount + 1
+                   #if b.property_cache['cache_version'] != settings.BOOKING_PROPERTY_CACHE_VERSION:
+                   #     print ("Rebuilding :"+str(b.id))
+                   #     t = threading.Thread(target=update_cache,args=[b.id,],daemon=True)
+                   #print ('thread')
+                   #print (t)
+                   if t is not None:
+                        if globalcount > 9:
+                             print ("Sleeping")      
+                             time.sleep(15)
+                             globalcount = 0
+                        t.start()
+               print ("--NEW LOOP--")
+               time.sleep(60)
+                        #b.update_property_cache()
 
         except Exception as e:
             print (e)
