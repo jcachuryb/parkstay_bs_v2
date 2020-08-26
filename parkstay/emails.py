@@ -102,7 +102,7 @@ def send_booking_confirmation(booking, request):
     email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PS{}.pdf'.format(booking.id), pdf_buffer, 'application/pdf'),])
 
     booking.confirmation_sent = True
-    booking.save()
+    booking.save(rebuild_cache=False)
 
 
 def send_booking_cancelation(booking, request):
