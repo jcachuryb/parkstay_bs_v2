@@ -1606,7 +1606,7 @@ class CampsiteClassViewSet(viewsets.ModelViewSet):
 
 
 class BookingViewSet(viewsets.ModelViewSet):
-    queryset = Booking.objects.all()[:0]
+    queryset = Booking.objects.all()
     serializer_class = BookingSerializer
 
     def list(self, request, *args, **kwargs):
