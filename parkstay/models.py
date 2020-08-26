@@ -4,6 +4,7 @@ import uuid
 import base64
 import binascii
 import hashlib
+import threading
 from decimal import Decimal as D
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
@@ -23,6 +24,8 @@ from ledger.accounts.models import EmailUser
 from ledger.payments.bpoint.models import BpointTransaction
 from ledger.payments.cash.models import CashTransaction
 from rest_framework import viewsets, serializers, status, generics, views
+from parkstay import property_cache 
+
 
 PARKING_SPACE_CHOICES = (
     (0, 'Parking within site.'),
@@ -953,15 +956,15 @@ class Booking(models.Model):
     # Properties
     # =================================
     def save(self, *args,**kwargs):
-        print ("SAVING B")
-        print (kwargs)
         rebuild_cache=True
         if 'rebuild_cache' in kwargs:
              if kwargs['rebuild_cache'] is False:
                  rebuild_cache=False
              del kwargs['rebuild_cache']
         if rebuild_cache is True:
-            self.update_property_cache(save=False)
+            #self.update_property_cache(save=False)
+            t = threading.Thread(target=property_cache.update_property_cache,args=[self.id,],daemon=False)
+            t.start()
         print ("SAVE BOOKING")
         super(Booking,self).save(*args,**kwargs)
 

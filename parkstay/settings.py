@@ -92,6 +92,7 @@ PS_PAYMENT_SYSTEM_ID = env('PS_PAYMENT_SYSTEM_ID', 'S019')
 if not VALID_SYSTEMS:
     VALID_SYSTEMS = [PS_PAYMENT_SYSTEM_ID]
 EXPLORE_PARKS_URL = env('EXPLORE_PARKS_URL', 'https://parks.dpaw.wa.gov.au/park-stay')
+PARKS_EXTERNAL_BOOKING_URL =env('PARKS_EXTERNAL_BOOKING_URL','https://parkstaybookings.dbca.wa.gov.au')
 PARKSTAY_EXTERNAL_URL = env('PARKSTAY_EXTERNAL_URL','https://parkstay.dbca.wa.gov.au')
 DEV_STATIC = env('DEV_STATIC',False)
 DEV_STATIC_URL = env('DEV_STATIC_URL')

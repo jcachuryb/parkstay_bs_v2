@@ -43,6 +43,7 @@ def send_booking_invoice(booking):
 
 
 def send_booking_confirmation(booking, request):
+    #PARKSTAY_EXTERNAL_URL
     email_obj = TemplateEmailBase()
     email_obj.subject = 'Your booking {} at {} is confirmed'.format(booking.confirmation_number, booking.campground.name)
     email_obj.html_template = 'ps/email/confirmation.html'
@@ -57,8 +58,10 @@ def send_booking_confirmation(booking, request):
     if campground_email != default_campground_email:
         cc = [campground_email]
 
-    my_bookings_url = request.build_absolute_uri('/mybookings/')
-    booking_availability = request.build_absolute_uri('/availability/?site_id={}'.format(booking.campground.id))
+    #my_bookings_url = request.build_absolute_uri('/mybookings/')
+    my_bookings_url = settings.PARKS_EXTERNAL_BOOKING_URL+str('/mybookings/')
+    booking_availability = settings.PARKS_EXTERNAL_BOOKING_URL+str('/availability/?site_id={}'.format(booking.campground.id))
+    #booking_availability = request.build_absolute_uri('/availability/?site_id={}'.format(booking.campground.id))
     unpaid_vehicle = False
     mobile_number = booking.customer.mobile_number
     booking_number = booking.details.get('phone', None)
