@@ -948,6 +948,7 @@ class Booking(models.Model):
     created = models.DateTimeField(default=timezone.now)
     canceled_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, blank=True, null=True, related_name='canceled_bookings')
     property_cache = JSONField(null=True, blank=True, default={})
+    property_cache_version = models.CharField(max_length=10, blank=True, null=True)
 
     # Properties
     # =================================
@@ -988,7 +989,7 @@ class Booking(models.Model):
                 self.property_cache['customer_phone_number'] = self.customer.phone_number
             if self.customer.mobile_number:
                self.property_cache['customer_mobile_number'] = self.customer.mobile_number
- 
+        self.property_cache_version = settings.BOOKING_PROPERTY_CACHE_VERSION
 
         if save is True:
            self.save()
