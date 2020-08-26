@@ -953,7 +953,15 @@ class Booking(models.Model):
     # Properties
     # =================================
     def save(self, *args,**kwargs):
-        self.update_property_cache(False)
+        print ("SAVING B")
+        print (kwargs)
+        rebuild_cache=True
+        if 'rebuild_cache' in kwargs:
+             if kwargs['rebuild_cache'] is False:
+                 rebuild_cache=False
+             del kwargs['rebuild_cache']
+        if rebuild_cache is True:
+            self.update_property_cache(save=False)
         print ("SAVE BOOKING")
         super(Booking,self).save(*args,**kwargs)
 
@@ -1411,6 +1419,7 @@ class BookingInvoice(models.Model):
         return False
 
     def save(self, *args,**kwargs):
+        print ("SAVING INVOICE")
         super(BookingInvoice,self).save(*args,**kwargs)
         self.booking.update_property_cache()
 

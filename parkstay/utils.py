@@ -1058,6 +1058,7 @@ def delete_session_booking(session):
 
 def bind_booking(request, booking, invoice_ref):
     if booking.booking_type == 3:
+        print("MLINE 1.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         try:
             inv = Invoice.objects.get(reference=invoice_ref)
         except Invoice.DoesNotExist:
@@ -1074,23 +1075,26 @@ def bind_booking(request, booking, invoice_ref):
             raise BindBookingException
         except BookingInvoice.DoesNotExist:
             logger.info(u'{} finished temporary booking {}, creating new BookingInvoice with reference {}'.format(u'User {} with id {}'.format(booking.customer.get_full_name(), booking.customer.id) if booking.customer else u'An anonymous user', booking.id, invoice_ref))
+            print("MLINE 1.20", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # FIXME: replace with server side notify_url callback
             book_inv, created = BookingInvoice.objects.get_or_create(booking=booking, invoice_reference=invoice_ref)
-
+            print("MLINE 1.30", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # set booking to be permanent fixture
             booking.booking_type = 1  # internet booking
             booking.expiry_time = None
-            booking.save()
-
+            booking.save(rebuild_cache=False)
+            print("MLINE 1.40", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             delete_session_booking(request.session)
             request.session['ps_last_booking'] = booking.id
 
             # send out the invoice before the confirmation is sent
             send_booking_invoice(booking)
+            print("MLINE 1.50", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # for fully paid bookings, fire off confirmation email
             if booking.paid:
+                print("MLINE 1.60", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 send_booking_confirmation(booking, request)
-
+                print("MLINE 1.70", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
