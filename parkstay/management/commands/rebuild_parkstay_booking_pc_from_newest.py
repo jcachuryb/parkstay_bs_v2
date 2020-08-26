@@ -16,8 +16,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print ("current version: " + settings.BOOKING_PROPERTY_CACHE_VERSION)
         try:
-           bookings = models.Booking.objects.all().order_by('-id')
-           print (bookings.count())
+           bookings = models.Booking.objects.exclude(property_cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION).order_by('-id')
+           print ("COUNT: "+str(bookings.count()))
            globalcount = 0
            for b in bookings:
                t = None
@@ -25,7 +25,7 @@ class Command(BaseCommand):
                
                    b.property_cache['cache_version']
                    print (b.property_cache['cache_version'])
-                   if b.property_cache['cache_version'] != settings.BOOKING_PROPERTY_CACHE_VERSION:
+                   if b.property_cache_version != settings.BOOKING_PROPERTY_CACHE_VERSION:
                        print ("Rebuilding :"+str(b.id))
                        t = threading.Thread(target=update_cache,args=[b.id,],daemon=False)
                        globalcount = globalcount + 1
@@ -55,7 +55,7 @@ class Command(BaseCommand):
 def update_cache(booking_id):
      print ('New Rebuild for: '+str(booking_id))
      b= models.Booking.objects.get(id=int(booking_id))
-     b.update_property_cache(False)
+     b.update_property_cache(True)
      print ('Finished :'+str(booking_id))
 
 
