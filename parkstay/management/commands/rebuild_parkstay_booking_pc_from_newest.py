@@ -19,13 +19,14 @@ class Command(BaseCommand):
         try:
            total_uncached_bookings = 1000
            while total_uncached_bookings > 0:
-               bookings = models.Booking.objects.exclude(property_cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION)
+               bookings = models.Booking.objects.exclude(property_cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION).exclude(booking_type=3)
+               #.exclude(property_cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION, booking_type=3)
                total_uncached_bookings = bookings.count()
                print ("---==========================---")
                print ("COUNT: "+str(total_uncached_bookings))
                print ("---==========================---")
                globalcount = 0
-               bookings = models.Booking.objects.exclude(property_cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION).order_by('-id')[:100]
+               bookings = models.Booking.objects.exclude(property_cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION).exclude(booking_type=3).order_by('-id')[:100]
                for b in bookings:
                    t = None
                    try:
@@ -48,11 +49,11 @@ class Command(BaseCommand):
                    if t is not None:
                         if globalcount > 9:
                              print ("Sleeping")      
-                             time.sleep(15)
+                             time.sleep(10)
                              globalcount = 0
                         t.start()
                print ("--NEW LOOP--")
-               time.sleep(60)
+               time.sleep(35)
                         #b.update_property_cache()
 
         except Exception as e:
