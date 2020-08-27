@@ -1639,7 +1639,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             if arrival:
                  booking_query &= Q(departure__gt=arrival_date)
             if departure:
-                  booking_query &= Q(arrival__lt=departure_date)
+                  booking_query &= Q(arrival__lte=departure_date)
             if refund_status:
                   if refund_status != 'All':
                       booking_query &= Q(property_cache__refund_status=refund_status)
