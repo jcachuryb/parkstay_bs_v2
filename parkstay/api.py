@@ -2169,7 +2169,9 @@ class BookingViewSet(viewsets.ModelViewSet):
                             # Check if the transaction came in the last 10 seconds
                             if (timezone.now() - latest_cash.created).seconds < 10 and instance.paid:
                                 # Send out the confirmation pdf
-                                emails.send_booking_confirmation(instance, request)
+                                instance.confirmation_sent = False
+                                instance.save()
+                                #emails.send_booking_confirmation(instance, request)
                             else:
                                 response['error'] = 'Booking is not fully paid or the transaction was not done in the last 10 secs'
                         else:
