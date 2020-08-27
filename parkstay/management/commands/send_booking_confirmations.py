@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            unconfirmed = models.Booking.objects.filter(created__gt='2020-08-25', confirmation_sent=False, property_cache__paid=True).exclude(booking_type=3).order_by('id')[:10]
+            unconfirmed = models.Booking.objects.filter(confirmation_sent=False, property_cache__paid=True).exclude(booking_type=3).order_by('id')[:10]
             if unconfirmed:
                 for b in unconfirmed:
                     if b.paid:
@@ -27,7 +27,7 @@ class Command(BaseCommand):
                         except Exception as e:
                             print (e)
 
-            bookings = models.Booking.objects.filter(created__gt='2020-08-25', send_invoice=False).exclude(booking_type=3).order_by('id')[:10]
+            bookings = models.Booking.objects.filter(send_invoice=False).exclude(booking_type=3).order_by('id')[:10]
             for b in bookings:
                 try:
                     emails.send_booking_invoice(b)  
