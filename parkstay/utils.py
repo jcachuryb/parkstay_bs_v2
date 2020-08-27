@@ -892,11 +892,12 @@ def update_booking(request, old_booking, booking_details):
                 booking.delete()
             delete_session_booking(request.session)
             send_booking_invoice(old_booking)
+            old_booking.confirmation_sent = False
+            old_booking.save()
+
             # send out the confirmation email if the booking is paid or over paid
-            if old_booking.status == 'Paid' or old_booking.status == 'Over Paid':
+            #if old_booking.status == 'Paid' or old_booking.status == 'Over Paid':
                 #send_booking_confirmation(old_booking, request)
-                old_booking.confirmation_sent = False 
-                old_booking.save()
                 #send_booking_confirmation(old_booking)
             return old_booking
         except BaseException:
