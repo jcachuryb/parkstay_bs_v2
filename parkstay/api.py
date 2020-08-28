@@ -29,6 +29,7 @@ from ledger.payments.models import Invoice
 from parkstay import doctopdf
 from parkstay import utils
 from parkstay import property_cache 
+from parkstay import models
 from parkstay.helpers import can_view_campground
 from parkstay.models import (Campground,
                              District,
@@ -1626,12 +1627,31 @@ class BookingViewSet(viewsets.ModelViewSet):
             canceled = request.GET.get('canceled', None)
             refund_status = request.GET.get('refund_status', None)
             print("MLINE 2.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-
+            campground_groups = models.CampgroundGroup.objects.filter(members__in=[request.user.id]).values('campgrounds__id')
+            print (campground_groups)
 
             if canceled:
                 canceled = True if canceled.lower() in ['yes', 'true', 't', '1'] else False
             print ("MLINE 2.20", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             booking_query = Q(is_canceled=canceled)
+            if len(campground_groups) == 0:
+                # Return no results as not part of any permission group
+                return Response(OrderedDict([
+                    ('recordsTotal', 0),
+                    ('recordsFiltered', 0),
+                    ('results', [])
+                ]), status=status.HTTP_200_OK)
+
+                
+            # Filter Campground based on permissions
+            for cg in campground_groups:
+                 cg_query = Q()
+                 cg_query != Q(campground__id=cg['campgrounds__id'])
+                 booking_query &= Q(cg_query)
+                 #booking_query &= Q(campground__id=cg['campgrounds__id'])
+
+            ########################################
+
             if campground:
                 booking_query &= Q(campground__id=campground)
             if region:
