@@ -19,13 +19,13 @@ class Command(BaseCommand):
         print ("current version: " + settings.BOOKING_PROPERTY_CACHE_VERSION)
         try:
            total_uncached_bookings = 1000
-           bookings = models.Booking.objects.exclude(property_cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION).exclude(property_cache_stale=False).exclude(booking_type=3)
+           bookings = models.Booking.objects.exclude(property_cache_stale=False).exclude(booking_type=3)
            total_uncached_bookings = bookings.count()
            print ("---==========================---")
            print ("COUNT: "+str(total_uncached_bookings))
            print ("---==========================---")
            globalcount = 0
-           bookings = models.Booking.objects.exclude(property_cache_version=settings.BOOKING_PROPERTY_CACHE_VERSION).exclude(property_cache_stale=False).exclude(booking_type=3).order_by('-id')[:30]
+           bookings = models.Booking.objects.exclude(property_cache_stale=False).exclude(booking_type=3).order_by('-id')[:30]
            for b in bookings:
                t = None
                try:
