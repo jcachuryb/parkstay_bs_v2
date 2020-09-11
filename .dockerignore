@@ -1,7 +1,6 @@
 .dockerignore
 .env
 .flake8
-.git*
 .travis.yml
 .pgdump
 .dump
