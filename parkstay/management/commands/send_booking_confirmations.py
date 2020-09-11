@@ -31,7 +31,7 @@ class Command(BaseCommand):
                             b.error_sending_confirmation = True
                             b.save()
 
-            bookings = models.Booking.objects.filter(send_invoice=False,do_not_send_invoice=False,error_sending_invoice=False).exclude(booking_type=3).order_by('id')[:15]
+            bookings = models.Booking.objects.filter(send_invoice=False,do_not_send_invoice=False,error_sending_invoice=False).exclude(booking_type=3).order_by('id')[:10]
             for b in bookings:
                 try:
                     emails.send_booking_invoice(b)  
