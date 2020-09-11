@@ -308,8 +308,8 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="form-group">
-                                        <input type="checkbox" name="sendInvoice" class="form control" id="send_invoice" v-model="booking.send_invoice"/>
-                                        <label for="sendInvoice">Send invoice upon booking</label>
+                                        <input type="checkbox" name="sendInvoice" class="form control" id="send_invoice" checked :checked="checked" v-model="booking.send_invoice"/>
+                                        <label for="sendInvoice">Don't send invoice upon booking</label>
                                     </div>
                                 </div>
                             </div>
@@ -392,7 +392,7 @@ export default {
                 override_price:"0",
                 override_reason:"",
                 override_reason_info:"",
-                send_invoice: false,
+                send_invoice: true,
                 parkEntry:{
                     vehicles:0,
                 },
@@ -972,7 +972,7 @@ export default {
                     override_price:vm.booking.override_price,
                     override_reason:vm.booking.override_reason,
                     override_reason_info:vm.booking.override_reason_info,
-                    send_invoice:vm.booking.send_invoice,
+                    do_not_send_invoice:vm.booking.send_invoice,
                     customer:{
                         email:vm.booking.email,
                         first_name:vm.booking.firstname,

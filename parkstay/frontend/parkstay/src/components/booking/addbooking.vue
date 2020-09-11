@@ -312,7 +312,7 @@
                                 <div class="col-lg-12">
                                     <div class="form-group">
                                         <input type="checkbox" name="sendInvoice" class="form control" id="send_invoice" v-model="booking.send_invoice"/>
-                                        <label for="sendInvoice">Send invoice upon booking</label>
+                                        <label for="sendInvoice"><u>Don't</u> send invoice upon booking</label>
                                     </div>
                                 </div>
                             </div>
@@ -395,7 +395,7 @@ export default {
                 override_price:"0",
                 override_reason:"",
                 override_reason_info:"",
-                send_invoice: false,
+                send_invoice: true,
                 parkEntry:{
                     vehicles:0,
                 },
@@ -741,12 +741,16 @@ export default {
             let vm = this;
             vm.arrivalPicker = $(vm.bookingForm.arrival).closest('.date');
             vm.departurePicker = $(vm.bookingForm.departure).closest('.date');
+            // defaultDate: Moment().startOf('day'),
             vm.arrivalPicker.datetimepicker({
                 format: 'DD/MM/YYYY',
-                defaultDate: Moment().startOf('day'),
-                minDate: Moment().startOf('day'),
+                defaultDate: Moment().startOf('day').format('YYYY-MM-DD'),
+                minDate: Moment().startOf('day').format('YYYY-MM-DD'),
                 // maxDate: Moment().add(parseInt(vm.campground.max_advance_booking),'days')
             });
+            vm.selected_arrival = Moment().startOf('day').format('YYYY-MM-DD');
+            vm.booking.arrival = Moment().startOf('day').format('YYYY-MM-DD');
+
             vm.departurePicker.datetimepicker({
                 format: 'DD/MM/YYYY',
                 useCurrent: false,
@@ -982,7 +986,7 @@ export default {
                     override_price:vm.booking.override_price,
                     override_reason:vm.booking.override_reason,
                     override_reason_info:vm.booking.override_reason_info,
-                    send_invoice:vm.booking.send_invoice,
+                    do_not_send_invoice:vm.booking.send_invoice,
                     customer:{
                         email:vm.booking.email,
                         first_name:vm.booking.firstname,

@@ -953,6 +953,10 @@ class Booking(models.Model):
     property_cache = JSONField(null=True, blank=True, default={})
     property_cache_version = models.CharField(max_length=10, blank=True, null=True)
     property_cache_stale = models.BooleanField(default=True)
+    do_not_send_invoice = models.BooleanField(default=False)
+    error_sending_confirmation = models.BooleanField(default=False)
+    error_sending_invoice = models.BooleanField(default=False)
+
     # Properties
     # =================================
     def save(self, *args,**kwargs):

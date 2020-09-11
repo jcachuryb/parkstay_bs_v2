@@ -649,6 +649,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
 
     @list_route(methods=['post'])
     def bulk_close(self, request, format='json', pk=None):
+        print ("CLOSE BULK")
         with transaction.atomic():
             try:
                 http_status = status.HTTP_200_OK
@@ -1627,13 +1628,12 @@ class BookingViewSet(viewsets.ModelViewSet):
             region = request.GET.get('region')
             canceled = request.GET.get('canceled', None)
             refund_status = request.GET.get('refund_status', None)
-            print("MLINE 2.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #print("MLINE 2.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             campground_groups = models.CampgroundGroup.objects.filter(members__in=[request.user.id])
-            print (campground_groups)
 
             if canceled:
                 canceled = True if canceled.lower() in ['yes', 'true', 't', '1'] else False
-            print ("MLINE 2.20", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #print ("MLINE 2.20", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             booking_query = Q(is_canceled=canceled)
             if len(campground_groups) == 0:
                 # Return no results as not part of any permission group
@@ -1711,7 +1711,6 @@ class BookingViewSet(viewsets.ModelViewSet):
             filteredresultscount = Booking.objects.filter(booking_query).exclude(booking_type=3).count()
             #print (str(booking_query))
             data_hash = hashlib.md5(str(str(booking_query)+':'+str(start)+':'+str(length)+":"+str(filteredresultscount)).encode('utf-8')).hexdigest()
-            print (data_hash)
             jsonresults = cache.get('BookingViewSet'+data_hash)
             #bookings = None
             recordsFiltered = 0 
@@ -1747,7 +1746,6 @@ class BookingViewSet(viewsets.ModelViewSet):
 
                       try:
                             print (b['property_cache']['cache_version'])
-                            print ("EXISTS")
                       except:
                             print ("NOT")
                             property_cache.update_property_cache(b['id'])
@@ -2052,6 +2050,7 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     def create(self, request, format=None):
         userCreated = False
+
         try:
             if 'ps_booking' in request.session:
                 del request.session['ps_booking']
@@ -2065,8 +2064,9 @@ class BookingViewSet(viewsets.ModelViewSet):
             override_price = serializer.validated_data.get('override_price', None)
             override_reason = serializer.validated_data.get('override_reason', None)
             override_reason_info = serializer.validated_data.get('override_reason_info', None)
-            send_invoice = serializer.validated_data.get('send_invoice', False)
+            do_not_send_invoice = serializer.validated_data.get('do_not_send_invoice', True)
             overridden_by = None if (override_price is None) else request.user
+
             try:
                 emailUser = request.data['customer']
                 customer = EmailUser.objects.get(email=emailUser['email'].lower())
@@ -2098,7 +2098,8 @@ class BookingViewSet(viewsets.ModelViewSet):
                 'override_price': override_price,
                 'override_reason': override_reason,
                 'override_reason_info': override_reason_info,
-                'send_invoice': send_invoice,
+                'do_not_send_invoice': do_not_send_invoice,
+                'send_invoice': False,
                 'overridden_by': overridden_by,
                 'customer': customer,
                 'first_name': emailUser['first_name'],
@@ -2108,6 +2109,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                 'phone': emailUser['phone'],
                 'regos': regos
             }
+
             data = utils.internal_booking(request, booking_details)
             serializer = self.get_serializer(data)
             return Response(serializer.data)
