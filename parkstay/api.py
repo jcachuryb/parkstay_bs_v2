@@ -2050,14 +2050,10 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     def create(self, request, format=None):
         userCreated = False
-        print ("DATA")
-        print (request.data)
 
         try:
             if 'ps_booking' in request.session:
                 del request.session['ps_booking']
-            print ("DATA")
-            print (request.data)
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             start_date = serializer.validated_data['arrival']
@@ -2069,8 +2065,6 @@ class BookingViewSet(viewsets.ModelViewSet):
             override_reason = serializer.validated_data.get('override_reason', None)
             override_reason_info = serializer.validated_data.get('override_reason_info', None)
             do_not_send_invoice = serializer.validated_data.get('do_not_send_invoice', True)
-            print ("DO")
-            print (do_not_send_invoice)
             overridden_by = None if (override_price is None) else request.user
 
             try:
