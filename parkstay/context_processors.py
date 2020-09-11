@@ -13,5 +13,8 @@ def parkstay_url(request):
         'DEV_STATIC': settings.DEV_STATIC,
         'DEV_STATIC_URL': settings.DEV_STATIC_URL,
         'VERSION_NO': settings.VERSION_NO,
-        'WAITING_QUEUE_ENABLED': settings.WAITING_QUEUE_ENABLED
+        'WAITING_QUEUE_ENABLED': settings.WAITING_QUEUE_ENABLED,
+        'GIT_COMMIT_DATE' : settings.GIT_COMMIT_DATE,
+        'GIT_COMMIT_HASH' : settings.GIT_COMMIT_HASH,
+
     }
