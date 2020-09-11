@@ -94,7 +94,7 @@ def create_booking_by_class(campground_id, campsite_class_id, start_date, end_da
     return booking
 
 
-def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, cost_total=0, override_price=None, override_reason=None, override_reason_info=None, send_invoice=False, overridden_by=None, customer=None, updating_booking=False, override_checks=False):
+def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, cost_total=0, override_price=None, override_reason=None, override_reason_info=None, send_invoice=False, overridden_by=None, customer=None, updating_booking=False, override_checks=False,  do_not_send_invoice=False):
     """Create a new temporary booking in the system for a set of specific campsites."""
 
     # the CampsiteBooking table runs the risk of a race condition,
@@ -148,7 +148,8 @@ def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_conc
             overridden_by=overridden_by,
             expiry_time=timezone.now() + timedelta(seconds=settings.BOOKING_TIMEOUT),
             campground=campsite_qs[0].campground,
-            customer=customer
+            customer=customer,
+            do_not_send_invoice=do_not_send_invoice,
         )
         for cs in campsite_qs:
             for i in range((end_date - start_date).days):
@@ -923,7 +924,8 @@ def create_or_update_booking(request, booking_details, updating=False, override_
                                          send_invoice=booking_details['send_invoice'],
                                          overridden_by=booking_details['overridden_by'],
                                          customer=booking_details['customer'],
-                                         override_checks=override_checks
+                                         override_checks=override_checks,
+                                         do_not_send_invoice=booking_details['do_not_send_invoice'],
                                          )
 
         booking.details['first_name'] = booking_details['first_name']
