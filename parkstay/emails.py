@@ -23,6 +23,8 @@ class TemplateEmailBase(EmailBase):
 
 
 def send_booking_invoice(booking):
+    log_hash = int(hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest(), 16) % (10 ** 8)
+
     email_obj = TemplateEmailBase()
     email_obj.subject = 'Your booking invoice for {}'.format(booking.campground.name)
     email_obj.html_template = 'ps/email/invoice.html'
@@ -41,12 +43,15 @@ def send_booking_invoice(booking):
 
     campground_email = booking.campground.email if booking.campground.email else default_campground_email
     email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, attachments=[(filename, invoice_pdf, 'application/pdf')])
+    email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
     booking.send_invoice = True
     booking.save()
 
 
+
 def send_booking_confirmation(booking_id):
     print ("Sending Booking Confirmation for: "+str(booking_id))
+    log_hash = int(hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest(), 16) % (10 ** 8)
     booking = models.Booking.objects.get(id=booking_id)    
     #PARKSTAY_EXTERNAL_URL
     email_obj = TemplateEmailBase()
@@ -108,12 +113,13 @@ def send_booking_confirmation(booking_id):
     #email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PS{}.pdf'.format(booking.id), att.read(), 'application/pdf'), ('covid-PS{}.pdf'.format(booking.id), covidfile, 'application/pdf')])
 
     email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PS{}.pdf'.format(booking.id), pdf_buffer, 'application/pdf'),])
-
+    email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
     booking.confirmation_sent = True
     booking.save()
 
 
 def send_booking_cancelation(booking, request):
+    log_hash = int(hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest(), 16) % (10 ** 8)
     email_obj = TemplateEmailBase()
     email_obj.subject = 'Cancelled: your booking {} at {}'.format(booking.confirmation_number, booking.campground.name)
     email_obj.html_template = 'ps/email/cancel.html'
@@ -132,9 +138,10 @@ def send_booking_cancelation(booking, request):
     }
 
     email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, cc=[campground_email], bcc=bcc, context=context)
-
+    email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
 
 def send_booking_lapse(booking):
+    log_hash = int(hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest(), 16) % (10 ** 8)
     email_obj = TemplateEmailBase()
     email_obj.subject = 'Your booking for {} has expired'.format(booking.campground.name)
     email_obj.html_template = 'ps/email/lapse.html'
@@ -148,7 +155,7 @@ def send_booking_lapse(booking):
         'settings': settings,
     }
     email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context)
-
+    email_log(str(log_hash)+' :'+str(email) + ' - '+ email_obj.subject)
 
 def email_log(line):
      dt = datetime.datetime.now()
