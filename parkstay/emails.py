@@ -12,6 +12,7 @@ from parkstay import doctopdf
 from confy import env
 import hashlib
 import datetime
+import socket
 default_campground_email = settings.EMAIL_FROM
 
 
@@ -159,8 +160,9 @@ def send_booking_lapse(booking):
 
 def email_log(line):
      dt = datetime.datetime.now()
+     hostname = socket.gethostname()
      f= open(settings.BASE_DIR+"/logs/email.log","a+")
-     f.write(str(dt.strftime('%Y-%m-%d %H:%M:%S'))+': '+line+"\r\n")
+     f.write(str(dt.strftime('%Y-%m-%d %H:%M:%S'))+': '+hostname+': '+line+"\r\n")
      f.close()
 
 def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,template_group,attachments=None):
