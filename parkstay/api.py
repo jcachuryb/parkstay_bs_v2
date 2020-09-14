@@ -1243,7 +1243,11 @@ def refund_transaction_callback(invoice_ref,bpoint_tid):
       for i in bi:
          i.booking.save()
      
-
+def invoice_callback(invoice_ref):
+      print ('invoice call back '+invoice_ref)
+      bi = BookingInvoice.objects.filter(invoice_reference=invoice_ref)
+      for i in bi:
+         i.booking.save()
 
 def campground_map_view(request, *args, **kwargs):
      from django.core import serializers

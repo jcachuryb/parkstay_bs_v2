@@ -85,7 +85,7 @@ class CampsiteBookingInline(admin.TabularInline):
 @admin.register(models.Booking)
 class BookingAdmin(admin.ModelAdmin):
     raw_id_fields = ('customer','overridden_by','canceled_by',)
-    list_display = ('id','customer','arrival', 'departure', 'campground','booking_type', 'cost_total','property_cache_version')
+    list_display = ('id','customer','arrival', 'departure', 'campground','booking_type', 'cost_total','property_cache_version','property_cache_stale')
     ordering = ('-id',)
     #search_fields = ('id','arrival', 'departure')
     search_fields = ('id',)
