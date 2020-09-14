@@ -1714,7 +1714,8 @@ class BookingViewSet(viewsets.ModelViewSet):
             recordsTotal = Booking.objects.all().count()
             filteredresultscount = Booking.objects.filter(booking_query).exclude(booking_type=3).count()
             #print (str(booking_query))
-            data_hash = hashlib.md5(str(str(booking_query)+':'+str(start)+':'+str(length)+":"+str(filteredresultscount)).encode('utf-8')).hexdigest()
+            lu = Booking.objects.all().values('updated').order_by('-updated')
+            data_hash = hashlib.md5(str(str(booking_query)+':'+str(start)+':'+str(length)+":"+str(filteredresultscount)+':'+str(lu[0]['updated'])).encode('utf-8')).hexdigest()
             jsonresults = cache.get('BookingViewSet'+data_hash)
             #bookings = None
             recordsFiltered = 0 
@@ -1835,7 +1836,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                           if rowcount > int(length):
                               break
                 jsonresults = json.dumps({'filteredResults': filteredResults, 'recordsFiltered': recordsFiltered})
-                cache.set('BookingViewSet'+data_hash, jsonresults, 86400)
+                cache.set('BookingViewSet'+data_hash, jsonresults, 604800)
             else:
                 jsonresults = json.loads(jsonresults)
                 filteredResults = jsonresults['filteredResults']

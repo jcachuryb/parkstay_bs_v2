@@ -948,6 +948,7 @@ class Booking(models.Model):
     cancellation_reason = models.TextField(null=True, blank=True)
     cancelation_time = models.DateTimeField(null=True, blank=True)
     confirmation_sent = models.BooleanField(default=False)
+    updated = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)
     canceled_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, blank=True, null=True, related_name='canceled_bookings')
     property_cache = JSONField(null=True, blank=True, default={})
@@ -961,6 +962,7 @@ class Booking(models.Model):
     # =================================
     def save(self, *args,**kwargs):
         print ("SAVE BOOKING")
+        self.updated = datetime.now() 
         self.property_cache_stale = True
         if 'cache_updated' in kwargs:
             if kwargs['cache_updated'] is True:
