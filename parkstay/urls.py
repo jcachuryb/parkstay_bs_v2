@@ -60,7 +60,7 @@ api_patterns = [
 
 # URL Patterns
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^admin/', admin.site.urls, name='admin_urls'),
     url(r'', include(api_patterns)),
     url(r'', include(site_queue_urls)),
     url(r'^account/', views.ProfileView.as_view(), name='account'),
