@@ -4,9 +4,9 @@ from parkstay import pdf
 from parkstay import models
 from ledger.payments.pdf import create_invoice_pdf_bytes
 from ledger.payments.models import Invoice
-from ledger.emails.emails import EmailBase
+from ledger.emails.emails import EmailBase2 as EmailBase
 from django.template.loader import render_to_string, get_template
-from django.template import Context
+#from django.template import Context
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from parkstay import doctopdf
 from confy import env
@@ -112,7 +112,6 @@ def send_booking_confirmation(booking_id):
     #     covidfile = opened.read()
 
     #email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PS{}.pdf'.format(booking.id), att.read(), 'application/pdf'), ('covid-PS{}.pdf'.format(booking.id), covidfile, 'application/pdf')])
-
     email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PS{}.pdf'.format(booking.id), pdf_buffer, 'application/pdf'),])
     email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
     booking.confirmation_sent = True
@@ -191,12 +190,12 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,template_group,a
 
     context['version'] = settings.VERSION_NO
     # Custom Email Body Template
-    context['body'] = get_template(template).render(Context(context))
+    context['body'] = get_template(template).render(context)
     # Main Email Template Style ( body template is populated in the center
     if template_group == 'system-oim':
-        main_template = get_template('ps/email/base_email-oim.html').render(Context(context))
+        main_template = get_template('ps/email/base_email-oim.html').render(context)
     else:
-        main_template = get_template('ps/email/base_email2.html').render(Context(context))
+        main_template = get_template('ps/email/base_email2.html').render(context)
 
     reply_to=None
 
