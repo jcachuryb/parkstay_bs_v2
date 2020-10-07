@@ -25,8 +25,8 @@ datapackage==0.8.1
 jsontableschema==0.10.1
 python-dateutil==2.6.1
 py4j==0.10.2.1
-djangorestframework==3.5.0
-djangorestframework-gis==0.11
+djangorestframework==3.9.1
+djangorestframework-gis==0.16
 djangorestframework-csv==2.0.0
 pycountry==17.1.8
 six>=1.10.0

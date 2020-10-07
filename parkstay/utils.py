@@ -465,17 +465,10 @@ def get_available_campsites_list_booking(campsite_qs, request, start_date, end_d
     from parkstay.serialisers import CampsiteSerialiser
     campsites = get_campsite_availability(campsite_qs, start_date, end_date)
     available = []
-    #print ("AVAILABLITY")
-    #print (campsites)
     for site_id, dates in campsites.items():
-        print ("DATES") 
-        print (dates)
         some_booked = any([v[0] == 'booked' for k, v in dates.items()])
         some_closed = any([v[0] == 'closed' for k, v in dates.items()])
         some_closed_and_booked = any([v[0] == 'closed & booked' for k, v in dates.items()])
-        print (site_id)
-        print (some_booked)
-        print (some_closed)
         if some_closed_and_booked or (some_booked and some_closed):
             av = 'closed & booked'
         elif some_booked:
@@ -1082,31 +1075,23 @@ def bind_booking(request, booking, invoice_ref):
             raise BindBookingException
         except BookingInvoice.DoesNotExist:
             logger.info(u'{} finished temporary booking {}, creating new BookingInvoice with reference {}'.format(u'User {} with id {}'.format(booking.customer.get_full_name(), booking.customer.id) if booking.customer else u'An anonymous user', booking.id, invoice_ref))
-            print("MLINE 1.20", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # FIXME: replace with server side notify_url callback
             book_inv, created = BookingInvoice.objects.get_or_create(booking=booking, invoice_reference=invoice_ref)
-            print("MLINE 1.30", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # set booking to be permanent fixture
             booking.booking_type = 1  # internet booking
             booking.expiry_time = None
             booking.save()
-            print("MLINE 1.40", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             delete_session_booking(request.session)
             request.session['ps_last_booking'] = booking.id
 
             # send out the invoice before the confirmation is sent
             #send_booking_invoice(booking)
-            print("MLINE 1.50", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # for fully paid bookings, fire off confirmation email
-            print ("BOOKING PAID")
-            print (booking.paid)
             #if booking.paid:
-            print("MLINE 1.60", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # because it slow the success page 
             #t = threading.Thread(target=send_booking_confirmation_email,args=[booking.id,],daemon=False)
             #t.start()
             #send_booking_confirmation(booking, request)
-            print("MLINE 1.70", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
 def send_booking_confirmation_email(booking_id):
     booking = Booking.objects.get(id=int(booking_id))
