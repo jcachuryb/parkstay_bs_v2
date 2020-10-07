@@ -355,7 +355,8 @@ background-color: #f8f8f8;
 
 <script>
 
-import 'foundation-sites';
+import 'foundation-sites/dist/js/foundation.min';
+//import 'foundation-sites';
 import 'foundation-datepicker/js/foundation-datepicker';
 import debounce from 'debounce';
 import moment from 'moment';
@@ -540,7 +541,7 @@ export default {
         },
         update: function() {
             var vm = this;
-
+            
             debounce(function() {
                 var params = {
                         arrival: moment.utc(vm.arrivalDate).format('YYYY/MM/DD'),
@@ -560,17 +561,18 @@ export default {
                     vm.updateURL();
                     url = vm.parkstayUrl + '/api/availability/'+ vm.parkstayGroundId +'.json/?'+$.param(params);
                 }
+                
                 $.ajax({
                     url: url,
                     dataType: 'json',
                     success: function(data, stat, xhr) {
+                        
                         vm.name = data.name;
                         vm.days = data.days;
                         vm.classes = data.classes;
                         vm.long_description = data.long_description;
-
                         vm.campground_type = data.campground_type;
-
+                        
                         vm.map = data.map;
                         vm.ongoing_booking = data.ongoing_booking;
                         vm.ongoing_booking_id = data.ongoing_booking_id;
@@ -584,7 +586,7 @@ export default {
                             vm.status = 'empty';
                             return;
                         }
-
+                        
                         vm.gearTotals.tent = 0
                         vm.gearTotals.campervan = 0
                         vm.gearTotals.caravan = 0
@@ -606,7 +608,7 @@ export default {
                                 vm.gearType = 'tent';
                             }
                         }
-
+                        
                         vm.sites = data.sites;
                         vm.status = 'online';
                         if (parseInt(vm.parkstayGroundRatisId) > 0){
@@ -638,8 +640,9 @@ export default {
     },
     mounted: function () {
         var vm = this;
+        
         $(document).foundation();
-
+        
         this.arrivalEl = $('#date-arrival');
         this.arrivalData = this.arrivalEl.fdatepicker({
             format: 'dd/mm/yyyy',
@@ -687,16 +690,15 @@ export default {
                 ev.target.dispatchEvent(new CustomEvent('change'));
             }
         }).data('datepicker');
-
-
+       
         this.arrivalData.date = this.arrivalDate.toDate();
         this.arrivalData.setValue();
         this.arrivalData.fill();
         this.departureData.date = this.departureDate.toDate();
         this.departureData.setValue();
         this.departureData.fill();
-
         this.update();
+        
     }
 }
 </script>

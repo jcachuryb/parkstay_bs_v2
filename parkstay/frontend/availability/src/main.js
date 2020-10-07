@@ -29,3 +29,5 @@ var availabilityApp = function (target, args) {
 };
 
 export default availabilityApp
+
+

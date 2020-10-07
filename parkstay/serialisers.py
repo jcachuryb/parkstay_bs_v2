@@ -597,7 +597,7 @@ class CampsiteClassPriceHistorySerializer(serializers.ModelSerializer):
 
     def validate(self, obj):
         if obj.get('reason') == 1 and not obj.get('details'):
-            raise serializers.ValidationError('Details is rtequired if the reason is other.')
+            raise serializers.ValidationError('Details is required if the reason is other.')
         return obj
 
     def __init__(self, *args, **kwargs):

@@ -8,11 +8,9 @@
     <div id="app"></div>
     <script type="text/javascript">
 var addressbook = null;
+
 window.onload = function () {
     availability = availabilityApp('#app', {
-        parkstayUrl: '<%= VUE_APP_PARKSTAY_URL %>', 
-        siteId: '<%= VUE_APP_SITE_ID %>', 
-        useAdminApi: '<%= VUE_APP_USE_ADMIN_API %>',
     });
 };
     </script>
