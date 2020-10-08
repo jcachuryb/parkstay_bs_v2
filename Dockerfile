@@ -47,7 +47,7 @@ COPY gunicorn.ini manage.py ./
 #COPY ledger ./ledger
 RUN touch /app/.env
 COPY parkstay ./parkstay
-COPY .git/refs/heads/master /app/git_hash
+#COPY .git/refs/heads/master /app/git_hash
 RUN mkdir /app/parkstay/cache/
 RUN chmod 777 /app/parkstay/cache/
 RUN python manage.py collectstatic --noinput
