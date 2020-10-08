@@ -2,8 +2,7 @@ sudo: false
 language: python
 cache: pip
 python:
-    - "2.7"
-    - "3.5"
+    - "3.8"
 addons:
     postgresql: "9.6"
 services:
@@ -21,6 +20,7 @@ env:
         - EMAIL_INSTANCE="TEST"
         - NON_PROD_EMAIL="travis@dpaw.wa.gov.au"
         - BPAY_ALLOWED=True
+        - DEBUG=True
 sudo: true
 install:
     - sudo apt-get install postgresql-9.6-postgis-2.4 -y -q

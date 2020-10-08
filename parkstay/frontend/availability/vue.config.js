@@ -14,7 +14,7 @@ module.exports = {
     runtimeCompiler: undefined,
     productionSourceMap: undefined,
     parallel: undefined,
-    
+
     configureWebpack: function (config) {
         // expose the init function as a global 
         config.output.library = 'availabilityApp';

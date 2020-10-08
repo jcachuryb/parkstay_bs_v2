@@ -7,12 +7,12 @@ from ledger.settings_base import *
 
 ROOT_URLCONF = 'parkstay.urls'
 SITE_ID = 1
-DATABASES['site_queue_manager'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR+'/parkstay/cache/site_manager_db.sqlite3',
-    } 
-DATABASE_ROUTERS.append('django_site_queue.models.SiteQueueManagerDBRouter')
-DATABASE_APPS_MAPPING['site_queue_manager'] = 'site_queue_manager'
+#DATABASES['site_queue_manager'] = {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR+'/parkstay/cache/site_manager_db.sqlite3',
+#    } 
+#DATABASE_ROUTERS.append('django_site_queue.models.SiteQueueManagerDBRouter')
+#DATABASE_APPS_MAPPING['site_queue_manager'] = 'site_queue_manager'
 
 # number of seconds before expiring a temporary booking
 BOOKING_TIMEOUT = 600
@@ -23,7 +23,7 @@ INSTALLED_APPS += [
     'taggit',
     'rest_framework',
     'rest_framework_gis',
-    'django_site_queue',
+#    'django_site_queue',
 ]
 
 MIDDLEWARE_CLASSES += [

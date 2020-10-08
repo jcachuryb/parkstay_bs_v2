@@ -3,6 +3,7 @@ git+https://github.com/dbca-wa/ledger#egg=ledger
 psycopg2-binary==2.8.5
 Django==1.11.29
 django-extensions==1.9.8
+ipython==7.18.1
 git+https://github.com/dbca-wa/dpaw-utils.git@0.3a16#egg=dpaw-utils
 git+https://github.com/django-oscar/django-oscar.git@17a1f6b17aba19e3c0b095e90acc654d463e0cf9#egg=django-oscar
 social-auth-app-django==2.1.0
@@ -24,8 +25,8 @@ datapackage==0.8.1
 jsontableschema==0.10.1
 python-dateutil==2.6.1
 py4j==0.10.2.1
-djangorestframework==3.5.0
-djangorestframework-gis==0.11
+djangorestframework==3.9.1
+djangorestframework-gis==0.16
 djangorestframework-csv==2.0.0
 pycountry==17.1.8
 six>=1.10.0
