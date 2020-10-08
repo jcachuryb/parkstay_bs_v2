@@ -961,14 +961,12 @@ class Booking(models.Model):
     # Properties
     # =================================
     def save(self, *args,**kwargs):
-        print ("SAVE BOOKING")
         self.updated = datetime.now() 
         self.property_cache_stale = True
         if 'cache_updated' in kwargs:
             if kwargs['cache_updated'] is True:
                 self.property_cache_stale = False 
                 del kwargs['cache_updated']
-        print (kwargs) 
         super(Booking,self).save(*args,**kwargs)
 
     def get_property_cache(self):
