@@ -321,7 +321,7 @@ class BookingSuccessView(TemplateView):
             try:
                 
                 utils.bind_booking(booking, invoice_ref)
-                delete_session_booking(request.session)
+                utils.delete_session_booking(request.session)
                 request.session['ps_last_booking'] = booking.id
 
             except BindBookingException:
