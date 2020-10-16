@@ -318,7 +318,6 @@ class BookingSuccessView(TemplateView):
         try:
             booking = utils.get_session_booking(request.session)
             invoice_ref = request.GET.get('invoice')
-            print ("BOOKING SUCCESS") 
             try:
                 
                 #utils.bind_booking(booking, invoice_ref)
