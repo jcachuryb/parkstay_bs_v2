@@ -320,7 +320,7 @@ class BookingSuccessView(TemplateView):
             invoice_ref = request.GET.get('invoice')
             try:
                 
-                #utils.bind_booking(booking, invoice_ref)
+                utils.bind_booking(booking, invoice_ref)
                 delete_session_booking(request.session)
                 request.session['ps_last_booking'] = booking.id
 
