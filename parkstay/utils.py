@@ -950,6 +950,8 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'vouchers': vouchers,
         'system': settings.PS_PAYMENT_SYSTEM_ID,
         'custom_basket': True,
+        'booking_reference': 'PS-'+str(booking.id)
+        
     }
     basket, basket_hash = create_basket_session(request, basket_params)
 
@@ -1056,7 +1058,7 @@ def delete_session_booking(session):
         session.modified = True
 
 
-def bind_booking(request, booking, invoice_ref):
+def bind_booking(booking, invoice_ref):
     if booking.booking_type == 3:
         print("MLINE 1.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         try:
@@ -1081,8 +1083,8 @@ def bind_booking(request, booking, invoice_ref):
             booking.booking_type = 1  # internet booking
             booking.expiry_time = None
             booking.save()
-            delete_session_booking(request.session)
-            request.session['ps_last_booking'] = booking.id
+            #delete_session_booking(request.session)
+            #request.session['ps_last_booking'] = booking.id
 
             # send out the invoice before the confirmation is sent
             #send_booking_invoice(booking)
