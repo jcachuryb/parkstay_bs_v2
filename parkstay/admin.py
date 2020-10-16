@@ -57,6 +57,11 @@ class CampgroundGroupAdmin(admin.ModelAdmin):
         return qs.filter(id__in=group)
 
 
+@admin.register(models.EmailGroup)
+class EmailGroupAdmin(admin.ModelAdmin):
+    list_display = ('email','email_group','active')
+    list_filter = ('email_group',)
+
 @admin.register(models.Campsite)
 class CampsiteAdmin(admin.ModelAdmin):
     list_display = ('name', 'campground',)

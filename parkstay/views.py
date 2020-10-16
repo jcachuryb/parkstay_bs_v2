@@ -318,9 +318,12 @@ class BookingSuccessView(TemplateView):
         try:
             booking = utils.get_session_booking(request.session)
             invoice_ref = request.GET.get('invoice')
-            
             try:
-                utils.bind_booking(request, booking, invoice_ref)
+                
+                utils.bind_booking(booking, invoice_ref)
+                delete_session_booking(request.session)
+                request.session['ps_last_booking'] = booking.id
+
             except BindBookingException:
                 return redirect('public_make_booking')
             

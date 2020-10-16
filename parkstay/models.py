@@ -340,6 +340,18 @@ class CampgroundGroup(models.Model):
     def __str__(self):
         return self.name
 
+class EmailGroup(models.Model):
+
+    EMAIL_GROUP = (
+        (0, 'Parkstay Booking Checks'),
+    )
+
+    email_group = models.SmallIntegerField(choices=EMAIL_GROUP, default=0)
+    email = models.CharField(max_length=300)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.email
 
 class CampgroundImage(models.Model):
     image = models.ImageField(max_length=255, upload_to=campground_image_path)
