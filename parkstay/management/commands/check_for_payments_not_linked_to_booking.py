@@ -41,6 +41,10 @@ class Command(BaseCommand):
                        if baa.count() > 0:
                            basket = Basket.objects.filter(id=int(r['basket']))
                            if baa[0].booking_type == 3:
+                              booking_obj = baa[0]
+                              booking_obj.error_sending_confirmation=True
+                              booking_obj.error_sending_invoice=True
+                              booking_obj.save() 
 
                               utils.bind_booking(baa[0], r['reference']) 
                               bpoint_integrity_checks_completed(r['bpoint_id'],r['reference'])
