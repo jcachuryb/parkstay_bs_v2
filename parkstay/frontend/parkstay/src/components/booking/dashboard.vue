@@ -188,13 +188,30 @@ export default {
                 name.length > max_length
                   ? name.substring(0, max_length - 1) + "..."
                   : name;
+              
               var popover =
                 name.length > max_length ? 'class="name_popover"' : "";
+              var contact_details = '';
+              //if (full.customer_account_phone != full.customer_account_mobile || full.customer_account_phone  != full.customer_booking_phone) {
+                if (full.customer_account_phone) {
+                   contact_details += full.customer_account_phone+"<BR>";
+                }
+              //}
+              if (full.customer_account_mobile != full.customer_account_phone && full.customer_account_mobile != full.customer_booking_phone) {
+                   if (full.customer_account_mobile.length > 1) {
+                      contact_details += full.customer_account_mobile+"<BR>";
+                   }
+              }
+              if (full.customer_booking_phone != full.customer_account_mobile && full.customer_booking_phone != full.customer_account_phone) {
+                   if (full.customer_booking_phone.length > 1) {
+                      contact_details += full.customer_booking_phone+"<BR>";
+                   }
+              }
               var column =
                 "<td ><div " +
                 popover +
                 ' tabindex="0" data-toggle="popover" data-placement="top" data-content="__NAME__">' +
-                short_name +
+                short_name +"<BR>"+contact_details;
                 "</div></td>";
               column.replace(/__SHNAME__/g, short_name);
               return column.replace(/__NAME__/g, name);
@@ -676,6 +693,7 @@ export default {
                   bk[field] = booking.campground_region;
                   break;//vm.filterDateFrom = dateFromPicker.defaultDate
                 case 3:
+                  
                   bk[field] = booking.firstname + " " + booking.lastname;
                   break;
                 case 4:
