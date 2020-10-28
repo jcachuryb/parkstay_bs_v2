@@ -694,7 +694,7 @@ export default {
                   break;//vm.filterDateFrom = dateFromPicker.defaultDate
                 case 3:
                   
-                  bk[field] = booking.firstname + " " + booking.lastname+"<BR>"+booking.customer_account_phone+"<BR>"+booking.customer_account_mobile+"<BR>"+booking.customer_booking_phone;
+                  bk[field] = booking.firstname + " " + booking.lastname;
                   break;
                 case 4:
                   bk[field] = booking.email;
