@@ -1812,11 +1812,16 @@ class BookingViewSet(viewsets.ModelViewSet):
                       row['send_invoice'] = b['send_invoice'] 
                       #if booking.override_price is not None and booking.override_price >= 0:
                       row['discount'] = discount
+                      row['customer_account_phone'] = ''
+                      row['customer_account_mobile'] = ''
+                      row['customer_booking_phone'] = b['details'].get('phone','') 
 
                       if b['property_cache']['customer_phone_number'] is not None:
                           row['phone'] = b['property_cache']['customer_phone_number'] 
+                          row['customer_account_phone'] = b['property_cache']['customer_phone_number']
                       elif b['property_cache']['customer_mobile_number'] is not None:
                           row['phone'] = b['property_cache']['customer_mobile_number']
+                          row['customer_account_mobile'] = b['property_cache']['customer_mobile_number']
                       else:
                           row['phone'] = ''
 
