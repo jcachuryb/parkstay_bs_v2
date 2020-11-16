@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django import forms
+from ledger.basket.models import Basket
 from parkstay.forms import LoginForm, MakeBookingsForm, AnonymousMakeBookingsForm, VehicleInfoFormset
 from parkstay.exceptions import BindBookingException
 from parkstay.models import (Campground,
@@ -316,12 +317,24 @@ class BookingSuccessView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         try:
+            print("BookingSuccessView - get 1.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            basket = None
+            
             booking = utils.get_session_booking(request.session)
-            invoice_ref = request.GET.get('invoice')
+            if self.request.user.is_authenticated():
+                basket = Basket.objects.filter(status='Submitted', owner=request.user).order_by('-id')[:1]
+            else:
+                basket = Basket.objects.filter(status='Submitted', owner=booking.customer).order_by('-id')[:1]
+
+
+            #booking = utils.get_session_booking(request.session)
+            #invoice_ref = request.GET.get('invoice')
             try:
-                
-                utils.bind_booking(booking, invoice_ref)
+                print("BookingSuccessView - get 3.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S")) 
+                utils.bind_booking(booking, basket)
+                print("BookingSuccessView - get 4.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 utils.delete_session_booking(request.session)
+                print("BookingSuccessView - get 5.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 request.session['ps_last_booking'] = booking.id
 
             except BindBookingException:
@@ -336,6 +349,7 @@ class BookingSuccessView(TemplateView):
         context = {
             'booking': booking
         }
+        print("BookingSuccessView - get 6.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         return render(request, self.template_name, context)
 
 
