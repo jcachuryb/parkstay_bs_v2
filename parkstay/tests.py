@@ -174,7 +174,7 @@ class ClientBookingTestCase(TransactionTestCase):
 
         # check that preview page works
         response = self.client.get(self.preview_url)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
         # submit the order
         response = self.client.post(self.preview_url, {
@@ -248,7 +248,7 @@ class ClientBookingTestCase(TransactionTestCase):
 
         # check that preview page works
         response = self.client.get(self.preview_url)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
         # submit the order
         response = self.client.post(self.preview_url, {
