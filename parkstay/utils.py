@@ -977,6 +977,7 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         response = place_order_submission(request)
     else:
         response = HttpResponse("<script> window.location='"+reverse('checkout:index')+"';</script> <a href='"+reverse('checkout:index')+"'> Redirecting please wait: "+reverse('checkout:index')+"</a>")
+        #response = HttpResponseRedirect(reverse('checkout:index'))
         # inject the current basket into the redirect response cookies
         # or else, anonymous users will be directionless
         response.set_cookie(
