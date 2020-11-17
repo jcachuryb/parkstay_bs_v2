@@ -46,7 +46,7 @@ class Command(BaseCommand):
                            if baa[0].booking_type == 3:
                               booking_obj = baa[0]
                               if booking_obj.expiry_time > timezone.now(): 
-                                 utils.bind_booking(baa[0], r['reference'])
+                                 utils.bind_booking(baa[0], basket)
                                  #booking_obj.save()
                                  bpoint_integrity_checks_completed(r['bpoint_id'],r['reference'])
                                  self.log("Booking Recovery for ("+str(r['booking_reference'].replace("-",""))+") with invoice ("+r['reference']+") - before expiry")
