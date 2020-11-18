@@ -107,6 +107,14 @@ class DashboardView(UserPassesTestMixin, TemplateView):
         return is_officer(self.request.user)
 
 
+    def get(self, request, *args, **kwargs):
+        # if page is called with ratis_id, inject the ground_id
+        context = {}
+        response = render(request, self.template_name, context)
+        response.delete_cookie(settings.OSCAR_BASKET_COOKIE_OPEN)
+        return response
+
+
 def abort_booking_view(request, *args, **kwargs):
     try:
         change = bool(request.GET.get('change', False))
@@ -350,7 +358,9 @@ class BookingSuccessView(TemplateView):
             'booking': booking
         }
         print("BookingSuccessView - get 6.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-        return render(request, self.template_name, context)
+        response = render(request, self.template_name, context)
+        response.delete_cookie(settings.OSCAR_BASKET_COOKIE_OPEN)
+        return response
 
 
 class MyBookingsView(LoginRequiredMixin, TemplateView):
