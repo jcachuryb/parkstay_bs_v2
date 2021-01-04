@@ -839,8 +839,15 @@ class CampsiteBooking(models.Model):
     def __str__(self):
         return '{} - {}'.format(self.campsite, self.date)
 
-    class Meta:
-        unique_together = (('campsite', 'date'),)
+    #class Meta:
+    #    unique_together = (('campsite', 'date'),)
+
+    def save(self, *args, **kwargs):
+        #csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date, booking__is_canceled=False)).count()
+        csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date,)).count() 
+        if csb > 0: 
+            raise ValidationError('Duplicate booking date for this campsite.')
+        super(CampsiteBooking, self).save(*args, **kwargs)
 
 
 class Rate(models.Model):
@@ -1296,7 +1303,7 @@ class Booking(models.Model):
         self.cancellation_reason = reason
         self.is_canceled = True
         self.cancelation_time = timezone.now()
-        self.campsites.all().delete()
+        #self.campsites.all().delete()
         references = self.invoices.all().values('invoice_reference')
         for r in references:
             try:
