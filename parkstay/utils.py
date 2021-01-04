@@ -216,7 +216,8 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None):
     bookings_qs = CampsiteBooking.objects.filter(
         campsite__in=campsites_qs,
         date__gte=start_date,
-        date__lt=end_date
+        date__lt=end_date,
+        booking__is_canceled=False,
     ).order_by('date', 'campsite__name')
 
     # prefill all slots as 'open'
@@ -229,7 +230,7 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None):
     cgbr_qs = CampgroundBookingRange.objects.filter(
         Q(campground__in=campground_map.keys()),
         Q(status=1),
-        Q(range_start__lt=end_date) & (Q(range_end__gte=start_date) | Q(range_end__isnull=True))
+        Q(range_start__lt=end_date) & (Q(range_end__gte=start_date) | Q(range_end__isnull=True)),
     )
     for closure in cgbr_qs:
         start = max(start_date, closure.range_start)
@@ -277,6 +278,7 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None):
         results[b.campsite.pk][b.date][0] = 'closed'
 
     # add booking status for real bookings
+    # for b in bookings_qs.exclude(booking_type=2):
     for b in bookings_qs.exclude(booking_type=2):
         if results[b.campsite.pk][b.date][0] == 'closed':
             results[b.campsite.pk][b.date][0] = 'closed & booked'
