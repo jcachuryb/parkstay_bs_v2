@@ -69,7 +69,6 @@ class CampsiteAdmin(admin.ModelAdmin):
     list_filter = ('campground',)
     search_fields = ('name',)
 
-
 @admin.register(models.Feature)
 class FeatureAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')

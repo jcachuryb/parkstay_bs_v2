@@ -909,7 +909,7 @@ export default {
         var ol = {'proj': proj, 'extent': extent, 'tilegrid': {'WMTS': tilegridwmts}, 'layer': {'Tile': layertitle, 'Vector': layervector}, 'source': {'WMTS': sourcewmts, 'Vector': sourcevector}, 'style': {'Icon': styleicon, 'Style': stylestyle}, 'Overlay': overlay, 'Feature': feature, 'Map': map, 'View': view, 'control': {'Zoom': controlzoom,'ScaleLine': controlscaleline}, 'interaction': interaction, 'Geolocation': geolocation, 'geom': {'point': point}, 'format': {'GeoJSON': formatgeojson}, 'Collection': collection};
         vm.ol = ol;
         console.log('Loading map...');
-        vm.load_site_queue();
+        // vm.load_site_queue();
         
         var nowTemp = new Date();
         var now = moment.utc({year: nowTemp.getFullYear(), month: nowTemp.getMonth(), day: nowTemp.getDate(), hour: 0, minute: 0, second: 0}).toDate();

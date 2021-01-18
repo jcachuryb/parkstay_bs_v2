@@ -104,6 +104,9 @@ os.environ['LEDGER_REFUND_EMAIL'] = 'True'
 VERSION_NO = '3.12'
 # Only change if you make changes to Booking Properties
 BOOKING_PROPERTY_CACHE_VERSION='v1.03'
+QUEUE_DOMAIN = env('QUEUE_DOMAIN','')
+QUEUE_URL = env('QUEUE_URL','')
+
 
 # Use git commit hash for purging cache in browser for deployment changes
 GIT_COMMIT_HASH = ''
