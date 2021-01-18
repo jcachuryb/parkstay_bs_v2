@@ -16,5 +16,6 @@ def parkstay_url(request):
         'WAITING_QUEUE_ENABLED': settings.WAITING_QUEUE_ENABLED,
         'GIT_COMMIT_DATE' : settings.GIT_COMMIT_DATE,
         'GIT_COMMIT_HASH' : settings.GIT_COMMIT_HASH,
-
+        'QUEUE_DOMAIN' : settings.QUEUE_DOMAIN,
+        'QUEUE_URL' : settings.QUEUE_URL,
     }
