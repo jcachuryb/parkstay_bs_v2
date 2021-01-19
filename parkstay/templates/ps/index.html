@@ -52,13 +52,4 @@
         </div>
     </div>
 
-        {% if WAITING_QUEUE_ENABLED == True %}
-        <script src="{{ QUEUE_URL }}/static/js/django_queue_manager/site-queue-manager.js?ver={{ GIT_COMMIT_HASH }}"></script>
-        <script>
-           window.onload = function() {
-               sitequeuemanager.init('{{ QUEUE_DOMAIN }}','{{ QUEUE_URL }}','parkstay');
-           }
-        </script>
-        {% endif %}
-
 {% endblock %}
