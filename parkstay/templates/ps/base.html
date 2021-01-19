@@ -127,15 +127,7 @@
         {% block custom_js %}
         <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-        {{ WAITING_QUEUE_ENABLED }}
-	{% if WAITING_QUEUE_ENABLED == True %}
-	<script src="{{ QUEUE_URL }}/static/js/django_queue_manager/site-queue-manager.js?ver={{ GIT_COMMIT_HASH }}"></script>
-        <script>
-           window.onload = function() {
-               sitequeuemanager.init('{{ QUEUE_DOMAIN }}','{{ QUEUE_URL }}','parkstay');
-           }
-        </script>
-        {% endif %}
+       
         {% endblock %}
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-108679294-1"></script>
         <script>
@@ -144,5 +136,14 @@
             gtag('js', new Date());
             gtag('config', 'UA-108679294-1');
         </script>
+       {% if WAITING_QUEUE_ENABLED == True %}
+        <script src="{{ QUEUE_URL }}/static/js/django_queue_manager/site-queue-manager.js?ver={{ GIT_COMMIT_HASH }}"></script>
+        <script>
+             if (typeof sitequeuemanager !== "undefined") { 
+               sitequeuemanager.init('{{ QUEUE_DOMAIN }}','{{ QUEUE_URL }}','parkstay');
+             }
+        </script>
+        {% endif %}
+
     </body>
 </html>
