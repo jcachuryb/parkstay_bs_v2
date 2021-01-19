@@ -140,7 +140,7 @@
         <script src="{{ QUEUE_URL }}/static/js/django_queue_manager/site-queue-manager.js?ver={{ GIT_COMMIT_HASH }}"></script>
         <script>
              if (typeof sitequeuemanager !== "undefined") { 
-               sitequeuemanager.init('{{ QUEUE_DOMAIN }}','{{ QUEUE_URL }}','parkstay');
+               sitequeuemanager.init('{{ QUEUE_DOMAIN }}','{{ QUEUE_URL }}','parkstay','{{ QUEUE_ACTIVE_HOSTS }}');
              }
         </script>
         {% endif %}

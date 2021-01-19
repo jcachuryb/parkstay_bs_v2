@@ -106,7 +106,7 @@ VERSION_NO = '3.12'
 BOOKING_PROPERTY_CACHE_VERSION='v1.03'
 QUEUE_DOMAIN = env('QUEUE_DOMAIN','')
 QUEUE_URL = env('QUEUE_URL','')
-
+QUEUE_ACTIVE_HOSTS = env('QUEUE_ACTIVE_HOSTS','')
 
 # Use git commit hash for purging cache in browser for deployment changes
 GIT_COMMIT_HASH = ''
