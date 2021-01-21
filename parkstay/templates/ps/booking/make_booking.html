@@ -24,6 +24,8 @@
 {% block content %}
 
 <div id="addBooking">
+<input type='hidden' value='disabled' id='site_queue_manager_active'>
+
 {% if not booking %}
     <div class="container">
         <div class="row">
