@@ -844,7 +844,7 @@ class CampsiteBooking(models.Model):
 
     def save(self, *args, **kwargs):
         #csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date, booking__is_canceled=False)).count()
-        csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date,)).count() 
+        csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date,is_canceled=False)).count() 
         if csb > 0: 
             raise ValidationError('Duplicate booking date for this campsite.')
         super(CampsiteBooking, self).save(*args, **kwargs)
