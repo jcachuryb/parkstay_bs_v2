@@ -844,7 +844,7 @@ class CampsiteBooking(models.Model):
 
     def save(self, *args, **kwargs):
         #csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date, booking__is_canceled=False)).count()
-        csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date,is_canceled=False)).count() 
+        csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date,booking__is_canceled=False)).count() 
         if csb > 0: 
             raise ValidationError('Duplicate booking date for this campsite.')
         super(CampsiteBooking, self).save(*args, **kwargs)
@@ -1197,11 +1197,22 @@ class Booking(models.Model):
         arrival = self.arrival
         departure = self.departure
         customer = self.customer
+        concurrent_booking=False      
+        #is_canceled=False#
+        other_bookings = Booking.objects.filter(Q(departure__gt=arrival, departure__lte=departure) | Q(arrival__gte=arrival, arrival__lt=departure), customer=customer).exclude(id=self.id, is_canceled=True)
+        current_booking = CampsiteBooking.objects.filter(booking=self)
+        for i in other_bookings:
+             if i.id != self.id:
+                cb = CampsiteBooking.objects.filter(booking=i) 
+                for c in cb:
+                    for cu_bo in current_booking:
+                       if c.date == cu_bo.date:
+                            if c.campsite == cu_bo.campsite:
+                                  concurrent_booking = True
 
-        other_bookings = Booking.objects.filter(Q(departure__gt=arrival, departure__lte=departure) | Q(arrival__gte=arrival, arrival__lt=departure), customer=customer)
-        if self.pk:
-            other_bookings.exclude(id=self.pk)
-        if customer and other_bookings and self.booking_type != 3:
+        #if self.pk:
+        #    other_bookings.exclude(id=self.pk)
+        if customer and concurrent_booking is True and self.booking_type != 3:
             raise ValidationError('You cannot make concurrent bookings.')
         if not self.campground.oracle_code:
             raise ValidationError('Campground does not have an Oracle code.')
