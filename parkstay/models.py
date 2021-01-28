@@ -844,7 +844,7 @@ class CampsiteBooking(models.Model):
 
     def save(self, *args, **kwargs):
         #csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date, booking__is_canceled=False)).count()
-        csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date,booking__is_canceled=False)).count() 
+        csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date,booking__is_canceled=False)).exclude(booking__id=self.booking.id).exclude(booking__old_booking=self.booking.id).count() 
         if csb > 0: 
             raise ValidationError('Duplicate booking date for this campsite.')
         super(CampsiteBooking, self).save(*args, **kwargs)
@@ -976,10 +976,12 @@ class Booking(models.Model):
     do_not_send_invoice = models.BooleanField(default=False)
     error_sending_confirmation = models.BooleanField(default=False)
     error_sending_invoice = models.BooleanField(default=False)
+    old_booking = models.IntegerField(blank=True, null=True) 
 
     # Properties
     # =================================
     def save(self, *args,**kwargs):
+        print ("SAVING BOOKING:"+str(self.id))
         self.updated = datetime.now() 
         self.property_cache_stale = True
         if 'cache_updated' in kwargs:

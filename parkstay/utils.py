@@ -96,11 +96,14 @@ def create_booking_by_class(campground_id, campsite_class_id, start_date, end_da
     return booking
 
 
-def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, cost_total=0, override_price=None, override_reason=None, override_reason_info=None, send_invoice=False, overridden_by=None, customer=None, updating_booking=False, override_checks=False,  do_not_send_invoice=False):
+def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, cost_total=0, override_price=None, override_reason=None, override_reason_info=None, send_invoice=False, overridden_by=None, customer=None, updating_booking=False, override_checks=False,  do_not_send_invoice=False,old_booking=None):
     """Create a new temporary booking in the system for a set of specific campsites."""
 
     # the CampsiteBooking table runs the risk of a race condition,
-    # wrap all this behaviour up in a transaction
+    # wrap all this behaviour up in a transaction 
+    old_booking_id = None
+    if old_booking:
+        old_booking_id = old_booking.id
 
     campsite_qs = Campsite.objects.filter(pk__in=sites_qs)
     with transaction.atomic():
@@ -152,7 +155,9 @@ def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_conc
             campground=campsite_qs[0].campground,
             customer=customer,
             do_not_send_invoice=do_not_send_invoice,
+            old_booking=old_booking_id
         )
+
         for cs in campsite_qs:
             for i in range((end_date - start_date).days):
                 cb = CampsiteBooking.objects.create(
@@ -691,7 +696,8 @@ def get_diff_days(old_booking, new_booking, additional=True):
 
 def create_temp_bookingupdate(request, arrival, departure, booking_details, old_booking, total_price):
     # delete all the campsites in the old moving so as to transfer them to the new booking
-    old_booking.campsites.all().delete()
+    # old_booking.campsites.all().delete()
+
     booking = create_booking_by_site(booking_details['campsites'],
                                      start_date=arrival,
                                      end_date=departure,
@@ -704,7 +710,8 @@ def create_temp_bookingupdate(request, arrival, departure, booking_details, old_
                                      override_price=old_booking.override_price,
                                      overridden_by=request.user,
                                      updating_booking=True,
-                                     override_checks=True
+                                     override_checks=True,
+                                     old_booking=old_booking
                                      )
     # Move all the vehicles to the new booking
     for r in old_booking.regos.all():
@@ -767,6 +774,7 @@ def update_booking(request, old_booking, booking_details):
     same_campground = False
     same_details = False
     same_vehicles = True
+
     with transaction.atomic():
         try:
             set_session_booking(request.session, old_booking)
@@ -870,7 +878,9 @@ def update_booking(request, old_booking, booking_details):
             if old_booking.cost_total != total_price:
                 price_diff = True
             if price_diff:
-
+                old_booking.is_canceled = True
+                old_booking.save()
+                
                 booking = create_temp_bookingupdate(request, booking.arrival, booking.departure, booking_details, old_booking, total_price)
                 # Attach campsite booking objects to old booking
                 for c in booking.campsites.all():
