@@ -6,3 +6,7 @@
 30 9 * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py check_for_missing_bpoint_payments >> /app/logs/check_for_missing_bpoint_payments.log 2>&1
 
 */1 * * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py check_for_payments_not_linked_to_booking  >> /app/logs/check_for_payments_not_linked_to_booking.log 2>&1
+
+15 9 * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py bpoint_ledger_payment_audit_report >> /app/logs/bpoint_ledger_payment_audit_report.log 2>&1
+
+
