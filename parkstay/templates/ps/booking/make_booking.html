@@ -234,10 +234,10 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Number of vehicles:
-                                    <input class="form-control" name="form-TOTAL_FORMS" max="8" min="0" value="1" v-model="vehicleCount" v-on:change="updateVehicles" type="number"/>
+					<input class="form-control" name="form-TOTAL_FORMS" max="{{ campsite.max_vehicles }}" min="0" value="1" v-model="vehicleCount" v-on:change="updateVehicles" type="number"/><span id='max_vehicles_error' style='color:red;font-weight:bold;'></span>
                                     <input id="id_form-INITIAL_FORMS" name="form-INITIAL_FORMS" type="hidden" value="1" />
                                     <input id="id_form-MIN_NUM_FORMS" name="form-MIN_NUM_FORMS" type="hidden" value="0" />
-                                    <input id="id_form-MAX_NUM_FORMS" name="form-MAX_NUM_FORMS" type="hidden" value="8" />
+				    <input id="id_form-MAX_NUM_FORMS" name="form-MAX_NUM_FORMS" type="hidden" value="{{ campsite.max_vehicles }}" />
                                 </label>
                             </div>
                         </div>
@@ -363,6 +363,7 @@
             toc: false,
             outsideregion: false,
             trav_res: false,
+   	    max_vehicles: {% if campsite.max_vehicles > 0 %}{{ campsite.max_vehicles }}{% else %}0{% endif %},
             booking_id: {{ booking.id }}
         },
         filters:{
@@ -413,16 +414,23 @@
             },
             updateVehicles: function () {
                 var vm = this;
-                var diff = vm.vehicles.length - vm.vehicleCount
-                if (diff < 0) {
-                    for (var i=0; i<-diff; i++) {
-                        vm.vehicles.push([0, '', true]);
-                    }
-                } else if (diff > 0) {
-                    for (var i=0; i<diff; i++) {
-                        vm.vehicles.pop();
-                    }
-                }
+                var diff = vm.vehicles.length - vm.vehicleCount;
+	        $('#max_vehicles_error').html("");
+            	if ( vm.vehicleCount > vm.max_vehicles) {
+		    $('#max_vehicles_error').html("Error: Vehicle limit is "+vm.max_vehicles);
+		    vm.vehicleCount = vm.max_vehicles;
+		     diff = vm.vehicles.length - vm.vehicleCount;
+		}    	    
+
+                     if (diff < 0) {
+                         for (var i=0; i<-diff; i++) {
+                             vm.vehicles.push([0, '', true]);
+                         }
+                     } else if (diff > 0) {
+                         for (var i=0; i<diff; i++) {
+                             vm.vehicles.pop();
+                         }
+                     }
                 vm.calculateTotal();
 
                 vm.updateLocalStorage();
