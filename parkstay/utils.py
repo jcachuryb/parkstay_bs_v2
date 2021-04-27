@@ -696,7 +696,7 @@ def get_diff_days(old_booking, new_booking, additional=True):
 
 def create_temp_bookingupdate(request, arrival, departure, booking_details, old_booking, total_price):
     # delete all the campsites in the old moving so as to transfer them to the new booking
-    # old_booking.campsites.all().delete()
+    old_booking.campsites.all().delete()
 
     booking = create_booking_by_site(booking_details['campsites'],
                                      start_date=arrival,
@@ -878,8 +878,8 @@ def update_booking(request, old_booking, booking_details):
             if old_booking.cost_total != total_price:
                 price_diff = True
             if price_diff:
-                old_booking.is_canceled = True
-                old_booking.save()
+                #old_booking.is_canceled = True
+                #old_booking.save()
                 
                 booking = create_temp_bookingupdate(request, booking.arrival, booking.departure, booking_details, old_booking, total_price)
                 # Attach campsite booking objects to old booking
