@@ -19,10 +19,9 @@ from taggit.managers import TaggableManager
 from django.dispatch import receiver
 from django.db.models.signals import post_delete, pre_save, post_save, pre_delete
 from django.core.cache import cache
-from ledger.payments.models import Invoice
-from ledger.accounts.models import EmailUser
-from ledger.payments.bpoint.models import BpointTransaction
-from ledger.payments.cash.models import CashTransaction
+from ledger_api_client.ledger_models import Invoice, EmailUserRO as EmailUser
+#from ledger.payments.bpoint.models import BpointTransaction
+#from ledger.payments.cash.models import CashTransaction
 from rest_framework import viewsets, serializers, status, generics, views
 from parkstay import property_cache 
 
@@ -332,13 +331,54 @@ def campground_image_path(instance, filename):
     return '/'.join(['parkstay', 'campground_images', filename])
 
 
+class CampgroundGroupMembers(models.Model):
+      #id = models.IntegerField()
+      campgroundgroup_id = models.IntegerField()
+      emailuser_id = models.IntegerField()
+
+      class Meta:
+          managed = False
+          db_table = 'parkstay_campgroundgroup_members'
+
+#db_table='emailuser'
+#db_table='parkstay_campgroundgroup_members'
 class CampgroundGroup(models.Model):
     name = models.CharField(max_length=100)
-    members = models.ManyToManyField(EmailUser, blank=True)
+    members = models.ManyToManyField(EmailUser, db_table='parkstay_campgroundgroup_members', blank=True,)
     campgrounds = models.ManyToManyField(Campground, blank=True)
 
     def __str__(self):
         return self.name
+
+#    def save(self, *args, **kwargs):
+#        super(CampgroundGroup, self).save(*args, **kwargs)
+#print ("META")
+#print (CampgroundGroup.members.through._meta)
+#CampgroundGroup.members.through._meta.get_field('emailuser').column='emailuser_id'
+
+CampgroundGroup.members.through._meta.get_field('emailuserro').column='emailuser_id'
+
+
+class CampgroundGroupCampgrounds(models.Model):
+      #id = models.IntegerField()
+      #campgroundgroup_id = models.ForeignKey(CampgroundGroup, related_name='campgroundgroupcampgrounds')
+      campgroundgroup_id = models.IntegerField()
+      campground_id = models.IntegerField()
+
+      class Meta:
+          managed = False
+          db_table = 'parkstay_campgroundgroup_campgrounds'
+
+
+class CampgroundGroupMembers(models.Model):
+      #id = models.IntegerField()
+      #campgroundgroup_id = models.ForeignKey(CampgroundGroup, related_name='campgroundgroupcampgrounds')
+      campgroundgroup_id = models.IntegerField()
+      emailuser_id = models.IntegerField()
+
+      class Meta:
+          managed = False
+          db_table = 'parkstay_campgroundgroup_members'
 
 class EmailGroup(models.Model):
 
@@ -901,7 +941,7 @@ class CampsiteRate(models.Model):
     date_end = models.DateField(null=True, blank=True)
     rate_type = models.SmallIntegerField(choices=RATE_TYPE_CHOICES, default=0)
     price_model = models.SmallIntegerField(choices=PRICE_MODEL_CHOICES, default=0)
-    reason = models.ForeignKey('PriceReason')
+    reason = models.ForeignKey('PriceReason', null=True, blank=True)
     details = models.TextField(null=True, blank=True)
     update_level = models.SmallIntegerField(choices=UPDATE_LEVEL_CHOICES, default=0)
     objects = CampsiteRateManager()
@@ -948,7 +988,7 @@ class Booking(models.Model):
         (3, 'Temporary reservation')
     )
 
-    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, blank=True, null=True)
+    customer = models.ForeignKey(EmailUser, on_delete=models.PROTECT, blank=True, null=True)
     legacy_id = models.IntegerField(unique=True, blank=True, null=True)
     legacy_name = models.CharField(max_length=255, blank=True, null=True)
     arrival = models.DateField()
@@ -960,7 +1000,7 @@ class Booking(models.Model):
     override_price = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     override_reason = models.ForeignKey('DiscountReason', null=True, blank=True)
     override_reason_info = models.TextField(blank=True, null=True)
-    overridden_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, blank=True, null=True, related_name='overridden_bookings')
+    overridden_by = models.ForeignKey(EmailUser, on_delete=models.PROTECT, blank=True, null=True, related_name='overridden_bookings')
     campground = models.ForeignKey('Campground', null=True)
     is_canceled = models.BooleanField(default=False)
     send_invoice = models.BooleanField(default=False)
@@ -969,7 +1009,7 @@ class Booking(models.Model):
     confirmation_sent = models.BooleanField(default=False)
     updated = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)
-    canceled_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, blank=True, null=True, related_name='canceled_bookings')
+    canceled_by = models.ForeignKey(EmailUser, on_delete=models.PROTECT, blank=True, null=True, related_name='canceled_bookings')
     property_cache = JSONField(null=True, blank=True, default={})
     property_cache_version = models.CharField(max_length=10, blank=True, null=True)
     property_cache_stale = models.BooleanField(default=True)
@@ -1429,7 +1469,6 @@ class BookingHistory(models.Model):
     updated_by = models.ForeignKey(EmailUser, on_delete=models.PROTECT, blank=True, null=True)
     invoice = models.ForeignKey(Invoice, null=True, blank=True)
 
-
 class OutstandingBookingRecipient(models.Model):
     email = models.EmailField()
 
@@ -1485,7 +1524,7 @@ class ParkEntryRate(models.Model):
     motorbike = models.DecimalField(max_digits=8, decimal_places=2, default='0.00')
     period_start = models.DateField()
     period_end = models.DateField(null=True, blank=True)
-    reason = models.ForeignKey("PriceReason", on_delete=models.PROTECT)
+    reason = models.ForeignKey("PriceReason", on_delete=models.PROTECT, null=True, blank=True)
     details = models.TextField(null=True, blank=True)
 
     def clean(self, *args, **kwargs):

@@ -11,16 +11,22 @@ from django.db.models import Q
 from django.http import Http404, HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils import timezone
 
-from ledger.payments.models import Invoice, CashTransaction
-from ledger.payments.utils import oracle_parser, update_payments
-from ledger.checkout.utils import create_basket_session, create_checkout_session, place_order_submission, use_existing_basket, use_existing_basket_from_invoice
+#from ledger.payments.models import Invoice, CashTransaction
+from ledger_api_client.ledger_models import Invoice
+
+from ledger_api_client.utils import oracle_parser, update_payments
+from ledger_api_client.utils import create_basket_session, create_checkout_session, place_order_submission, use_existing_basket, use_existing_basket_from_invoice
 from parkstay.models import (Campground, Campsite, CampsiteRate, CampsiteBooking, Booking, BookingInvoice, CampsiteBookingRange, CampgroundBookingRange, CampgroundStayHistory, ParkEntryRate, BookingVehicleRego)
 from parkstay.serialisers import BookingRegoSerializer, ParkEntryRateSerializer, RateSerializer
 from parkstay.emails import send_booking_invoice, send_booking_confirmation
 from parkstay.exceptions import BindBookingException
-from ledger.basket.models import Basket
-from oscar.apps.order.models import Order
+#from ledger.basket.models import Basket
 
+###### WRITE order api to ledger_api_client.order to retreive order information
+#from oscar.apps.order.models import Order 
+from ledger_api_client.utils import Order
+
+#############################################################################
 logger = logging.getLogger('booking_checkout')
 
 
@@ -743,14 +749,15 @@ def create_temp_bookingupdate(request, arrival, departure, booking_details, old_
     # Check if the booking is a legacy booking and doesn't have an invoice
     if old_booking.legacy_id and old_booking.invoices.count() < 1:
         # Create a cash transaction in order to fix the outstnding invoice payment
-        CashTransaction.objects.create(
-            invoice=Invoice.objects.get(reference=new_invoice.invoice_reference),
-            amount=old_booking.cost_total,
-            type='move_in',
-            source='cash',
-            details='Transfer of funds from migrated booking',
-            movement_reference='Migrated Booking Funds'
-        )
+        ## JASON CASH
+        #CashTransaction.objects.create(
+        #    invoice=Invoice.objects.get(reference=new_invoice.invoice_reference),
+        #    amount=old_booking.cost_total,
+        #    type='move_in',
+        #    source='cash',
+        #    details='Transfer of funds from migrated booking',
+        #    movement_reference='Migrated Booking Funds'
+        #)
         # Update payment details for the new invoice
         update_payments(new_invoice.invoice_reference)
 
@@ -966,7 +973,10 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'custom_basket': True,
         'booking_reference': 'PS-'+str(booking.id),
     }
-    basket, basket_hash = create_basket_session(request, basket_params)
+    #basket, basket_hash = create_basket_session(request, basket_params)
+    basket_hash = create_basket_session(request,request.user.id, basket_params)
+    print ("B HASH")
+    print (basket_hash)
     #basket, basket_hash = use_existing_basket_from_invoice('00193349270')
     checkout_params = {
         'system': settings.PS_PAYMENT_SYSTEM_ID,
@@ -976,6 +986,7 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'force_redirect': True,
         'proxy': True if internal else False,
         'invoice_text': invoice_text,
+        'session_type' : 'ledger_api'
         #'amount_override': float('1.00')
     }
     if not internal:
@@ -983,20 +994,23 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
     if internal or request.user.is_anonymous():
         checkout_params['basket_owner'] = booking.customer.id
 
-    create_checkout_session(request, checkout_params)
+    #create_checkout_session(request, checkout_params)
+    create_checkout_session(request,checkout_params)
 
     if internal:
         response = place_order_submission(request)
     else:
-        response = HttpResponse("<script> window.location='"+reverse('checkout:index')+"';</script> <a href='"+reverse('checkout:index')+"'> Redirecting please wait: "+reverse('checkout:index')+"</a>")
+        #response = HttpResponse("Redirecting please wait: ")
+        response = HttpResponse("<script> window.location='"+reverse('ledgergw-payment-details')+"';</script> <a href='"+reverse('ledgergw-payment-details')+"'> Redirecting please wait: "+reverse('ledgergw-payment-details')+"</a>")
+        #response = HttpResponse("<script> window.location='"+reverse('checkout:index')+"';</script> <a href='"+reverse('checkout:index')+"'> Redirecting please wait: "+reverse('checkout:index')+"</a>")
         #response = HttpResponseRedirect(reverse('checkout:index'))
         # inject the current basket into the redirect response cookies
         # or else, anonymous users will be directionless
-        response.set_cookie(
-            settings.OSCAR_BASKET_COOKIE_OPEN, basket_hash,
-            max_age=settings.OSCAR_BASKET_COOKIE_LIFETIME,
-            secure=settings.OSCAR_BASKET_COOKIE_SECURE, httponly=True,
-        )
+        #response.set_cookie(
+        #    settings.OSCAR_BASKET_COOKIE_OPEN, basket_hash,
+        #    max_age=settings.OSCAR_BASKET_COOKIE_LIFETIME,
+        #    secure=settings.OSCAR_BASKET_COOKIE_SECURE, httponly=True,
+        #)
 
     return response
 
@@ -1077,12 +1091,16 @@ def delete_session_booking(session):
 def bind_booking(booking, basket):
     if booking.booking_type == 3:
         logger.info(u'bind_booking start {}'.format(booking.id))
-        order = Order.objects.get(basket=basket[0])
+        print ("1")
+        #order_obj = Order()
+        order = Order.objects.get(basket_id=basket[0].id)
+        print ("2")
         invoice = Invoice.objects.get(order_number=order.number)
         invoice_ref = invoice.reference
+        print ('3')
         book_inv, created = BookingInvoice.objects.get_or_create(booking=booking, invoice_reference=invoice_ref)
         logger.info(u'{} finished temporary booking {}, creating new BookingInvoice with reference {}'.format(u'User {} with id {}'.format(booking.customer.get_full_name(), booking.customer.id) if booking.customer else u'An anonymous user', booking.id, invoice_ref))
-        
+        print ("5") 
         try:
             inv = Invoice.objects.get(reference=invoice_ref)
         except Invoice.DoesNotExist:

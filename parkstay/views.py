@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django import forms
-from ledger.basket.models import Basket
+#from ledger.basket.models import Basket
 from parkstay.forms import LoginForm, MakeBookingsForm, AnonymousMakeBookingsForm, VehicleInfoFormset
 from parkstay.exceptions import BindBookingException
 from parkstay.models import (Campground,
@@ -29,8 +29,13 @@ from parkstay.models import (Campground,
                                 CampsiteRate,
                                 ParkEntryRate
                                 )
-from ledger.accounts.models import EmailUser, Address, EmailIdentity
-from ledger.payments.models import Invoice
+from ledger_api_client.ledger_models import EmailUserRO as EmailUser
+from ledger_api_client.ledger_models import Address
+from ledger_api_client.ledger_models import EmailIdentity
+from ledger_api_client.ledger_models import Invoice
+from ledger_api_client.ledger_models import Basket
+#from ledger.accounts.models import EmailUser, Address, EmailIdentity
+#from ledger.payments.models import Invoice
 from django_ical.views import ICalFeed
 from datetime import datetime, timedelta
 from decimal import *
@@ -330,8 +335,10 @@ class BookingSuccessView(TemplateView):
             
             booking = utils.get_session_booking(request.session)
             if self.request.user.is_authenticated():
+                pass
                 basket = Basket.objects.filter(status='Submitted', owner=request.user).order_by('-id')[:1]
             else:
+                pass
                 basket = Basket.objects.filter(status='Submitted', owner=booking.customer).order_by('-id')[:1]
 
 

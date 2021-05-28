@@ -6,8 +6,15 @@ from django.utils import timezone
 from django.core.mail import EmailMessage
 from django.conf import settings
 from parkstay.models import Booking, BookingInvoice, OutstandingBookingRecipient, BookingHistory
-from ledger.payments.models import CashTransaction, BpointTransaction, Invoice, TrackRefund
-
+#from ledger.payments.models import CashTransaction, BpointTransaction, Invoice, TrackRefund
+class CashTransaction():
+    pass
+class BpointTransaction():
+    pass
+class Invoice():
+    pass
+class TrackRefund():
+    pass
 
 def outstanding_bookings():
     try:

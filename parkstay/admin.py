@@ -7,9 +7,28 @@ from django.contrib.auth.models import Group
 
 from django.db.models import Q
 
-from ledger.accounts.models import EmailUser
+#from ledger.accounts.models import EmailUser
+from ledger_api_client.ledger_models import EmailUserRO as EmailUser
+from django.http import HttpResponse
+
 from copy import deepcopy
 
+admin.site.index_template = 'admin-index.html'
+admin.autodiscover()
+
+@admin.register(models.EmailUser)
+class EmailUserAdmin(admin.ModelAdmin):
+    list_display = ('email','first_name','last_name','is_staff','is_active',)
+    ordering = ('email',)
+    search_fields = ('id','email','first_name','last_name')
+
+    def has_change_permission(self, request, obj=None):
+        if obj is None: # and obj.status > 1:
+            return True
+        return None 
+    def has_delete_permission(self, request, obj=None):
+        return None
+        
 
 @admin.register(models.CampsiteClass)
 class CampsiteClassAdmin(admin.ModelAdmin):
@@ -17,7 +36,6 @@ class CampsiteClassAdmin(admin.ModelAdmin):
     ordering = ('name',)
     search_fields = ('name',)
     list_filter = ('name',)
-
 
 @admin.register(models.Park)
 class ParkAdmin(admin.GeoModelAdmin):
@@ -37,16 +55,62 @@ class CampgroundAdmin(admin.GeoModelAdmin):
     openlayers_url = 'https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js'
 
 
+#from django.forms.models import BaseInlineFormSet, ModelForm
+#class AlwaysChangedModelForm(ModelForm):
+#    def has_changed(self):
+#        """ Should returns True if data differs from initial.
+#        By always returning true even unchanged inlines will get validated and saved."""
+#        return False
+#    def save_new(self, form, commit=False):
+#        pass
+#        
+#    def save_existing(self, form, instance, commit=False):
+#        pass
+#
+#class ProductPlanningFormSet(BaseInlineFormSet):
+#
+#       def clean(self):
+#          super(ProductPlanningFormSet, self).clean()
+#          print ("CLEAN")
+#
+#       def save_new(self, form, commit=False):
+#           print ('NEW P')
+#           pass
+#
+#       def save_existing(self, form, instance, commit=False):
+#           print ('NEW S')
+#           pass
+
+ 
+class CampgroundGroupAdminCampgroundInline(admin.TabularInline):
+      model = models.CampgroundGroup.campgrounds.through
+      raw_id_fields = ('campground',)
+      #form = AlwaysChangedModelForm
+      #formset = ProductPlanningFormSet
+
+      def save_new_objects(self, commit=False):
+          pass
+      def save_new(self, form, commit=False):
+          pass
+      def save_existing(self, form, instance, commit=False):
+          pass
+
+class CampgroundGroupAdminMemberInline(admin.TabularInline):
+      model = models.CampgroundGroup.members.through
+      raw_id_fields = ('emailuserro',)
+
+      def save_new_objects(self, commit=False):
+          pass
+      def save_new(self, form, commit=False):
+          pass
+      def save_existing(self, form, instance, commit=False):
+          pass
+
+
 @admin.register(models.CampgroundGroup)
 class CampgroundGroupAdmin(admin.ModelAdmin):
-    filter_horizontal = ('members', 'campgrounds')
-
-    # Added based on moorings to speed up admin site
-
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "members":
-            kwargs["queryset"] = EmailUser.objects.filter(is_staff=True)
-        return super(CampgroundGroupAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+    exclude = ('members','campgrounds',)
+    inlines = [CampgroundGroupAdminCampgroundInline,CampgroundGroupAdminMemberInline,]
 
     def get_queryset(self, request):
         """ Filter based on the group of the user"""
@@ -56,6 +120,72 @@ class CampgroundGroupAdmin(admin.ModelAdmin):
         group = models.CampgroundGroup.objects.filter(members__in=[request.user, ])
         return qs.filter(id__in=group)
 
+    def save_related(self, request, form, formsets, change):
+        obj = form.instance
+        for m in request.POST.lists():
+            if m[0][:27] == 'CampgroundGroup_campgrounds':
+               rowindex = m[0].split('-')
+               if  m[0][-2:] == 'id': 
+                   rowindex = m[0].split('-')
+                   rowid = request.POST['CampgroundGroup_campgrounds-'+str(rowindex[1])+'-id']
+                   campground = request.POST['CampgroundGroup_campgrounds-'+str(rowindex[1])+'-campground']
+                   campgroundgroup = request.POST['CampgroundGroup_campgrounds-'+str(rowindex[1])+'-campgroundgroup']
+                   campgroundgroup_prefix = request.POST['CampgroundGroup_campgrounds-__prefix__-campgroundgroup']
+                   deleterow = False
+                   if 'CampgroundGroup_campgrounds-'+str(rowindex[1])+'-DELETE'  in request.POST:
+                        if request.POST['CampgroundGroup_campgrounds-'+str(rowindex[1])+'-DELETE'] == 'on':
+                            deleterow = True
+                          
+                   if len(rowid) > 0:
+                      if int(rowid) > 0:
+                           if deleterow is True:
+                              models.CampgroundGroupCampgrounds.objects.filter(id=int(rowid)).delete()
+                           else:
+                              cgc = models.CampgroundGroupCampgrounds.objects.get(id=int(rowid))
+                              cgc.campground_id = int(campground)
+                              cgc.campgroundgroup_id = int(campgroundgroup)
+                              cgc.save()
+                   else:
+                       if len(campground) > 0:
+                          models.CampgroundGroupCampgrounds.objects.create(campground_id=int(campground),campgroundgroup_id=int(campgroundgroup_prefix))
+
+            if m[0][:23] == 'CampgroundGroup_members':
+               rowindex = m[0].split('-')
+               if  m[0][-2:] == 'id':
+
+                   rowindex = m[0].split('-')
+                   rowid = request.POST['CampgroundGroup_members-'+str(rowindex[1])+'-id']
+                   emailuserro = request.POST['CampgroundGroup_members-'+str(rowindex[1])+'-emailuserro']
+                   campgroundgroup = request.POST['CampgroundGroup_members-'+str(rowindex[1])+'-campgroundgroup']
+                   campgroundgroup_prefix = request.POST['CampgroundGroup_members-__prefix__-campgroundgroup']
+                   deleterow = False
+
+                   if 'CampgroundGroup_members-'+str(rowindex[1])+'-DELETE'  in request.POST:
+                        if request.POST['CampgroundGroup_members-'+str(rowindex[1])+'-DELETE'] == 'on':
+                            deleterow = True
+
+                   if len(rowid) > 0:
+                      if int(rowid) > 0:
+                           if deleterow is True:
+                              models.CampgroundGroupMembers.objects.filter(id=int(rowid)).delete()
+                           else:
+                              cgc = models.CampgroundGroupMembers.objects.get(id=int(rowid))
+                              cgc.emailuser_id = int(emailuserro)
+                              cgc.campgroundgroup_id = int(campgroundgroup)
+                              cgc.save()
+                   else:
+                       if len(emailuserro) > 0:
+                          print ("CREEATEING NEW MEMBER")
+                          models.CampgroundGroupMembers.objects.create(emailuser_id=int(emailuserro),campgroundgroup_id=int(campgroundgroup_prefix))
+
+
+               if  m[0][-10:] == 'campgroundii':
+                   rowindex = m[0].split('-')
+                   CampgroundGroup_campgrounds-0-id
+
+
+        for formset in formsets:
+            instances = formset.save(commit=False)
 
 @admin.register(models.EmailGroup)
 class EmailGroupAdmin(admin.ModelAdmin):
@@ -88,14 +218,14 @@ class CampsiteBookingInline(admin.TabularInline):
 
 @admin.register(models.Booking)
 class BookingAdmin(admin.ModelAdmin):
-    raw_id_fields = ('customer','overridden_by','canceled_by',)
+    #raw_id_fields = ('customer','overridden_by','canceled_by',)
     list_display = ('id','customer','arrival', 'departure', 'campground','booking_type', 'cost_total','property_cache_version','property_cache_stale')
     ordering = ('-id',)
     #search_fields = ('id','arrival', 'departure')
     search_fields = ('id',)
     list_filter = ('booking_type','arrival', 'departure', 'campground', )
     inlines = [BookingInvoiceInline, CampsiteBookingInline]
-    readonly_fields=('created','property_cache',)
+    readonly_fields=('created','property_cache','customer','overridden_by','canceled_by')
 
     def has_add_permission(self, request, obj=None):
         return False

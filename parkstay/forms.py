@@ -1,6 +1,6 @@
 from django import forms
-from ledger.address.models import Country
-
+#from ledger.address.models import Country
+from ledger_api_client.country_models import Country
 
 class LoginForm(forms.Form):
     email = forms.EmailField(max_length=254)

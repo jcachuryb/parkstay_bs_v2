@@ -5,7 +5,9 @@ from rest_framework import routers
 from parkstay import views, api
 from parkstay.admin import admin
 from parkstay import view_file
-from ledger.urls import urlpatterns as ledger_patterns
+#from ledger.urls import urlpatterns as ledger_patterns
+from ledger_api_client.urls import urlpatterns as ledger_patterns
+
 #from django_site_queue import urls as site_queue_urls
 
 # API patterns
@@ -65,6 +67,7 @@ urlpatterns = [
     #url(r'', include(site_queue_urls)),
     url(r'^account/', views.ProfileView.as_view(), name='account'),
     url(r'^$', views.ParkstayRoutingView.as_view(), name='ps_home'),
+    url(r'^$', views.ParkstayRoutingView.as_view(), name='home'),
     url(r'^campsites/(?P<ground_id>[0-9]+)/$', views.CampsiteBookingSelector.as_view(), name='campsite_booking_selector'),
     url(r'^availability/$', views.CampsiteAvailabilitySelector.as_view(), name='campsite_availaiblity_selector'),
     url(r'^availability_admin/$', views.AvailabilityAdmin.as_view(), name='availability_admin'),

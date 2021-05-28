@@ -4,19 +4,30 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
-
+import ledger_api_client.ledger_models
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('invoice', '0008_invoice_previous_invoice'),
+        #('invoice', '0008_invoice_previous_invoice'),
+        #('ledger_api_client','0001_initial'),
         ('parkstay', '0042_bookinghistory_vehicles'),
     ]
+    operations = []
+    #operations = [
+    #    migrations.AddField(
+    #        model_name='bookinghistory',
+    #        name='invoice',
+    #        field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='ledger_api_client.Invoice'),
+    #    ),
+    #]
 
-    operations = [
-        migrations.AddField(
-            model_name='bookinghistory',
-            name='invoice',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='invoice.Invoice'),
-        ),
-    ]
+
+    #operations = [
+    #    migrations.AddField(
+    #        model_name='bookinghistory',
+    #        name='invoice',
+    #        field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='ledger_api_client.Invoice'),
+    #    ),
+    #]
+

@@ -39,7 +39,7 @@ def reverse_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        #migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('parkstay', '0035_auto_20161228_1735'),
     ]
 

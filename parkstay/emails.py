@@ -2,9 +2,12 @@ from io import BytesIO
 from django.conf import settings
 from parkstay import pdf
 from parkstay import models
-from ledger.payments.pdf import create_invoice_pdf_bytes
-from ledger.payments.models import Invoice
-from ledger.emails.emails import EmailBase2 as EmailBase
+from ledger_api_client.pdf import create_invoice_pdf_bytes
+#from ledger.payments.pdf import create_invoice_pdf_bytes
+from ledger_api_client.ledger_models import Invoice
+#from ledger.payments.models import Invoice
+#from ledger.emails.emails import EmailBase2 as EmailBase
+from ledger_api_client.emails import EmailBase2 as EmailBase
 from django.template.loader import render_to_string, get_template
 #from django.template import Context
 from django.core.mail import EmailMessage, EmailMultiAlternatives

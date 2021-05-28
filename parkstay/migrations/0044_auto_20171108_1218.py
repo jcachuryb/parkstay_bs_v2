@@ -5,12 +5,14 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-
+import ledger_api_client.ledger_models
+#from ledger_api_client.ledger_models import EmailUserRO
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        #migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('ledger_api_client','0002_address_country_document_emailidentity_emailuserro_invoice_privatedocument_useraddress'),
         ('parkstay', '0043_bookinghistory_invoice'),
     ]
 
@@ -18,11 +20,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='booking',
             name='canceled_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='canceled_bookings', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='canceled_bookings', to="ledger_api_client.EmailUserRO"),
         ),
         migrations.AlterField(
             model_name='bookinghistory',
             name='updated_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to="ledger_api_client.EmailUserRO"),
         ),
     ]

@@ -3,16 +3,10 @@ import confy
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 confy.read_environment_file(BASE_DIR+"/.env")
 os.environ.setdefault("BASE_DIR", BASE_DIR)
-from ledger.settings_base import *
+from ledger_api_client.settings_base import *
 
 ROOT_URLCONF = 'parkstay.urls'
 SITE_ID = 1
-#DATABASES['site_queue_manager'] = {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR+'/parkstay/cache/site_manager_db.sqlite3',
-#    } 
-#DATABASE_ROUTERS.append('django_site_queue.models.SiteQueueManagerDBRouter')
-#DATABASE_APPS_MAPPING['site_queue_manager'] = 'site_queue_manager'
 
 # number of seconds before expiring a temporary booking
 BOOKING_TIMEOUT = 600
@@ -23,6 +17,7 @@ INSTALLED_APPS += [
     'taggit',
     'rest_framework',
     'rest_framework_gis',
+    'ledger_api_client',
 #    'django_site_queue',
 ]
 
@@ -43,7 +38,7 @@ WSGI_APPLICATION = 'parkstay.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'parkstay.perms.OfficerPermission',
+#        'parkstay.perms.OfficerPermission',
     )
 }
 
@@ -64,6 +59,7 @@ CACHES = {
     }
 }
 STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'parkstay', 'static')))
+STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'ledger_api_client', 'static')))
 
 
 BPAY_ALLOWED = env('BPAY_ALLOWED',False)
