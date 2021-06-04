@@ -973,8 +973,17 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'custom_basket': True,
         'booking_reference': 'PS-'+str(booking.id),
     }
+    print ("CHECKOUT")
+    print (booking.customer)
+    print (request.user.id)
     #basket, basket_hash = create_basket_session(request, basket_params)
-    basket_hash = create_basket_session(request,request.user.id, basket_params)
+    basket_user_id = None
+    if request.user.id is not None:
+        basket_user_id = request.user.id
+    else:
+        basket_user_id = booking.customer.id
+
+    basket_hash = create_basket_session(request,basket_user_id, basket_params)
     print ("B HASH")
     print (basket_hash)
     #basket, basket_hash = use_existing_basket_from_invoice('00193349270')

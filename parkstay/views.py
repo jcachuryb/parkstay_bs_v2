@@ -111,14 +111,12 @@ class DashboardView(UserPassesTestMixin, TemplateView):
     def test_func(self):
         return is_officer(self.request.user)
 
-
     def get(self, request, *args, **kwargs):
         # if page is called with ratis_id, inject the ground_id
         context = {}
         response = render(request, self.template_name, context)
         response.delete_cookie(settings.OSCAR_BASKET_COOKIE_OPEN)
         return response
-
 
 def abort_booking_view(request, *args, **kwargs):
     try:
@@ -129,6 +127,7 @@ def abort_booking_view(request, *args, **kwargs):
         booking = utils.get_session_booking(request.session)
         arrival = booking.arrival
         departure = booking.departure
+
         if change_ratis:
             try:
                 c_id = Campground.objects.get(ratis_id=change_ratis).id
@@ -141,6 +140,7 @@ def abort_booking_view(request, *args, **kwargs):
                 c_id = booking.campground.id
         else:
             c_id = booking.campground.id
+
         # only ever delete a booking object if it's marked as temporary
         if booking.booking_type == 3:
             booking.delete()
@@ -166,6 +166,7 @@ class MakeBookingsView(TemplateView):
         timer = (booking.expiry_time-timezone.now()).seconds if booking else -1
         campsite = booking.campsites.all()[0].campsite if booking else None
         entry_fees = ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and campsite.campground.park.entry_fee_required) else None
+
         pricing = {
             'adult': Decimal('0.00'),
             'concession': Decimal('0.00'),
@@ -175,6 +176,7 @@ class MakeBookingsView(TemplateView):
             'vehicle_conc': entry_fees.concession if entry_fees else Decimal('0.00'),
             'motorcycle': entry_fees.motorbike if entry_fees else Decimal('0.00')
         }
+
         if booking:
             pricing_list = utils.get_visit_rates(Campsite.objects.filter(pk=campsite.pk), booking.arrival, booking.departure)[campsite.pk]
             pricing['adult'] = sum([x['adult'] for x in pricing_list.values()])
@@ -303,6 +305,7 @@ class MakeBookingsView(TemplateView):
                         phone_number=form.cleaned_data.get('phone'),
                         mobile_number=form.cleaned_data.get('phone')
                 )
+                customer = EmailUser.objects.filter(email__iexact=form.cleaned_data.get('email').lower())[0] 
                 Address.objects.create(line1='address', user=customer, postcode=form.cleaned_data.get('postcode'), country=form.cleaned_data.get('country').iso_3166_1_a2)
         else:
             customer = request.user

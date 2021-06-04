@@ -2,11 +2,12 @@ import re
 import datetime
 
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils import timezone
 from parkstay.models import Booking
 
-CHECKOUT_PATH = re.compile('^/ledger/checkout/checkout')
+
+CHECKOUT_PATH = re.compile('^/ledger-api')
 
 class BookingTimerMiddleware(object):
     def process_request(self, request):
@@ -35,7 +36,10 @@ class BookingTimerMiddleware(object):
         # force a redirect if in the checkout
         if ('ps_booking_internal' not in request.COOKIES) and CHECKOUT_PATH.match(request.path):
             if ('ps_booking' not in request.session) and CHECKOUT_PATH.match(request.path):
-                return HttpResponseRedirect(reverse('public_make_booking'))
+                url_redirect = reverse('public_make_booking')
+                response = HttpResponse("<script> window.location='"+url_redirect+"';</script> <a href='"+url_redirect+"'> Redirecting please wait: "+url_redirect+"</a>")
+                return response
+                #return HttpResponseRedirect(reverse('public_make_booking'))
             else:
                 return
         return
