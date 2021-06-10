@@ -64,7 +64,7 @@ CACHES = {
     }
 }
 STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'parkstay', 'static')))
-STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'ledger_api_client', 'static')))
+#STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'ledger_api_client', 'static')))
 
 
 BPAY_ALLOWED = env('BPAY_ALLOWED',False)
