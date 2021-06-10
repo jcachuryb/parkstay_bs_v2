@@ -14,7 +14,7 @@ def belongs_to(user, group_name):
 
 
 def is_officer(user):
-    return user.is_authenticated() and (belongs_to(user, 'Parkstay Officers') or user.is_superuser)
+    return user.is_authenticated and (belongs_to(user, 'Parkstay Officers') or user.is_superuser)
 
 
 def is_customer(user):
@@ -25,7 +25,7 @@ def is_customer(user):
     :param user:
     :return:
     """
-    return user.is_authenticated() and not is_officer(user)
+    return user.is_authenticated and not is_officer(user)
 
 
 def get_all_officers():

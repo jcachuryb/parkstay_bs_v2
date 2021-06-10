@@ -24,7 +24,9 @@ INSTALLED_APPS += [
 MIDDLEWARE_CLASSES += [
     'parkstay.middleware.BookingTimerMiddleware'
 ]
-
+MIDDLEWARE = MIDDLEWARE_CLASSES
+MIDDLEWARE_CLASSES = None
+SESSION_COOKIE_HTTPONLY=True
 # maximum number of days allowed for a booking
 PS_MAX_BOOKING_LENGTH = 28 
 
@@ -35,6 +37,7 @@ PS_CAMPSITE_COUNT_WARNING = 10
 PS_UNPAID_BOOKING_LAPSE_DAYS = 5
 
 WSGI_APPLICATION = 'parkstay.wsgi.application'
+#MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
@@ -52,6 +55,8 @@ else:
 TEMPLATES[0]['DIRS'].append(os.path.join(BASE_DIR, 'parkstay', 'templates'))
 TEMPLATES[0]['DIRS'].append(os.path.join(BASE_DIR, 'django_site_queue', 'templates'))
 TEMPLATES[0]['OPTIONS']['context_processors'].append('parkstay.context_processors.parkstay_url')
+
+#SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',

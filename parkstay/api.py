@@ -17,7 +17,8 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from rest_framework import viewsets, serializers, status, generics, views
-from rest_framework.decorators import detail_route, list_route, renderer_classes
+from rest_framework.decorators import action as detail_route, renderer_classes
+from rest_framework.decorators import action as list_route
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework.permissions import IsAuthenticated
@@ -223,7 +224,7 @@ class CampsiteViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 raise
 
-    @list_route(methods=['post'])
+    @list_route(methods=['post'], detail=False)
     def bulk_close(self, request, format='json', pk=None):
         with transaction.atomic():
             try:
@@ -239,7 +240,7 @@ class CampsiteViewSet(viewsets.ModelViewSet):
                 print(traceback.print_exc())
                 raise serializers.ValidationError(str(e[0]))
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def status_history(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -261,7 +262,7 @@ class CampsiteViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def stay_history(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -276,7 +277,7 @@ class CampsiteViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def price_history(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -291,7 +292,7 @@ class CampsiteViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def current_price(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -316,7 +317,7 @@ class CampsiteViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError(str(e))
 
     @csrf_exempt
-    @list_route(methods=['post'])
+    @list_route(methods=['post'], detail=False)
     def current_price_list(self, request, format='json', pk=None):
         with transaction.atomic():
             try:
@@ -499,7 +500,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
     queryset = Campground.objects.all()
     serializer_class = CampgroundSerializer
 
-    @list_route(methods=['GET', ])
+    @list_route(methods=['GET', ], detail=False)
     @renderer_classes((JSONRenderer,))
     def datatable_list(self, request, format=None):
         queryset = cache.get('campgrounds_dt')
@@ -654,7 +655,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 raise
 
-    @list_route(methods=['post'])
+    @list_route(methods=['post'], detail=False)
     def bulk_close(self, request, format='json', pk=None):
         print ("CLOSE BULK")
         with transaction.atomic():
@@ -672,7 +673,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
                 print(traceback.print_exc())
                 raise serializers.ValidationError(str(e[0]))
 
-    @detail_route(methods=['post'],)
+    @detail_route(methods=['post'], detail=True)
     def addPrice(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -711,7 +712,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
             print(traceback.format_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['post'],)
+    @detail_route(methods=['post'],detail=True)
     def updatePrice(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -753,7 +754,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['post'],)
+    @detail_route(methods=['post'], detail=True)
     def deletePrice(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -775,7 +776,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def status_history(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -797,7 +798,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def campsites(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -812,7 +813,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def price_history(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -828,7 +829,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def stay_history(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -860,7 +861,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
                 pass
         raise serializers.ValidationError('no valid date format found')
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def available_campsites(self, request, format='json', pk=None):
         try:
             start_date = self.try_parsing_date(request.GET.get('arrival')).date()
@@ -875,7 +876,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def available_campsites_booking(self, request, format='json', pk=None):
         try:
             start_date = self.try_parsing_date(request.GET.get('arrival')).date()
@@ -899,7 +900,7 @@ class CampgroundViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def available_campsite_classes(self, request, format='json', pk=None):
         try:
             start_date = datetime.strptime(request.GET.get('arrival'), '%Y/%m/%d').date()
@@ -1405,7 +1406,7 @@ class ParkViewSet(viewsets.ModelViewSet):
             cache.set('parks', data, 3600)
         return Response(data)
 
-    @list_route(methods=['get'])
+    @list_route(methods=['get'], detail=False)
     def price_history(self, request, format='json', pk=None):
         http_status = status.HTTP_200_OK
         try:
@@ -1419,7 +1420,7 @@ class ParkViewSet(viewsets.ModelViewSet):
 
         return Response(res, status=http_status)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def current_price(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -1438,7 +1439,7 @@ class ParkViewSet(viewsets.ModelViewSet):
             }
         return Response(res, status=http_status)
 
-    @list_route(methods=['post'],)
+    @list_route(methods=['post'], detail=False)
     def add_price(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -1486,7 +1487,7 @@ class CampsiteClassViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, method='get')
         return Response(serializer.data)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], detail=True)
     def price_history(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -1517,7 +1518,7 @@ class CampsiteClassViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['post'],)
+    @detail_route(methods=['post'], detail=True)
     def addPrice(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -1554,7 +1555,7 @@ class CampsiteClassViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['post'],)
+    @detail_route(methods=['post'], detail=True)
     def updatePrice(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -1597,7 +1598,7 @@ class CampsiteClassViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['post'],)
+    @detail_route(methods=['post'], detail=True)
     def deletePrice(self, request, format='json', pk=None):
         try:
             http_status = status.HTTP_200_OK
@@ -2203,7 +2204,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(permission_classes=[PaymentCallbackPermission], methods=['GET', 'POST'])
+    @detail_route(permission_classes=[PaymentCallbackPermission], methods=['GET', 'POST'], detail=True)
     def payment_callback(self, request, *args, **kwargs):
         http_status = status.HTTP_200_OK
         try:
@@ -2250,7 +2251,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(permission_classes=[], methods=['GET'])
+    @detail_route(permission_classes=[], methods=['GET'], detail=True)
     def booking_checkout_status(self, request, *args, **kwargs):
         from django.utils import timezone
         http_status = status.HTTP_200_OK
@@ -2280,7 +2281,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['GET'])
+    @detail_route(methods=['GET'], detail=True)
     def history(self, request, *args, **kwargs):
         http_status = status.HTTP_200_OK
         try:
@@ -2466,7 +2467,7 @@ class UsersViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @detail_route(methods=['POST', ])
+    @detail_route(methods=['POST', ], detail=True)
     def update_personal(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
@@ -2485,7 +2486,7 @@ class UsersViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['POST', ])
+    @detail_route(methods=['POST', ], detail=True)
     def update_contact(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
@@ -2504,7 +2505,7 @@ class UsersViewSet(viewsets.ModelViewSet):
             print(traceback.print_exc())
             raise serializers.ValidationError(str(e))
 
-    @detail_route(methods=['POST', ])
+    @detail_route(methods=['POST', ], detail=True)
     def update_address(self, request, *args, **kwargs):
         try:
             instance = self.get_object()

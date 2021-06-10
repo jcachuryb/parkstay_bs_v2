@@ -7,6 +7,7 @@ from parkstay.admin import admin
 from parkstay import view_file
 #from ledger.urls import urlpatterns as ledger_patterns
 from ledger_api_client.urls import urlpatterns as ledger_patterns
+from django.urls import path
 
 #from django_site_queue import urls as site_queue_urls
 
@@ -62,7 +63,8 @@ api_patterns = [
 
 # URL Patterns
 urlpatterns = [
-    url(r'^admin/', admin.site.urls, name='admin_urls'),
+    path(r'admin/', admin.site.urls),
+    #url(r'^admin/', admin.site.urls, name='admin_urls'),
     url(r'', include(api_patterns)),
     #url(r'', include(site_queue_urls)),
     url(r'^account/', views.ProfileView.as_view(), name='account'),

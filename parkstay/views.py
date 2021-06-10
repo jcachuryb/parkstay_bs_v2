@@ -2,7 +2,8 @@ import logging
 from django.db.models import Q
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.core.urlresolvers import reverse
+#from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.views.generic.base import View, TemplateView
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
@@ -207,7 +208,7 @@ class MakeBookingsView(TemplateView):
             'num_infant': booking.details.get('num_infant', 0) if booking else 0,
             'country': 'AU',
         }
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             form = AnonymousMakeBookingsForm(form_context)
         else:
             form_context['first_name'] = request.user.first_name
@@ -221,7 +222,7 @@ class MakeBookingsView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             form = AnonymousMakeBookingsForm(request.POST)
         else:
             form = MakeBookingsForm(request.POST)
@@ -292,7 +293,7 @@ class MakeBookingsView(TemplateView):
         total = sum([Decimal(p['price_incl_tax'])*p['quantity'] for p in lines])
 
         # get the customer object
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             # searching on EmailIdentity looks for both EmailUser and Profile objects with the email entered by user
             customer_qs = EmailIdentity.objects.filter(email__iexact=form.cleaned_data.get('email'))
             if customer_qs:
@@ -337,7 +338,8 @@ class BookingSuccessView(TemplateView):
             basket = None
             
             booking = utils.get_session_booking(request.session)
-            if self.request.user.is_authenticated():
+            print (booking)
+            if self.request.user.is_authenticated:
                 pass
                 basket = Basket.objects.filter(status='Submitted', owner=request.user).order_by('-id')[:1]
             else:
@@ -391,7 +393,7 @@ class ParkstayRoutingView(TemplateView):
     template_name = 'ps/index.html'
 
     def get(self, *args, **kwargs):
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             if is_officer(self.request.user):
                 return redirect('dash-campgrounds')
             return redirect('public_my_bookings')
