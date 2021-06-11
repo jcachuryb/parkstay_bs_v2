@@ -18,6 +18,7 @@ class BookingTimerMiddleware(object):
     def __call__(self, request):
         return self.get_response(request)    
     def process_request(self, request):
+    #def __call__(self, request):
         #print((request.path, request.session.items(), request.COOKIES))
 
         if 'ps_booking' in request.session:
@@ -58,8 +59,20 @@ class CacheControl(object):
             self.get_response = get_response
 
     def __call__(self, request):
-        return self.get_response(request)
+       #print ("PATH 1")
+       #print (request.path)
 
-    def process_response(self, request, response):
-        response['Cache-Control'] = 'private, no-store'
-        return add_cache_control(response)
+       response= self.get_response(request)
+       if request.path == '/map/':
+            response['Cache-Control'] = 'max-age=60'
+       else:
+            response['Cache-Control'] = 'private, no-store'
+       return response
+    #def patch_response_headers(response, cache_timeout=None):
+        #response['Cache-Control'] = 'private, no-store'
+        #patch_cache_control(response, max_age=cache_timeout)        
+    #def process_response(self, request, response):
+        #print ("PATH")
+        #print (request.path)
+        #response['Cache-Control'] = 'private, no-store'
+        #return add_cache_control(response)
