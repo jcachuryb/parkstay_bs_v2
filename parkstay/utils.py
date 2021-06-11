@@ -999,8 +999,8 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'session_type' : 'ledger_api'
         #'amount_override': float('1.00')
     }
-    if not internal:
-        checkout_params['check_url'] = request.build_absolute_uri('/api/booking/{}/booking_checkout_status.json'.format(booking.id))
+    #if not internal:
+    #    checkout_params['check_url'] = request.build_absolute_uri('/api/booking/{}/booking_checkout_status.json'.format(booking.id))
     if internal or request.user.is_anonymous:
         checkout_params['basket_owner'] = booking.customer.id
 
