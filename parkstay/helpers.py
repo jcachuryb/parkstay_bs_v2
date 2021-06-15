@@ -10,7 +10,7 @@ def belongs_to(user, group_name):
     :param group_name:
     :return:
     """
-    return user.groups.filter(name=group_name).exists()
+    return user.groups().filter(name=group_name).exists()
 
 
 def is_officer(user):

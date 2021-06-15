@@ -64,7 +64,7 @@ class CacheControl(object):
 
        response= self.get_response(request)
        if request.path == '/map/':
-            response['Cache-Control'] = 'max-age=60'
+            response['Cache-Control'] = 'public, max-age=60'
        else:
             response['Cache-Control'] = 'private, no-store'
        return response
