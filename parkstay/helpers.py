@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 #from ledger.accounts.models import EmailUser
 from ledger_api_client.ledger_models import EmailUserRO as EmailUser
+from django.core.cache import cache
 
 
 def belongs_to(user, group_name):
@@ -10,7 +11,16 @@ def belongs_to(user, group_name):
     :param group_name:
     :return:
     """
-    return user.groups().filter(name=group_name).exists()
+    belongs_to_value = cache.get('User-belongs_to'+str(user.id)+'group_name:'+group_name)
+    if belongs_to_value:
+        print ('From Cache - User-belongs_to'+str(user.id)+'group_name:'+group_name)
+    if belongs_to_value is None:
+       belongs_to_value = user.groups().filter(name=group_name).exists()
+       cache.set('User-belongs_to'+str(user.id)+'group_name:'+group_name, belongs_to_value, 3600)
+    return belongs_to_value
+
+    
+    #return user.groups().filter(name=group_name).exists()
 
 
 def is_officer(user):
