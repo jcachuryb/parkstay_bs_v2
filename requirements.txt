@@ -9,7 +9,7 @@ git+https://github.com/scottp-dpaw/social-core.git@email_fix#egg=social-auth-cor
 coverage==4.3.1
 coveralls==1.1
 reportlab==3.5.26
-django_bootstrap3==12.1.0
+django_bootstrap3==15.0.0
 django-braces>=1.8.1
 django-datatables-view==1.13.0
 django-reversion==3.0.0

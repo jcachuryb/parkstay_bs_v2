@@ -76,12 +76,20 @@ font-size: 16px;
 	</div>
 	<div id='slider-menu-body' class="col-12">
 		<ul>
-			<li><a href=''>Explore Parks Account</a></li>
 
-			<li><a href=''>Test 1</a></li>
-			<li><a href=''>Test 2</a></li>
-			<li><a href=''>Test 3</a></li>
-			<li><a href=''>Test 4</a></li>
+                <li><a href="/">Home</a></li>
+                {% if request.user.is_staff %}
+                <li class='active'><a href="{% url 'dash-campgrounds'%}">Campgrounds</a></li>
+                <li><a href="{% url 'dash-campsite-types'%}">Camp Site Types</a></li>
+                <li><a href="{% url 'dash-bulkpricing'%}">Bulk Pricing</a></li>
+                <li><a href="{% url 'dash-bookings'%}">Existing Bookings</a></li>
+                <li><a href="{% url 'search_availablity'%}">Search for a place to stay</a></li>
+                <li><a href="/map/">Map</a></li>
+                {% else %}
+                <li><a href="{% url 'search_availablity'%}">Search for a place to stay</a></li>
+                <li><a href="/map/">Map</a></li>
+                {% endif %}
+
 
 
 		</ul>

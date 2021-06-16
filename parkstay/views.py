@@ -393,12 +393,19 @@ class ParkstayRoutingView(TemplateView):
     template_name = 'ps/index.html'
 
     def get(self, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            if is_officer(self.request.user):
-                return redirect('dash-campgrounds')
-            return redirect('public_my_bookings')
+        #if self.request.user.is_authenticated:
+        #    if is_officer(self.request.user):
+        #        return redirect('dash-campgrounds')
+        #    return redirect('public_my_bookings')
         kwargs['form'] = LoginForm
         return super(ParkstayRoutingView, self).get(*args, **kwargs)
+
+class SearchAvailablity(TemplateView):
+
+    template_name = 'ps/search_availabilty.html'
+
+    def get(self, *args, **kwargs):
+        return super(SearchAvailablity, self).get(*args, **kwargs)
 
 
 class MapView(TemplateView):

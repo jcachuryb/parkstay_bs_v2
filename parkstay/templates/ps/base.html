@@ -102,8 +102,10 @@
                                     <li><a href="{% url 'dash-campsite-types'%}">Camp Site Types</a></li>
                                     <li><a href="{% url 'dash-bulkpricing'%}">Bulk Pricing</a></li>
                                     <li><a href="{% url 'dash-bookings'%}">Existing Bookings</a></li>
-                                    <li><a href="/map/">Search for a place to stay</a></li>
+				    <li><a href="{% url 'search_availablity'%}">Search for a place to stay</a></li>
+                                    <li><a href="/map/">Map</a></li>
                                     {% else %}
+				    <li><a href="{% url 'search_availablity'%}">Search for a place to stay</a></li>
                                     <li><a href="{{EXPLORE_PARKS_SEARCH}}">Search for a place to stay</a></li>
                                     {% endif %}
                                 {% endblock %}

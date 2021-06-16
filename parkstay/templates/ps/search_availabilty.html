@@ -1,0 +1,26 @@
+{% extends 'ps/base.html' %}
+
+{% load bootstrap3 %}
+
+{% load static %}
+
+{% block extra_css %}
+    <link type="text/css" href="{% static 'ledger/css/index.css' %}" rel="stylesheet">
+    {% endblock %}
+
+    {% block messages %}
+    {% endblock %}
+
+    {% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+
+                 <h2>Search Availablity</h2>
+           </div>
+        </div>
+    </div>
+
+{% endblock %}
+
