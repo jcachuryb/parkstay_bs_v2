@@ -1,0 +1,55 @@
+<style>
+.nav-header {
+background-color: #333333;
+font-size: 16px;
+height: 72px;
+font-family: "proxima-nova",sans-serif;
+
+}
+#nav-header ul {
+ list-style: none;
+ height: 100%;
+}
+#nav-header ul li {
+    border-right: solid 1px black;
+    display: inline-block;
+    color: #FFFFFF;
+    height: 100%;
+    padding-top: 24px;
+
+}
+#nav-header ul li a {
+  color: #FFFFFF;
+  padding: 24px;
+}
+
+#nav-header .active  {
+  background-color: #000000;
+  color: #f7d59c;
+  height:100%;
+  min-width: 150px;
+  
+}
+#nav-header .active a  {
+  color: #f7d59c;
+}
+
+</style>
+
+<div id='nav-header' class='nav-header hidden-sm hidden-xs' >
+	<ul class="iimenu">
+
+                {% if request.user.is_staff %}
+                <li class='active'><a href="{% url 'dash-campgrounds'%}">Campgrounds</a></li>
+                <li><a href="{% url 'dash-campsite-types'%}">Camp Site Types</a></li>
+                <li><a href="{% url 'dash-bulkpricing'%}">Bulk Pricing</a></li>
+                <li><a href="{% url 'dash-bookings'%}">Existing Bookings</a></li>
+                <li><a href="/map/">Search for a place to stay</a></li>
+                {% else %}
+                <li><a href="{{EXPLORE_PARKS_SEARCH}}">Search for a place to stay</a></li>
+                {% endif %}
+
+        </ul>
+</div>
+
+

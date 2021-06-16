@@ -8,10 +8,18 @@
         }
     </style>
 {% endblock %}
+
+
+ {% include 'ps/menu.html' %}
+
 {% block menu %}
+ {% include 'ps/menu.html' %}
+
+ {% if show == 'yes' %}
+
 <div class="topbar row" id="menu" v-cloak>
     <div class="container-fluid">
-        <nav class="navbar navbar-default">
+        <nav class="navbar navbar-default" style='position: static'>
             <div class="container">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -77,6 +85,7 @@
         </nav>
     </div>
 </div>
+{% endif %}
 {% endblock %}
 {% block vue-component %}
     <div id="app">

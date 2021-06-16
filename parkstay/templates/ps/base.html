@@ -6,6 +6,8 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
+
     <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,21 +21,69 @@
         {% endblock %}
         <title>
             {% block title %}
-                Parkstay - Department of Parks and Wildlife
+                Parkstay - Department of Parks and Wildlife 
             {% endblock %}
         </title>
     </head>
     <body>
-        <header class="topmast">
+	
+        <header iclass="topmast">
         {% block header %}
         {% include 'ps/header.html' %}
         {% endblock %}
         </header>
         {% block menu %}
         
+        {% include 'ps/menu.html' %}
+
+
+
+<div class="col-lg-12">
+
+<div id='header-seperator'>
+        <div class="row">
+             <div class="col-lg-12" style='background-color: #045186; height:6px;'>
+                       &nbsp;
+
+             </div>
+        </div>
+</div>
+</div>
+
+<div class="col-lg-12">
+
+<div id='header-seperator'>
+        <div class="row">
+             <div class="col-lg-12" style='background-color: #4c9dc2; height:6px;'>
+                       &nbsp;
+
+             </div>
+        </div>
+</div>
+</div>
+
+
+<div class="col-lg-12">
+
+<div id='header-seperator'>
+        <div class="row">
+             <div class="col-lg-12" style='background-color: #eda62c; height:6px;'>
+                       &nbsp;
+
+             </div>
+        </div>
+</div>
+</div>
+
+<br><br><br>
+
+
+	{% if show == 'yes' %}
+	
+
         <div class="topbar">
             <div class="container-fluid">
-                <nav class="navbar navbar-default">
+                <nav class="navbar navbar-default" style='position: static'>
                     <div class="container">
                         <div class="navbar-header">
                             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -99,6 +149,10 @@
                 </nav>
             </div>
         </div>
+        {% endif %}
+
+        <div class='body-wrapper'>
+
         <div class="container">
                 <div class='alert alert-warning'><table style='width: 100%;background-color: none; border: none; background: none;' cellspacing="0" cellpadding="0"><tbody style='background-color: none; border: none; background: none;'><tr><td valign='top'><img src='/static/ps/img/exclamation-mark-30.png'></td><td><a href='https://www.wa.gov.au/organisation/covid-communications/covid-19-coronavirus-controlled-interstate-border'>TRAVEL RESTRICTIONS</a> REMAIN AND ARE SUBJECT TO CHANGE - CHECK BEFORE BOOKING. No exception to standard refund conditions apply for interstate and international travel restrictions. If you are planning to travel to Western Australia you are advised not to book before you have completed all entry and quarantine requirements.</td></tr></tbody></table>
 </div>
@@ -144,6 +198,10 @@
              }
         </script>
         {% endif %}
-
+    </div>
     </body>
+
+
+
+{% include 'ps/footer.html' %}
 </html>
