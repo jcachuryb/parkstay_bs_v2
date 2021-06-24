@@ -338,6 +338,7 @@ class CampgroundGroupMembers(models.Model):
 
       class Meta:
           managed = False
+          abstract = True
           db_table = 'parkstay_campgroundgroup_members'
 
 #db_table='emailuser'
@@ -367,18 +368,20 @@ class CampgroundGroupCampgrounds(models.Model):
 
       class Meta:
           managed = False
+          abstract = True
           db_table = 'parkstay_campgroundgroup_campgrounds'
 
 
-class CampgroundGroupMembers(models.Model):
-      #id = models.IntegerField()
-      #campgroundgroup_id = models.ForeignKey(CampgroundGroup, related_name='campgroundgroupcampgrounds')
-      campgroundgroup_id = models.IntegerField()
-      emailuser_id = models.IntegerField()
-
-      class Meta:
-          managed = False
-          db_table = 'parkstay_campgroundgroup_members'
+#class CampgroundGroupMembers(models.Model):
+#      #id = models.IntegerField()
+#      #campgroundgroup_id = models.ForeignKey(CampgroundGroup, related_name='campgroundgroupcampgrounds')
+#      campgroundgroup_id = models.IntegerField()
+#      emailuser_id = models.IntegerField()
+#
+#      class Meta:
+#          managed = False
+#          abstract = True
+#          db_table = 'parkstay_campgroundgroup_members'
 
 class EmailGroup(models.Model):
 
@@ -767,6 +770,19 @@ class Feature(models.Model):
     def __str__(self):
         return self.name
 
+class Places(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    wkb_geometry = models.PointField(srid=4326, blank=True, null=True)
+    rebuild_gps=models.BooleanField(default=True)
+
+
+    def save(self, *args, **kwargs):
+        cache.delete('Places')
+        self.full_clean()
+        super(Places, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 class Region(models.Model):
     name = models.CharField(max_length=255, unique=True)

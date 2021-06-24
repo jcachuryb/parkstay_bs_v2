@@ -65,6 +65,7 @@ from parkstay.models import (Campground,
                              MaximumStayReason,
                              DiscountReason,
                              ParkEntryRate,
+                             Places
                              )
 
 from parkstay.serialisers import (CampsiteBookingSerialiser,
@@ -1270,6 +1271,27 @@ def campground_map_view(request, *args, **kwargs):
          cache.set('CampgroundMapViewSet', dumped_data,  3600)
      return HttpResponse(dumped_data, content_type='application/json')
 
+
+def places(request, *args, **kwargs):
+
+    dumped_data = cache.get('Places')
+    if dumped_data is None:
+        places_list = []
+        places_obj = Places.objects.all()
+        for p in places_obj:
+            gps = None
+            if p.wkb_geometry:
+                 gps = [p.wkb_geometry[0], p.wkb_geometry[1]]
+
+
+            places_list.append({'id': p.id, 'name': p.name, 'gps': gps})
+
+        dumped_data = geojson.dumps(places_list) 
+        cache.set('Places', dumped_data,  3600)
+
+    return HttpResponse(dumped_data, content_type='application/json')
+
+        
 
 @csrf_exempt
 @require_http_methods(['POST'])

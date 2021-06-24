@@ -305,6 +305,12 @@ class PromoAreaAdmin(admin.GeoModelAdmin):
     search_fields = ('name',)
     openlayers_url = 'https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js'
 
+@admin.register(models.Places)
+class PlacesAdmin(admin.GeoModelAdmin):
+    list_display = ('name',)
+    ordering = ('name',)
+    search_fields = ('name',)
+    openlayers_url = 'https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js'
 
 admin.site.register(models.Rate)
 admin.site.register(models.Region)

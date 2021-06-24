@@ -1,100 +1,59 @@
 {% extends 'ps/base.html' %}
 
+
+
 {% load bootstrap3 %}
 
 {% load static %}
 
 {% block extra_css %}
-    <link type="text/css" href="{% static 'ledger/css/index.css' %}" rel="stylesheet">
+	    
+    <script type="text/javascript" src="/static/ps/js/search_avail.js"></script>
+    <link type="text/css" href="/static/ps/css/search_avail.css" rel="stylesheet">
+
     {% endblock %}
 
     {% block messages %}
     {% endblock %}
 
     {% block content %}
-<style>
-.round-box {
-border-radius: 5px;
-border: 1px solid #eaeaea;
-width: 100%;
-background-color: #f5f5f5;
-padding-left: 0px;
-padding-right: 10px;
-padding-top: 10px;
-padding-bottom: 25px;
 
-margin-bottom: 10px;
-}
-.round-box h5 {
-font-weight: bold;
-}
-
-
-.form-button {
-   background: #0E66C9;
-   background-image: -webkit-linear-gradient(top, #0E66C9, #033585);
-   background-image: -moz-linear-gradient(top, #0E66C9, #033585);
-   background-image: -ms-linear-gradient(top, #0E66C9, #033585);
-   background-image: -o-linear-gradient(top, #0E66C9, #033585);
-   background-image: -webkit-gradient(to bottom, #0E66C9, #033585);
-   -webkit-border-radius: 1px;
-   -moz-border-radius: 1px;
-   border-radius: 1px;
-   color: #FFFFFF;
-   font-family: Helvetica;
-   font-size: 40px;
-   font-weight: 100;
-   padding: 10px;
-   text-shadow: 1px 1px 21px #000000;
-   border: solid #175ABB 1px;
-   text-decoration: none;
-   display: inline-block;
-   cursor: pointer;
-   text-align: center;
-}
-
-.form-button:hover {
-   border: solid #0D499D 1px;
-   background: #124BA7;
-   background-image: -webkit-linear-gradient(top, #124BA7, #3776BB);
-   background-image: -moz-linear-gradient(top, #124BA7, #3776BB);
-   background-image: -ms-linear-gradient(top, #124BA7, #3776BB);
-   background-image: -o-linear-gradient(top, #124BA7, #3776BB);
-   background-image: -webkit-gradient(to bottom, #124BA7, #3776BB);
-   -webkit-border-radius: 1px;
-   -moz-border-radius: 1px;
-   border-radius: 1px;
-   text-decoration: none;
-}
 
 <!-- https://cssbuttoncreator.com/ -->
-</style>
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
+<script>
 
-                 <h2>Search Availability</h2>
-                 
-		 <div class="round-box col-12"> 
+window.onload = function() { 
+   search_avail.get_locations();
+   search_avail.get_places(); 
+   search_avail.init_dateselection();	
+   console.log('loaded');
+}
+
+</script>
+    <div class="container" style='z-index:1'>
+        <div class="row">
+            <div class="col-lg-12 ">
+                 <h3>Search Availability</h3>
+                 <form autocomplete="off"> 
+		 <div class="round-box col-12 px-3"> 
 			 <div class="col-12">
  				<div class="col-sm-12 col-md-12">
-
-				 <h5>Where (Region, Park)</h5>
+				    <h5>Where (Region, Park)</h5>
 				</div>
 			 </div>
 			 <div class="col-12">
                                 <div class='row'>
-				<div class="col-sm-12 col-md-6">
+				     <div class="col-sm-12 col-md-6">
 					<div class="col-sm-12 col-md-12">
-
-		                          <input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="off" aria-expanded="false" class='form-control' >
+						<div id='region-park-selection-outer' class='form-control'><div class='selection-informbox'> <span onclick="search_avail.select_remove();" class='search_dropdown_unselect'><i style='color:red' class='bi-x-lg' iiclass="glyphicon glyphicon-remove"></i></span> <span id='region-park-selection-inner'></span></div></div>
+		                                <input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="region-park" aria-expanded="false" class='form-control' onkeyup="search_avail.search(event, this.id, this.value);" >
 					</div>
-				</div>
+				      </div>
 				</div>
 		         </div>
 		  </div>
 
-                 <div class="round-box col-12">
+                 <div class="round-box col-12 px-3">
                          <div class="col-12">
 				<div class="col-sm-12 col-md-12">
                                  <h5>When</h5>
@@ -102,7 +61,27 @@ font-weight: bold;
                          </div>
                          <div class="col-12">
                               <div class='row'>
-				  <div class="col-sm-12 col-md-6">
+
+
+<!--- STARTING -->
+	<div class="col-sm-12 col-md-6">
+<div class="col-sm-12 ">
+
+<div id="when-date-range" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%;">
+    <i class='bi-calendar3' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
+    <span id='when-dates'></span> 
+    <span> (<span id='when-nights'></span> nights)</span>
+    &nbsp;&nbsp;<i class='bi-caret-down-fill' ddclass="glyphicon glyphicon-triangle-bottom"></i>
+</div>
+    <div id='form-vars' style='display:none'>
+    <input id='checkin' > <input id='checkout' >
+    </div>
+
+    <!-- http://www.daterangepicker.com/#example4 -->
+</div>
+</div>
+<!-- ENDING -->
+				  <div class="col-sm-12 col-md-6" style='display:none'>
 					<div class="col-sm-12 col-md-12">
 						Check In
 					</div>
@@ -110,9 +89,7 @@ font-weight: bold;
 						<input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="off" aria-expanded="false" class='form-control' >
 					</div>
 				  </div>
-				  <div class="col-sm-12 col-md-6">
-
-
+				  <div class="col-sm-12 col-md-6" style='display:none'>
                                         <div class="col-sm-12 col-md-12">
                                                 Check Out 
                                         </div>
@@ -133,7 +110,7 @@ font-weight: bold;
 			</div>
 
 		  </div>
-
+                  </form>
 
 
            </div>
