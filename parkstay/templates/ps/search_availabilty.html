@@ -45,8 +45,14 @@ window.onload = function() {
                                 <div class='row'>
 				     <div class="col-sm-12 col-md-6">
 					<div class="col-sm-12 col-md-12">
-						<div id='region-park-selection-outer' class='form-control'><div class='selection-informbox'> <span onclick="search_avail.select_remove();" class='search_dropdown_unselect'><i style='color:red' class='bi-x-lg' iiclass="glyphicon glyphicon-remove"></i></span> <span id='region-park-selection-inner'></span></div></div>
-		                                <input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="region-park" aria-expanded="false" class='form-control' onkeyup="search_avail.search(event, this.id, this.value);" >
+						<div id='region-park-selection-outer' class='form-control'>
+							 <div class='selection-informbox'> 
+								  <span >
+									    <i class='bi-geo-alt'></i></span> <span id='region-park-selection-inner'></span>
+								            <span onclick="search_avail.select_remove();" class='search_dropdown_unselect'><i style='color:red' class='bi-x-lg'></i> </span>
+							 </div>
+						</div>
+		                                <input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="region-park" aria-expanded="false" class='form-control' onkeyup="search_avail.search_pl(event, this.id, this.value);" >
 					</div>
 				      </div>
 				</div>
@@ -99,11 +105,58 @@ window.onload = function() {
 
 
 				  </div>
+
+
 			      </div>
                          </div>
                   </div>
 
-		  <div class="col-12">
+                 <div id='search-filters' class="round-box col-12 px-3">
+                         <div class="col-12">
+                                <div class="col-sm-12 col-md-12">
+                                 <h5>Filters</h5>
+                                </div>
+                         </div>
+                         <div class="col-12">
+                              <div class='row'>
+
+-- MORE FILTERS -- 
+
+			      </div>
+			 </div> 
+                  </div>
+
+
+                 <div id='search-selections' class="round-box col-12 px-3">
+                         <div class="col-12">
+                                <div class="col-sm-12 col-md-12">
+
+                                      <ul class="nav nav-pills nav-justified">
+                                        <li class="nav-item">
+                                          <a class="nav-link active" aria-current="page" href="javascript:void(0);">Campgrounds</a>
+                                        </li>
+                                        <li class="nav-item">
+                                          <a class="nav-link" href="javascript:void(0);">Map</a>
+                                        </li>
+                                      </ul>
+
+
+                                 <h5>Filters</h5>
+                                </div>
+                         </div>
+                         <div class="col-12">
+                              <div class='row'>
+
+-- MORE FILTERS --
+
+                              </div>
+                         </div>
+                  </div>
+
+
+
+
+		  <div class="col-12" style='display:none'>
 			<div class="col-12" align='right'>
 			
 				<button type='button' name='search-avail' id='search-avail' class='form-button' style='width:100%'>Search</button>

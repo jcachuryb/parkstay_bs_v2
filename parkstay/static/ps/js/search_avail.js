@@ -53,12 +53,19 @@ var search_avail = {
            return diffDays;
     },
     select_remove: function() {
+	    $('#search-filters').hide();
+            $('#search-selections').hide();
+
+
             $('#region-park-selection-outer').hide();
             $('#region-park-selection-inner').html('');
             $('#region-park').val('');
             $('#region-park').show();
     },
     select_region: function(value_id,value_name) {
+              $('#search-filters').show();
+ 	      $('#search-selections').show();
+
               $('#region-park-selection-outer').show();
               $('#region-park-selection-inner').html(value_name);
               $('#ps_search_dropdown').remove();
@@ -83,7 +90,7 @@ var search_avail = {
         }, search_avail.select_dates);
         search_avail.select_dates(start,end); 
     }, 
-    search: function(e, element_id, element_value) {
+    search_pl: function(e, element_id, element_value) {
             if (element_value.length < 2) {
                 $('#ps_search_dropdown').remove();
             } else {
@@ -141,6 +148,12 @@ var search_avail = {
                 $('#'+element_id).after("<div id='ps_search_dropdown' class='search_dropdown'><div class='col-sm-12'>"+search_results_html+"</div></div>");
                 }
             }
+    },
+    search_availabilty_locations: function() {
+
+
+
+
     }
 
 }

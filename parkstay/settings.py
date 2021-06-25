@@ -12,6 +12,7 @@ SITE_ID = 1
 BOOKING_TIMEOUT = 600
 
 INSTALLED_APPS += [
+    'webtemplate_dbca',
     'bootstrap3',
     'parkstay',
     'taggit',
