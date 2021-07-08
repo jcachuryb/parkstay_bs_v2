@@ -988,6 +988,7 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
     print ("B HASH")
     print (basket_hash)
     #basket, basket_hash = use_existing_basket_from_invoice('00193349270')
+    print (request.build_absolute_uri(reverse('public_booking_success')))
     checkout_params = {
         'system': settings.PS_PAYMENT_SYSTEM_ID,
         'fallback_url': request.build_absolute_uri('/'),

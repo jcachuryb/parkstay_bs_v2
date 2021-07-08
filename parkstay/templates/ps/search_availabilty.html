@@ -1,22 +1,18 @@
 {% extends 'ps/base.html' %}
 
-
-
 {% load bootstrap3 %}
 
 {% load static %}
 
 {% block extra_css %}
-	    
     <script type="text/javascript" src="/static/ps/js/search_avail.js"></script>
     <link type="text/css" href="/static/ps/css/search_avail.css" rel="stylesheet">
+{% endblock %}
 
-    {% endblock %}
+{% block messages %}
+{% endblock %}
 
-    {% block messages %}
-    {% endblock %}
-
-    {% block content %}
+{% block content %}
 
 
 <!-- https://cssbuttoncreator.com/ -->
@@ -45,8 +41,14 @@ window.onload = function() {
                                 <div class='row'>
 				     <div class="col-sm-12 col-md-6">
 					<div class="col-sm-12 col-md-12">
-						<div id='region-park-selection-outer' class='form-control'><div class='selection-informbox'> <span onclick="search_avail.select_remove();" class='search_dropdown_unselect'><i style='color:red' class='bi-x-lg' iiclass="glyphicon glyphicon-remove"></i></span> <span id='region-park-selection-inner'></span></div></div>
-		                                <input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="region-park" aria-expanded="false" class='form-control' onkeyup="search_avail.search(event, this.id, this.value);" >
+						<div id='region-park-selection-outer' class='form-control'>
+							 <div class='selection-informbox'> 
+								  <span >
+									    <i class='bi-geo-alt'></i></span> <span id='region-park-selection-inner'></span>
+								            <span onclick="search_avail.select_remove();" class='search_dropdown_unselect'><i style='color:red' class='bi-x-lg'></i> </span>
+							 </div>
+						</div>
+		                                <input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="region-park" aria-expanded="false" class='form-control' onkeyup="search_avail.search_pl(event, this.id, this.value);" >
 					</div>
 				      </div>
 				</div>
@@ -99,11 +101,117 @@ window.onload = function() {
 
 
 				  </div>
+
+
 			      </div>
                          </div>
                   </div>
 
-		  <div class="col-12">
+                 <div id='search-filters' class="round-box col-12 px-3">
+                         <div class="col-12">
+                                <div class="col-sm-12 col-md-12">
+                                 <h5>Filters</h5>
+                                </div>
+                         </div>
+                         <div class="col-12">
+                              <div class='row'>
+				<div class="col-6">
+					Tents
+				</div>					
+				<div class="col-6">
+					<div class="form-check form-switch">
+					  <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" checked>
+				</div>
+				</div>
+
+
+
+                                <div class="col-6">
+                                        Campervan
+                                </div>                                  
+                                <div class="col-6">
+                                        <div class="form-check form-switch">
+                                          <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                                </div>
+                                </div>
+
+
+                                <div class="col-6">
+                                        Caravan / Camper trailer
+                                </div>                                  
+                                <div class="col-6">
+                                        <div class="form-check form-switch">
+                                          <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                                </div>
+                                </div>
+
+                                <div class="col-6">
+                                        &nbsp; 
+                                </div>
+                                <div class="col-6">
+                                        &nbsp;
+                                </div>
+
+				{% for f  in features %}
+                                     <div class="col-6">
+                                             {{ f.name }} 
+                                     </div>
+                                     <div class="col-6">
+                                             <div class="form-check form-switch">
+                                               <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                                     </div>
+                                     </div>
+				{% endfor %}
+
+			      </div>
+			 </div> 
+                  </div>
+
+		  <textarea id='feature_json' style='display:none'>{{ features_json }}</textarea>
+
+                 <div id='search-selections' class="round-box col-12 px-3">
+                         <div class="col-12">
+                                <div class="col-sm-12 col-md-12">
+
+                                      <ul class="nav nav-pills nav-justified">
+                                        <li class="nav-item">
+                                          <a class="nav-link" aria-current="page" href="javascript:void(0);" onclick="search_avail.select_filter_tab('campgrounds');">Campgrounds</a>
+                                        </li>
+                                        <li class="nav-item">
+                                          <a class="nav-link active" href="javascript:void(0);" onclick="search_avail.select_filter_tab('map');">Map</a>
+                                        </li>
+                                      </ul>
+
+
+                                 <h5>Filters</h5>
+                                </div>
+                         </div>
+                         <div class="col-12">
+                              <div class='row'>
+
+
+   <div id="parkfinder"></div>
+    <script type="text/javascript">
+        var parkstayUrl = window.location.protocol + '//' + window.location.host;
+    </script>
+    <script src="{% static 'searchavail/js/manifest.js' %}?ver={{ VERSION_NO  }}"></script>
+    <script src="{% static 'searchavail/js/vendor.js' %}?ver={{ VERSION_NO  }}"></script>
+    <script src="{% static 'searchavail/js/map.js' %}?ver={{ VERSION_NO  }}"></script>
+
+
+
+
+
+
+
+                              </div>
+                         </div>
+                  </div>
+
+
+
+
+		  <div class="col-12" style='display:none'>
 			<div class="col-12" align='right'>
 			
 				<button type='button' name='search-avail' id='search-avail' class='form-button' style='width:100%'>Search</button>
@@ -122,5 +230,15 @@ window.onload = function() {
     </div>
     <br>
     <br>
+
+
+
+
+
+
+<script type="module">
+//	import Map from 'ol/Map';
+//	console.log(Map);
+</script>
 {% endblock %}
 

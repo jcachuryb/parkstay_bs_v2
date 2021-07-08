@@ -18,5 +18,6 @@ def parkstay_url(request):
         'GIT_COMMIT_HASH' : settings.GIT_COMMIT_HASH,
         'QUEUE_DOMAIN' : settings.QUEUE_DOMAIN,
         'QUEUE_URL' : settings.QUEUE_URL,
-        'QUEUE_ACTIVE_HOSTS' : settings.QUEUE_ACTIVE_HOSTS
+        'QUEUE_ACTIVE_HOSTS' : settings.QUEUE_ACTIVE_HOSTS,
+        'template_group' : 'parks'
     }

@@ -12,6 +12,7 @@ SITE_ID = 1
 BOOKING_TIMEOUT = 600
 
 INSTALLED_APPS += [
+    'webtemplate_dbca',
     'bootstrap3',
     'parkstay',
     'taggit',
@@ -120,4 +121,4 @@ if len(GIT_COMMIT_HASH) == 0:
     GIT_COMMIT_HASH = os.popen('cat /app/git_hash').read()
     if len(GIT_COMMIT_HASH) == 0:
        print ("ERROR: No git hash provided")
-
+LEDGER_TEMPLATE = 'bootstrap5'

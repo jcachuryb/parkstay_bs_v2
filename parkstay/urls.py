@@ -5,6 +5,8 @@ from rest_framework import routers
 from parkstay import views, api
 from parkstay.admin import admin
 from parkstay import view_file
+from django.contrib.auth.views import LogoutView, LoginView
+
 #from ledger.urls import urlpatterns as ledger_patterns
 from ledger_api_client.urls import urlpatterns as ledger_patterns
 from django.urls import path
@@ -65,6 +67,9 @@ api_patterns = [
 # URL Patterns
 urlpatterns = [
     path(r'admin/', admin.site.urls),
+    url(r'^login/', LoginView.as_view(),name='login'),
+    url(r'^logout/$', LogoutView.as_view(), {'next_page': '/'}, name='logout'),
+    #url(r'^logout/$', LogoutView.as_view(), {'next_page': settings.LOGOUT_REDIRECT_URL}, name='logout'),
     #url(r'^admin/', admin.site.urls, name='admin_urls'),
     url(r'', include(api_patterns)),
     #url(r'', include(site_queue_urls)),

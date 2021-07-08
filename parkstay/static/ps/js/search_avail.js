@@ -1,7 +1,7 @@
 var search_avail = {
     var: {  'location_url' : '/api/campground_map/?format=json',
             'places_url' : '/api/places/',
-            'locations': [],
+            'locations' : [],
             'places': [],
     },
     get_locations: function() {
@@ -11,7 +11,7 @@ var search_avail = {
                     dataType: 'json',
                     contentType: 'application/json',
                     data: "{}",
-                    success: function (response) {
+                    success: function(response) {
                             search_avail.var.locations = response;
                             // console.log(response);
 
@@ -53,17 +53,39 @@ var search_avail = {
            return diffDays;
     },
     select_remove: function() {
+	    $('#search-filters').hide();
+            $('#search-selections').hide();
+
             $('#region-park-selection-outer').hide();
             $('#region-park-selection-inner').html('');
             $('#region-park').val('');
             $('#region-park').show();
     },
     select_region: function(value_id,value_name) {
+              $('#search-filters').show();
+ 	      $('#search-selections').show();
+	      search_avail.select_filter_tab('map');
+
               $('#region-park-selection-outer').show();
               $('#region-park-selection-inner').html(value_name);
               $('#ps_search_dropdown').remove();
               $('#region-park').hide();
+	     
     },
+    select_filter_tab: function(tab) {
+             $('#card-preview').hide();
+	     $('#map-preview').hide();
+
+             if (tab == 'campgrounds') {
+                  $('#card-preview').show();
+	     }
+
+	     if (tab == 'map') {
+		  $('#map-preview').show();
+		  $('#map-reload').click();
+	     }
+
+    },	    
     init_dateselection: function() { 
         var start = moment().add(1, 'days');
         var end = moment().add(8,'days');
@@ -83,7 +105,7 @@ var search_avail = {
         }, search_avail.select_dates);
         search_avail.select_dates(start,end); 
     }, 
-    search: function(e, element_id, element_value) {
+    search_pl: function(e, element_id, element_value) {
             if (element_value.length < 2) {
                 $('#ps_search_dropdown').remove();
             } else {
@@ -141,6 +163,12 @@ var search_avail = {
                 $('#'+element_id).after("<div id='ps_search_dropdown' class='search_dropdown'><div class='col-sm-12'>"+search_results_html+"</div></div>");
                 }
             }
+    },
+    search_availabilty_locations: function() {
+
+
+
+
     }
 
 }
