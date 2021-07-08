@@ -1,7 +1,7 @@
 var search_avail = {
     var: {  'location_url' : '/api/campground_map/?format=json',
             'places_url' : '/api/places/',
-            'locations': [],
+            'locations' : [],
             'places': [],
     },
     get_locations: function() {
@@ -11,7 +11,7 @@ var search_avail = {
                     dataType: 'json',
                     contentType: 'application/json',
                     data: "{}",
-                    success: function (response) {
+                    success: function(response) {
                             search_avail.var.locations = response;
                             // console.log(response);
 
@@ -56,7 +56,6 @@ var search_avail = {
 	    $('#search-filters').hide();
             $('#search-selections').hide();
 
-
             $('#region-park-selection-outer').hide();
             $('#region-park-selection-inner').html('');
             $('#region-park').val('');
@@ -65,12 +64,28 @@ var search_avail = {
     select_region: function(value_id,value_name) {
               $('#search-filters').show();
  	      $('#search-selections').show();
+	      search_avail.select_filter_tab('map');
 
               $('#region-park-selection-outer').show();
               $('#region-park-selection-inner').html(value_name);
               $('#ps_search_dropdown').remove();
               $('#region-park').hide();
+	     
     },
+    select_filter_tab: function(tab) {
+             $('#card-preview').hide();
+	     $('#map-preview').hide();
+
+             if (tab == 'campgrounds') {
+                  $('#card-preview').show();
+	     }
+
+	     if (tab == 'map') {
+		  $('#map-preview').show();
+		  $('#map-reload').click();
+	     }
+
+    },	    
     init_dateselection: function() { 
         var start = moment().add(1, 'days');
         var end = moment().add(8,'days');

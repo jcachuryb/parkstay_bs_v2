@@ -43,6 +43,7 @@ from decimal import *
 
 from parkstay.helpers import is_officer
 from parkstay import utils
+import json
 
 logger = logging.getLogger('booking_checkout')
 
@@ -404,8 +405,20 @@ class SearchAvailablity(TemplateView):
 
     template_name = 'ps/search_availabilty.html'
 
-    def get(self, *args, **kwargs):
-        return super(SearchAvailablity, self).get(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = {}
+        features_obj = []
+        features_query = Feature.objects.all()
+        for f in features_query:
+            features_obj.append({'name': f.name, 'symb': 'RF8G', 'description': f.description, 'type': f.type, 'key': 'twowheel','remoteKey': [f.name]})
+        # {name: '2WD accessible', symb: 'RV2', key: 'twowheel', 'remoteKey': ['2WD/SUV ACCESS']},
+        context['features'] = features_obj
+        context['features_json'] = json.dumps(features_obj)
+        return render(request, self.template_name, context)
+
+    #def get(self, *args, **kwargs):
+    #    return super(SearchAvailablity, self).get(*args, **kwargs)
 
 
 class MapView(TemplateView):
