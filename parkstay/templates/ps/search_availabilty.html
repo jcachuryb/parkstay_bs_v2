@@ -49,6 +49,9 @@ window.onload = function() {
 							 </div>
 						</div>
 		                                <input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="region-park" aria-expanded="false" class='form-control' onkeyup="search_avail.search_pl(event, this.id, this.value);" >
+
+
+						<input id="coord_1" value='113.84' type='hidden'> <input id="coord_2" value='-22.247' type='hidden'>
 					</div>
 				      </div>
 				</div>
@@ -166,7 +169,8 @@ window.onload = function() {
 			      </div>
 			 </div> 
 			 <div class="col-12" style='' >
-				 <center><button type="button" class="btn btn-primary">More filters</button></center>
+				 <center><button type="button" class="btn btn-primary" id='more-filters' onclick="search_avail.filter_options('open');">More filters</button></center>
+				 <center><button type="button" class="btn btn-primary" style='display:none;' id='hide-filters' onclick="search_avail.filter_options('close');">Hide filters</button></center>
 		         </div>
                   </div>
 
@@ -186,7 +190,7 @@ window.onload = function() {
                                       </ul>
 
 
-                                 <h5>Filters</h5>
+                                <h5>Filters</h5>
                                 </div>
                          </div>
                          <div class="col-12">
