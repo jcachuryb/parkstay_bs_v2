@@ -166,7 +166,8 @@ window.onload = function() {
 			      </div>
 			 </div> 
 			 <div class="col-12" style='' >
-				 <center><button type="button" class="btn btn-primary">More filters</button></center>
+				 <center><button type="button" class="btn btn-primary" id='more-filters' onclick="search_avail.filter_options('open');">More filters</button></center>
+				 <center><button type="button" class="btn btn-primary" style='display:none;' id='hide-filters' onclick="search_avail.filter_options('close');">Hide filters</button></center>
 		         </div>
                   </div>
 
@@ -186,7 +187,7 @@ window.onload = function() {
                                       </ul>
 
 
-                                 <h5>Filters</h5>
+                                <h5>Filters</h5>
                                 </div>
                          </div>
                          <div class="col-12">

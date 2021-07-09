@@ -90,7 +90,19 @@ var search_avail = {
 		  $('#map-preview-tab').addClass('active');
 	     }
 
-    },	    
+    },
+    filter_options: function(status) { 
+            if (status == 'open') { 
+                $('#filter-options').slideDown();
+		$('#more-filters').hide();
+		$('#hide-filters').show();
+            } else {
+		$('#filter-options').slideUp();
+		$('#hide-filters').hide();
+		$('#more-filters').show();
+            }
+
+    },
     init_dateselection: function() { 
         var start = moment().add(1, 'days');
         var end = moment().add(8,'days');
