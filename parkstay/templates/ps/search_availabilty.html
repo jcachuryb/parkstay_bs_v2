@@ -30,7 +30,7 @@ window.onload = function() {
         <div class="row">
             <div class="col-lg-12 ">
                  <h3>Search Availability</h3>
-                 <form autocomplete="off"> 
+                 <form autocomplete="off" onkeydown="return event.key != 'Enter';"> 
 		 <div class="round-box col-12 px-3"> 
 			 <div class="col-12">
  				<div class="col-sm-12 col-md-12">
@@ -175,10 +175,10 @@ window.onload = function() {
 
                                       <ul class="nav nav-pills nav-justified">
                                         <li class="nav-item">
-                                          <a class="nav-link" aria-current="page" href="javascript:void(0);" onclick="search_avail.select_filter_tab('campgrounds');">Campgrounds</a>
+                                          <a id='card-preview-tab' class="nav-link" aria-current="page" href="javascript:void(0);" onclick="search_avail.select_filter_tab('campgrounds');">Campgrounds</a>
                                         </li>
                                         <li class="nav-item">
-                                          <a class="nav-link active" href="javascript:void(0);" onclick="search_avail.select_filter_tab('map');">Map</a>
+                                          <a id='map-preview-tab' class="nav-link active" href="javascript:void(0);" onclick="search_avail.select_filter_tab('map');">Map</a>
                                         </li>
                                       </ul>
 

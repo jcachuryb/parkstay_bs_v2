@@ -40,11 +40,12 @@ var search_avail = {
     select_dates: function(start, end) {
         $('#when-date-range #when-dates').html("<b>Arrive:</b> "+start.format('D MMM YYYY') + ' <b>Depart:</b> ' + end.format('D MMM YYYY'));
 
-        $('#checkin').val(start.format('DD/MM/YYYY'));
-        $('#checkout').val(start.format('DD/MM/YYYY'));
+        $('#checkin').val(start.format('YYYY/MM/DD'));
+        $('#checkout').val(end.format('YYYY/MM/DD'));
 
         var whennights = search_avail.calculate_nights(start,end);
         $('#when-nights').html(whennights);
+	$('#map-reload').click();
     },
     calculate_nights: function(start,end) {
            oneDay = 24 * 60 * 60 * 1000; 
@@ -75,14 +76,18 @@ var search_avail = {
     select_filter_tab: function(tab) {
              $('#card-preview').hide();
 	     $('#map-preview').hide();
+             $('#card-preview-tab').removeClass('active');
+	     $('#map-preview-tab').removeClass('active');
 
              if (tab == 'campgrounds') {
                   $('#card-preview').show();
+		  $('#card-preview-tab').addClass('active');
 	     }
 
 	     if (tab == 'map') {
 		  $('#map-preview').show();
 		  $('#map-reload').click();
+		  $('#map-preview-tab').addClass('active');
 	     }
 
     },	    
