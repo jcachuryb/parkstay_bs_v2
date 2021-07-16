@@ -425,11 +425,12 @@ class CampgroundMapFilterViewSet(viewsets.ReadOnlyModelViewSet):
             "num_infant": request.GET.get('num_infant', 0),
             "gear_type": request.GET.get('gear_type', 'all')
         }
+
         #data_hash = hashlib.sha224(b"D {}".format(request.GET.get('arrival', None))).hexdigest()
         data_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
         dumped_data = cache.get('CampgroundMapFilterViewSet'+data_hash)
+        dumped_data = None
         if dumped_data is None:
-
             serializer = CampgroundCampsiteFilterSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             scrubbed = serializer.validated_data
@@ -437,15 +438,20 @@ class CampgroundMapFilterViewSet(viewsets.ReadOnlyModelViewSet):
             # filter to the campsites by gear allowed (if specified), else show the lot
             if scrubbed['gear_type'] != 'all':
                 context = {scrubbed['gear_type']: True}
-
+            print ("CONTEXT")
+            print (context)
             # if a date range is set, filter out campgrounds that are unavailable for the whole stretch
             if scrubbed['arrival'] and scrubbed['departure'] and (scrubbed['arrival'] < scrubbed['departure']):
                 sites = Campsite.objects.filter(**context)
                 ground_ids = utils.get_open_campgrounds(sites, scrubbed['arrival'], scrubbed['departure'])
+                print ("END")
+                print (ground_ids)
 
             else:  # show all of the campgrounds with campsites
+                print ("CONTEXT 2")
+                print (context)
                 ground_ids = set((x[0] for x in Campsite.objects.filter(**context).values_list('campground')))
-
+                print (ground_ids)
                 # we need to be tricky here. for the default search (all, no timestamps),
                 # we want to include all of the "campgrounds" that don't have any campsites in the model! (e.g. third party)
                 if scrubbed['gear_type'] == 'all':
@@ -1261,14 +1267,79 @@ def invoice_callback(invoice_ref):
 def campground_map_view(request, *args, **kwargs):
      from django.core import serializers
      dumped_data = cache.get('CampgroundMapViewSet')
+     dumped_data = None
+     campground_array = {"type": "FeatureCollection", "features": []}
      if dumped_data is None:
          print ("Recreating Campground Cache")
-         queryset = Campground.objects.exclude(campground_type=3)
-         queryset_obj = serializers.serialize('json', queryset)
-         serializer_camp = CampgroundMapSerializer(data=queryset, many=True)
-         serializer_camp.is_valid()
-         dumped_data = geojson.dumps(serializer_camp.data)
-         cache.set('CampgroundMapViewSet', dumped_data,  3600)
+         features = Feature.objects.all()
+         f_obj = {}
+         region_obj = {}
+         district_obj = {}
+         parks_obj = {}
+         for f in features:
+              image = None
+              if f.image:
+                  image = f.image.path
+              f_obj[f.id] = {'id': f.id, 'name': f.name, 'description': f.description, 'image': image, 'type': f.type}
+
+         queryset = Campground.objects.exclude(campground_type=3).values('id','campground_type','description','info_url','name','wkb_geometry','park_id')
+         queryset_features = Campground.objects.exclude(campground_type=3).values('id','features')
+
+         queryset_regions = Region.objects.all().values('id','name','abbreviation','ratis_id')
+         queryset_districts = District.objects.all().values('id','name','abbreviation','region_id','ratis_id')
+         queryset_parks = Park.objects.all().values('id','name','district_id','ratis_id','entry_fee_required','wkb_geometry')
+         for qr in queryset_regions:
+             region_obj[qr['id']] = {'id': qr['id'], 'name': qr['name'], 'abbreviation': qr['abbreviation'], 'ratis_id': qr['ratis_id']} 
+         for dr in queryset_districts:
+             region = {}
+             if dr['region_id']:
+                 region = region_obj[dr['region_id']]
+             district_obj[dr['id']] = {'id': dr['id'], 'name': dr['name'], 'abbreviation': dr['abbreviation'], 'ratis_id': dr['ratis_id'],'region': region}
+         for qp in queryset_parks:
+             district = {}
+             if qp['district_id'] in district_obj:
+                 district = district_obj[qp['district_id']]
+             parks_obj[qp['id']] = {'id': qp['id'], 'name': qp['name'], 'district': district, 'entry_fee_required': qp['entry_fee_required']} 
+
+
+         #queryset1 = Campground.objects.exclude(campground_type=3)
+         #queryset_obj = serializers.serialize('json', queryset1)
+         #serializer_camp = CampgroundMapSerializer(data=queryset1, many=True)
+         #serializer_camp.is_valid()
+         #dumped_data = geojson.dumps(serializer_camp.data)
+         #cache.set('CampgroundMapViewSet', dumped_data,  3600)
+         for c in queryset:
+             row = {}
+             row['type'] = "Feature"
+             row['id'] = c['id']
+             row['geometry'] = {}
+             if c['wkb_geometry']:
+                 row['geometry'] = {"type": "Point", "coordinates": [c['wkb_geometry'][0],c['wkb_geometry'][1]]} 
+             row['properties'] = {}
+             row['properties']['campground_type'] = c['campground_type']
+             row['properties']['description'] = c['description']
+             # Features start
+             row['properties']['features'] = []
+             for qf in queryset_features:
+                 if qf['id'] == c['id']:
+                      if qf['features'] in f_obj:
+                          row['properties']['features'].append(f_obj[qf['features']])
+             # Features end
+             row['properties']['images'] = []
+             row['properties']['info_url'] = c['info_url']
+             row['properties']['name'] = c['name']
+
+             row['properties']['park'] = {}
+             if c['park_id'] in parks_obj:
+                  row['properties']['park'] = parks_obj[c['park_id']]
+             row['properties']['price_hint'] = None 
+ 
+             campground_array['features'].append(row)
+
+         dumped_data = json.dumps(campground_array)
+             #print (row)
+
+
      return HttpResponse(dumped_data, content_type='application/json')
 
 
