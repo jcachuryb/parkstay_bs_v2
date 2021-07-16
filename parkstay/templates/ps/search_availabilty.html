@@ -101,11 +101,7 @@ window.onload = function() {
                                         <div class="col-sm-12 col-md-12">
                                                 <input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="off" aria-expanded="false" class='form-control' >
                                         </div>
-
-
 				  </div>
-
-
 			      </div>
                          </div>
                   </div>
@@ -113,7 +109,7 @@ window.onload = function() {
                  <div id='search-filters' class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                 <h5>Filters</h5>
+                                 <h5></h5>
                                 </div>
                          </div>
                          <div class="col-12" style='display:none' id='filter-options'>
@@ -123,18 +119,16 @@ window.onload = function() {
 				</div>					
 				<div class="col-6">
 					<div class="form-check form-switch">
-					  <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" checked>
+					  <input class="form-check-input" type="checkbox" id="filter-checkbox-tent" checked>
 				</div>
 				</div>
-
-
 
                                 <div class="col-6">
                                         Campervan
                                 </div>                                  
                                 <div class="col-6">
                                         <div class="form-check form-switch">
-                                          <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                                          <input class="form-check-input" type="checkbox" id="filter-checkbox-campervan">
                                 </div>
                                 </div>
 
@@ -144,7 +138,7 @@ window.onload = function() {
                                 </div>                                  
                                 <div class="col-6">
                                         <div class="form-check form-switch">
-                                          <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                                          <input class="form-check-input" type="checkbox" id="filter-checkbox-campertrailer">
                                 </div>
                                 </div>
 
@@ -157,12 +151,12 @@ window.onload = function() {
 
 				{% for f  in features %}
                                      <div class="col-6">
-                                             {{ f.name }} 
+                                          {{ f.name }} 
                                      </div>
                                      <div class="col-6">
                                              <div class="form-check form-switch">
-                                               <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
-                                     </div>
+						     <input class="form-check-input filter-features" type="checkbox" id="filter-feature-{{ f.id }}">
+                                             </div>
                                      </div>
 				{% endfor %}
 
@@ -176,7 +170,7 @@ window.onload = function() {
 
 		  <textarea id='feature_json' style='display:none'>{{ features_json }}</textarea>
 
-                 <div id='search-selections' class="round-box col-12 px-3">
+                  <div id='search-selections' class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
 
@@ -190,14 +184,14 @@ window.onload = function() {
                                       </ul>
 
 
-                                <h5>Filters</h5>
+                                <h5></h5>
                                 </div>
                          </div>
                          <div class="col-12">
                               <div class='row'>
 
 
-   <div id="parkfinder"></div>
+    <div id="parkfinder"></div>
     <script type="text/javascript">
         var parkstayUrl = window.location.protocol + '//' + window.location.host;
     </script>

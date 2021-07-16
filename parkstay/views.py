@@ -411,7 +411,7 @@ class SearchAvailablity(TemplateView):
         features_obj = []
         features_query = Feature.objects.all()
         for f in features_query:
-            features_obj.append({'name': f.name, 'symb': 'RF8G', 'description': f.description, 'type': f.type, 'key': 'twowheel','remoteKey': [f.name]})
+            features_obj.append({'id': f.id,'name': f.name, 'symb': 'RF8G', 'description': f.description, 'type': f.type, 'key': 'twowheel','remoteKey': [f.name]})
         # {name: '2WD accessible', symb: 'RV2', key: 'twowheel', 'remoteKey': ['2WD/SUV ACCESS']},
         context['features'] = features_obj
         context['features_json'] = json.dumps(features_obj)
