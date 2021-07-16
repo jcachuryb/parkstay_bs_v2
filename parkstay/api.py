@@ -1273,9 +1273,11 @@ def campground_map_view(request, *args, **kwargs):
          print ("Recreating Campground Cache")
          features = Feature.objects.all()
          f_obj = {}
+         campsite_features_obj = {}
          region_obj = {}
          district_obj = {}
          parks_obj = {}
+         campsites_obj = {}
          for f in features:
               image = None
               if f.image:
@@ -1288,6 +1290,9 @@ def campground_map_view(request, *args, **kwargs):
          queryset_regions = Region.objects.all().values('id','name','abbreviation','ratis_id')
          queryset_districts = District.objects.all().values('id','name','abbreviation','region_id','ratis_id')
          queryset_parks = Park.objects.all().values('id','name','district_id','ratis_id','entry_fee_required','wkb_geometry')
+         queryset_campsites = Campsite.objects.all().values('id','campground_id','name','wkb_geometry','tent','campervan','caravan','min_people','max_people','max_vehicles','description')
+         queryset_campsite_features = Campsite.objects.all().values('id','features')
+
          for qr in queryset_regions:
              region_obj[qr['id']] = {'id': qr['id'], 'name': qr['name'], 'abbreviation': qr['abbreviation'], 'ratis_id': qr['ratis_id']} 
          for dr in queryset_districts:
@@ -1301,7 +1306,24 @@ def campground_map_view(request, *args, **kwargs):
                  district = district_obj[qp['district_id']]
              parks_obj[qp['id']] = {'id': qp['id'], 'name': qp['name'], 'district': district, 'entry_fee_required': qp['entry_fee_required']} 
 
+         
+         for cf in queryset_campsite_features:
+             if cf['id'] in campsite_features_obj:
+                pass
+             else:
+                campsite_features_obj[cf['id']] = []
 
+             # append
+             if cf['features']: 
+                  campsite_features_obj[cf['id']].append(f_obj[cf['features']])
+
+         for cs in queryset_campsites: 
+             campsite_features = []
+             if cs['id'] in campsite_features_obj:
+                 campsite_features = campsite_features_obj[cs['id']]
+             campsites_obj[cs['id']] = {'id': cs['id'], 'campground_id': cs['campground_id'], 'name': cs['name'], 'tent': cs['tent'], 'campervan': cs['campervan'], 'caravan': cs['caravan'], 'max_people': cs['max_people'], 'max_vehicles': cs['max_vehicles'], 'description': cs['description'],'features': campsite_features}
+
+         #print (campsites_obj)
          #queryset1 = Campground.objects.exclude(campground_type=3)
          #queryset_obj = serializers.serialize('json', queryset1)
          #serializer_camp = CampgroundMapSerializer(data=queryset1, many=True)
@@ -1333,13 +1355,13 @@ def campground_map_view(request, *args, **kwargs):
              if c['park_id'] in parks_obj:
                   row['properties']['park'] = parks_obj[c['park_id']]
              row['properties']['price_hint'] = None 
- 
+             row['properties']['campsites'] = []
+             for cs in campsites_obj:
+                 if campsites_obj[cs]['campground_id'] == c['id']:
+                     row['properties']['campsites'].append(campsites_obj[cs])
              campground_array['features'].append(row)
 
          dumped_data = json.dumps(campground_array)
-             #print (row)
-
-
      return HttpResponse(dumped_data, content_type='application/json')
 
 
