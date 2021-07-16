@@ -438,14 +438,10 @@ class CampgroundMapFilterViewSet(viewsets.ReadOnlyModelViewSet):
             # filter to the campsites by gear allowed (if specified), else show the lot
             if scrubbed['gear_type'] != 'all':
                 context = {scrubbed['gear_type']: True}
-            print ("CONTEXT")
-            print (context)
             # if a date range is set, filter out campgrounds that are unavailable for the whole stretch
             if scrubbed['arrival'] and scrubbed['departure'] and (scrubbed['arrival'] < scrubbed['departure']):
                 sites = Campsite.objects.filter(**context)
                 ground_ids = utils.get_open_campgrounds(sites, scrubbed['arrival'], scrubbed['departure'])
-                print ("END")
-                print (ground_ids)
 
             else:  # show all of the campgrounds with campsites
                 print ("CONTEXT 2")
@@ -1267,10 +1263,10 @@ def invoice_callback(invoice_ref):
 def campground_map_view(request, *args, **kwargs):
      from django.core import serializers
      dumped_data = cache.get('CampgroundMapViewSet')
-     dumped_data = None
-     campground_array = {"type": "FeatureCollection", "features": []}
+     #dumped_data = None
      if dumped_data is None:
          print ("Recreating Campground Cache")
+         campground_array = {"type": "FeatureCollection", "features": []}
          features = Feature.objects.all()
          f_obj = {}
          campsite_features_obj = {}
@@ -1362,6 +1358,7 @@ def campground_map_view(request, *args, **kwargs):
              campground_array['features'].append(row)
 
          dumped_data = json.dumps(campground_array)
+         cache.set('CampgroundMapViewSet', dumped_data,  3600)
      return HttpResponse(dumped_data, content_type='application/json')
 
 
