@@ -5,14 +5,14 @@
 {% load static %}
 
 {% block extra_css %}
-    <script type="text/javascript" src="/static/ps/js/search_avail.js"></script>
-    <link type="text/css" href="/static/ps/css/search_avail.css" rel="stylesheet">
+	<script type="text/javascript" src="/static/ps/js/search_avail.js?ver={{ GIT_COMMIT_HASH }}"></script>
+    <link type="text/css" href="/static/ps/css/search_avail.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
 
-    <link rel="stylesheet" href="/static/common/node_modules/glider-js/glider.min.css">
-    <script src="/static/common/node_modules/glider-js/glider.min.js"></script>
+    <link rel="stylesheet" href="/static/common/node_modules/glider-js/glider.min.css?ver={{ GIT_COMMIT_HASH }}">
+    <script src="/static/common/node_modules/glider-js/glider.min.js?ver={{ GIT_COMMIT_HASH }}"></script>
 
-    <script src="/static/common/node_modules/@splidejs/splide/dist/js/splide.min.js"></script>
-    <link rel="stylesheet" href="/static/common/node_modules/@splidejs/splide/dist/css/splide.min.css">
+    <script src="/static/common/node_modules/@splidejs/splide/dist/js/splide.min.js?ver={{ GIT_COMMIT_HASH }}"></script>
+    <link rel="stylesheet" href="/static/common/node_modules/@splidejs/splide/dist/css/splide.min.css?ver={{ GIT_COMMIT_HASH }}">
 {% endblock %}
 
 {% block messages %}
@@ -204,9 +204,9 @@ window.onload = function() {
     <script type="text/javascript">
         var parkstayUrl = window.location.protocol + '//' + window.location.host;
     </script>
-    <script src="{% static 'searchavail/js/manifest.js' %}?ver={{ VERSION_NO  }}"></script>
-    <script src="{% static 'searchavail/js/vendor.js' %}?ver={{ VERSION_NO  }}"></script>
-    <script src="{% static 'searchavail/js/map.js' %}?ver={{ VERSION_NO  }}"></script>
+    <script src="{% static 'searchavail/js/manifest.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
+    <script src="{% static 'searchavail/js/vendor.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
+    <script src="{% static 'searchavail/js/map.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
 
 
 
