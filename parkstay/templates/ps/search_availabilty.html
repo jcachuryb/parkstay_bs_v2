@@ -7,6 +7,12 @@
 {% block extra_css %}
     <script type="text/javascript" src="/static/ps/js/search_avail.js"></script>
     <link type="text/css" href="/static/ps/css/search_avail.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/common/node_modules/glider-js/glider.min.css">
+    <script src="/static/common/node_modules/glider-js/glider.min.js"></script>
+
+    <script src="/static/common/node_modules/@splidejs/splide/dist/js/splide.min.js"></script>
+    <link rel="stylesheet" href="/static/common/node_modules/@splidejs/splide/dist/css/splide.min.css">
 {% endblock %}
 
 {% block messages %}
@@ -23,9 +29,13 @@ window.onload = function() {
    search_avail.get_places(); 
    search_avail.init_dateselection();	
    console.log('loaded');
+
 }
 
 </script>
+
+
+
     <div class="container" style='z-index:1'>
         <div class="row">
             <div class="col-lg-12 ">
@@ -81,7 +91,6 @@ window.onload = function() {
     <div id='form-vars' style='display:none'>
     <input id='checkin' > <input id='checkout' >
     </div>
-
     <!-- http://www.daterangepicker.com/#example4 -->
 </div>
 </div>
@@ -104,7 +113,7 @@ window.onload = function() {
 				  </div>
 			      </div>
                          </div>
-                  </div>
+                 </div>
 
                  <div id='search-filters' class="round-box col-12 px-3">
                          <div class="col-12">
@@ -169,7 +178,7 @@ window.onload = function() {
                   </div>
 
 		  <textarea id='feature_json' style='display:none'>{{ features_json }}</textarea>
-
+		  </form>
                   <div id='search-selections' class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
@@ -219,14 +228,7 @@ window.onload = function() {
 			</div>
 
 		  </div>
-                  </form>
-
-
            </div>
-
-
-
-
         </div>
     </div>
     <br>

@@ -14,7 +14,9 @@
     "twbs": "0.0.6",
     "bootstrap": "5.0.2",
     "bootstrap-icons": "1.5.0",
-    "ol": "6.5.0"
+    "ol": "6.5.0",
+    "glider-js": "1.7.7",
+    "@splidejs/splide": "2.4.21"
   },
   "engines": {
     "node": ">= 4.0.0",
