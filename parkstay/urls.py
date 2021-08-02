@@ -94,6 +94,7 @@ urlpatterns = [
     url(r'^success/', views.BookingSuccessView.as_view(), name='public_booking_success'),
     url(r'^map/', views.MapView.as_view(), name='map'),
     url(r'^campground-image/(?P<height>[0-9]+)/(?P<width>[0-9]+)/', view_file.getFile, name='campground_image_resize'), 
+    url(r'^campground-image-cropped-square/(?P<height>[0-9]+)/(?P<width>[0-9]+)/', view_file.getFileCroppedResized, name='campground_image_resize_cropped_square'),
 ] + ledger_patterns
 
 if settings.DEBUG:  # Serve media locally in development.
