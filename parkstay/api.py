@@ -65,7 +65,8 @@ from parkstay.models import (Campground,
                              MaximumStayReason,
                              DiscountReason,
                              ParkEntryRate,
-                             Places
+                             Places,
+                             CampgroundImage
                              )
 
 from parkstay.serialisers import (CampsiteBookingSerialiser,
@@ -1274,11 +1275,20 @@ def campground_map_view(request, *args, **kwargs):
          district_obj = {}
          parks_obj = {}
          campsites_obj = {}
+         cgimages_obj = {}
          for f in features:
               image = None
               if f.image:
                   image = f.image.path
               f_obj[f.id] = {'id': f.id, 'name': f.name, 'description': f.description, 'image': image, 'type': f.type}
+
+         queryset_campground_images = CampgroundImage.objects.all() #.values('id','image','campground_id')
+         for im in queryset_campground_images:
+             if im.campground.id in cgimages_obj:
+                 cgimages_obj[im.campground.id].append({'image' : im.image.url})
+             else:
+                 cgimages_obj[im.campground.id] = []
+                 cgimages_obj[im.campground.id].append({'image' : im.image.url})
 
          queryset = Campground.objects.exclude(campground_type=3).values('id','campground_type','description','info_url','name','wkb_geometry','park_id')
          queryset_features = Campground.objects.exclude(campground_type=3).values('id','features')
@@ -1343,7 +1353,11 @@ def campground_map_view(request, *args, **kwargs):
                       if qf['features'] in f_obj:
                           row['properties']['features'].append(f_obj[qf['features']])
              # Features end
-             row['properties']['images'] = []
+             if 'images' not in row['properties']:
+                row['properties']['images'] = []
+             if c['id'] in cgimages_obj:
+                  row['properties']['images'] = cgimages_obj[c['id']]
+
              row['properties']['info_url'] = c['info_url']
              row['properties']['name'] = c['name']
 
