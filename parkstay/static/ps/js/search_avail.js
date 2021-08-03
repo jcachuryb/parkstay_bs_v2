@@ -1,9 +1,26 @@
 var search_avail = {
-    var: {  'location_url' : '/api/campground_map/?format=json',
-            'places_url' : '/api/places/',
-            'locations' : [],
-            'places': [],
+    var: { 'location_url' : '/api/campground_map/?format=json',
+	   'search_location_url' : '/api/search_suggest',
+           'places_url' : '/api/places/',
+           'locations' : [],
+           'places': [],
+	   'search_locations': []
     },
+    get_search_locations: function() {
+                $.ajax({
+                    url: search_avail.var.search_location_url,
+                    method: 'GET',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: "{}",
+                    success: function(response) {
+                            search_avail.var.search_locations = response;
+                    },
+                    error: function (error) {
+                        alert('Error loading search locations');
+                    },
+                });
+    },	   
     get_locations: function() {
                 $.ajax({
                     url: search_avail.var.location_url,
@@ -155,10 +172,19 @@ var search_avail = {
             for (let i = 0; i < search_avail.var.locations.features.length; i++) {
                     if (search_avail.var.locations.features[i].properties.name.toLocaleLowerCase().indexOf(element_value.toLocaleLowerCase())!=-1) {
                           console.log('found');
-                          search_results.push({'id': search_avail.var.locations.features[i].properties.id , 'name': search_avail.var.locations.features[i].properties.name, 'type' :'locations','coord_1' : search_avail.var.locations.features[i].geometry.coordinates[0], 'coord_2': search_avail.var.locations.features[i].geometry.coordinates[1]});
+                          // search_results.push({'id': search_avail.var.locations.features[i].properties.id , 'name': search_avail.var.locations.features[i].properties.name, 'type' :'locations','coord_1' : search_avail.var.locations.features[i].geometry.coordinates[0], 'coord_2': search_avail.var.locations.features[i].geometry.coordinates[1]});
                     }
                    // console.log(search_avail.var.locations.features[i].properties.name);
             }
+
+            for (let i = 0; i < search_avail.var.search_locations.features.length; i++) {
+                    if (search_avail.var.search_locations.features[i].properties.name.toLocaleLowerCase().indexOf(element_value.toLocaleLowerCase())!=-1) {
+                          console.log('search found');
+                          search_results.push({'id': search_avail.var.search_locations.features[i].properties.id , 'name': search_avail.var.search_locations.features[i].properties.name, 'type' :'locations','coord_1' : search_avail.var.search_locations.features[i].coordinates[0], 'coord_2': search_avail.var.search_locations.features[i].coordinates[1]});
+                    }
+                   // console.log(search_avail.var.locations.features[i].properties.name);
+            }
+            
 
             for (let i = 0; i < search_avail.var.places.length; i++) {
                      if (search_avail.var.places[i].name.toLocaleLowerCase().indexOf(element_value.toLocaleLowerCase()) != -1) {
