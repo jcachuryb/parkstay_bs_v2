@@ -40,6 +40,7 @@ def getFileCroppedResized(request, height,width):
      #file_record = models.Campground.objects.get(id=file_id)
      mediafile = request=request.GET.get('mediafile',None)
      mediafile = mediafile.replace(settings.MEDIA_URL, '')
+     BASE_DIR = settings.BASE_DIR
 
      local_file = settings.MEDIA_ROOT+'/'+mediafile
      file_name_path = local_file
@@ -63,6 +64,13 @@ def getFileCroppedResized(request, height,width):
                  return HttpResponse(the_data, content_type="application/vnd.ms-outlook")
 
              return HttpResponse(the_data, content_type=mimetypes.types_map['.'+str(extension)])
+     else:
+         reszie_fn = BASE_DIR+"/parkstay/static/ps/img/no_image.jpg"
+         extension = 'jpg'
+         the_file = open(reszie_fn, 'rb')
+         the_data = the_file.read()
+         the_file.close()
+         return HttpResponse(the_data, content_type=mimetypes.types_map['.'+str(extension)])
 
 
 def crop_center(pil_img, crop_width, crop_height):
