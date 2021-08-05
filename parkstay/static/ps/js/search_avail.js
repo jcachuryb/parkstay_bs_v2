@@ -85,7 +85,9 @@ var search_avail = {
 	      $('#zoom_level').val(zoom_level);
               $('#search-filters').show();
  	      $('#search-selections').show();
+	      // need to open the map first before the campground cards will show
 	      search_avail.select_filter_tab('map');
+	      search_avail.select_filter_tab('campgrounds');
 
               $('#region-park-selection-outer').show();
               $('#region-park-selection-inner').html(value_name);
