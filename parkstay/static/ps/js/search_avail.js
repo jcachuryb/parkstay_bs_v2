@@ -79,9 +79,10 @@ var search_avail = {
             $('#region-park').val('');
             $('#region-park').show();
     },
-    select_region: function(value_id, value_name, coord_1, coord_2) {
+    select_region: function(value_id, value_name, coord_1, coord_2, zoom_level) {
 	      $('#coord_1').val(coord_1);
 	      $('#coord_2').val(coord_2);
+	      $('#zoom_level').val(zoom_level);
               $('#search-filters').show();
  	      $('#search-selections').show();
 	      search_avail.select_filter_tab('map');
@@ -180,7 +181,7 @@ var search_avail = {
             for (let i = 0; i < search_avail.var.search_locations.features.length; i++) {
                     if (search_avail.var.search_locations.features[i].properties.name.toLocaleLowerCase().indexOf(element_value.toLocaleLowerCase())!=-1) {
                           console.log('search found');
-                          search_results.push({'id': search_avail.var.search_locations.features[i].properties.id , 'name': search_avail.var.search_locations.features[i].properties.name, 'type' :'locations','coord_1' : search_avail.var.search_locations.features[i].coordinates[0], 'coord_2': search_avail.var.search_locations.features[i].coordinates[1]});
+                          search_results.push({'id': search_avail.var.search_locations.features[i].properties.id , 'name': search_avail.var.search_locations.features[i].properties.name, 'type' :'locations','coord_1' : search_avail.var.search_locations.features[i].coordinates[0], 'coord_2': search_avail.var.search_locations.features[i].coordinates[1], 'zoom_level':search_avail.var.search_locations.features[i].properties.zoom_level});
                     }
                    // console.log(search_avail.var.locations.features[i].properties.name);
             }
@@ -188,7 +189,7 @@ var search_avail = {
 
             for (let i = 0; i < search_avail.var.places.length; i++) {
                      if (search_avail.var.places[i].name.toLocaleLowerCase().indexOf(element_value.toLocaleLowerCase()) != -1) {
-                           search_results.push({'id': search_avail.var.places[i].id ,'name': search_avail.var.places[i].name, 'type': 'places', 'coord_1': search_avail.var.places[i].gps[0], 'coord_2': search_avail.var.places[i].gps[1]});
+                           search_results.push({'id': search_avail.var.places[i].id ,'name': search_avail.var.places[i].name, 'type': 'places', 'coord_1': search_avail.var.places[i].gps[0], 'coord_2': search_avail.var.places[i].gps[1], 'zoom_level': search_avail.var.places[i].zoom_level});
                      }
                       //console.log(search_avail.var.places[i].name);
             }
@@ -196,7 +197,7 @@ var search_avail = {
 
             if (e.keyCode === 13) {
                 if (search_results.length > 0) {
-                        search_avail.select_region(search_results[0]['id'],search_results[0]['name'], search_results[0]['coord_1'], search_results[0]['coord_2'],);
+                        search_avail.select_region(search_results[0]['id'],search_results[0]['name'], search_results[0]['coord_1'], search_results[0]['coord_2'], search_avail.var.places[i].zoom_level);
                         // $('#region-park-selection').html(search_results[0]['name']);
                 }
 
@@ -220,7 +221,7 @@ var search_avail = {
                         if (rowcount < 15) {
                             // var search_pattern = RegExp(element_value, 'gi');
                             // search_results[i]['name'] = search_results[i]['name'].replace(search_pattern, "<span>"+element_value+"</span>");
-                        search_results_html += "<div id='search_dropdown_item_"+rowcount+"' onclick='search_avail.select_region("+search_results[i]['id']+","+'"'+search_results[i]['name']+'"'+","+'"'+search_results[i]['coord_1']+'"'+","+'"'+search_results[i]['coord_2']+'"'+");'  class='search_dropdown_item_outer'><div class='search_dropdown_item_inner'>"+search_results[i]['name']+"</div></div>";
+                        search_results_html += "<div id='search_dropdown_item_"+rowcount+"' onclick='search_avail.select_region("+search_results[i]['id']+","+'"'+search_results[i]['name']+'"'+","+'"'+search_results[i]['coord_1']+'"'+","+'"'+search_results[i]['coord_2']+'"'+","+'"'+search_results[i]['zoom_level']+'"'+");'  class='search_dropdown_item_outer'><div class='search_dropdown_item_inner'>"+search_results[i]['name']+"</div></div>";
                             rowcount = rowcount + 1;
                         }
                 }

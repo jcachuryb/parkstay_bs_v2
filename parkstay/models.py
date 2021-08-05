@@ -54,12 +54,35 @@ class Contact(models.Model):
 
 
 class Park(models.Model):
+
+    ZOOM_LEVEL = (
+        (0, 'default'),
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '4'),
+        (6, '6'),
+        (7, '7'),
+        (8, '8'),
+        (9, '9'),
+        (10, '10'),
+        (11, '11'),
+        (12, '12'),
+        (13, '13'),
+        (14, '14'),
+        (15, '15'),
+        (16, '16'),
+
+    )
+
     name = models.CharField(max_length=255)
     district = models.ForeignKey('District', null=True, on_delete=models.PROTECT)
     ratis_id = models.IntegerField(default=-1)
     entry_fee_required = models.BooleanField(default=True)
     oracle_code = models.CharField(max_length=50, null=True, blank=True)
     wkb_geometry = models.PointField(srid=4326, blank=True, null=True)
+    zoom_level = models.IntegerField(choices=ZOOM_LEVEL,default=-1)
 
     def __str__(self):
         return '{} - {}'.format(self.name, self.district)
@@ -78,8 +101,31 @@ class Park(models.Model):
 
 
 class PromoArea(models.Model):
+
+    ZOOM_LEVEL = (
+        (0, 'default'),
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '4'),
+        (6, '6'),
+        (7, '7'),
+        (8, '8'),
+        (9, '9'),
+        (10, '10'),
+        (11, '11'),
+        (12, '12'),
+        (13, '13'),
+        (14, '14'),
+        (15, '15'),
+        (16, '16'),
+
+    )
+
     name = models.CharField(max_length=255, unique=True)
     wkb_geometry = models.PointField(srid=4326, blank=True, null=True)
+    zoom_level = models.IntegerField(choices=ZOOM_LEVEL,default=-1)
 
     def __str__(self):
         return self.name
@@ -107,6 +153,26 @@ class Campground(models.Model):
         (1, 'Bookable Per Site Type'),
         (2, 'Bookable Per Site Type (hide site number)'),
     )
+    ZOOM_LEVEL = (
+        (0, 'default'),
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '4'),
+        (6, '6'),
+        (7, '7'),
+        (8, '8'),
+        (9, '9'),
+        (10, '10'),
+        (11, '11'),
+        (12, '12'),
+        (13, '13'),
+        (14, '14'),
+        (15, '15'),
+        (16, '16'),
+
+    )
 
     name = models.CharField(max_length=255, null=True)
     park = models.ForeignKey('Park', on_delete=models.PROTECT, related_name='campgrounds')
@@ -132,6 +198,7 @@ class Campground(models.Model):
     long_description = models.TextField(blank=True, null=True)
 
     wkb_geometry = models.PointField(srid=4326, blank=True, null=True)
+    zoom_level = models.IntegerField(choices=ZOOM_LEVEL,default=-1)
     dog_permitted = models.BooleanField(default=False)
     check_in = models.TimeField(default=time(14))
     check_out = models.TimeField(default=time(10))
@@ -771,10 +838,31 @@ class Feature(models.Model):
         return self.name
 
 class Places(models.Model):
+
+    ZOOM_LEVEL = (
+        (0, 'default'),
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '4'),
+        (6, '6'),
+        (7, '7'),
+        (8, '8'),
+        (9, '9'),
+        (10, '10'),
+        (11, '11'),
+        (12, '12'),
+        (13, '13'),
+        (14, '14'),
+        (15, '15'),
+        (16, '16'),
+    )
+
     name = models.CharField(max_length=255, unique=True)
     wkb_geometry = models.PointField(srid=4326, blank=True, null=True)
-    rebuild_gps=models.BooleanField(default=True)
-
+    rebuild_gps = models.BooleanField(default=True)
+    zoom_level = models.IntegerField(choices=ZOOM_LEVEL,default=-1)
 
     def save(self, *args, **kwargs):
         cache.delete('Places')
