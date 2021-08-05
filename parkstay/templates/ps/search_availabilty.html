@@ -5,7 +5,7 @@
 {% load static %}
 
 {% block extra_css %}
-	<script type="text/javascript" src="/static/ps/js/search_avail.js?ver={{ GIT_COMMIT_HASH }}"></script>
+    <script type="text/javascript" src="/static/ps/js/search_avail.js?ver={{ GIT_COMMIT_HASH }}"></script>
     <link type="text/css" href="/static/ps/css/search_avail.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
 
     <link rel="stylesheet" href="/static/common/node_modules/glider-js/glider.min.css?ver={{ GIT_COMMIT_HASH }}">
@@ -35,8 +35,6 @@ window.onload = function() {
 
 </script>
 
-
-
     <div class="container" style='z-index:1'>
         <div class="row">
             <div class="col-lg-12 ">
@@ -62,7 +60,9 @@ window.onload = function() {
 		                                <input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="region-park" aria-expanded="false" class='form-control' onkeyup="search_avail.search_pl(event, this.id, this.value);" >
 
 
-						<input id="coord_1" value='113.84' type='hidden'> <input id="coord_2" value='-22.247' type='hidden'>
+						<input id="coord_1" value='113.84' type='hidden'> 
+						<input id="coord_2" value='-22.247' type='hidden'>
+						<input id="zoom_level" value='12' type='hidden'>
 					</div>
 				      </div>
 				</div>

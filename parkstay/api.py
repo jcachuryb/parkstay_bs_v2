@@ -490,13 +490,12 @@ class CampgroundMapFilterViewSet(viewsets.ReadOnlyModelViewSet):
 @require_http_methods(['GET'])
 def search_suggest(request, *args, **kwargs):
     entries = []
-    for x in Campground.objects.filter(wkb_geometry__isnull=False).values_list('id', 'name', 'wkb_geometry'):
-        entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'Campground', 'id': x[0], 'name': x[1]}))
-    for x in Park.objects.filter(wkb_geometry__isnull=False).values_list('id', 'name', 'wkb_geometry'):
-        entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'Park', 'id': x[0], 'name': x[1]}))
-    for x in PromoArea.objects.filter(wkb_geometry__isnull=False).values_list('id', 'name', 'wkb_geometry'):
-        entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'PromoArea', 'id': x[0], 'name': x[1]}))
-
+    for x in Campground.objects.filter(wkb_geometry__isnull=False).values_list('id', 'name', 'wkb_geometry','zoom_level'):
+        entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'Campground', 'id': x[0], 'name': x[1], 'zoom_level': x[3]}))
+    for x in Park.objects.filter(wkb_geometry__isnull=False).values_list('id', 'name', 'wkb_geometry','zoom_level'):
+        entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'Park', 'id': x[0], 'name': x[1], 'zoom_level': x[3]}))
+    for x in PromoArea.objects.filter(wkb_geometry__isnull=False).values_list('id', 'name', 'wkb_geometry','zoom_level'):
+        entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'PromoArea', 'id': x[0], 'name': x[1], 'zoom_level': x[3]}))
     return HttpResponse(geojson.dumps(geojson.FeatureCollection(entries)), content_type='application/json')
 
 
@@ -1388,7 +1387,7 @@ def places(request, *args, **kwargs):
                  gps = [p.wkb_geometry[0], p.wkb_geometry[1]]
 
 
-            places_list.append({'id': p.id, 'name': p.name, 'gps': gps})
+            places_list.append({'id': p.id, 'name': p.name, 'gps': gps, 'zoom_level': p.zoom_level})
 
         dumped_data = geojson.dumps(places_list) 
         cache.set('Places', dumped_data,  3600)
