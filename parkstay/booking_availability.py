@@ -5,6 +5,7 @@ from decimal import Decimal
 from django.db.models import Q
 from django.conf import settings
 from django.core.cache import cache
+from parkstay.helpers import is_officer
 import json
 
 def get_campsites_for_campground(ground, gear_type):
@@ -158,9 +159,6 @@ def get_visit_rates(campground_id, campsites_array, start_date, end_date):
     #    Q(date_start__lt=end_date) & (Q(date_end__gte=start_date) | Q(date_end__isnull=True))
     #).prefetch_related('rate')
     rates_qs = get_campground_rates(campground_id)
-    print ("RATES")
-    #print (rates_qs)
-    #rates_qs = models.CampsiteRate.objects.filter(campsite__campground_id=campground_id).values('campsite','rate','allow_public_holidays','date_start','date_end','rate_type','price_model','reason','reason','details','update_level','campsite_id','rate__adult','rate__concession','rate__child','rate__infant')
     # prefill all slots
     duration = (end_date - start_date).days
     results = {}
@@ -219,8 +217,9 @@ def get_visit_rates(campground_id, campsites_array, start_date, end_date):
 
 
 def get_campsite_availability(ground_id, sites_array, start_date, end_date, user = None):
-    # Added line to use is_officer from helper methods
-    from parkstay.helpers import is_officer
+    is_officer_boolean = False
+    if user:
+       is_officer_boolean = is_officer(user) 
     """Fetch the availability of each campsite in a queryset over a range of visit dates."""
     sa_qy = []
     for s in sites_array:
@@ -240,7 +239,6 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
 
     # generate a campground-to-campsite-list map
     campground_map = {ground_id: []}
-    print ("CM")
     for cs in sites_array:
           if cs['pk'] not in campground_map[ground_id]:
               campground_map[ground_id].append(cs['pk'])
@@ -298,16 +296,20 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
                     results[closure.campsite.pk][start + timedelta(days=i)][1] = str(reason)
 
     # strike out black bookings
-    for b in bookings_qs.filter(booking_type=2):
-        results[b.campsite.pk][b.date][0] = 'closed'
+    #for b in bookings_qs.filter(booking_type=2):
+    for b in bookings_qs:    
+        if b.booking_type == 2:
+            results[b.campsite.pk][b.date][0] = 'closed'
 
     # add booking status for real bookings
     # for b in bookings_qs.exclude(booking_type=2):
+    #for b in bookings_qs.exclude(booking_type=2):
     for b in bookings_qs.exclude(booking_type=2):
-        if results[b.campsite.pk][b.date][0] == 'closed':
-            results[b.campsite.pk][b.date][0] = 'closed & booked'
-        else:
-            results[b.campsite.pk][b.date][0] = 'booked'
+        if b.booking_type != 2:
+            if results[b.campsite.pk][b.date][0] == 'closed':
+                results[b.campsite.pk][b.date][0] = 'closed & booked'
+            else:
+                results[b.campsite.pk][b.date][0] = 'booked'
 
 
 
@@ -319,7 +321,7 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
                 val[start_date + timedelta(days=i)][0] = 'tooearly'
 
     # strike out days after the max_advance_booking
-    if user == None or (not is_officer(user)):
+    if user == None or (not is_officer_boolean):
         for site in sites_array:
             stop = today + timedelta(days=site['data']['campground__max_advance_booking'])
             stop_mark = min(max(stop, start_date), end_date)
@@ -327,7 +329,7 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
                 for i in range((end_date - stop_mark).days):
                     results[site.pk][stop_mark + timedelta(days=i)][0] = 'toofar'
     # Added this section to allow officers to book camp dated after the max_advance_booking
-    elif user != None and is_officer(user):
+    elif user != None and is_officer_boolean:
         pass
 
     # Get the current stay history
@@ -342,14 +344,14 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
         max_days = settings.PS_MAX_BOOKING_LENGTH
 
     # strike out days after the max_stay period
-    if user == None or (not is_officer(user)):
+    if user == None or (not is_officer_boolean):
         for site in sites_array:
             stop = start_date + timedelta(days=max_days)
             stop_mark = min(max(stop, start_date), end_date)
             for i in range((end_date - stop_mark).days):
                 results[site['pk']][stop_mark + timedelta(days=i)][0] = 'toofar'
     # Added this section to allow officers to book camp dated after the max_advance_booking
-    elif user != None and is_officer(user):
+    elif user != None and is_officer_boolean:
         pass
 
     return results
