@@ -4,13 +4,40 @@ from datetime import datetime, timedelta, date
 from decimal import Decimal
 from django.db.models import Q
 from django.conf import settings
-
+from django.core.cache import cache
+import json
 
 def get_campsites_for_campground(ground, gear_type):
-    sites_qs = models.Campsite.objects.filter(campground=ground).values('id','campground_id','name','campsite_class_id','wkb_geometry','features','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name').order_by('name')
+    sites_qs = None
+    sites_array = []
+    cached_data = cache.get('booking_availability.get_campsites_for_campground')
+
+    if cached_data is None:
+        sites_qs = models.Campsite.objects.filter(campground=ground).values('id','campground_id','name','campsite_class_id','wkb_geometry','features','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name').order_by('name')
+        for cs in sites_qs:
+            row = {}
+            row['id'] = cs['id']
+            row['campground_id'] = cs['campground_id']
+            row['name'] = cs['name']
+            row['campsite_class_id'] = cs['campsite_class_id']
+            row['campsite_class__name'] = cs['campsite_class__name']
+            row['wkb_geometry'] = cs['wkb_geometry']
+            row['features'] = cs['features']
+            row['tent'] = cs['tent']
+            row['campervan'] = cs['campervan']
+            row['caravan'] = cs['caravan']
+            row['min_people'] = cs['min_people']
+            row['max_people'] = cs['max_people']
+            row['max_vehicles'] = cs['max_vehicles']
+            row['description'] = cs['description']
+            row['campground__max_advance_booking'] = cs['campground__max_advance_booking']
+            sites_array.append(row) 
+        cache.set('booking_availability.get_campsites_for_campground', json.dumps(sites_array),  86400)
+    else:
+        sites_array = json.loads(cached_data)
+        
     cs_rows = []
-    print ("get_campsites_for_campground") 
-    for cs in sites_qs:
+    for cs in sites_array:
          row = {}
          row['id'] = cs['id']
          row['campground_id'] = cs['campground_id'] 
@@ -27,6 +54,7 @@ def get_campsites_for_campground(ground, gear_type):
          row['max_vehicles'] = cs['max_vehicles']
          row['description'] = cs['description']
          row['campground__max_advance_booking'] = cs['campground__max_advance_booking']
+
          if gear_type == 'all':
              cs_rows.append(row)
          if gear_type == 'tent' and cs['tent'] is True:
@@ -35,6 +63,7 @@ def get_campsites_for_campground(ground, gear_type):
              cs_rows.append(row)
          if gear_type == 'caravan' and cs['caravan'] is True:
              cs_rows.append(row)
+
     return cs_rows
 
 def not_bookable_online(ongoing_booking,ground,start_date,end_date,num_adult,num_concession,num_child,num_infant,gear_type):
@@ -59,9 +88,7 @@ def not_bookable_online(ongoing_booking,ground,start_date,end_date,num_adult,num
             'id': ground.id,
             'name': ground.name,
             'long_description': ground.long_description,
-
             'campground_type': ground.campground_type,
-
             'map': ground.campground_map.url if ground.campground_map else None,
             'ongoing_booking': True if ongoing_booking else False,
             'ongoing_booking_id': ongoing_booking.id if ongoing_booking else None,
@@ -73,9 +100,55 @@ def not_bookable_online(ongoing_booking,ground,start_date,end_date,num_adult,num
             'maxChildren': 30,
              'sites': [],
              'classes': {},
-
         }
         return result
+
+def json_serial(obj):
+    if isinstance(obj, (datetime, date)):
+        print (obj.isoformat())
+        return str(obj.isoformat())
+    if isinstance(obj, Decimal):
+        return str(obj)
+    raise TypeError ("Type %s not serializable" % type(obj))
+
+
+def get_campground_rates(campground_id):
+
+    rates_array = []
+    cached_data = cache.get('booking_availability.get_campground_rates_'+str(campground_id))
+    if cached_data is None:
+        rates_qs = models.CampsiteRate.objects.filter(campsite__campground_id=campground_id).values('id','campsite','rate','allow_public_holidays','date_start','date_end','rate_type','price_model','reason','details','update_level','campsite_id','rate__adult','rate__concession','rate__child','rate__infant')
+
+        for r in rates_qs:
+              row = {}
+              row['id'] = int(r['id'])
+              row['campsite'] = r['campsite']
+              row['rate'] = r['rate']
+              row['allow_public_holidays'] = r['allow_public_holidays']
+              row['date_start'] = r['date_start'].strftime('%Y-%m-%d')
+              if r['date_end']:
+                  row['date_end'] = r['date_end'].strftime('%Y-%m-%d')
+              else:
+                  row['date_end'] = None
+              row['rate_type'] = r['rate_type']
+              row['price_model'] = r['price_model']
+              row['reason'] = r['reason']
+              row['details'] = r['details']
+              row['update_level'] = r['update_level']
+              row['campsite_id'] = r['campsite_id']
+              row['rate__adult'] = str(r['rate__adult'])
+              row['rate__concession'] = str(r['rate__concession'])
+              row['rate__child'] = str(r['rate__child'])
+              row['rate__infant'] = str(r['rate__infant'])
+              rates_array.append(row)
+
+        cache.set('booking_availability.get_campground_rates_'+str(campground_id), json.dumps(rates_array, default=json_serial),  86400)
+        print ("NOT CACEHED")
+    else:
+        print ("CACHED RATES")
+        rates_array = json.loads(cached_data)
+
+    return rates_array 
 
 def get_visit_rates(campground_id, campsites_array, start_date, end_date):
     """Fetch the per-day pricing for each visitor type over a range of visit dates."""
@@ -84,7 +157,10 @@ def get_visit_rates(campground_id, campsites_array, start_date, end_date):
     #    Q(campsite_id__in=campsites_qs),
     #    Q(date_start__lt=end_date) & (Q(date_end__gte=start_date) | Q(date_end__isnull=True))
     #).prefetch_related('rate')
-    rates_qs = models.CampsiteRate.objects.filter(campsite__campground_id=campground_id).values('campsite','rate','allow_public_holidays','date_start','date_end','rate_type','price_model','reason','reason','details','update_level','campsite_id','rate__adult','rate__concession','rate__child','rate__infant')
+    rates_qs = get_campground_rates(campground_id)
+    print ("RATES")
+    #print (rates_qs)
+    #rates_qs = models.CampsiteRate.objects.filter(campsite__campground_id=campground_id).values('campsite','rate','allow_public_holidays','date_start','date_end','rate_type','price_model','reason','reason','details','update_level','campsite_id','rate__adult','rate__concession','rate__child','rate__infant')
     # prefill all slots
     duration = (end_date - start_date).days
     results = {}
@@ -101,30 +177,37 @@ def get_visit_rates(campground_id, campsites_array, start_date, end_date):
             early_rates[rate['campsite_id']] = rate
         elif early_rates[rate['campsite_id']]['date_start'] > rate['date_start']:
             early_rates[rate['campsite_id']] = rate
+       
+        rate_date_start = datetime.strptime(rate['date_start'], "%Y-%m-%d").date()
+        if rate['date_end'] is None:
+            rate_date_end = None
+        else:
+            rate_date_end = datetime.strptime(rate['date_end'], "%Y-%m-%d").date()
 
         # for the period of the visit overlapped by the rate, set the amounts
-        start = max(start_date, rate['date_start'])
+        start = max(start_date, rate_date_start)
 
         # End and start date are the same leading to the lod rate enot going thru the loop
         # Add 1 day if date_end exists(to cover all days before the new rate),previously it was skipping 2 days before the new rate date
-        if(rate['date_end']):
-            rate['date_end'] += timedelta(days=1)
+        if(rate_date_end):
+            rate_date_end += timedelta(days=1)
 
-        end = min(end_date, rate['date_end']) if rate['date_end'] else end_date
+        end = min(end_date, rate_date_end) if rate_date_end else end_date
         for i in range((end-start).days):
             if rate['campsite_id'] in results:
-               results[rate['campsite_id']][start+timedelta(days=i)]['adult'] = rate['rate__adult']
-               results[rate['campsite_id']][start+timedelta(days=i)]['concession'] = rate['rate__concession']
-               results[rate['campsite_id']][start+timedelta(days=i)]['child'] = rate['rate__child']
-               results[rate['campsite_id']][start+timedelta(days=i)]['infant'] = rate['rate__infant']
+               results[rate['campsite_id']][start+timedelta(days=i)]['adult'] = Decimal(rate['rate__adult'])
+               results[rate['campsite_id']][start+timedelta(days=i)]['concession'] = Decimal(rate['rate__concession'])
+               results[rate['campsite_id']][start+timedelta(days=i)]['child'] = Decimal(rate['rate__child'])
+               results[rate['campsite_id']][start+timedelta(days=i)]['infant'] = Decimal(rate['rate__infant'])
 
     # complain if there's a Campsite without a CampsiteRate
-    if len(early_rates) < rates_qs.count():
+    if len(early_rates) < len(rates_qs):
+    #if len(early_rates) < rates_qs.count():
         print('Missing CampsiteRate coverage!')
     # for ease of testing against the old datasets, if the visit dates are before the first
     # CampsiteRate date, use that CampsiteRate as the pricing model.
     for site_pk, rate in early_rates.items():
-        if start_date < rate['date_start']:
+        if start_date < rate_date_start:
             start = start_date
             end = rate.date_start
             for i in range((end - start).days):
