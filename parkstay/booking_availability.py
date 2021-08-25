@@ -117,6 +117,7 @@ def get_campground_rates(campground_id):
 
     rates_array = []
     cached_data = cache.get('booking_availability.get_campground_rates_'+str(campground_id))
+    #cached_data = None
     if cached_data is None:
         rates_qs = models.CampsiteRate.objects.filter(campsite__campground_id=campground_id).values('id','campsite','rate','allow_public_holidays','date_start','date_end','rate_type','price_model','reason','details','update_level','campsite_id','rate__adult','rate__concession','rate__child','rate__infant')
 
@@ -171,9 +172,10 @@ def get_visit_rates(campground_id, campsites_array, start_date, end_date):
     # make a record of the earliest CampsiteRate for each site
     early_rates = {}
     for rate in rates_qs:
+        rate_date_start = datetime.strptime(rate['date_start'], "%Y-%m-%d").date()
         if rate['campsite_id'] not in early_rates:
             early_rates[rate['campsite_id']] = rate
-        elif early_rates[rate['campsite_id']]['date_start'] > rate['date_start']:
+        elif datetime.strptime(early_rates[rate['campsite_id']]['date_start'], "%Y-%m-%d").date()  > rate_date_start:
             early_rates[rate['campsite_id']] = rate
        
         rate_date_start = datetime.strptime(rate['date_start'], "%Y-%m-%d").date()
@@ -215,6 +217,81 @@ def get_visit_rates(campground_id, campsites_array, start_date, end_date):
                 results[site_pk][start + timedelta(days=i)]['infant'] = rate.rate.infant
     return results
 
+def get_campground_booking_range_is_open(campground_id, start_date):
+    print ("get_campground_booking_range_is_open")
+    print (start_date)
+    cgbr_cl = get_campground_booking_range(campground_id, 0)
+    for c in cgbr_cl:
+        end_date = start_date + timedelta(days=1)
+
+        range_start = datetime.strptime(c['range_start'], "%Y-%m-%d").date()
+        if c['range_end'] is None:
+            range_end = datetime.now().date() +  timedelta(days=1) 
+        else:
+            range_end = datetime.strptime(c['range_end'], "%Y-%m-%d").date()
+
+        if range_start < end_date and range_end > start_date:
+            print ("Campground Closed")
+            return False 
+
+    return True
+
+
+def get_campground_booking_range(campground_id, status):
+
+    table_array = []
+    cached_data = cache.get('booking_availability.get_campground_booking_range'+str(campground_id))
+    #cached_data = None
+    if cached_data is None:
+        cgbr_qs = models.CampgroundBookingRange.objects.filter(
+             Q(campground__id=campground_id),
+             #Q(status=1),
+            #Q(range_start__lt=end_date) & (Q(range_end__gte=start_date) | Q(range_end__isnull=True)),
+        ).values('id','campground','min_sites','max_sites','created','updated_on','status','closure_reason','details','range_start','range_end','closure_reason__text')
+
+        for r in cgbr_qs:
+              row = {}
+              row['id'] = int(r['id'])
+              row['campground'] = r['campground']
+              row['min_sites'] = r['min_sites']
+              row['max_sites'] = r['max_sites']
+              row['created'] = r['created'].strftime('%Y-%m-%d %H:%M:%S.%f')
+
+              if r['range_start']:
+                  row['range_start'] = r['range_start'].strftime('%Y-%m-%d')
+              else:
+                  row['range_start'] = None
+              if r['range_end']:
+                  row['range_end'] = r['range_end'].strftime('%Y-%m-%d')
+              else:
+                  row['range_end'] = None
+
+              if r['updated_on']:
+                  row['updated_on'] = r['updated_on'].strftime('%Y-%m-%d %H:%M:%S.%f')
+              else:
+                  row['updated_on'] = None
+
+              row['status'] = r['status']
+              row['closure_reason'] = r['closure_reason']
+              row['details'] = r['details']
+              row['closure_reason__text'] = r['closure_reason__text']
+
+              table_array.append(row)
+
+        cache.set('booking_availability.get_campground_booking_range'+str(campground_id), json.dumps(table_array, default=json_serial),  86400)
+        print ("NOT CACEHED")
+    else:
+        print ("CACHED RATES")
+        table_array = json.loads(cached_data)
+    filtered_table_array = []
+    for t in table_array:
+        append_row = False
+        if status == int(t['status']):
+             append_row = True
+        if append_row is True:
+            filtered_table_array.append(t)
+    return filtered_table_array
+
 
 def get_campsite_availability(ground_id, sites_array, start_date, end_date, user = None):
     is_officer_boolean = False
@@ -245,21 +322,26 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     #campground_map = {cg[0]: [cs.pk for cs in sites_array if cs.campground.pk == cg[0]] for cg in campsites_qs.distinct('campground').values_list('campground')}
     #{167: [1926, 1934, 1938, 1942, 1946, 1948, 1950, 1935, 1939, 1943, 1927, 1928, 1936, 1940, 1944, 1929, 1931, 1930, 1932, 1933, 1937, 1941, 1945, 1947, 1949, 1951, 1952, 1953, 1954, 1955, 1925]}
     # strike out whole campground closures
-    cgbr_qs = models.CampgroundBookingRange.objects.filter(
-        Q(campground__id=ground_id),
-        Q(status=1),
-        Q(range_start__lt=end_date) & (Q(range_end__gte=start_date) | Q(range_end__isnull=True)),
-    )
+    cgbr_qs = get_campground_booking_range(ground_id, 1)
+    #cgbr_qs = models.CampgroundBookingRange.objects.filter(
+    #    Q(campground__id=ground_id),
+    #    Q(status=1),
+    #    Q(range_start__lt=end_date) & (Q(range_end__gte=start_date) | Q(range_end__isnull=True)),
+    #)
     for closure in cgbr_qs:
-        start = max(start_date, closure.range_start)
-        end = min(end_date, closure.range_end) if closure.range_end else end_date
+        closure_range_start = datetime.strptime(closure['range_start'], "%Y-%m-%d").date()
+        closure_range_end  = datetime.strptime(closure['range_end'], "%Y-%m-%d").date()
+        start = max(start_date, closure_range_start)
+        end = min(end_date, closure_range_end) if closure_range_end else end_date
         today = date.today()
-        reason = closure.closure_reason.text
+        reason = closure['closure_reason__text']
         diff = (end - start).days
         for i in range(diff):
-            for cs in campground_map[closure.campground.pk]:
+            for cs in campground_map[closure['campground']]:
                 if start + timedelta(days=i) == today:
-                    if not closure.campground._is_open(start + timedelta(days=i)):
+                    is_open = get_campground_booking_range_is_open(closure['campground'], start + timedelta(days=i))
+                    if not is_open:
+                    #if not closure.campground._is_open(start + timedelta(days=i)):
                         if start + timedelta(days=i) in results[cs]:
                             results[cs][start + timedelta(days=i)][0] = 'closed'
                             results[cs][start + timedelta(days=i)][1] = str(reason)
