@@ -238,6 +238,8 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None):
 
     # generate a campground-to-campsite-list map
     campground_map = {cg[0]: [cs.pk for cs in campsites_qs if cs.campground.pk == cg[0]] for cg in campsites_qs.distinct('campground').values_list('campground')}
+    print ("CAMPGROUND MAP")
+    print (campground_map)
     # strike out whole campground closures
     cgbr_qs = CampgroundBookingRange.objects.filter(
         Q(campground__in=campground_map.keys()),
@@ -348,7 +350,7 @@ def get_visit_rates(campsites_qs, start_date, end_date):
         Q(campsite__in=campsites_qs),
         Q(date_start__lt=end_date) & (Q(date_end__gte=start_date) | Q(date_end__isnull=True))
     ).prefetch_related('rate')
-
+   
     # prefill all slots
     duration = (end_date - start_date).days
     results = {
@@ -399,7 +401,6 @@ def get_visit_rates(campsites_qs, start_date, end_date):
                 results[site_pk][start + timedelta(days=i)]['concession'] = rate.rate.concession
                 results[site_pk][start + timedelta(days=i)]['child'] = rate.rate.child
                 results[site_pk][start + timedelta(days=i)]['infant'] = rate.rate.infant
-
     return results
 
 

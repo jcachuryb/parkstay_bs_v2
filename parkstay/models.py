@@ -120,7 +120,6 @@ class PromoArea(models.Model):
         (14, '14'),
         (15, '15'),
         (16, '16'),
-
     )
 
     name = models.CharField(max_length=255, unique=True)
@@ -171,7 +170,6 @@ class Campground(models.Model):
         (14, '14'),
         (15, '15'),
         (16, '16'),
-
     )
 
     name = models.CharField(max_length=255, null=True)
