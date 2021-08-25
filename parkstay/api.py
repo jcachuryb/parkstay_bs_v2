@@ -120,7 +120,7 @@ from parkstay import reports
 from parkstay import pdf
 from parkstay.perms import PaymentCallbackPermission
 from parkstay import emails
-
+from parkstay import booking_availability
 
 # API Views
 class CampsiteBookingViewSet(viewsets.ModelViewSet):
@@ -933,14 +933,313 @@ class CampgroundViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError(str(e))
 
 
+from decimal import Decimal
+
+class DecimalEncoder(json.JSONEncoder):
+  def default(self, obj):
+    if isinstance(obj, Decimal):
+      return str(obj)
+    return json.JSONEncoder.default(self, obj)
+#class BaseAvailabilityViewSet2(viewsets.ReadOnlyModelViewSet):
+#    queryset = Campground.objects.all()
+#    serializer_class = CampgroundSerializer
+
+def campsite_availablity_view(request,  *args, **kwargs):
+
+    #campground_id):
+    print ("CAMPSITE AVAIL 2")
+    """Fetch full campsite availability for a campground."""
+    # check if the user has an ongoing booking
+    ongoing_booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
+
+    campground_id = kwargs.get('campground_id', None)
+    show_all = False
+    # convert GET parameters to objects
+    ground = Campground.objects.get(id=campground_id)
+    # Validate parameters
+    data = {
+        "arrival": request.GET.get('arrival'),
+        "departure": request.GET.get('departure'),
+        "num_adult": request.GET.get('num_adult', 0),
+        "num_concession": request.GET.get('num_concession', 0),
+        "num_child": request.GET.get('num_child', 0),
+        "num_infant": request.GET.get('num_infant', 0),
+        "gear_type": request.GET.get('gear_type', 'all')
+    }
+    serializer = CampgroundCampsiteFilterSerializer(data=data)
+    serializer.is_valid(raise_exception=True)
+
+    start_date = serializer.validated_data['arrival']
+    end_date = serializer.validated_data['departure']
+    num_adult = serializer.validated_data['num_adult']
+    num_concession = serializer.validated_data['num_concession']
+    num_child = serializer.validated_data['num_child']
+    num_infant = serializer.validated_data['num_infant']
+    gear_type = serializer.validated_data['gear_type']
+    # get a length of the stay (in days), capped if necessary to the request maximum
+    length = max(0, (end_date - start_date).days)
+
+    if ground.campground_type != 0  and ground.campground_type != 1:
+        return HttpResponse(geojson.dumps(
+            {'error': 'Campground doesn\'t support online bookings'}
+        ,cls=DecimalEncoder), content_type='application/json', status=400)
+
+    # if campground doesn't support online bookings, abort!
+    if ground.campground_type == 1:
+        print ("Is not bookable - 1")
+        result = booking_availability.not_bookable_online(ongoing_booking,ground,start_date,end_date,num_adult,num_concession,num_child,num_infant,gear_type)
+        return HttpResponse(geojson.dumps(
+            result
+        ,cls=DecimalEncoder), content_type='application/json')
+
+
+    # fetch all the campsites and applicable rates for the campground
+    context = {}
+    #sites_qs = Campsite.objects.filter(campground=ground).filter(**context)
+    sites_array = []
+    sites_qs = booking_availability.get_campsites_for_campground(ground,gear_type)
+    for s in sites_qs:
+        sites_array.append({'pk': s['id'], 'data': s})
+    # fetch rate map
+    rates = {
+        siteid: {
+            date: num_adult * info['adult'] + num_concession * info['concession'] + num_child * info['child'] + num_infant * info['infant']
+            for date, info in dates.items()
+        } for siteid, dates in booking_availability.get_visit_rates(ground.id,sites_array, start_date, end_date).items()
+    }
+
+    # fetch availability map
+    availability = booking_availability.get_campsite_availability(ground.id,sites_array, start_date, end_date)
+
+    # create our result object, which will be returned as JSON
+    result = {
+        'id': ground.id,
+        'name': ground.name,
+        'long_description': ground.long_description,
+        'map': ground.campground_map.url if ground.campground_map else None,
+        'ongoing_booking': True if ongoing_booking else False,
+        'ongoing_booking_id': ongoing_booking.id if ongoing_booking else None,
+        'arrival': start_date.strftime('%Y/%m/%d'),
+        'days': length,
+        'adults': 1,
+        'children': 0,
+        'maxAdults': 30,
+        'maxChildren': 30,
+        'sites': [],
+        'classes': {},
+    }
+    # group results by campsite class
+    #print ("GROUND TYPE")
+    #print (ground.site_type)
+    if ground.site_type in (1, 2):
+        # from our campsite queryset, generate a distinct list of campsite classes
+        classes = []
+        for x in sites_qs:
+             classes.append({'pk': x['id'], 'campsite_class_id': x['campsite_class_id'], 'campsite_class__name': x['campsite_class__name'], 'tent': x['tent'] , 'campervan': x['campervan'], 'caravan': x['caravan']})
+        #classes = [x for x in sites_qs.distinct('campsite_class__name').order_by('campsite_class__name').values_list('pk', 'campsite_class', 'campsite_class__name', 'tent', 'campervan', 'caravan')]
+        classes_map = {}
+        bookings_map = {}
+
+        # create a rough mapping of rates to campsite classes
+        # (it doesn't matter if this isn't a perfect match, the correct
+        # pricing will show up on the booking page)
+        rates_map = {}
+
+        class_sites_map = {}
+        for s in sites_qs:
+            if s['campsite_class_id'] not in class_sites_map:
+                class_sites_map[s['campsite_class_id']] = set()
+                rates_map[s['campsite_class_id']] = rates[s['id']]
+
+            class_sites_map[s['campsite_class_id']].add(s['id'])
+        print (rates_map)
+        print ("CLASSES")
+        # make an entry under sites for each campsite class
+        for c in classes:
+            print ("CLASS LOOP")
+            print (c)
+            print ("RATE MAP")
+            print (rates_map)
+            rate = rates_map[c['campsite_class_id']]
+            site = {
+                'name': c['campsite_class__name'],
+                'id': None,
+                'type': c['campsite_class_id'],
+                'price': '${}'.format(sum(rate.values())) if not show_all else False,
+                'availability': [[True, '${}'.format(rate[start_date + timedelta(days=i)]), rate[start_date + timedelta(days=i)], None, [0, 0, 0]] for i in range(length)],
+                'breakdown': OrderedDict(),
+                'gearType': {
+                    'tent': c['tent'],
+                    'campervan': c['campervan'],
+                    'caravan': c['caravan']
+                }
+            }
+            result['sites'].append(site)
+            classes_map[c['campsite_class_id']] = site
+
+        # make a map of class IDs to site IDs
+        for s in sites_qs:
+            rate = rates_map[s['campsite_class_id']]
+            classes_map[s['campsite_class_id']]['breakdown'][s['name']] = [[True, '${}'.format(rate[start_date + timedelta(days=i)]), rate[start_date + timedelta(days=i)], None] for i in range(length)]
+        # store number of campsites in each class
+        class_sizes = {k: len(v) for k, v in class_sites_map.items()}
+
+        for s in sites_qs:
+            # get campsite class key
+            key = s['campsite_class_id']
+            # if there's not a free run of slots
+            if (not all([v[0] == 'open' for k, v in availability[s['id']].items()])) or show_all:
+                # clear the campsite from the campsite class map
+                if s['id'] in class_sites_map[key]:
+                    class_sites_map[key].remove(s['id'])
+
+                # update the days that are non-open
+                for offset, stat, closure_reason in [((k - start_date).days, v[0], v[1]) for k, v in availability[s['id']].items() if v[0] != 'open']:
+                    # update the per-site availability
+                    classes_map[key]['breakdown'][s['name']][offset][0] = False
+                    classes_map[key]['breakdown'][s['name']][offset][1] = stat if show_all else 'Unavailable'
+                    classes_map[key]['breakdown'][s['name']][offset][3] = closure_reason if show_all else None
+
+                    # update the class availability status
+                    if stat == 'booked':
+                        book_offset = 0
+                    elif stat == 'closed':
+                        book_offset = 1
+                    else:
+                        book_offset = 2
+
+                    classes_map[key]['availability'][offset][4][book_offset] += 1
+                    # if the number of booked entries equals the size of the class, it's fully booked
+                    if classes_map[key]['availability'][offset][4][0] == class_sizes[key]:
+                        classes_map[key]['availability'][offset][1] = 'Booked'
+                    # if the number of closed entries equals the size of the class, it's closed (admin) or unavailable (user)
+                    elif classes_map[key]['availability'][offset][4][1] == class_sizes[key]:
+                        classes_map[key]['availability'][offset][1] = 'Closed' if show_all else 'Unavailable'
+                        classes_map[key]['availability'][offset][3] = closure_reason if show_all else None
+                    elif classes_map[key]['availability'][offset][4][2] == class_sizes[key]:
+                        classes_map[key]['availability'][offset][1] = 'Closures/Bookings' if show_all else 'Unavailable'
+                        classes_map[key]['availability'][offset][3] = closure_reason if show_all else None
+                    # if all of the entries are closed, it's unavailable (user)
+                    elif not show_all and (classes_map[key]['availability'][offset][4][0] + classes_map[key]['availability'][offset][4][1] == class_sizes[key]):
+                        classes_map[key]['availability'][offset][1] = 'Unavailable'
+                    # for admin view, we show some text even if there are slots available.
+                    elif show_all:
+                        # check if there are any booked or closed entries and change the message accordingly
+                        test_bk = classes_map[key]['availability'][offset][4][0] > 0
+                        test_cl = classes_map[key]['availability'][offset][4][1] > 0
+                        test_clbk = classes_map[key]['availability'][offset][4][2] > 0
+                        if test_clbk or (test_bk and test_cl):
+                            classes_map[key]['availability'][offset][1] = 'Closures/Bookings'
+                            if classes_map[key]['availability'][offset][3] is None:
+                                classes_map[key]['availability'][offset][3] = closure_reason
+                        elif test_bk:
+                            classes_map[key]['availability'][offset][1] = 'Some Booked'
+                        elif test_cl:
+                            classes_map[key]['availability'][offset][1] = 'Some Closed'
+                            if classes_map[key]['availability'][offset][3] is None:
+                                classes_map[key]['availability'][offset][3] = closure_reason
+                        elif test_clbk:
+                            classes_map[key]['availability'][offset][1] = 'Closures/Bookings'
+                            if classes_map[key]['availability'][offset][3] is None:
+                                classes_map[key]['availability'][offset][3] = closure_reason
+
+                    # tentatively flag campsite class as unavailable
+                    classes_map[key]['availability'][offset][0] = False
+                    classes_map[key]['price'] = False
+
+        # convert breakdowns to a flat list
+        for klass in classes_map.values():
+            klass['breakdown'] = [{'name': k, 'availability': v} for k, v in klass['breakdown'].items()]
+
+        # any campsites remaining in the class sites map have zero bookings!
+        # check if there's any left for each class, and if so return that as the target
+        for k, v in class_sites_map.items():
+            if v:
+                rate = rates_map[k]
+                # if the number of sites is less than the warning limit, add a notification
+                if len(v) <= settings.PS_CAMPSITE_COUNT_WARNING:
+                    classes_map[k].update({
+                        'warning': 'Only {} left!'.format(len(v))
+                    })
+
+                classes_map[k].update({
+                    'id': v.pop(),
+                    'price': '${}'.format(sum(rate.values())),
+                    'availability': [[True, '${}'.format(rate[start_date + timedelta(days=i)]), rate[start_date + timedelta(days=i)], [0, 0]] for i in range(length)],
+                    'breakdown': []
+                })
+
+        return HttpResponse(geojson.dumps( result ,cls=DecimalEncoder), content_type='application/json')
+
+
+        #return Response(result)
+
+    # don't group by class, list individual sites
+    else:
+        #sites_qs = sites_qs.order_by('name')
+
+        # from our campsite queryset, generate a digest for each site
+        sites_map = OrderedDict([(s['name'], (s['id'], s['campsite_class_id'], rates[s['id']], s['tent'], s['campervan'], s['caravan'])) for s in sites_qs])
+        bookings_map = {}
+        print ("SITES NOW")
+        # make an entry under sites for each site
+        #for k, v in sites_map.items():
+        for si in sites_qs:
+            site = {
+                'name': si['name'],
+                'id': si['id'],
+                'type': ground.campground_type,
+                'class': si['campsite_class_id'],
+                'price': '${}'.format(sum(rates[si['id']].values())) if not show_all else False,
+                'availability': [[True, '${}'.format(rates[si['id']][start_date + timedelta(days=i)]), rates[si['id']][start_date + timedelta(days=i)], None] for i in range(length)],
+                'gearType': {
+                    'tent': si['tent'],
+                    'campervan': si['campervan'],
+                    'caravan': si['caravan']
+                }
+            }
+            result['sites'].append(site)
+            bookings_map[si['name']] = site
+            if si['campsite_class_id'] not in result['classes']:
+                result['classes'][si['id']] = si['campsite_class__name'] 
+
+        # update results based on availability map
+        for s in sites_qs:
+            # if there's not a free run of slots
+            if (not all([v[0] == 'open' for k, v in availability[s['id']].items()])) or show_all:
+                # update the days that are non-open
+                for offset, stat, closure_reason in [((k - start_date).days, v[0], v[1]) for k, v in availability[s['id']].items() if v[0] != 'open']:
+                    bookings_map[s['name']]['availability'][offset][0] = False
+                    if stat == 'closed':
+                        bookings_map[s['name']]['availability'][offset][1] = 'Closed' if show_all else 'Unavailable'
+                        bookings_map[s['name']]['availability'][offset][3] = closure_reason if show_all else None
+                    elif stat == 'closed & booked':
+                        bookings_map[s['name']]['availability'][offset][1] = 'Closed & Booked' if show_all else 'Unavailable'
+                        bookings_map[s['name']]['availability'][offset][3] = closure_reason if show_all else None
+                    elif stat == 'booked':
+                        bookings_map[s['name']]['availability'][offset][1] = 'Booked' if show_all else 'Unavailable'
+                    else:
+                        bookings_map[s['name']]['availability'][offset][1] = 'Unavailable'
+
+                    bookings_map[s['name']]['price'] = False
+        return HttpResponse(geojson.dumps(
+            result 
+        ,cls=DecimalEncoder), content_type='application/json')
+
+
+        #return Response(result)
+
+
 class BaseAvailabilityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Campground.objects.all()
     serializer_class = CampgroundSerializer
 
     def retrieve(self, request, pk=None, ratis_id=None, format=None, show_all=False):
+        print ("CAMPSITE AVAIL")
         """Fetch full campsite availability for a campground."""
         # convert GET parameters to objects
         ground = self.get_object()
+        print (ground.site_type)
         # check if the user has an ongoing booking
         ongoing_booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
         # Validate parameters
@@ -1068,9 +1367,10 @@ class BaseAvailabilityViewSet(viewsets.ReadOnlyModelViewSet):
                     rates_map[s.campsite_class.pk] = rates[s.pk]
 
                 class_sites_map[s.campsite_class.pk].add(s.pk)
-
+            print ("OLD CLASS")
             # make an entry under sites for each campsite class
             for c in classes:
+                print (c)
                 rate = rates_map[c[1]]
                 site = {
                     'name': c[2],

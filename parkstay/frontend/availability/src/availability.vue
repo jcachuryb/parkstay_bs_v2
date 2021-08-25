@@ -549,7 +549,8 @@ export default {
                         num_adult: parseInt(vm.numAdults) ? parseInt(vm.numAdults) : 0,
                         num_child: parseInt(vm.numChildren) ? parseInt(vm.numChildren) : 0,
                         num_concession: parseInt(vm.numConcessions) ? parseInt(vm.numConcessions) : 0,
-                        num_infant: parseInt(vm.numInfants) ? parseInt(vm.numInfants) : 0
+                        num_infant: parseInt(vm.numInfants) ? parseInt(vm.numInfants) : 0,
+                        gear_type: vm.gearType
                     };
 
                 var url = '';
@@ -559,7 +560,7 @@ export default {
                     url = vm.parkstayUrl + '/api/availability_admin/'+ vm.parkstayGroundId +'/?'+$.param(params);
                 } else {
                     vm.updateURL();
-                    url = vm.parkstayUrl + '/api/availability/'+ vm.parkstayGroundId +'.json/?'+$.param(params);
+                    url = vm.parkstayUrl + '/api/campsite_availablity_view/'+ vm.parkstayGroundId +'/?'+$.param(params);
                 }
                 
                 $.ajax({
