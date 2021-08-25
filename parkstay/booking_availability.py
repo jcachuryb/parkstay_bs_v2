@@ -368,10 +368,11 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
         diff = (end - start).days
         for i in range(diff):
             if start + timedelta(days=i) == today:
-                if not closure.campsite._is_open(start + timedelta(days=i)):
-                    if start + timedelta(days=i) in results[closure.campsite.pk]:
-                        results[closure.campsite.pk][start + timedelta(days=i)][0] = 'closed'
-                        results[closure.campsite.pk][start + timedelta(days=i)][1] = str(reason)
+                pass
+                #if not closure.campsite._is_open(start + timedelta(days=i)):
+                #    if start + timedelta(days=i) in results[closure.campsite.pk]:
+                #        results[closure.campsite.pk][start + timedelta(days=i)][0] = 'closed'
+                #        results[closure.campsite.pk][start + timedelta(days=i)][1] = str(reason)
             else:
                 if start + timedelta(days=i) in results[closure.campsite.pk]:
                     results[closure.campsite.pk][start + timedelta(days=i)][0] = 'closed'
