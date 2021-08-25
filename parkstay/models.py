@@ -670,6 +670,11 @@ class Campsite(models.Model):
     class Meta:
         unique_together = (('campground', 'name'),)
 
+    def save(self, *args, **kwargs):
+        cache.delete('booking_availability.get_campsites_for_campground')
+        self.full_clean()
+        super(Campsite, self).save(*args, **kwargs)
+
     # Properties
     # ==============================
     @property
@@ -1057,6 +1062,11 @@ class CampsiteRate(models.Model):
 
     class Meta:
         unique_together = (('campsite', 'rate', 'date_start', 'date_end'),)
+
+    def save(self, *args, **kwargs):
+        cache.delete('booking_availability.get_campground_rates_'+str(self.campsite.campground.id))
+        self.full_clean()
+        super(CampsiteRate, self).save(*args, **kwargs)
 
     # Properties
     # =======createCampsitePriceHistory==========================
