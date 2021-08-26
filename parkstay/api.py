@@ -944,6 +944,26 @@ class DecimalEncoder(json.JSONEncoder):
 #    queryset = Campground.objects.all()
 #    serializer_class = CampgroundSerializer
 
+def get_campground(campground_id):
+
+     cg_hash = {}
+     #ground = Campground.objects.filter(id=campground_id).values('id','name','park_id','ratis_id','contact_id','campground_type','promo_area','site_type','address','description','additional_info','area_activities','driving_directions','fees','othertransport','key','price_level','info_url','long_description','wkb_geometry','zoom_level','check_in','check_out','max_advance_booking','oracle_code','campground_map')
+     cached_data = cache.get('api.get_campground('+campground_id+')')
+     if cached_data is None: 
+         ground = Campground.objects.get(id=campground_id)
+         if ground:
+                cg_hash['id'] = ground.id
+                cg_hash['name'] = ground.name
+                cg_hash['campground_type'] = ground.campground_type
+                cg_hash['site_type'] = ground.site_type
+                cg_hash['long_description']  = ground.long_description
+                cg_hash['campground_map_url'] = ground.campground_map.url
+                cg_hash['campground_map'] = {'path': ground.campground_map.path}
+                cache.set('api.get_campground('+campground_id+')', json.dumps(cg_hash),  86400)
+     else:
+         cg_hash = json.loads(cached_data)
+     return cg_hash
+
 def campsite_availablity_view(request,  *args, **kwargs):
 
     #campground_id):
@@ -955,7 +975,8 @@ def campsite_availablity_view(request,  *args, **kwargs):
     campground_id = kwargs.get('campground_id', None)
     show_all = False
     # convert GET parameters to objects
-    ground = Campground.objects.get(id=campground_id)
+    #ground = Campground.objects.get(id=campground_id)
+    ground = get_campground(campground_id)
     # Validate parameters
     data = {
         "arrival": request.GET.get('arrival'),
@@ -979,13 +1000,13 @@ def campsite_availablity_view(request,  *args, **kwargs):
     # get a length of the stay (in days), capped if necessary to the request maximum
     length = max(0, (end_date - start_date).days)
 
-    if ground.campground_type != 0  and ground.campground_type != 1:
+    if ground['campground_type'] != 0  and ground['campground_type'] != 1:
         return HttpResponse(geojson.dumps(
             {'error': 'Campground doesn\'t support online bookings'}
         ,cls=DecimalEncoder), content_type='application/json', status=400)
 
     # if campground doesn't support online bookings, abort!
-    if ground.campground_type == 1:
+    if ground['campground_type'] == 1:
         print ("Is not bookable - 1")
         result = booking_availability.not_bookable_online(ongoing_booking,ground,start_date,end_date,num_adult,num_concession,num_child,num_infant,gear_type)
         return HttpResponse(geojson.dumps(
@@ -1005,18 +1026,18 @@ def campsite_availablity_view(request,  *args, **kwargs):
         siteid: {
             date: num_adult * info['adult'] + num_concession * info['concession'] + num_child * info['child'] + num_infant * info['infant']
             for date, info in dates.items()
-        } for siteid, dates in booking_availability.get_visit_rates(ground.id,sites_array, start_date, end_date).items()
+        } for siteid, dates in booking_availability.get_visit_rates(ground['id'],sites_array, start_date, end_date).items()
     }
 
     # fetch availability map
-    availability = booking_availability.get_campsite_availability(ground.id,sites_array, start_date, end_date)
+    availability = booking_availability.get_campsite_availability(ground['id'],sites_array, start_date, end_date)
 
     # create our result object, which will be returned as JSON
     result = {
-        'id': ground.id,
-        'name': ground.name,
-        'long_description': ground.long_description,
-        'map': ground.campground_map.url if ground.campground_map else None,
+        'id': ground['id'],
+        'name': ground['name'],
+        'long_description': ground['long_description'],
+        'map': ground['campground_map_url'] if ground['campground_map'] else None,
         'ongoing_booking': True if ongoing_booking else False,
         'ongoing_booking_id': ongoing_booking.id if ongoing_booking else None,
         'arrival': start_date.strftime('%Y/%m/%d'),
@@ -1031,7 +1052,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     # group results by campsite class
     #print ("GROUND TYPE")
     #print (ground.site_type)
-    if ground.site_type in (1, 2):
+    if ground['site_type'] in (1, 2):
         # from our campsite queryset, generate a distinct list of campsite classes
         classes = []
         for x in sites_qs:
@@ -1056,10 +1077,6 @@ def campsite_availablity_view(request,  *args, **kwargs):
         print ("CLASSES")
         # make an entry under sites for each campsite class
         for c in classes:
-            print ("CLASS LOOP")
-            print (c)
-            print ("RATE MAP")
-            print (rates_map)
             rate = rates_map[c['campsite_class_id']]
             site = {
                 'name': c['campsite_class__name'],
@@ -1188,7 +1205,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
             site = {
                 'name': si['name'],
                 'id': si['id'],
-                'type': ground.campground_type,
+                'type': ground['campground_type'],
                 'class': si['campsite_class_id'],
                 'price': '${}'.format(sum(rates[si['id']].values())) if not show_all else False,
                 'availability': [[True, '${}'.format(rates[si['id']][start_date + timedelta(days=i)]), rates[si['id']][start_date + timedelta(days=i)], None] for i in range(length)],
