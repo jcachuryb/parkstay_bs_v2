@@ -211,6 +211,7 @@ class Campground(models.Model):
         cache.delete('campgrounds')
         cache.delete('campgrounds_dt')
         cache.delete('CampgroundMapViewSet')
+        cache.get('api.get_campground('+self.id+')')
         super(Campground, self).save(*args, **kwargs)
 
     class Meta:

@@ -14,7 +14,7 @@ def get_campsites_for_campground(ground, gear_type):
     cached_data = cache.get('booking_availability.get_campsites_for_campground')
 
     if cached_data is None:
-        sites_qs = models.Campsite.objects.filter(campground=ground).values('id','campground_id','name','campsite_class_id','wkb_geometry','features','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name').order_by('name')
+        sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','features','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name').order_by('name')
         for cs in sites_qs:
             row = {}
             row['id'] = cs['id']
@@ -369,10 +369,10 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
         for i in range(diff):
             if start + timedelta(days=i) == today:
                 pass
-                #if not closure.campsite._is_open(start + timedelta(days=i)):
-                #    if start + timedelta(days=i) in results[closure.campsite.pk]:
-                #        results[closure.campsite.pk][start + timedelta(days=i)][0] = 'closed'
-                #        results[closure.campsite.pk][start + timedelta(days=i)][1] = str(reason)
+                if not closure.campsite._is_open(start + timedelta(days=i)):
+                    if start + timedelta(days=i) in results[closure.campsite.pk]:
+                        results[closure.campsite.pk][start + timedelta(days=i)][0] = 'closed'
+                        results[closure.campsite.pk][start + timedelta(days=i)][1] = str(reason)
             else:
                 if start + timedelta(days=i) in results[closure.campsite.pk]:
                     results[closure.campsite.pk][start + timedelta(days=i)][0] = 'closed'
