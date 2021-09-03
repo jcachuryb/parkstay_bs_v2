@@ -55,8 +55,10 @@ var search_avail = {
                 });
     },
     select_dates: function(start, end) {
-        $('#when-date-range #when-dates').html("<b>Arrive:</b> "+start.format('D MMM YYYY') + ' <b>Depart:</b> ' + end.format('D MMM YYYY'));
-
+        $('#when-date-range #when-dates').html("<b>Arrive:</b> "+start.format('(ddd) D MMM YY') + ' <b>Depart:</b> ' + end.format('(ddd) D MMM YY'));
+	console.log("SELECT DATES");
+        console.log(start);
+	console.log(end);
         $('#checkin').val(start.format('YYYY/MM/DD'));
         $('#checkout').val(end.format('YYYY/MM/DD'));
 

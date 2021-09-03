@@ -957,8 +957,11 @@ def get_campground(campground_id):
                 cg_hash['campground_type'] = ground.campground_type
                 cg_hash['site_type'] = ground.site_type
                 cg_hash['long_description']  = ground.long_description
-                cg_hash['campground_map_url'] = ground.campground_map.url
-                cg_hash['campground_map'] = {'path': ground.campground_map.path}
+                cg_hash['campground_map_url'] = ''
+                cg_hash['campground_map'] = ''
+                if ground.campground_map:
+                   cg_hash['campground_map_url'] = ground.campground_map.url
+                   cg_hash['campground_map'] = {'path': ground.campground_map.path}
                 cache.set('api.get_campground('+campground_id+')', json.dumps(cg_hash),  86400)
      else:
          cg_hash = json.loads(cached_data)
