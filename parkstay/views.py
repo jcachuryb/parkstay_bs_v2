@@ -186,7 +186,6 @@ class MakeBookingsView(TemplateView):
             pricing['child'] = sum([x['child'] for x in pricing_list.values()])
             pricing['infant'] = sum([x['infant'] for x in pricing_list.values()])
 
-
         return render(request, self.template_name, {
             'form': form, 
             'vehicles': vehicles,
@@ -197,7 +196,6 @@ class MakeBookingsView(TemplateView):
             'pricing': pricing,
             'show_errors': show_errors
         })
-
 
     def get(self, request, *args, **kwargs):
         # TODO: find campsites related to campground
