@@ -11,7 +11,7 @@ import json
 def get_campsites_for_campground(ground, gear_type):
     sites_qs = None
     sites_array = []
-    cached_data = cache.get('booking_availability.get_campsites_for_campground')
+    cached_data = cache.get('booking_availability.get_campsites_for_campground:'+str(ground['id']))
 
     if cached_data is None:
         sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','features','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name').order_by('name')
@@ -33,7 +33,7 @@ def get_campsites_for_campground(ground, gear_type):
             row['description'] = cs['description']
             row['campground__max_advance_booking'] = cs['campground__max_advance_booking']
             sites_array.append(row) 
-        cache.set('booking_availability.get_campsites_for_campground', json.dumps(sites_array),  86400)
+        cache.set('booking_availability.get_campsites_for_campground:'+str(ground['id']), json.dumps(sites_array),  86400)
     else:
         sites_array = json.loads(cached_data)
         
@@ -125,6 +125,7 @@ def get_campground_rates(campground_id):
               row = {}
               row['id'] = int(r['id'])
               row['campsite'] = r['campsite']
+              row['campsite_id'] = r['campsite']
               row['rate'] = r['rate']
               row['allow_public_holidays'] = r['allow_public_holidays']
               row['date_start'] = r['date_start'].strftime('%Y-%m-%d')
@@ -160,6 +161,7 @@ def get_visit_rates(campground_id, campsites_array, start_date, end_date):
     #    Q(date_start__lt=end_date) & (Q(date_end__gte=start_date) | Q(date_end__isnull=True))
     #).prefetch_related('rate')
     rates_qs = get_campground_rates(campground_id)
+    #print (rates_qs)
     # prefill all slots
     duration = (end_date - start_date).days
     results = {}
@@ -218,7 +220,7 @@ def get_visit_rates(campground_id, campsites_array, start_date, end_date):
     return results
 
 def get_campground_booking_range_is_open(campground_id, start_date):
-    print ("get_campground_booking_range_is_open")
+    print ("get_campground_booking_range_is_open:"+str(campground_id))
     print (start_date)
     cgbr_cl = get_campground_booking_range(campground_id, 0)
     for c in cgbr_cl:

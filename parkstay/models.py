@@ -208,10 +208,15 @@ class Campground(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        print ("SAVE")
+        cg = Campground.objects.get(id=self.id)
+        print ("CG")
+        print (cg.name)
+        print (self.name)
         cache.delete('campgrounds')
         cache.delete('campgrounds_dt')
         cache.delete('CampgroundMapViewSet')
-        cache.get('api.get_campground('+self.id+')')
+        cache.get('api.get_campground('+str(self.id)+')')
         super(Campground, self).save(*args, **kwargs)
 
     class Meta:
