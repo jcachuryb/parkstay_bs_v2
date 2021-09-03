@@ -8,14 +8,24 @@ from django.core.cache import cache
 from parkstay.helpers import is_officer
 import json
 
+def get_features():
+    features_array = {}
+    features = models.Feature.objects.all()
+    for f in features:
+         features_array[f.id] = {'name': f.name, 'description': f.description, 'type': f.type }
+    return features_array
+    
+
 def get_campsites_for_campground(ground, gear_type):
     sites_qs = None
     sites_array = []
     cached_data = cache.get('booking_availability.get_campsites_for_campground:'+str(ground['id']))
-
+    features_array = get_features() 
+    cached_data = None
     if cached_data is None:
-        sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','features','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name').order_by('name')
+        sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name',).order_by('name')
         for cs in sites_qs:
+            sites_qs_features = models.Campsite.objects.filter(id=cs['id']).values('features')
             row = {}
             row['id'] = cs['id']
             row['campground_id'] = cs['campground_id']
@@ -23,7 +33,6 @@ def get_campsites_for_campground(ground, gear_type):
             row['campsite_class_id'] = cs['campsite_class_id']
             row['campsite_class__name'] = cs['campsite_class__name']
             row['wkb_geometry'] = cs['wkb_geometry']
-            row['features'] = cs['features']
             row['tent'] = cs['tent']
             row['campervan'] = cs['campervan']
             row['caravan'] = cs['caravan']
@@ -32,6 +41,10 @@ def get_campsites_for_campground(ground, gear_type):
             row['max_vehicles'] = cs['max_vehicles']
             row['description'] = cs['description']
             row['campground__max_advance_booking'] = cs['campground__max_advance_booking']
+            row['features'] = []
+            for cs_feature in sites_qs_features:
+                if cs_feature['features'] in features_array:
+                     row['features'].append(features_array[cs_feature['features']])
             sites_array.append(row) 
         cache.set('booking_availability.get_campsites_for_campground:'+str(ground['id']), json.dumps(sites_array),  86400)
     else:

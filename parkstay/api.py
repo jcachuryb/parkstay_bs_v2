@@ -1059,7 +1059,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
         # from our campsite queryset, generate a distinct list of campsite classes
         classes = []
         for x in sites_qs:
-             classes.append({'pk': x['id'], 'campsite_class_id': x['campsite_class_id'], 'campsite_class__name': x['campsite_class__name'], 'tent': x['tent'] , 'campervan': x['campervan'], 'caravan': x['caravan']})
+            classes.append({'pk': x['id'], 'campsite_class_id': x['campsite_class_id'], 'campsite_class__name': x['campsite_class__name'], 'tent': x['tent'] , 'campervan': x['campervan'], 'caravan': x['caravan'], 'features': x['features']})
         #classes = [x for x in sites_qs.distinct('campsite_class__name').order_by('campsite_class__name').values_list('pk', 'campsite_class', 'campsite_class__name', 'tent', 'campervan', 'caravan')]
         classes_map = {}
         bookings_map = {}
@@ -1076,8 +1076,6 @@ def campsite_availablity_view(request,  *args, **kwargs):
                 rates_map[s['campsite_class_id']] = rates[s['id']]
 
             class_sites_map[s['campsite_class_id']].add(s['id'])
-        print (rates_map)
-        print ("CLASSES")
         # make an entry under sites for each campsite class
         for c in classes:
             rate = rates_map[c['campsite_class_id']]
@@ -1092,7 +1090,12 @@ def campsite_availablity_view(request,  *args, **kwargs):
                     'tent': c['tent'],
                     'campervan': c['campervan'],
                     'caravan': c['caravan']
-                }
+                },
+                'features': x['features'],
+                'min_people': x['min_people'],
+                'max_people': x['max_people'],
+                'max_vehicles': x['max_vehicles'],
+                'description': x['description']
             }
             result['sites'].append(site)
             classes_map[c['campsite_class_id']] = site
@@ -1216,7 +1219,12 @@ def campsite_availablity_view(request,  *args, **kwargs):
                     'tent': si['tent'],
                     'campervan': si['campervan'],
                     'caravan': si['caravan']
-                }
+                },
+                'features': si['features'],
+                'min_people': si['min_people'],
+                'max_people': si['max_people'],
+                'max_vehicles': si['max_vehicles'],
+                'description': si['description']
             }
             result['sites'].append(site)
             bookings_map[si['name']] = site
