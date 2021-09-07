@@ -15,6 +15,7 @@ from django import forms
 from parkstay.forms import LoginForm, MakeBookingsForm, AnonymousMakeBookingsForm, VehicleInfoFormset
 from parkstay.exceptions import BindBookingException
 from parkstay.models import (Campground,
+                                CampgroundNotice,
                                 CampsiteBooking,
                                 Campsite,
                                 CampsiteRate,
@@ -40,6 +41,7 @@ from ledger_api_client.ledger_models import Basket
 from django_ical.views import ICalFeed
 from datetime import datetime, timedelta
 from decimal import *
+from django.db.models import Max
 
 from parkstay.helpers import is_officer
 from parkstay import utils
@@ -417,6 +419,41 @@ class SearchAvailablity(TemplateView):
 
     #def get(self, *args, **kwargs):
     #    return super(SearchAvailablity, self).get(*args, **kwargs)
+
+
+class SearchAvailablityByCampground(TemplateView):
+
+    template_name = 'ps/search_availabilty_campground.html'
+
+
+    def get(self, request, *args, **kwargs):
+        context = {'cg': {'campground': {},'campground_notices': []}}
+        campground_id = request.GET.get('site_id', None)
+        context['cg']['campground_id'] = campground_id
+        campground_query = Campground.objects.get(id=campground_id)
+        max_people = Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_people'))["max_people__max"]
+        max_vehicles = Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_vehicles'))["max_vehicles__max"]
+
+        context['cg']['campground']['id'] = campground_query.id
+        context['cg']['campground']['name'] = campground_query.name
+        context['cg']['campground']['largest_camper'] = max_people
+        context['cg']['campground']['largest_vehicle'] = max_vehicles
+
+        campground_notices_query = CampgroundNotice.objects.filter(campground_id=campground_id)
+        
+        campground_notices_array = []
+        for cnq in campground_notices_query:
+               campground_notices_array.append({'id': cnq.id, 'message': cnq.message})
+
+        features_obj = []
+        context['cg']['campground_notices'] = campground_notices_array
+        #features_query = Feature.objects.all()
+        #for f in features_query:
+        #    features_obj.append({'id': f.id,'name': f.name, 'symb': 'RF8G', 'description': f.description, 'type': f.type, 'key': 'twowheel','remoteKey': [f.name]})
+        # {name: '2WD accessible', symb: 'RV2', key: 'twowheel', 'remoteKey': ['2WD/SUV ACCESS']},
+        #context['features'] = features_obj
+        #context['features_json'] = json.dumps(features_obj)
+        return render(request, self.template_name, context)
 
 
 class MapView(TemplateView):

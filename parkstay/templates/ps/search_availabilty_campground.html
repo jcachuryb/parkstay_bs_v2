@@ -1,0 +1,546 @@
+{% extends 'ps/base.html' %}
+
+{% load bootstrap3 %}
+
+{% load static %}
+
+{% block extra_css %}
+    <script type="text/javascript" src="/static/ps/js/search_avail.js?ver={{ GIT_COMMIT_HASH }}"></script>
+    <link type="text/css" href="/static/ps/css/search_avail.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/common/node_modules/glider-js/glider.min.css?ver={{ GIT_COMMIT_HASH }}">
+    <script src="/static/common/node_modules/glider-js/glider.min.js?ver={{ GIT_COMMIT_HASH }}"></script>
+
+    <script src="/static/common/node_modules/@splidejs/splide/dist/js/splide.min.js?ver={{ GIT_COMMIT_HASH }}"></script>
+    <link rel="stylesheet" href="/static/common/node_modules/@splidejs/splide/dist/css/splide.min.css?ver={{ GIT_COMMIT_HASH }}">
+{% endblock %}
+
+{% block messages %}
+{% endblock %}
+
+{% block content %}
+
+
+<!-- https://cssbuttoncreator.com/ -->
+<script>
+
+window.onload = function() { 
+   search_avail.get_search_locations();
+   search_avail.get_locations();
+   search_avail.get_places(); 
+   search_avail.init_dateselection();	
+   console.log('loaded');
+
+}
+
+</script>
+
+<div class="container" style='z-index:1'>
+
+<ul class="nav nav-pills ">
+  <li class="nav-item">
+    <a class="nav-link active" aria-current="page" href="#">BOOKING</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">CAMPGROUND DETAILS</a>
+  </li>
+</ul>
+
+<br>
+
+        <div class="row">
+	    {% if cg.campground_notices|length > 0 %}
+            <div class="col-lg-12 ">
+                 <div class="round-box col-12 px-3 " style='background-color: #ffcbcb; border: 1px solid #fb9e9e;'>
+                         {% for notice in cg.campground_notices %}
+                             <div>
+                                    <i class="bi-exclamation-diamond-fill" style='font-size: 20px; color: red; padding-right:8px;' ></i>
+                                    <span style='color:red; margin-top: -10px;'>{{ notice.message }}</span>
+
+                             </div>
+			 {% endfor %}
+		  </div>
+
+            </div>
+            {% endif %}
+
+            <div class="col-lg-12 ">
+                 <form autocomplete="off" onkeydown="return event.key != 'Enter';"> 
+		 <div class="round-box col-12 px-3"> 
+			 <div class="col-12">
+				<div class="row">
+ 				     <div class="col-sm-12">
+				         <h5>Where</h5>
+				     </div>
+				</div>
+			 </div>
+			 <div class="col-12">
+                                <div class='row'>
+				     <div class="col-sm-12 col-md-6">
+					<div class="col-sm-12 col-md-12">
+						<div id='region-park-avail-selection-outer' class='form-control'>
+
+							 <div class='selection-informbox'> 
+								  <span >
+								      <i class='bi-geo-alt'></i>
+								  </span> 
+								  <span id='region-park-selection-inner'>
+									  {{ cg.campground.name }} 
+								  </span>
+							 </div>
+					         </div>
+						 <div>
+							 <div style='padding-left:12px; padding-top:5px; color: #4199d8'>
+								 <i class='bi-info-circle-fill'></i>&nbsp;&nbsp;Largest campsites at {{ cg.campground.name }} allow for {{  cg.campground.largest_camper }} camper(s) and {{  cg.campground.largest_vehicle }} vehicle(s).
+							 </div>
+						</div>
+					</div>
+				      </div>
+				</div>
+		         </div>
+		  </div>
+
+                 <div class="round-box col-12 px-3">
+                         <div class="col-12">
+				<div class="col-sm-12 col-md-12">
+                                 <h5>When</h5>
+				</div>
+                         </div>
+                         <div class="col-12">
+                              <div class='row'>
+
+
+<!--- STARTING -->
+	<div class="col-sm-12 col-md-6">
+<div class="col-sm-12 ">
+	<div class="col-sm-12 ">
+
+	<div class='row' style='padding-bottom:5px;'>
+		<div class="col-xs-6 col-lg-6 text-start">
+			<div class="d-grid gap-2 d-block d-sm-none">
+                                <button type="button" class="btn btn-success btn-sm" onclick="search_avail.select_days_earlier(1)">One day earlier</button>
+			</div>
+			<div class="d-none d-sm-block">
+				<button type="button" class="btn btn-success btn-sm" onclick="search_avail.select_days_earlier(1)">One day earlier</button>
+			</div>
+		</div> 
+		<div class="col-xs-6 col-lg-6 text-end">
+			<div class="d-grid gap-2 d-block d-sm-none">
+				<button type="button" onclick="search_avail.select_days_later(1)" class="btn btn-success btn-sm">One day later</button>
+			</div>
+			<div class="d-none d-sm-block">
+			     <button type="button" onclick="search_avail.select_days_later(1)" class="btn btn-success btn-sm">One day later</button>
+			</div>
+		</div> 
+	</div>
+	</div>
+	<div class="col-sm-12 ">
+<div id="when-date-range" class='form-control' style="cursor: pointer; ">
+    <div class='selection-informbox'>
+           <i class='bi-calendar3' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
+           <span id='when-dates'></span> 
+           <span> (<span id='when-nights'></span> nights)</span>
+           &nbsp;&nbsp;<i class='bi-caret-down-fill' ddclass="glyphicon glyphicon-triangle-bottom"></i>
+           </div>
+           <div id='form-vars' style='display:none'>
+           <input id='checkin' > <input id='checkout' >
+           </div>
+    </div>
+    <!-- http://www.daterangepicker.com/#example4 -->
+</div>
+</div>
+
+
+</div>
+<!-- ENDING -->
+				  <div class="col-sm-12 col-md-6" style='display:none'>
+					<div class="col-sm-12 col-md-12">
+						Check In
+					</div>
+					<div class="col-sm-12 col-md-12">
+						<input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="off" aria-expanded="false" class='form-control' >
+					</div>
+				  </div>
+				  <div class="col-sm-12 col-md-6" style='display:none'>
+                                        <div class="col-sm-12 col-md-12">
+                                                Check Out 
+                                        </div>
+                                        <div class="col-sm-12 col-md-12">
+                                                <input id="region-park" type="text" placeholder="Search for campgrounds, parks" autocomplete="off" aria-expanded="false" class='form-control' >
+                                        </div>
+				  </div>
+			      </div>
+                         </div>
+                 </div>
+<style>
+.plus-minus-counter {
+  font-size: 30px; 
+  color: #4c4343;
+  cursor:pointer;
+}
+
+.plus-minus-counter:hover {
+  color: #909090;
+
+}
+.plus-minus-counter:active {
+  color: #0d6efd;
+
+}
+.camper-dropdown {
+  position:absolute; 
+  display:none;
+}					
+.camper-dropdown-relative {
+ position:relative; 
+ background-color:#FFFFFF; 
+ width: 300px; 
+ border: 1px solid #dedede; 
+ padding: 10px; 
+ box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.75); 
+ -webkit-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.75); 
+ -moz-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.75);
+}				
+
+.vehicle-dropdown {
+  position:absolute;
+  display:none;
+}
+
+.vehicle-dropdown-relative {
+ position:relative;
+ background-color:#FFFFFF;
+ width: 300px;
+ border: 1px solid #dedede;
+ padding: 10px;
+ box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.75);
+ -webkit-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.75);
+ -moz-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.75);
+}
+
+	
+</style>
+
+                 <div class="round-box col-12 px-3">
+                         <div class="col-12">
+                                <div class="col-sm-12 col-md-12">
+                                    <h5>Camper(s)</h5>
+                                </div>
+                         </div>
+                         <div class="col-12">
+                                <div class='row'>
+                                     <div class="col-sm-12 col-md-6">
+                                        <div class="col-sm-12 col-md-12">
+                                                <div id='region-park-avail-selection-outer' class='form-control' style="cursor: pointer; " onclick="search_avail.campers_toggle();">
+                                                         <div class='selection-informbox'>
+                                                                  <span >
+                                                                          <i class='bi-people-fill'></i></span> <span id='region-park-selection-inner'>2 adult, 0 concession, 1 child, 0 Infant </span>  <span><i class="bi-caret-down-fill" ddclass="glyphicon glyphicon-triangle-bottom"></i></span>
+                                                         </div>
+                                                </div>
+						<div id='camper-dropdown' class='camper-dropdown'>
+							<div id='camper-dropdown-relative' class='camper-dropdown-relative'>
+
+
+                                                        <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
+                                                          <div class="col-8 col-sm-8 fw-bold">2 adults <br>(non concession)</div>
+                                                          <div class="col-4 col-sm-4">
+
+                                                                        <span>
+                                                                       <i class='bi-dash-square plus-minus-counter' ></i> 
+                                                                       </span>
+                                                                        <span>
+                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       </span>
+                                                          </div>
+                                                        </div>
+
+
+                                                        <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
+                                                          <div class="col-8 col-sm-8 fw-bold">2 concession</div>
+                                                          <div class="col-4 col-sm-4">
+                                                                        <span>
+                                                                       <i class='bi-dash-square plus-minus-counter'></i>
+                                                                       </span>
+                                                                        <span>
+                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       </span>
+                                                          </div>
+                                                        </div>
+
+
+                                                        <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
+                                                          <div class="col-8 col-sm-8 fw-bold">2 children </div>
+                                                          <div class="col-4 col-sm-4">
+                                                                        <span>
+                                                                       <i class='bi-dash-square plus-minus-counter' ></i>
+                                                                       </span>
+                                                                        <span>
+                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       </span>
+                                                          </div>
+                                                        </div>
+
+                                                        <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
+                                                          <div class="col-8 col-sm-8 fw-bold">2 infants </div>
+                                                          <div class="col-4 col-sm-4">
+                                                                        <span>
+                                                                       <i class='bi-dash-square plus-minus-counter'></i>
+                                                                       </span>
+                                                                        <span>
+                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       </span>
+                                                          </div>
+                                                        </div>
+                                                        <div class="row p-3">
+								<div class="col-12 col-sm-12 text-end">
+                                                                          <button type="button" class="btn btn-primary btn-sm" onclick="search_avail.campers_toggle();">Close</button>
+
+								</div>
+
+							</div>
+
+
+
+                                                        </div>
+
+						</div>
+
+
+
+                                        </div>
+                                      </div>
+                                </div>
+                         </div>
+                  </div>
+
+
+
+                 <div class="round-box col-12 px-3">
+                         <div class="col-12">
+                                <div class="col-sm-12 col-md-12">
+                                    <h5>Vehicle(s)</h5>
+                                </div>
+                         </div>
+                         <div class="col-12">
+                                <div class='row'>
+                                     <div class="col-sm-12 col-md-6">
+                                        <div class="col-sm-12 col-md-12">
+                                                <div id='region-park-avail-selection-outer' class='form-control'  onclick="search_avail.vehicle_toggle();">
+                                                         <div class='selection-informbox'>
+                                                                  <span >
+									  <i class='bi-speedometer'></i></span> <span id='region-park-selection-inner'> &nbsp;2 cars , 3 campervans, 1 motor cycles, 2 trailers </span> <span><i class="bi-caret-down-fill" ></i></span>
+                                                         </div>
+                                                </div>
+
+                                                <div id='vehicle-dropdown' class='vehicle-dropdown'>
+                                                        <div id='vehicle-dropdown-relative' class='vehicle-dropdown-relative'>
+
+
+                                                        <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
+                                                          <div class="col-8 col-sm-8 fw-bold">2 vehicle(s)</div>
+                                                          <div class="col-4 col-sm-4">
+
+                                                                        <span>
+                                                                       <i class='bi-dash-square plus-minus-counter' ></i>
+                                                                       </span>
+                                                                        <span>
+                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       </span>
+                                                          </div>
+                                                        </div>
+
+
+                                                        <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
+                                                          <div class="col-8 col-sm-8 fw-bold">2 campervans</div>
+                                                          <div class="col-4 col-sm-4">
+                                                                        <span>
+                                                                       <i class='bi-dash-square plus-minus-counter'></i>
+                                                                       </span>
+                                                                        <span>
+                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       </span>
+                                                          </div>
+                                                        </div>
+                                                        <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
+                                                          <div class="col-8 col-sm-8 fw-bold">2 motor cycles </div>
+                                                          <div class="col-4 col-sm-4">
+                                                                        <span>
+                                                                       <i class='bi-dash-square plus-minus-counter' ></i>
+                                                                       </span>
+                                                                        <span>
+                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       </span>
+                                                          </div>
+                                                        </div>
+
+                                                        <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
+                                                          <div class="col-8 col-sm-8 fw-bold">2 trailers </div>
+                                                          <div class="col-4 col-sm-4">
+                                                                        <span>
+                                                                       <i class='bi-dash-square plus-minus-counter'></i>
+                                                                       </span>
+                                                                        <span>
+                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       </span>
+                                                          </div>
+                                                        </div>
+                                                        <div class="row p-3">
+                                                                <div class="col-12 col-sm-12 text-end">
+                                                                          <button type="button" class="btn btn-primary btn-sm" onclick="search_avail.vehicle_toggle();">Close</button>
+
+                                                                </div>
+
+                                                        </div>
+
+
+
+                                                        </div>
+
+                                                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+                                        </div>
+                                      </div>
+                                </div>
+                         </div>
+                 </div>
+
+
+                 <div id='search-filtersi' class="round-box col-12 px-3">
+                         <div class="col-12">
+                                <div class="col-sm-12 col-md-12">
+                                 <h5></h5>
+                                </div>
+                         </div>
+                         <div class="col-12" style='display:none' id='filter-options'>
+                              <div class='row'>
+				<div class="col-6">
+					Tents
+				</div>					
+				<div class="col-6">
+					<div class="form-check form-switch">
+					  <input class="form-check-input filter-features" type="checkbox" id="filter-checkbox-tent" checked>
+				</div>
+				</div>
+
+                                <div class="col-6">
+                                        Campervan
+                                </div>                                  
+                                <div class="col-6">
+                                        <div class="form-check form-switch">
+                                          <input class="form-check-input filter-features" type="checkbox" id="filter-checkbox-campervan">
+                                </div>
+                                </div>
+
+
+                                <div class="col-6">
+                                        Caravan / Camper trailer
+                                </div>                                  
+                                <div class="col-6">
+                                        <div class="form-check form-switch">
+                                          <input class="form-check-input filter-features" type="checkbox" id="filter-checkbox-campertrailer">
+                                </div>
+                                </div>
+
+                                <div class="col-6">
+                                        &nbsp; 
+                                </div>
+                                <div class="col-6">
+                                        &nbsp;
+                                </div>
+
+				{% for f  in features %}
+                                     <div class="col-6">
+                                          {{ f.name }} 
+                                     </div>
+                                     <div class="col-6">
+                                             <div class="form-check form-switch">
+						     <input class="form-check-input filter-features" type="checkbox" id="filter-feature-{{ f.id }}">
+                                             </div>
+                                     </div>
+				{% endfor %}
+
+			      </div>
+			 </div> 
+			 <div class="col-12" style='' >
+				 <center><button type="button" class="btn btn-primary" id='more-filters' onclick="search_avail.filter_options('open');">More filters</button></center>
+				 <center><button type="button" class="btn btn-primary" style='display:none;' id='hide-filters' onclick="search_avail.filter_options('close');">Hide filters</button></center>
+		         </div>
+                  </div>
+
+		  <textarea id='feature_json' style='display:none'>{{ features_json }}</textarea>
+		  </form>
+
+                  <div id='search-selections' class="round-box col-12 px-3">
+                         <div class="col-12">
+                                <div class="col-sm-12 col-md-12">
+
+                                      <ul class="nav nav-pills nav-justified">
+                                        <li class="nav-item">
+                                          <a id='card-preview-tab' class="nav-link" aria-current="page" href="javascript:void(0);" onclick="search_avail.select_filter_tab('campgrounds');">Campgrounds</a>
+                                        </li>
+                                        <li class="nav-item">
+                                          <a id='map-preview-tab' class="nav-link active" href="javascript:void(0);" onclick="search_avail.select_filter_tab('map');">Map</a>
+                                        </li>
+                                      </ul>
+
+
+                                <h5></h5>
+                                </div>
+                         </div>
+                         <div class="col-12">
+                              <div class='row'>
+
+
+    <div id="parkfinder"></div>
+    <script type="text/javascript">
+        var parkstayUrl = window.location.protocol + '//' + window.location.host;
+    </script>
+    <script src="{% static 'searchavail/js/manifest.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
+    <script src="{% static 'searchavail/js/vendor.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
+    <script src="{% static 'searchavail/js/map.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
+
+
+
+
+
+
+
+                              </div>
+                         </div>
+                  </div>
+
+
+
+
+		  <div class="col-12" style='display:none'>
+			<div class="col-12" align='right'>
+			
+				<button type='button' name='search-avail' id='search-avail' class='form-button' style='width:100%'>Search</button>
+			</div>
+
+		  </div>
+         </div>
+     </div>
+</div>
+<br>
+<br>
+
+
+
+<script type="module">
+//	import Map from 'ol/Map';
+//	console.log(Map);
+</script>
+{% endblock %}
+

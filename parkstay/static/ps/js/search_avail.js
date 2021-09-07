@@ -54,6 +54,49 @@ var search_avail = {
                     },
                 });
     },
+    vehicle_toggle: function() {
+	$('#camper-dropdown').hide();
+        var vehicledropdown = $('#vehicle-dropdown').css('display');
+        if (vehicledropdown == 'none') {
+                 $('#vehicle-dropdown').show();
+        } else {
+                $('#vehicle-dropdown').hide();
+        }
+    },
+	
+    campers_toggle: function() {
+	$('#vehicle-dropdown').hide();
+        var camperdropdown = $('#camper-dropdown').css('display');
+        if (camperdropdown == 'none') { 
+		 $('#camper-dropdown').show();
+	} else {
+		$('#camper-dropdown').hide();
+	}
+    },
+    select_days_earlier: function(days) {
+       var checkin = $('#checkin').val();
+       var checkout = $('#checkout').val();
+
+       var checkin_date = Date.parse(checkin);
+       var checkout_date =  Date.parse(checkout);
+       var checkin_date_moment = moment(checkin_date);
+       var checkout_date_moment = moment(checkout_date);
+       var checkin_date_moment = checkin_date_moment.subtract(1, 'days');
+       var checkout_date_moment = checkout_date_moment.subtract(1, 'days');
+       search_avail.init_dateselection(checkin_date_moment.format('YYYY/MM/DD'),checkout_date_moment.format('YYYY/MM/DD'));
+    },
+    select_days_later: function(days) {
+       var checkin = $('#checkin').val();
+       var checkout = $('#checkout').val();
+
+       var checkin_date = Date.parse(checkin);
+       var checkout_date =  Date.parse(checkout);
+       var checkin_date_moment = moment(checkin_date);
+       var checkout_date_moment = moment(checkout_date);
+       var checkin_date_moment = checkin_date_moment.add(1, 'days');
+       var checkout_date_moment = checkout_date_moment.add(1, 'days');
+       search_avail.init_dateselection(checkin_date_moment.format('YYYY/MM/DD'),checkout_date_moment.format('YYYY/MM/DD'));
+    },
     select_dates: function(start, end) {
         $('#when-date-range #when-dates').html("<b>Arrive:</b> "+start.format('(ddd) D MMM YY') + ' <b>Depart:</b> ' + end.format('(ddd) D MMM YY'));
 	console.log("SELECT DATES");
@@ -148,9 +191,19 @@ var search_avail = {
 		return dist;
 	}
     },
-    init_dateselection: function() { 
-        var start = moment().add(1, 'days');
-        var end = moment().add(8,'days');
+    init_dateselection: function(start,end) { 
+        if (start == null) {
+            start = moment().add(1, 'days');
+	} else {
+              var start_date= Date.parse(start);
+	      start = moment(start_date);
+	}
+	if (end == null) {
+            end = moment().add(8,'days');
+	} else {
+            var end_date = Date.parse(end);
+	    end = moment(end_date);
+	}
 
         $('#when-date-range').daterangepicker({
             minDate: new Date(),

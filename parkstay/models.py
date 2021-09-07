@@ -398,6 +398,15 @@ class Campground(models.Model):
             raise
 
 
+class CampgroundNotice(models.Model):
+       campground = models.ForeignKey(Campground, related_name='campground_notice', on_delete=models.CASCADE)
+       message = models.CharField(max_length=70, null=True, blank=True, default='')
+       created = models.DateTimeField(auto_now_add=True)
+
+       def __str__(self):
+           return '{}'.format(self.message)
+
+
 def campground_image_path(instance, filename):
     return '/'.join(['parkstay', 'campground_images', filename])
 
