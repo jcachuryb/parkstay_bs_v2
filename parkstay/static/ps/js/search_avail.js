@@ -352,7 +352,7 @@ var search_avail = {
     },
     load_campsite_availabilty: function() { 
 
-	    $("#campsite-availablity-results").html("<center><img style='padding-top: 20px;' height='70' src='/static/ps/img/parkstay_loader_bar_700.gif'></center>");
+	    $("#campsite-availablity-results").html("<center><img style='padding-top: 20px;' height='70' src='/static/ps/img/parkstay_loader_bar_500.gif'></center>");
             $.ajax({
             	  url: "/api/campsite_availablity_view/"+search_avail.var.campground_id+"/?arrival="+search_avail.var.camping_period['checkin']+"&departure="+search_avail.var.camping_period['checkout']+"&num_adult="+search_avail.var.campers['adult']+"&num_child="+search_avail.var.campers['children']+"&num_concession="+search_avail.var.campers['concession']+"&num_infant="+search_avail.var.campers['infant']+"&gear_type=tent",
             	  cache: false,
