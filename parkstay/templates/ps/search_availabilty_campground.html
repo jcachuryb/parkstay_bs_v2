@@ -24,11 +24,14 @@
 <!-- https://cssbuttoncreator.com/ -->
 <script>
 
-window.onload = function() { 
+window.onload = function() {
+   search_avail.var.page = 'campsite-availablity';
+   search_avail.var.campground_id = '{{ cg.campground.id }}';
    search_avail.get_search_locations();
    search_avail.get_locations();
    search_avail.get_places(); 
    search_avail.init_dateselection();	
+   search_avail.init();
    console.log('loaded');
 
 }
@@ -231,63 +234,63 @@ window.onload = function() {
                                 <div class='row'>
                                      <div class="col-sm-12 col-md-6">
                                         <div class="col-sm-12 col-md-12">
-                                                <div id='region-park-avail-selection-outer' class='form-control' style="cursor: pointer; " onclick="search_avail.campers_toggle();">
+                                                <div id='region-park-avail-selection-outer' class='form-control selection-dropdown' style="cursor: pointer; " onclick="search_avail.campers_toggle();">
                                                          <div class='selection-informbox'>
                                                                   <span >
-                                                                          <i class='bi-people-fill'></i></span> <span id='region-park-selection-inner'>2 adult, 0 concession, 1 child, 0 Infant </span>  <span><i class="bi-caret-down-fill" ddclass="glyphicon glyphicon-triangle-bottom"></i></span>
+                                                                          <i class='bi-people-fill'></i></span> <span id='camper-selection-inner-text'>0 adult, 0 concession, 0 child, 0 Infant </span>  <span><i class="bi-caret-down-fill" ddclass="glyphicon glyphicon-triangle-bottom"></i></span>
                                                          </div>
                                                 </div>
-						<div id='camper-dropdown' class='camper-dropdown'>
+						<div id='camper-dropdown' class='camper-dropdown selection-dropdown'>
 							<div id='camper-dropdown-relative' class='camper-dropdown-relative'>
 
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">2 adults <br>(non concession)</div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Adults <br>(non concession)</div>
                                                           <div class="col-4 col-sm-4">
 
                                                                         <span>
-                                                                       <i class='bi-dash-square plus-minus-counter' ></i> 
+                                                                       <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_camper_counters('adult','down');" ></i> 
                                                                        </span>
                                                                         <span>
-                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       <i class='bi-plus-square plus-minus-counter' onclick="search_avail.change_camper_counters('adult','up');"></i>
                                                                        </span>
                                                           </div>
                                                         </div>
 
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">2 concession</div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Concession</div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
-                                                                       <i class='bi-dash-square plus-minus-counter'></i>
+                                                                       <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_camper_counters('concession','down');"></i>
                                                                        </span>
                                                                         <span>
-                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       <i class='bi-plus-square plus-minus-counter' onclick="search_avail.change_camper_counters('concession','up');"></i>
                                                                        </span>
                                                           </div>
                                                         </div>
 
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">2 children </div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Children </div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
-                                                                       <i class='bi-dash-square plus-minus-counter' ></i>
+                                                                       <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_camper_counters('children','down');" ></i>
                                                                        </span>
                                                                         <span>
-                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       <i class='bi-plus-square plus-minus-counter' onclick="search_avail.change_camper_counters('children','up');" ></i>
                                                                        </span>
                                                           </div>
                                                         </div>
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">2 infants </div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Infants </div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
-                                                                       <i class='bi-dash-square plus-minus-counter'></i>
+                                                                       <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_camper_counters('infant','down');"></i>
                                                                        </span>
                                                                         <span>
-                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       <i class='bi-plus-square plus-minus-counter' onclick="search_avail.change_camper_counters('infant','up');"></i>
                                                                        </span>
                                                           </div>
                                                         </div>
@@ -304,9 +307,6 @@ window.onload = function() {
                                                         </div>
 
 						</div>
-
-
-
                                         </div>
                                       </div>
                                 </div>
@@ -325,62 +325,62 @@ window.onload = function() {
                                 <div class='row'>
                                      <div class="col-sm-12 col-md-6">
                                         <div class="col-sm-12 col-md-12">
-                                                <div id='region-park-avail-selection-outer' class='form-control'  onclick="search_avail.vehicle_toggle();">
+                                                <div id='region-park-avail-selection-outer' class='form-control selection-dropdown' style="cursor: pointer; " onclick="search_avail.vehicle_toggle();">
                                                          <div class='selection-informbox'>
                                                                   <span >
-									  <i class='bi-speedometer'></i></span> <span id='region-park-selection-inner'> &nbsp;2 cars , 3 campervans, 1 motor cycles, 2 trailers </span> <span><i class="bi-caret-down-fill" ></i></span>
+									  <i class='bi-speedometer'></i></span> <span id='vehicle-selection-inner-text'> &nbsp;0 cars , 0 campervans, 0 motor cycles, 0 trailers </span> <span><i class="bi-caret-down-fill" ></i></span>
                                                          </div>
                                                 </div>
 
-                                                <div id='vehicle-dropdown' class='vehicle-dropdown'>
+                                                <div id='vehicle-dropdown' class='vehicle-dropdown selection-dropdown'>
                                                         <div id='vehicle-dropdown-relative' class='vehicle-dropdown-relative'>
 
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">2 vehicle(s)</div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Vehicle(s)</div>
                                                           <div class="col-4 col-sm-4">
 
                                                                         <span>
-                                                                       <i class='bi-dash-square plus-minus-counter' ></i>
+                                                                       <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_vehicle_counters('vehicle','down')"></i>
                                                                        </span>
                                                                         <span>
-                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       <i class='bi-plus-square plus-minus-counter' onclick="search_avail.change_vehicle_counters('vehicle','up')" ></i>
                                                                        </span>
                                                           </div>
                                                         </div>
 
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">2 campervans</div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Campervans</div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
-                                                                       <i class='bi-dash-square plus-minus-counter'></i>
+                                                                       <i class='bi-dash-square plus-minus-counter'  onclick="search_avail.change_vehicle_counters('campervan','down')"></i>
                                                                        </span>
                                                                         <span>
-                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       <i class='bi-plus-square plus-minus-counter'  onclick="search_avail.change_vehicle_counters('campervan','up')" ></i>
                                                                        </span>
                                                           </div>
                                                         </div>
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">2 motor cycles </div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Motor cycles </div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
-                                                                       <i class='bi-dash-square plus-minus-counter' ></i>
+                                                                       <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_vehicle_counters('motorcycle','down')" ></i>
                                                                        </span>
                                                                         <span>
-                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       <i class='bi-plus-square plus-minus-counter' onclick="search_avail.change_vehicle_counters('motorcycle','up')" ></i>
                                                                        </span>
                                                           </div>
                                                         </div>
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">2 trailers </div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Trailers </div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
-                                                                       <i class='bi-dash-square plus-minus-counter'></i>
+                                                                       <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_vehicle_counters('trailer','down')"></i>
                                                                        </span>
                                                                         <span>
-                                                                       <i class='bi-plus-square plus-minus-counter'></i>
+                                                                       <i class='bi-plus-square plus-minus-counter' onclick="search_avail.change_vehicle_counters('trailer','up')" ></i>
                                                                        </span>
                                                           </div>
                                                         </div>
@@ -389,27 +389,10 @@ window.onload = function() {
                                                                           <button type="button" class="btn btn-primary btn-sm" onclick="search_avail.vehicle_toggle();">Close</button>
 
                                                                 </div>
-
                                                         </div>
-
-
-
                                                         </div>
-
                                                 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-                                        </div>
+                                           </div>
                                       </div>
                                 </div>
                          </div>
@@ -429,7 +412,7 @@ window.onload = function() {
 				</div>					
 				<div class="col-6">
 					<div class="form-check form-switch">
-					  <input class="form-check-input filter-features" type="checkbox" id="filter-checkbox-tent" checked>
+					  <input class="form-check-input filter-features" type="checkbox" id="filter-checkbox-tent" >
 				</div>
 				</div>
 
@@ -481,45 +464,11 @@ window.onload = function() {
 		  <textarea id='feature_json' style='display:none'>{{ features_json }}</textarea>
 		  </form>
 
-                  <div id='search-selections' class="round-box col-12 px-3">
-                         <div class="col-12">
-                                <div class="col-sm-12 col-md-12">
-
-                                      <ul class="nav nav-pills nav-justified">
-                                        <li class="nav-item">
-                                          <a id='card-preview-tab' class="nav-link" aria-current="page" href="javascript:void(0);" onclick="search_avail.select_filter_tab('campgrounds');">Campgrounds</a>
-                                        </li>
-                                        <li class="nav-item">
-                                          <a id='map-preview-tab' class="nav-link active" href="javascript:void(0);" onclick="search_avail.select_filter_tab('map');">Map</a>
-                                        </li>
-                                      </ul>
-
-
-                                <h5></h5>
-                                </div>
-                         </div>
-                         <div class="col-12">
-                              <div class='row'>
-
-
-    <div id="parkfinder"></div>
-    <script type="text/javascript">
-        var parkstayUrl = window.location.protocol + '//' + window.location.host;
-    </script>
-    <script src="{% static 'searchavail/js/manifest.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
-    <script src="{% static 'searchavail/js/vendor.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
-    <script src="{% static 'searchavail/js/map.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
-
-
-
-
-
-
-
-                              </div>
-                         </div>
-                  </div>
-
+                  <div id='campsite-availablity' class="round-box col-12 px-3">
+                          <div class="col-12" id='campsite-availablity-results'>
+                              Campsites
+  		          </div>
+		  </div>
 
 
 

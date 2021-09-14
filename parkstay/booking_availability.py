@@ -23,7 +23,7 @@ def get_campsites_for_campground(ground, gear_type):
     features_array = get_features() 
     cached_data = None
     if cached_data is None:
-        sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name',).order_by('name')
+        sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name','short_description').order_by('name')
         for cs in sites_qs:
             sites_qs_features = models.Campsite.objects.filter(id=cs['id']).values('features')
             row = {}
@@ -40,6 +40,7 @@ def get_campsites_for_campground(ground, gear_type):
             row['max_people'] = cs['max_people']
             row['max_vehicles'] = cs['max_vehicles']
             row['description'] = cs['description']
+            row['short_description'] = cs['short_description']
             row['campground__max_advance_booking'] = cs['campground__max_advance_booking']
             row['features'] = []
             for cs_feature in sites_qs_features:
@@ -68,6 +69,7 @@ def get_campsites_for_campground(ground, gear_type):
          row['max_vehicles'] = cs['max_vehicles']
          row['description'] = cs['description']
          row['campground__max_advance_booking'] = cs['campground__max_advance_booking']
+         row['short_description'] = cs['short_description']
 
          if gear_type == 'all':
              cs_rows.append(row)

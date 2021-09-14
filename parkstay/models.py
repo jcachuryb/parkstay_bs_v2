@@ -678,6 +678,7 @@ class Campsite(models.Model):
     max_people = models.SmallIntegerField(default=12)
     max_vehicles = models.PositiveIntegerField(default=1)
     description = models.TextField(null=True)
+    short_description = models.TextField(null=True, blank=True, max_length=150)
 
     def __str__(self):
         return '{} - {}'.format(self.campground, self.name)
@@ -687,6 +688,7 @@ class Campsite(models.Model):
 
     def save(self, *args, **kwargs):
         cache.delete('booking_availability.get_campsites_for_campground')
+        cache.delete('booking_availability.get_campsites_for_campground:'+str(self.campground.id))
         self.full_clean()
         super(Campsite, self).save(*args, **kwargs)
 
