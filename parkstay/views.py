@@ -429,7 +429,17 @@ class SearchAvailablityByCampground(TemplateView):
     def get(self, request, *args, **kwargs):
         context = {'cg': {'campground': {},'campground_notices': []}}
         campground_id = request.GET.get('site_id', None)
+        num_adult = request.GET.get('num_adult', 0)
+        num_concession= request.GET.get('num_concession', 0)
+        num_children= request.GET.get('num_children', 0)
+        num_infants= request.GET.get('num_infants', 0)
+
         context['cg']['campground_id'] = campground_id
+        context['cg']['num_adult'] = num_adult
+        context['cg']['num_concession'] = num_concession
+        context['cg']['num_children'] = num_children
+        context['cg']['num_infants'] = num_infants
+         
         campground_query = Campground.objects.get(id=campground_id)
         max_people = Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_people'))["max_people__max"]
         max_vehicles = Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_vehicles'))["max_vehicles__max"]
