@@ -27,6 +27,11 @@
 window.onload = function() {
    search_avail.var.page = 'campsite-availablity';
    search_avail.var.campground_id = '{{ cg.campground.id }}';
+   search_avail.var.campers.adult = parseInt('{{ cg.num_adult }}');
+   search_avail.var.campers.concession = parseInt('{{ cg.num_concession }}');
+   search_avail.var.campers.children = parseInt('{{ cg.num_children }}');
+   search_avail.var.campers.infant = parseInt('{{ cg.num_infants }}');
+   search_avail.total_campers();	
    search_avail.get_search_locations();
    search_avail.get_locations();
    search_avail.get_places(); 
@@ -464,7 +469,7 @@ window.onload = function() {
 		  <textarea id='feature_json' style='display:none'>{{ features_json }}</textarea>
 		  </form>
 
-                  <div id='campsite-availablity' class="round-box col-12 px-3">
+                  <div id='campsite-availablity' class="round-box col-12 px-3" style='float:left;'>
                           <div class="col-12" id='campsite-availablity-results'>
                               Campsites
   		          </div>

@@ -70,7 +70,8 @@ def get_campsites_for_campground(ground, gear_type):
          row['description'] = cs['description']
          row['campground__max_advance_booking'] = cs['campground__max_advance_booking']
          row['short_description'] = cs['short_description']
-
+         if row['short_description'] is None:
+             row['short_description'] = ''
          if gear_type == 'all':
              cs_rows.append(row)
          if gear_type == 'tent' and cs['tent'] is True:
