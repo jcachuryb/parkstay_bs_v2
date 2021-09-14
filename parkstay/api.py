@@ -971,6 +971,8 @@ def campsite_availablity_view(request,  *args, **kwargs):
 
     #campground_id):
     print ("CAMPSITE AVAIL 2")
+    import time
+    time.sleep(3)
     """Fetch full campsite availability for a campground."""
     # check if the user has an ongoing booking
     ongoing_booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
