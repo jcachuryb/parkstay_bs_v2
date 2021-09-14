@@ -1022,6 +1022,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     #sites_qs = Campsite.objects.filter(campground=ground).filter(**context)
     sites_array = []
     sites_qs = booking_availability.get_campsites_for_campground(ground,gear_type)
+    
     for s in sites_qs:
         sites_array.append({'pk': s['id'], 'data': s})
     # fetch rate map
@@ -1059,7 +1060,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
         # from our campsite queryset, generate a distinct list of campsite classes
         classes = []
         for x in sites_qs:
-            classes.append({'pk': x['id'], 'campsite_class_id': x['campsite_class_id'], 'campsite_class__name': x['campsite_class__name'], 'tent': x['tent'] , 'campervan': x['campervan'], 'caravan': x['caravan'], 'features': x['features']})
+            classes.append({'pk': x['id'], 'campsite_class_id': x['campsite_class_id'], 'campsite_class__name': x['campsite_class__name'], 'tent': x['tent'] , 'campervan': x['campervan'], 'caravan': x['caravan'], 'features': x['features'], 'short_description': x['short_description'], 'min_people': x['min_people'], 'max_people': x['max_people'], 'max_vehicles': x['max_vehicles']})
         #classes = [x for x in sites_qs.distinct('campsite_class__name').order_by('campsite_class__name').values_list('pk', 'campsite_class', 'campsite_class__name', 'tent', 'campervan', 'caravan')]
         classes_map = {}
         bookings_map = {}
@@ -1076,12 +1077,13 @@ def campsite_availablity_view(request,  *args, **kwargs):
                 rates_map[s['campsite_class_id']] = rates[s['id']]
 
             class_sites_map[s['campsite_class_id']].add(s['id'])
+
         # make an entry under sites for each campsite class
         for c in classes:
             rate = rates_map[c['campsite_class_id']]
             site = {
                 'name': c['campsite_class__name'],
-                'id': None,
+                'id': c['pk'],
                 'type': c['campsite_class_id'],
                 'price': '${}'.format(sum(rate.values())) if not show_all else False,
                 'availability': [[True, '${}'.format(rate[start_date + timedelta(days=i)]), rate[start_date + timedelta(days=i)], None, [0, 0, 0]] for i in range(length)],
@@ -1091,11 +1093,12 @@ def campsite_availablity_view(request,  *args, **kwargs):
                     'campervan': c['campervan'],
                     'caravan': c['caravan']
                 },
-                'features': x['features'],
-                'min_people': x['min_people'],
-                'max_people': x['max_people'],
-                'max_vehicles': x['max_vehicles'],
-                'description': x['description']
+                'features': c['features'],
+                'min_people': c['min_people'],
+                'max_people': c['max_people'],
+                'max_vehicles': c['max_vehicles'],
+                'description': x['description'],
+                'short_description': c['short_description']
             }
             result['sites'].append(site)
             classes_map[c['campsite_class_id']] = site
@@ -1224,12 +1227,13 @@ def campsite_availablity_view(request,  *args, **kwargs):
                 'min_people': si['min_people'],
                 'max_people': si['max_people'],
                 'max_vehicles': si['max_vehicles'],
-                'description': si['description']
+                'description': si['description'],
+                'short_description': si['short_description']
             }
             result['sites'].append(site)
             bookings_map[si['name']] = site
             if si['campsite_class_id'] not in result['classes']:
-                result['classes'][si['id']] = si['campsite_class__name'] 
+                result['classes'][si['campsite_class_id']] = si['campsite_class__name'] 
 
         # update results based on availability map
         for s in sites_qs:
