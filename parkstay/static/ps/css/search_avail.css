@@ -103,3 +103,106 @@
 #search-filters {
        display:none;
 }
+
+/* Campsite Availablity */
+
+
+.product-box {
+    width: 300px; 
+    height: 360px; 
+    border: 1px solid rgba(188,188,188,0.73); 
+    background-color: #FFFFFF; 
+    margin: 5px; padding: 5px;
+    text-align: left;
+}
+
+.product-box-header {
+    height:40px;
+}
+
+.product-box-header h2 {
+    font-size:16px;
+    color: #0071c2;
+}
+
+.product-availablity {
+    margin-top: 4px; 
+    margin-bottom: 4px;  
+    height:95px; 
+    padding: 5px; 
+    background-color: #f7f7f7; 
+    border-radius: 4px;
+}
+
+.product-availablity-features {
+    border: 1px solid #949494; 
+    color:#000000; 
+    display:inline; 
+    font-size:10px; 
+    padding:3px; 
+    border-radius: 3px;
+}
+
+.product-availablity-short-description {
+   height:95px;
+}
+
+.product-availablity-selection-green {
+   color: #57ef31; 
+   font-size:40px;
+}
+
+.product-availablity-selection-red {
+    color:red; 
+    font-size:  40px;
+}
+
+.product-available-dates-box {
+    position:absolute; 
+    margin-left: 45px; 
+    margin-top: -52px; 
+    padding:10px; 
+    background-color: #FFFFFF; 
+    border: 1px solid #e0e0e0; 
+    border-radius:2px;
+    display: none;
+}
+
+.product-availablity-status:hover ~ .product-available-dates-box {
+	 display:block;
+ }
+
+.product-available-dates-box h4 {
+   font-size: 14px;
+}
+
+.product-available-date {
+   border: 1px solid #b7b7b7; 
+   color: #FFFFFF; 
+   text-align: center; 
+   font-size:10px;
+   width:15px;
+   padding:2px;
+}
+
+.product-available-date-avail {
+     background-color: #8ecc7a;
+
+}
+.product-available-date-noavail {
+      background-color:#ff5a5a;
+}
+
+.product-available-price-box {
+    text-align: right;
+}
+
+.product-available-price {
+    color: #008009; 
+    font-weight: bold; 
+    font-size: 20px;
+}
+
+.avail-font-bold {
+    font-weight:bold;
+}
