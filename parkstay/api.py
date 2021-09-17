@@ -971,8 +971,9 @@ def campsite_availablity_view(request,  *args, **kwargs):
 
     #campground_id):
     print ("CAMPSITE AVAIL 2")
-    import time
-    time.sleep(3)
+    
+    #import time
+    #time.sleep(3)
     """Fetch full campsite availability for a campground."""
     # check if the user has an ongoing booking
     ongoing_booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
@@ -1088,7 +1089,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
                 'id': c['pk'],
                 'type': c['campsite_class_id'],
                 'price': '${}'.format(sum(rate.values())) if not show_all else False,
-                'availability': [[True, '${}'.format(rate[start_date + timedelta(days=i)]), rate[start_date + timedelta(days=i)], None, [0, 0, 0]] for i in range(length)],
+                'availability': [[True, '${}'.format(rate[start_date + timedelta(days=i)]), rate[start_date + timedelta(days=i)], None, [0, 0, 0],(start_date + timedelta(days=i)).strftime('%Y-%m-%d')] for i in range(length)],
                 'breakdown': OrderedDict(),
                 'gearType': {
                     'tent': c['tent'],
@@ -1124,6 +1125,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
                 # update the days that are non-open
                 for offset, stat, closure_reason in [((k - start_date).days, v[0], v[1]) for k, v in availability[s['id']].items() if v[0] != 'open']:
                     # update the per-site availability
+
                     classes_map[key]['breakdown'][s['name']][offset][0] = False
                     classes_map[key]['breakdown'][s['name']][offset][1] = stat if show_all else 'Unavailable'
                     classes_map[key]['breakdown'][s['name']][offset][3] = closure_reason if show_all else None
@@ -1193,7 +1195,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
                 classes_map[k].update({
                     'id': v.pop(),
                     'price': '${}'.format(sum(rate.values())),
-                    'availability': [[True, '${}'.format(rate[start_date + timedelta(days=i)]), rate[start_date + timedelta(days=i)], [0, 0]] for i in range(length)],
+                    'availability': [[True, '${}'.format(rate[start_date + timedelta(days=i)]), rate[start_date + timedelta(days=i)], [0, 0],None,(start_date + timedelta(days=i)).strftime('%Y-%m-%d')] for i in range(length)],
                     'breakdown': []
                 })
 
@@ -1219,7 +1221,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
                 'type': ground['campground_type'],
                 'class': si['campsite_class_id'],
                 'price': '${}'.format(sum(rates[si['id']].values())) if not show_all else False,
-                'availability': [[True, '${}'.format(rates[si['id']][start_date + timedelta(days=i)]), rates[si['id']][start_date + timedelta(days=i)], None] for i in range(length)],
+                'availability': [[True, '${}'.format(rates[si['id']][start_date + timedelta(days=i)]), rates[si['id']][start_date + timedelta(days=i)], None,None,(start_date + timedelta(days=i)).strftime('%Y-%m-%d')] for i in range(length)],
                 'gearType': {
                     'tent': si['tent'],
                     'campervan': si['campervan'],

@@ -356,6 +356,7 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
         diff = (end - start).days
         for i in range(diff):
             for cs in campground_map[closure['campground']]:
+                theday = start + timedelta(days=i)
                 if start + timedelta(days=i) == today:
                     is_open = get_campground_booking_range_is_open(closure['campground'], start + timedelta(days=i))
                     if not is_open:

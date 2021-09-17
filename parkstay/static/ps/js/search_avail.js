@@ -361,8 +361,13 @@ var search_avail = {
             $.ajax({
             	  url: "/api/campsite_availablity_view/"+search_avail.var.campground_id+"/?arrival="+search_avail.var.camping_period['checkin']+"&departure="+search_avail.var.camping_period['checkout']+"&num_adult="+search_avail.var.campers['adult']+"&num_child="+search_avail.var.campers['children']+"&num_concession="+search_avail.var.campers['concession']+"&num_infant="+search_avail.var.campers['infant']+"&gear_type=tent",
             	  cache: false,
+		  error: function (request, status, error) {
+                        $("#campsite-availablity-results").html("<center><span style='color:red; font-weight:bold;'>Sorry, there was an error loading campsite information.</span></center>");
+		  },
             	  success: function(data) {
 			  var campsitehtml = "";
+			  var campsitehtmlbefore = "";
+			  var campsitehtmlafter = "";
 			  var campsitehtmlbox = "";
                           var campsites=data.sites;
                           for(let s = 0; s < campsites.length; s++) {
@@ -370,76 +375,97 @@ var search_avail = {
                                 var append_site = true;
 				var campsite_available = true;
 				var campsite_price = parseFloat('0.00');
+				var class_name = '';
 				for(let p = 0; p < campsites[s].availability.length; p++) {
                                          campsite_price = campsite_price + parseFloat(campsites[s].availability[p][2]);
 				         if (campsites[s].availability[p][0] == true) {
   
-					 }  else {
+					 } else {
                                                campsite_available = false;
 					 }
 
 			        }
 
-				campsitehtml = campsitehtml + "<div style='width:350px; height: 300px; border: 1px solid rgba(188,188,188,0.73); background-color: #FFFFFF; margin: 10px; padding: 10px; float: left;'>";
-				campsitehtml = campsitehtml + "<div style='height:40px;'><h2 style='font-size:16px;     color: #0071c2;'>"+campsites[s].name+" - "+data.classes[campsites[s].class]+"</h2></div>";
-				campsitehtml = campsitehtml + "<div>Min: "+campsites[s].min_people+" Max: "+campsites[s].max_people+"</div>";
+                                if (campsites[s].class)  {
+					class_name = " - "+data.classes[campsites[s].class]
+				}
+				campsitehtml = campsitehtml + "<div class='col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4 col-xxl-3'><center>";
+			        campsitehtml = campsitehtml + "<div class='product-box' >";
+				campsitehtml = campsitehtml + "<div class='product-box-header'><h2>"+campsites[s].name+" "+class_name+"</h2></div>";
+				campsitehtml = campsitehtml + "<div><i class='bi bi-person-fill'></i> "+campsites[s].min_people+" to "+campsites[s].max_people+" <img src='/static/ps/img/car.png' style='height:16px;'>  "+campsites[s].max_vehicles+" <img src='/static/ps/img/trailer.png' style='height:16px;'>  "+campsites[s].max_vehicles+"</div>";
 
-				campsitehtml = campsitehtml + "<div style='height:70px;'>";
+				campsitehtml = campsitehtml + "<div class='product-availablity'>";
 
 				for(let f = 0; f < campsites[s].features.length; f++) {
-					//campsitehtml = campsitehtml + "<button type='button' class='btn btn-outline-secondary btn-sm'>"+campsites[s].features[f].name+"</button>";
-					campsitehtml = campsitehtml + "<div style='border: 1px solid #949494; color:#000000; display:inline; font-size:10px; padding:3px; border-radius: 3px;'>"+campsites[s].features[f].name+"</div>";
+					campsitehtml = campsitehtml + "<div class='product-availablity-features'>"+campsites[s].features[f].name+"</div>";
 			 	}
 				    
 				campsitehtml = campsitehtml + "</div>";
-				campsitehtml = campsitehtml + "<div style='height:70px;'>"+campsites[s].short_description+"</div>";
+				campsitehtml = campsitehtml + "<div class='product-availablity-short-description'>"+campsites[s].short_description+"</div>";
 				campsitehtml = campsitehtml + "<div class='row'>";
 				campsitehtml = campsitehtml + "<div class='col-6'>";
 
 				if (campsite_available == true) {
-  				     campsitehtml = campsitehtml + "<i class='bi bi-check-square-fill' style='color: #57ef31; font-size:  40px;'></i>";
+  				     campsitehtml = campsitehtml + "<i class='bi bi-check-square-fill product-availablity-status product-availablity-selection-green' onfocus='search_avail.show_avail_by_day("+campsites[s].id+")'></i>";
 				} else {
-			             campsitehtml = campsitehtml + "<i class='bi bi-x-square-fill' style='color:red; font-size:  40px;'></i>";
+			             campsitehtml = campsitehtml + "<i class='bi bi-x-square-fill product-availablity-status product-availablity-selection-red' ></i>";
+				}
+                                 campsitehtml = campsitehtml + "<div id='campsite-availablity-by-day"+campsites[s].id+"' class='product-available-dates-box' >";
+				campsitehtml = campsitehtml + "<h4>Availablity</h4>";
+				campsitehtml = campsitehtml + "<table cellpadding='0' cellspacing='0' style=''><tr>";
+				var availloop =0;
+				for(let a = 0; a < campsites[s].availability.length; a++) {
+					var da =  campsites[s].availability[a][5];
+                                        var dasplit = da.split("-");
+					var avail_calender = 'product-available-date-noavail';
+                                        if (campsites[s].availability[a][0] == true) {
+						avail_calender = 'product-available-date-avail';
+					}
+                                        campsitehtml = campsitehtml + "<td class='product-available-date "+avail_calender+"'>"+dasplit[2]+"/"+dasplit[1]+"</td>";
+					availloop = availloop  + 1;
+					if (availloop > 4) {
+						campsitehtml = campsitehtml + "</tr><tr>";
+						availloop = 0;
+					}
 				}
 
-				campsitehtml = campsitehtml + "<table cellpadding='0' cellspacing='0' style='display:none'><tr>";
-				campsitehtml = campsitehtml + "<td style='border: 1px solid #b7b7b7; background-color:#ff5a5a; color: #FFFFFF; text-align: center; font-size:10px;width:15px;padding:2px;'>1</td>";
-	                        campsitehtml = campsitehtml + "<td style='border: 1px solid #b7b7b7; background-color:#8ecc7a; color: #FFFFFF; text-align: center; font-size:10px;width:15px;padding:2px;'>2</td>";
-			        campsitehtml = campsitehtml + "<td style='border: 1px solid #b7b7b7; background-color:#8ecc7a; color: #FFFFFF; text-align: center; font-size:10px;width:15px;padding:2px;'>3</td>";
-			        campsitehtml = campsitehtml + "<td style='border: 1px solid #b7b7b7; background-color:#8ecc7a; color: #FFFFFF; text-align: center; font-size:10px;width:15px;padding:2px;'>4</td>";
-				campsitehtml = campsitehtml + "<td style='border: 1px solid #b7b7b7; background-color:#8ecc7a; color: #FFFFFF; text-align: center; font-size:10px;width:15px;padding:2px;'>5</td>";
-				campsitehtml = campsitehtml + "<td style='border: 1px solid #b7b7b7; background-color:#8ecc7a; color: #FFFFFF; text-align: center; font-size:10px;width:15px;padding:2px;'>6</td>";
-				campsitehtml = campsitehtml + "<td style='border: 1px solid #b7b7b7; background-color:#8ecc7a; color: #FFFFFF; text-align: center; font-size:10px;width:15px;padding:2px;'>7</td>";
+				campsitehtml = campsitehtml + "</tr></table>";
+                                campsitehtml = campsitehtml + "</div>";
+				campsitehtml = campsitehtml + "</div>";
 
-				campsitehtml = campsitehtml + "<td style='border: 1px solid #b7b7b7; background-color:#ff5a5a; color: #FFFFFF; text-align: center; font-size:10px;width:15px;padding:2px;'>8</td>";
-				campsitehtml = campsitehtml + "<td style='border: 1px solid #b7b7b7; background-color:#8ecc7a; color: #FFFFFF; text-align: center; font-size:10px;width:15px;padding:2px;'>9</td>";
+                                campsitehtml = campsitehtml + "<div class='col-6 product-available-price-box'>";
+                                campsitehtml = campsitehtml + "<div class='product-available-price'>AUD: $"+campsite_price.toFixed(2)+"</div>";
 
-				campsitehtml = campsitehtml + "<td style='border: 1px solid #b7b7b7; background-color:#8ecc7a; color: #FFFFFF; text-align: center; font-size:10px;width:15px;padding:2px;'>10</td>";
-
-
-				campsitehtml = campsitehtml + "</tr></table></div>";
-                                campsitehtml = campsitehtml + "<div class='col-6'  style='text-align: right'>";
-                                campsitehtml = campsitehtml + "<div style='color: #008009; font-weight: bold; font-size: 20px;'>AUD: $"+campsite_price.toFixed(2)+"</div>";
 				if (campsite_available == true) {
                                     campsitehtml = campsitehtml + "<button type='button' class='btn btn-primary' id='bookingcampsite' >Book Now</button></div>";
 				} else {
-				    campsitehtml = campsitehtml + "<button type='button' class='btn btn-light' id='bookingcampsite' >Book Now</button></div>";
+				    campsitehtml = campsitehtml + "<button type='button' class='btn btn-light avail-font-bold' id='bookingcampsite' >Not Available</button></div>";
 				}
+
 				campsitehtml = campsitehtml + "</div>";
-			        campsitehtml = campsitehtml + "</div>";
+                                campsitehtml = campsitehtml + "</div>";
+				campsitehtml = campsitehtml + "</center></div>";
+			        // campsitehtml = campsitehtml + "</div>";
 
 				if (search_avail.var.campers['total_people'] >= campsites[s].min_people && search_avail.var.campers['total_people']  <= campsites[s].max_people) {
 				} else {
-					append_site = false;
+		                        append_site = false;
 				}
                                 
-
-
 				if (append_site == true) {
-					campsitehtmlbox = campsitehtmlbox + campsitehtml;
+					if (campsite_available == true) {
+   					     campsitehtmlbefore= campsitehtmlbefore + campsitehtml;
+					} else {
+                                             campsitehtmlafter= campsitehtmlafter + campsitehtml;
+					}
 				}
 		            }
-            		    $("#campsite-availablity-results").html(campsitehtmlbox);
+			    var campsiteresultserror = "";
+			    if (campsitehtmlbefore == '' && campsitehtmlafter == '' ) {
+				    campsiteresultserror = "<center><span style='color:red; font-weight:bold;'>Sorry, there was no results matching your filter selection.</span></center>";
+				
+		            }
+            		    $("#campsite-availablity-results").html("<div class='row align-items-center'>"+campsiteresultserror+campsitehtmlbefore+campsitehtmlafter+"</div>");
          	  }
             });
 
@@ -450,9 +476,7 @@ var search_avail = {
 
 
 
-
     },
-
     eventPath: function(evt) {
     var path = (evt.composedPath && evt.composedPath()) || evt.path,
         target = evt.target;
