@@ -348,7 +348,10 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     #)
     for closure in cgbr_qs:
         closure_range_start = datetime.strptime(closure['range_start'], "%Y-%m-%d").date()
-        closure_range_end  = datetime.strptime(closure['range_end'], "%Y-%m-%d").date()
+        if closure['range_end']:
+            closure_range_end  = datetime.strptime(closure['range_end'], "%Y-%m-%d").date()
+        else:
+            closure_range_end  = end_date
         start = max(start_date, closure_range_start)
         end = min(end_date, closure_range_end) if closure_range_end else end_date
         today = date.today()
