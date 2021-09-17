@@ -114,16 +114,26 @@
     background-color: #FFFFFF; 
     margin: 5px; padding: 5px;
     text-align: left;
+    border-radius: 3px;
+    box-shadow: 1px 1px 5px 2px #c3c3c3;
 }
 
 .product-box-header {
     height:40px;
 }
 
+
 .product-box-header h2 {
     font-size:16px;
-    color: #0071c2;
 }
+.product-box-header-avail h2 {
+    color: #00ad35;
+}
+
+.product-box-header-noavail h2 {
+    color: #ff0000;   
+}
+
 
 .product-availablity {
     margin-top: 4px; 
@@ -197,10 +207,17 @@
     text-align: right;
 }
 
-.product-available-price {
-    color: #008009; 
+.product-available-price-avail {
+    color: #57ef31; 
     font-weight: bold; 
     font-size: 20px;
+}
+
+.product-available-price-noavail {
+    color: #ff0000;
+    font-weight: bold;
+    font-size: 20px;
+
 }
 
 .avail-font-bold {
