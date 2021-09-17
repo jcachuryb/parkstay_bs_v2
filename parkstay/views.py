@@ -449,11 +449,24 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['campground']['largest_camper'] = max_people
         context['cg']['campground']['largest_vehicle'] = max_vehicles
 
+
+        context['cg']['campground_notices_red'] = 0
+        context['cg']['campground_notices_orange'] = 0
+        context['cg']['campground_notices_blue'] = 0
+
         campground_notices_query = CampgroundNotice.objects.filter(campground_id=campground_id)
         
         campground_notices_array = []
         for cnq in campground_notices_query:
-               campground_notices_array.append({'id': cnq.id, 'message': cnq.message})
+               if cnq.notice_type == 0:
+                   context['cg']['campground_notices_red'] = context['cg']['campground_notices_red'] + 1
+               if cnq.notice_type == 1:
+                   context['cg']['campground_notices_orange'] = context['cg']['campground_notices_orange'] + 1
+
+               if cnq.notice_type == 2:
+                   context['cg']['campground_notices_blue'] = context['cg']['campground_notices_blue'] + 1
+
+               campground_notices_array.append({'id': cnq.id, 'notice_type' : cnq.notice_type,'message': cnq.message})
 
         features_obj = []
         context['cg']['campground_notices'] = campground_notices_array

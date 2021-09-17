@@ -399,7 +399,14 @@ class Campground(models.Model):
 
 
 class CampgroundNotice(models.Model):
+
+       NOTICE_TYPE = ((0,'Red Warning'),
+                      (1,'Orange Warning'),
+                      (2,'Blue Warning'),
+                     )
+
        campground = models.ForeignKey(Campground, related_name='campground_notice', on_delete=models.CASCADE)
+       notice_type = models.IntegerField(choices=NOTICE_TYPE,default=0)
        message = models.CharField(max_length=70, null=True, blank=True, default='')
        created = models.DateTimeField(auto_now_add=True)
 
