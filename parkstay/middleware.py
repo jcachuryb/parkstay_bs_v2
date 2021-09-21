@@ -59,8 +59,6 @@ class CacheControl(object):
             self.get_response = get_response
 
     def __call__(self, request):
-       #print ("PATH 1")
-       #print (request.path)
 
        response= self.get_response(request)
        if request.path == '/map/':
@@ -72,7 +70,7 @@ class CacheControl(object):
        elif request.path[:5] == '/api/':
             response['Cache-Control'] = 'public, max-age=60'
        elif request.path[:8] == '/static/':
-            response['Cache-Control'] = 'public, max-age=60'
+            response['Cache-Control'] = 'public, max-age=3600'
        else:
             response['Cache-Control'] = 'private, no-store'
        return response
