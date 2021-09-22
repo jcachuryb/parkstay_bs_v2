@@ -12,7 +12,7 @@ def get_features():
     features_array = {}
     features = models.Feature.objects.all()
     for f in features:
-         features_array[f.id] = {'name': f.name, 'description': f.description, 'type': f.type }
+         features_array[f.id] = {'id': f.id, 'name': f.name, 'description': f.description, 'type': f.type }
     return features_array
     
 

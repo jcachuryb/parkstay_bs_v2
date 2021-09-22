@@ -20,7 +20,6 @@
 
 {% block content %}
 
-
 <!-- https://cssbuttoncreator.com/ -->
 <script>
 
@@ -37,6 +36,11 @@ window.onload = function() {
    search_avail.get_places(); 
    search_avail.init_dateselection();	
    search_avail.init();
+   $(".filter-features").click(function() {
+       console.log("Filters Updated (Reloading)");
+       search_avail.load_campsite_availabilty();
+   });
+
    console.log('loaded');
 
 }
@@ -214,6 +218,7 @@ window.onload = function() {
                          </div>
                  </div>
 <style>
+
 .plus-minus-counter {
   font-size: 30px; 
   color: #4c4343;
@@ -340,20 +345,15 @@ window.onload = function() {
 
 							</div>
 
-
-
                                                         </div>
-
 						</div>
-                                        </div>
+                                           </div>
                                       </div>
                                 </div>
                          </div>
                   </div>
 
-
-
-                 <div class="round-box col-12 px-3">
+                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
                                     <h5>Vehicle(s)</h5>
@@ -365,7 +365,7 @@ window.onload = function() {
                                         <div class="col-sm-12 col-md-12">
                                                 <div id='region-park-avail-selection-outer' class='form-control selection-dropdown' style="cursor: pointer; " onclick="search_avail.vehicle_toggle();">
                                                          <div class='selection-informbox'>
-                                                                  <span >
+                                                                  <span>
 									  <i class='bi-speedometer'></i></span> <span id='vehicle-selection-inner-text'> &nbsp;0 cars , 0 campervans, 0 motor cycles, 0 trailers </span> <span><i class="bi-caret-down-fill" ></i></span>
                                                          </div>
                                                 </div>
@@ -437,7 +437,7 @@ window.onload = function() {
                  </div>
 
 
-                 <div id='search-filtersi' class="round-box col-12 px-3">
+                 <div id='search-filters-campsites' class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
                                  <h5></h5>
@@ -503,13 +503,10 @@ window.onload = function() {
 		  </form>
 
                   <div id='campsite-availablity' class="round-box col-12 px-3" istyle='float:left; '>
-                          <div class="col-12" id='campsite-availablity-results' >
-
-                              Campsites
+                          <div class="col-12" id='campsite-availablity-results'>
+                                Campsites
   		          </div>
 		  </div>
-
-
 
 		  <div class="col-12" style='display:none'>
 			<div class="col-12" align='right'>
@@ -524,10 +521,10 @@ window.onload = function() {
 <br>
 <br>
 
-
 <script type="module">
 //	import Map from 'ol/Map';
 //	console.log(Map);
 </script>
+
 {% endblock %}
 
