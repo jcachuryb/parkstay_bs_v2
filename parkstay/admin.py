@@ -52,6 +52,7 @@ class CampgroundNoticeInline(admin.TabularInline):
 class CampsiteInline(admin.TabularInline):
     model = models.Campsite
     extra = 0
+    exclude = ['wkb_geometry',]
 
 @admin.register(models.Campground)
 class CampgroundAdmin(admin.GeoModelAdmin):
