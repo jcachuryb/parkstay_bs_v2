@@ -448,7 +448,10 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['campground']['name'] = campground_query.name
         context['cg']['campground']['largest_camper'] = max_people
         context['cg']['campground']['largest_vehicle'] = max_vehicles
-
+        context['cg']['campground']['park'] = {}
+        context['cg']['campground']['park']['id'] = campground_query.park.id
+        context['cg']['campground']['park']['alert_count'] = campground_query.park.alert_count
+        context['cg']['campground']['park']['alert_url'] = settings.ALERT_URL
 
         context['cg']['campground_notices_red'] = 0
         context['cg']['campground_notices_orange'] = 0

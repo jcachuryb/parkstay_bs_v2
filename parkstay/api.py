@@ -959,6 +959,7 @@ def get_campground(campground_id):
                 cg_hash['long_description']  = ground.long_description
                 cg_hash['campground_map_url'] = ''
                 cg_hash['campground_map'] = ''
+
                 if ground.campground_map:
                    cg_hash['campground_map_url'] = ground.campground_map.url
                    cg_hash['campground_map'] = {'path': ground.campground_map.path}
@@ -1043,6 +1044,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     result = {
         'id': ground['id'],
         'name': ground['name'],
+        'site_type': ground['site_type'],
         'long_description': ground['long_description'],
         'map': ground['campground_map_url'] if ground['campground_map'] else None,
         'ongoing_booking': True if ongoing_booking else False,
