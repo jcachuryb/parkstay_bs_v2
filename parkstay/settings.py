@@ -123,3 +123,5 @@ if len(GIT_COMMIT_HASH) == 0:
     if len(GIT_COMMIT_HASH) == 0:
        print ("ERROR: No git hash provided")
 LEDGER_TEMPLATE = 'bootstrap5'
+
+ALERT_URL=env('ALERT_URL','')

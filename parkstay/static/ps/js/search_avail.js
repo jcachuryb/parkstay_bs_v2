@@ -332,8 +332,6 @@ var search_avail = {
                         search_avail.select_region(search_results[0]['id'],search_results[0]['name'], search_results[0]['coord_1'], search_results[0]['coord_2'], search_avail.var.places[i].zoom_level);
                         // $('#region-park-selection').html(search_results[0]['name']);
                 }
-
-
             } else {
                 // Create list for dropdown
                 var search_results_html = "";
@@ -349,11 +347,8 @@ var search_avail = {
 
                                search_results[i]['name'] = search_results[i]['name'].replace(sp, "<span>"+sr[s]+"</span>");
                         }
-                        // search_results[i]['name']
                         if (rowcount < 15) {
-                            // var search_pattern = RegExp(element_value, 'gi');
-                            // search_results[i]['name'] = search_results[i]['name'].replace(search_pattern, "<span>"+element_value+"</span>");
-                        search_results_html += "<div id='search_dropdown_item_"+rowcount+"' onclick='search_avail.select_region("+search_results[i]['id']+","+'"'+search_results[i]['name']+'"'+","+'"'+search_results[i]['coord_1']+'"'+","+'"'+search_results[i]['coord_2']+'"'+","+'"'+search_results[i]['zoom_level']+'"'+");'  class='search_dropdown_item_outer'><div class='search_dropdown_item_inner'>"+search_results[i]['name']+"</div></div>";
+                        	search_results_html += "<div id='search_dropdown_item_"+rowcount+"' onclick='search_avail.select_region("+search_results[i]['id']+","+'"'+search_results[i]['name']+'"'+","+'"'+search_results[i]['coord_1']+'"'+","+'"'+search_results[i]['coord_2']+'"'+","+'"'+search_results[i]['zoom_level']+'"'+");'  class='search_dropdown_item_outer'><div class='search_dropdown_item_inner'>"+search_results[i]['name']+"</div></div>";
                             rowcount = rowcount + 1;
                         }
                 }
@@ -362,6 +357,36 @@ var search_avail = {
                 $('#'+element_id).after("<div id='ps_search_dropdown' class='search_dropdown'><div class='col-sm-12'>"+search_results_html+"</div></div>");
                 }
             }
+    },
+    create_booking: function(button_element) {
+	   var databutton = $(button_element).attr('data-button');
+	   var button_data = $.parseJSON(databutton);
+           var post_data = {};
+
+	   if (button_data['site_type'] == 0) { 
+		post_data = {"arrival": search_avail.var.camping_period['checkin'],"departure":search_avail.var.camping_period['checkout'],"num_adult": 2,"num_child":0,"num_concession": 0,"num_infant": 0,"campsite": button_data['campsite_id']}
+	   } else {
+		post_data = {"arrival": search_avail.var.camping_period['checkin'],"departure":search_avail.var.camping_period['checkout'],"num_adult": 2,"num_child":0,"num_concession": 0,"num_infant": 0,"campground": button_data['campground_id'], 'campsite_class': button_data['campsite_class_id']}
+		   // campsite_class: 75
+	   }
+
+           $.ajax({
+		   url: "/api/create_booking/",
+		   cache: false,
+		   type: "POST",
+		   data: post_data,
+		   error: function (request, status, error) {
+		 	console.log("Error initing booking creation");	
+		   },
+		   success: function(data) {
+                          if (data['status'] == 'success') {
+				window.location = "/booking/";
+		          } else {
+				console.log("Error");
+			  }
+		   },
+           });
+
     },
     load_campsite_availabilty: function() { 
 
@@ -401,6 +426,8 @@ var search_avail = {
 			  var campsitehtmlbefore = "";
 			  var campsitehtmlafter = "";
 			  var campsitehtmlbox = "";
+			  var site_type= data.site_type;
+			  var campground_id = data.id;
                           var campsites=data.sites;
                           for (let s = 0; s < campsites.length; s++) {
 				campsitehtml = "";
@@ -475,7 +502,15 @@ var search_avail = {
                                 campsitehtml = campsitehtml + "<div class='"+priceavail+"'>AUD: $"+campsite_price.toFixed(2)+"</div>";
 
 				if (campsite_available == true) {
-                                    campsitehtml = campsitehtml + "<button type='button' class='btn btn-success' id='bookingcampsite' >Book Now</button></div>";
+				    var key_id= 0;
+				    if (campsites[s].site_type == 0) { 
+                                        key_id = campsites[s].id;
+			            } else {
+				        key_id = campground_id; 
+                                    }
+                                    var buttondata = {"site_type": site_type, "campsite_id": campsites[s].id, "campground_id": campground_id, "campsite_class_id": campsites[s].type};
+                                    var databutton = JSON.stringify(buttondata);
+                                    campsitehtml = campsitehtml + "<button type='button' class='btn btn-success' id='bookingcampsite' data-button='"+databutton+"'   onclick='search_avail.create_booking(this)' +key_id++site_type+ >Book Now</button></div>";
 				} else {
 				    campsitehtml = campsitehtml + "<button type='button' class='btn btn-danger avail-font-bold' id='bookingcampsite' >Not Available</button></div>";
 				}
@@ -492,7 +527,6 @@ var search_avail = {
 
 
 				if (append_site == true) {
-
                                      var gearType = campsites[s].gearType;
                                      
                                      if (tents == true && gearType.tent == false) {
@@ -506,7 +540,6 @@ var search_avail = {
                                      if (campertrailer == true && gearType.caravan == false) {
                                                 append_site = false;
                                      }
-
                                  }
 
                                  if (append_site == true) {

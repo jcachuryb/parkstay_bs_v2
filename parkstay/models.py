@@ -79,10 +79,12 @@ class Park(models.Model):
     name = models.CharField(max_length=255)
     district = models.ForeignKey('District', null=True, on_delete=models.PROTECT)
     ratis_id = models.IntegerField(default=-1)
+    alert_count = models.IntegerField(default=0)
     entry_fee_required = models.BooleanField(default=True)
     oracle_code = models.CharField(max_length=50, null=True, blank=True)
     wkb_geometry = models.PointField(srid=4326, blank=True, null=True)
     zoom_level = models.IntegerField(choices=ZOOM_LEVEL,default=-1)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return '{} - {}'.format(self.name, self.district)
