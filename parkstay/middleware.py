@@ -59,8 +59,8 @@ class CacheControl(object):
             self.get_response = get_response
 
     def __call__(self, request):
-
        response= self.get_response(request)
+       response['Cache-Control-Override'] = "TrueII"
        if request.path == '/map/':
             response['Cache-Control'] = 'public, max-age=60'
        elif request.path[:17] == '/campground-image':

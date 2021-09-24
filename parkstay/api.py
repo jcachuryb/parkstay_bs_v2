@@ -1059,13 +1059,16 @@ def campsite_availablity_view(request,  *args, **kwargs):
         'classes': {},
     }
     # group results by campsite class
-    #print ("GROUND TYPE")
-    #print (ground.site_type)
     if ground['site_type'] in (1, 2):
         # from our campsite queryset, generate a distinct list of campsite classes
         classes = []
+        classes_added =[]
         for x in sites_qs:
-            classes.append({'pk': x['id'], 'campsite_class_id': x['campsite_class_id'], 'campsite_class__name': x['campsite_class__name'], 'tent': x['tent'] , 'campervan': x['campervan'], 'caravan': x['caravan'], 'features': x['features'], 'short_description': x['short_description'], 'min_people': x['min_people'], 'max_people': x['max_people'], 'max_vehicles': x['max_vehicles']})
+            if x['campsite_class_id'] in classes_added:
+                pass
+            else:
+                classes.append({'pk': x['id'], 'campsite_class_id': x['campsite_class_id'], 'campsite_class__name': x['campsite_class__name'], 'tent': x['tent'] , 'campervan': x['campervan'], 'caravan': x['caravan'], 'features': x['features'], 'short_description': x['short_description'], 'min_people': x['min_people'], 'max_people': x['max_people'], 'max_vehicles': x['max_vehicles']})
+                classes_added.append(x['campsite_class_id'])
         #classes = [x for x in sites_qs.distinct('campsite_class__name').order_by('campsite_class__name').values_list('pk', 'campsite_class', 'campsite_class__name', 'tent', 'campervan', 'caravan')]
         classes_map = {}
         bookings_map = {}

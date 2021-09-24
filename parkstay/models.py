@@ -83,7 +83,7 @@ class Park(models.Model):
     entry_fee_required = models.BooleanField(default=True)
     oracle_code = models.CharField(max_length=50, null=True, blank=True)
     wkb_geometry = models.PointField(srid=4326, blank=True, null=True)
-    zoom_level = models.IntegerField(choices=ZOOM_LEVEL,default=-1)
+    zoom_level = models.IntegerField(choices=ZOOM_LEVEL,default=0)
     active = models.BooleanField(default=True)
 
     def __str__(self):

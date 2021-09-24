@@ -50,7 +50,6 @@ def get_campsites_for_campground(ground, gear_type):
         cache.set('booking_availability.get_campsites_for_campground:'+str(ground['id']), json.dumps(sites_array),  86400)
     else:
         sites_array = json.loads(cached_data)
-        
     cs_rows = []
     for cs in sites_array:
          row = {}

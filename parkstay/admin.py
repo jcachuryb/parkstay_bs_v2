@@ -49,6 +49,10 @@ class CampgroundNoticeInline(admin.TabularInline):
     model = models.CampgroundNotice
     extra = 0
 
+class CampsiteInline(admin.TabularInline):
+    model = models.Campsite
+    extra = 0
+
 @admin.register(models.Campground)
 class CampgroundAdmin(admin.GeoModelAdmin):
     list_display = ('name', 'park', 'promo_area', 'campground_type', 'site_type', 'max_advance_booking')
@@ -56,7 +60,7 @@ class CampgroundAdmin(admin.GeoModelAdmin):
     search_fields = ('name',)
     list_filter = ('campground_type', 'site_type')
     openlayers_url = 'https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js'
-    inlines = [CampgroundNoticeInline,]
+    inlines = [CampgroundNoticeInline,CampsiteInline]
 
 #from django.forms.models import BaseInlineFormSet, ModelForm
 #class AlwaysChangedModelForm(ModelForm):
