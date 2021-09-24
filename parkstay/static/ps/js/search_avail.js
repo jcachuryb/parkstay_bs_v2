@@ -608,11 +608,18 @@ var search_avail = {
 
     return [target].concat(getParents(target), window);
     },
-
-
+    bellflash: function() {
+	    var current_class = $('#bell-flash').attr("class");
+	    if (current_class == 'bi-bell-fill') {
+		$("#bell-flash").attr("class","bi-bell");
+	    } else {
+		$("#bell-flash").attr("class","bi-bell-fill");
+	    }
+	    setTimeout("search_avail.bellflash();",1000);
+    },
     init: function() {
 	 var enodes = [];
-
+         search_avail.bellflash();
          $(document).click(function(event) {
 		  var closedropdowns = true;
          	  var $target = $(event.target);
