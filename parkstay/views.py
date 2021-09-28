@@ -201,7 +201,13 @@ class MakeBookingsView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         # TODO: find campsites related to campground
-        booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
+        booking = None
+        if 'ps_booking' in request.session:
+            if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
+                booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
+
+
+        #booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
         form_context = {
             'num_adult': booking.details.get('num_adult', 0) if booking else 0,
             'num_concession': booking.details.get('num_concession', 0) if booking else 0,
@@ -222,7 +228,13 @@ class MakeBookingsView(TemplateView):
 
 
     def post(self, request, *args, **kwargs):
-        booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
+
+        booking = None
+        if 'ps_booking' in request.session:
+            if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
+                booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
+
+        #booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
         if request.user.is_anonymous:
             form = AnonymousMakeBookingsForm(request.POST)
         else:
