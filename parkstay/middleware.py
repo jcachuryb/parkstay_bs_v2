@@ -60,7 +60,6 @@ class CacheControl(object):
 
     def __call__(self, request):
        response= self.get_response(request)
-       response['Cache-Control-Override'] = "TrueII"
        if request.path == '/map/':
             response['Cache-Control'] = 'public, max-age=60'
        elif request.path[:17] == '/campground-image':
@@ -68,7 +67,8 @@ class CacheControl(object):
        elif request.path[:31] == '/api/campsite_availablity_view/':
             response['Cache-Control'] = 'private, no-store'
        elif request.path[:5] == '/api/':
-            response['Cache-Control'] = 'public, max-age=60'
+            response['Cache-Control'] = 'private, no-store'
+            #response['Cache-Control'] = 'public, max-age=60'
        elif request.path[:8] == '/static/':
             response['Cache-Control'] = 'public, max-age=3600'
        else:
