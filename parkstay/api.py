@@ -981,6 +981,8 @@ def campsite_availablity_view(request,  *args, **kwargs):
     if 'ps_booking' in request.session:
         if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
             ongoing_booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
+        else:
+            del request.session['ps_booking']
 
     campground_id = kwargs.get('campground_id', None)
     show_all = False

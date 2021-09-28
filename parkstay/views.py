@@ -233,6 +233,8 @@ class MakeBookingsView(TemplateView):
         if 'ps_booking' in request.session:
             if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
                 booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
+            else:
+                del request.session['ps_booking']
 
         #booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
         if request.user.is_anonymous:
