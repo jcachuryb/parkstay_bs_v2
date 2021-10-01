@@ -151,7 +151,7 @@ window.onload = function() {
 							 </div>
 						</div>
 					</div>
-				      </div>
+				    </div>
 				</div>
 		         </div>
 		  </div>
@@ -168,40 +168,42 @@ window.onload = function() {
 
 <!--- STARTING -->
 	<div class="col-sm-12 col-md-6">
-<div class="col-sm-12 ">
-	<div class="col-sm-12 ">
+            <div class="col-sm-12 ">
+          	<div class="col-sm-12 ">
 
-	<div class='row' style='padding-bottom:5px;'>
-		<div class="col-xs-6 col-lg-6 text-start">
+	        <div class='row' style='padding-bottom:5px;'>
+		    <div class="col-xs-6 col-lg-6 text-start">
 			<div class="d-grid gap-2 d-block d-sm-none">
                                 <button type="button" class="btn btn-success btn-sm" onclick="search_avail.select_days_earlier(1)">One day earlier</button>
 			</div>
 			<div class="d-none d-sm-block">
 				<button type="button" class="btn btn-success btn-sm" onclick="search_avail.select_days_earlier(1)">One day earlier</button>
 			</div>
-		</div> 
-		<div class="col-xs-6 col-lg-6 text-end">
+		     </div> 
+		     <div class="col-xs-6 col-lg-6 text-end">
 			<div class="d-grid gap-2 d-block d-sm-none">
 				<button type="button" onclick="search_avail.select_days_later(1)" class="btn btn-success btn-sm">One day later</button>
 			</div>
 			<div class="d-none d-sm-block">
 			     <button type="button" onclick="search_avail.select_days_later(1)" class="btn btn-success btn-sm">One day later</button>
 			</div>
-		</div> 
+		     </div> 
+	        </div>
 	</div>
-	</div>
+
 	<div class="col-sm-12 ">
-<div id="when-date-range" class='form-control' style="cursor: pointer; ">
-    <div class='selection-informbox'>
-           <i class='bi-calendar3' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
-           <span id='when-dates'></span> 
-           <span> (<span id='when-nights'></span> nights)</span>
-           &nbsp;&nbsp;<i class='bi-caret-down-fill' ddclass="glyphicon glyphicon-triangle-bottom"></i>
-           </div>
-           <div id='form-vars' style='display:none'>
-           <input id='checkin' > <input id='checkout' >
-           </div>
-    </div>
+             <div id="when-date-range" class='form-control' style="cursor: pointer; ">
+                <div class='selection-informbox'>
+                    <i class='bi-calendar3' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
+                    <span id='when-dates'></span> 
+                    <span> (<span id='when-nights'></span> nights)</span>
+                    &nbsp;&nbsp;<i class='bi-caret-down-fill' ddclass="glyphicon glyphicon-triangle-bottom"></i>
+                </div>
+		
+                <div id='form-vars' style='display:none'>
+                    <input id='checkin' > <input id='checkout' >
+                </div>
+        </div>
     <!-- http://www.daterangepicker.com/#example4 -->
 </div>
 </div>

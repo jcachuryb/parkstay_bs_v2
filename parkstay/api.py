@@ -1753,6 +1753,12 @@ def create_booking(request, *args, **kwargs):
         'num_concession': request.POST.get('num_concession', 0),
         'num_child': request.POST.get('num_child', 0),
         'num_infant': request.POST.get('num_infant', 0),
+
+        'num_vehicle' : request.POST.get('num_vehicle',0),
+        'num_campervan' : request.POST.get('num_campervan',0),
+        'num_motorcycle' : request.POST.get('num_motorcycle',0),
+        'num_trailer' : request.POST.get('num_trailer',0),
+
         'campground': request.POST.get('campground', 0),
         'campsite_class': request.POST.get('campsite_class', 0),
         'campsite': request.POST.get('campsite', 0)
@@ -1771,14 +1777,27 @@ def create_booking(request, *args, **kwargs):
     num_child = serializer.validated_data['num_child']
     num_infant = serializer.validated_data['num_infant']
 
+    num_vehicle = serializer.validated_data['num_vehicle']
+    num_campervan = serializer.validated_data['num_campervan']
+    num_motorcycle = serializer.validated_data['num_motorcycle']
+    num_trailer = serializer.validated_data['num_trailer']
+
+
+
     if 'ps_booking' in request.session:
+        # Delete booking and start again
+        booking_id = request.session['ps_booking']
+        if Booking.objects.filter(id=booking_id, booking_type=3).count() > 0:
+              Booking.objects.get(id=booking_id).delete()
+        request.session['ps_booking'] = None
+
         # if there's already a booking in the current session, send bounce signal
-        messages.success(request, 'Booking already in progress, complete this first!')
-        return HttpResponse(geojson.dumps({
-            'status': 'success',
-            'msg': 'Booking already in progress.',
-            'pk': request.session['ps_booking']
-        }), content_type='application/json')
+        #messages.success(request, 'Booking already in progress, complete this first!')
+        #return HttpResponse(geojson.dumps({
+        #    'status': 'success',
+        #    'msg': 'Booking already in progress.',
+        #    'pk': request.session['ps_booking']
+        #}), content_type='application/json')
 
     # for a manually-specified campsite, do a sanity check
     # ensure that the campground supports per-site bookings and bomb out if it doesn't
@@ -1802,15 +1821,18 @@ def create_booking(request, *args, **kwargs):
             booking = utils.create_booking_by_site(
                 Campsite.objects.filter(id=campsite), start_date, end_date,
                 num_adult, num_concession,
-                num_child, num_infant
+                num_child, num_infant, num_vehicle, num_campervan, num_motorcycle, num_trailer
             )
         else:
             booking = utils.create_booking_by_class(
                 campground, campsite_class,
                 start_date, end_date,
                 num_adult, num_concession,
-                num_child, num_infant
+                num_child, num_infant,
+                num_vehicle, num_campervan, 
+                num_motorcycle, num_trailer
             )
+
     except ValidationError as e:
         if hasattr(e, 'error_dict'):
             error = repr(e.error_dict)

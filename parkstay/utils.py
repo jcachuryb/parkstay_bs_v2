@@ -31,7 +31,7 @@ from ledger_api_client.utils import Order
 logger = logging.getLogger('booking_checkout')
 
 
-def create_booking_by_class(campground_id, campsite_class_id, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0):
+def create_booking_by_class(campground_id, campsite_class_id, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, num_vehicle=0,num_motorcycle=0,num_campervan=0,num_trailer=0):
     """Create a new temporary booking in the system."""
     # get campground
     campground = Campground.objects.get(pk=campground_id)
@@ -86,7 +86,11 @@ def create_booking_by_class(campground_id, campsite_class_id, start_date, end_da
                 'num_adult': num_adult,
                 'num_concession': num_concession,
                 'num_child': num_child,
-                'num_infant': num_infant
+                'num_infant': num_infant,
+                'num_vehicle': num_vehicle,
+                'num_campervan' : num_campervan,
+                'num_motorcycle' : num_motorcycle,
+                'num_trailer' : num_trailer
             },
             expiry_time=timezone.now() + timedelta(seconds=settings.BOOKING_TIMEOUT),
             campground=campground
@@ -103,7 +107,7 @@ def create_booking_by_class(campground_id, campsite_class_id, start_date, end_da
     return booking
 
 
-def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, cost_total=0, override_price=None, override_reason=None, override_reason_info=None, send_invoice=False, overridden_by=None, customer=None, updating_booking=False, override_checks=False,  do_not_send_invoice=False,old_booking=None):
+def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0,num_vehicle=0,num_campervan=0,num_motorcycle=0,num_trailer=0, cost_total=0, override_price=None, override_reason=None, override_reason_info=None, send_invoice=False, overridden_by=None, customer=None, updating_booking=False, override_checks=False,  do_not_send_invoice=False,old_booking=None):
     """Create a new temporary booking in the system for a set of specific campsites."""
 
     # the CampsiteBooking table runs the risk of a race condition,
@@ -150,7 +154,12 @@ def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_conc
                 'num_adult': num_adult,
                 'num_concession': num_concession,
                 'num_child': num_child,
-                'num_infant': num_infant
+                'num_infant': num_infant,
+                'num_vehicle': num_vehicle,
+                'num_campervan' : num_campervan,
+                'num_motorcycle' : num_motorcycle,
+                'num_trailer' : num_trailer
+
             },
             cost_total=cost_total,
             override_price=Decimal(override_price) if (override_price is not None) else None,

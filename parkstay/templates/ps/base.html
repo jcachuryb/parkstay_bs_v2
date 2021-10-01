@@ -46,17 +46,17 @@ MENU 2
 
 
 {% block menu_items_left %}
-
+            {% if request.user.is_authenticated %}
+                  <li class="nav-item"><a class="nav-link active" href="{% url 'public_my_bookings'%}">My Bookings</a></li>
+            {% endif %}
             {% if request.user.is_staff %}
             <li class="nav-item"><a class="nav-link active" href="{% url 'dash-campgrounds'%}">Campgrounds</a></li>
             <li class="nav-item"><a class="nav-link active" href="{% url 'dash-campsite-types'%}">Camp Site Types</a></li>
             <li class="nav-item"><a class="nav-link active" href="{% url 'dash-bulkpricing'%}">Bulk Pricing</a></li>
             <li class="nav-item"><a class="nav-link active" href="{% url 'dash-bookings'%}">Existing Bookings</a></li>
             <li class="nav-item"><a class="nav-link active" href="{% url 'search_availablity_information'%}">Search for a place to stay</a></li>
-            <li class="nav-item"><a class="nav-link active" href="/map/">Map</a></li>
             {% else %}
             <li class="nav-item"><a class="nav-link active" href="{% url 'search_availablity_information'%}">Search for a place to stay</a></li>
-            <li class="nav-item"><a class="nav-link active" href="{{EXPLORE_PARKS_SEARCH}}">Search for a place to stay</a></li>
             {% endif %}
 
 

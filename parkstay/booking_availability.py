@@ -6,6 +6,8 @@ from django.db.models import Q
 from django.conf import settings
 from django.core.cache import cache
 from parkstay.helpers import is_officer
+from django.db.models import Max
+
 import json
 
 def get_features():
@@ -459,4 +461,42 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
         pass
 
     return results
+
+
+def campground_booking_information(context, campground_id):
+
+        campground_query = models.Campground.objects.get(id=campground_id)
+        max_people = models.Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_people'))["max_people__max"]
+        max_vehicles = models.Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_vehicles'))["max_vehicles__max"]
+
+        context['cg']['campground']['id'] = campground_query.id
+        context['cg']['campground']['name'] = campground_query.name
+        context['cg']['campground']['largest_camper'] = max_people
+        context['cg']['campground']['largest_vehicle'] = max_vehicles
+        context['cg']['campground']['park'] = {}
+        context['cg']['campground']['park']['id'] = campground_query.park.id
+        context['cg']['campground']['park']['alert_count'] = campground_query.park.alert_count
+        context['cg']['campground']['park']['alert_url'] = settings.ALERT_URL
+
+        context['cg']['campground_notices_red'] = 0
+        context['cg']['campground_notices_orange'] = 0
+        context['cg']['campground_notices_blue'] = 0
+
+        campground_notices_query = models.CampgroundNotice.objects.filter(campground_id=campground_id)
+
+        campground_notices_array = []
+        for cnq in campground_notices_query:
+               if cnq.notice_type == 0:
+                   context['cg']['campground_notices_red'] = context['cg']['campground_notices_red'] + 1
+               if cnq.notice_type == 1:
+                   context['cg']['campground_notices_orange'] = context['cg']['campground_notices_orange'] + 1
+               if cnq.notice_type == 2:
+                   context['cg']['campground_notices_blue'] = context['cg']['campground_notices_blue'] + 1
+
+               campground_notices_array.append({'id': cnq.id, 'notice_type' : cnq.notice_type,'message': cnq.message})
+
+        features_obj = []
+        context['cg']['campground_notices'] = campground_notices_array
+
+        return context
 

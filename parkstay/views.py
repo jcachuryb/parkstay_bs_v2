@@ -45,6 +45,7 @@ from django.db.models import Max
 
 from parkstay.helpers import is_officer
 from parkstay import utils
+from parkstay import booking_availability
 import json
 
 logger = logging.getLogger('booking_checkout')
@@ -166,6 +167,46 @@ class MakeBookingsView(TemplateView):
     def render_page(self, request, booking, form, vehicles, show_errors=False):
         # for now, we can assume that there's only one campsite per booking.
         # later on we might need to amend that
+
+        context = {'cg': {'campground': {},'campground_notices': []}}
+        #campground_id = request.GET.get('site_id', None)
+        #num_adult = request.GET.get('num_adult', 0)
+        #num_concession= request.GET.get('num_concession', 0)
+        #num_children= request.GET.get('num_children', 0)
+        #num_infants= request.GET.get('num_infants', 0)
+        if booking:
+            context['cg']['campground_id'] = booking.campground.id
+            context['cg']['num_adult'] = booking.details['num_adult']
+            context['cg']['num_concession'] = booking.details['num_concession']
+            context['cg']['num_children'] = booking.details['num_child']
+            context['cg']['num_infants'] = booking.details['num_infant']
+
+            delta = booking.departure - booking.arrival 
+
+            context['cg']['nights'] = delta.days 
+
+
+            context = booking_availability.campground_booking_information(context, booking.campground.id)
+
+        #campground_query = Campground.objects.get(id=context['cg']['campground_id'])
+        #max_people = Campsite.objects.filter(campground_id=context['cg']['campground_id']).aggregate(Max('max_people'))["max_people__max"]
+        #max_vehicles = Campsite.objects.filter(campground_id=context['cg']['campground_id']).aggregate(Max('max_vehicles'))["max_vehicles__max"]
+
+        #context['cg']['campground']['id'] = campground_query.id
+        #context['cg']['campground']['name'] = campground_query.name
+        #context['cg']['campground']['largest_camper'] = max_people
+        #context['cg']['campground']['largest_vehicle'] = max_vehicles
+        #context['cg']['campground']['park'] = {}
+        #context['cg']['campground']['park']['id'] = campground_query.park.id
+        #context['cg']['campground']['park']['alert_count'] = campground_query.park.alert_count
+        #context['cg']['campground']['park']['alert_url'] = settings.ALERT_URL
+
+        #context['cg']['campground_notices_red'] = 0
+        #context['cg']['campground_notices_orange'] = 0
+        #context['cg']['campground_notices_blue'] = 0
+
+
+
         expiry = booking.expiry_time.isoformat() if booking else ''
         timer = (booking.expiry_time-timezone.now()).seconds if booking else -1
         campsite = booking.campsites.all()[0].campsite if booking else None
@@ -196,7 +237,8 @@ class MakeBookingsView(TemplateView):
             'expiry': expiry,
             'timer': timer,
             'pricing': pricing,
-            'show_errors': show_errors
+            'show_errors': show_errors,
+            'cg' : context['cg']
         })
 
     def get(self, request, *args, **kwargs):
@@ -206,7 +248,6 @@ class MakeBookingsView(TemplateView):
             if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
                 booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
 
-
         #booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
         form_context = {
             'num_adult': booking.details.get('num_adult', 0) if booking else 0,
@@ -215,6 +256,7 @@ class MakeBookingsView(TemplateView):
             'num_infant': booking.details.get('num_infant', 0) if booking else 0,
             'country': 'AU',
         }
+
         if request.user.is_anonymous:
             form = AnonymousMakeBookingsForm(form_context)
         else:
@@ -304,7 +346,7 @@ class MakeBookingsView(TemplateView):
             form.add_error(None, '{} Please contact Parks and Visitors services with this error message, the campground/campsite and the time of the request.'.format(str(e)))
             return self.render_page(request, booking, form, vehicles, show_errors=True)
             
-        print(lines)
+        #print(lines)
         total = sum([Decimal(p['price_incl_tax'])*p['quantity'] for p in lines])
 
         # get the customer object
@@ -394,13 +436,28 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
     template_name = 'ps/booking/my_bookings.html'
 
     def get(self, request, *args, **kwargs):
-        bookings = Booking.objects.filter(customer=request.user, booking_type__in=(0, 1), is_canceled=False)
+        
+        bookings = Booking.objects.filter(customer=request.user, booking_type__in=(0, 1), )
         today = timezone.now().date()
+        action = request.GET.get('action')
 
-        context = {
-            'current_bookings': bookings.filter(departure__gte=today).order_by('arrival'),
-            'past_bookings': bookings.filter(departure__lt=today).order_by('-arrival')
-        }
+        context = {}
+        if action == '' or action is None or action == 'upcoming':
+             context = {
+                 'action': 'upcoming',
+                 'current_bookings': bookings.filter(departure__gte=today).order_by('arrival'),
+                 'past_bookings': [],
+                 'today' : today
+             }
+
+        if action == 'past_bookings':
+             context = {
+                'action': 'past_bookings',
+                'current_bookings': [],
+                'past_bookings': bookings.filter(departure__lt=today).order_by('-arrival'),
+                'today' : today
+             }
+
         return render(request, self.template_name, context)
 
 

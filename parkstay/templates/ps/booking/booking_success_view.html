@@ -1,7 +1,6 @@
-<div class="card">
+<div class="card" style='display:none'>
   <div class="card-header">
       <div class="row">
-
       <div class="col-sm-6">
      {% if booking.departure > today %} 
      {% if booking.is_canceled is True %}
@@ -18,6 +17,7 @@
      {% endif %}
      </div>
      <div class="col-sm-6 text-end">
+          <h4>Invoice: <a href=''>051600202929</a></h4>
      </div> 
      </div>
   </div>
@@ -94,7 +94,7 @@
 </div>
 
 <br>
-<div class="well" style='display:none'>
+<div class="well" style='idisplay:none'>
     <div class="row"><div class="col-sm-12">
         <h3 class="text-primary">{{ booking.campground.name }}, {{ booking.campground.park.name }}</h3>
     </div></div>
