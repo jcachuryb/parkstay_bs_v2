@@ -355,6 +355,7 @@ var search_avail = {
 
                 $('#ps_search_dropdown').remove();
                 $('#'+element_id).after("<div id='ps_search_dropdown' class='search_dropdown'><div class='col-sm-12'>"+search_results_html+"</div></div>");
+
                 }
             }
     },
@@ -363,10 +364,12 @@ var search_avail = {
 	   var button_data = $.parseJSON(databutton);
            var post_data = {};
 
+
+
 	   if (button_data['site_type'] == 0) { 
-		post_data = {"arrival": search_avail.var.camping_period['checkin'],"departure":search_avail.var.camping_period['checkout'],"num_adult": 2,"num_child":0,"num_concession": 0,"num_infant": 0,"campsite": button_data['campsite_id']}
+		post_data = {"arrival": search_avail.var.camping_period['checkin'],"departure":search_avail.var.camping_period['checkout'],"num_adult": search_avail.var.campers['adult'],"num_child":search_avail.var.campers['children'],"num_concession": search_avail.var.campers['concession'],"num_infant": search_avail.var.campers['infant'],"campsite": button_data['campsite_id'], 'num_vehicle': search_avail.var.vehicles['vehicle'], 'num_campervan': search_avail.var.vehicles['campervan'], 'num_motorcycle': search_avail.var.vehicles['motorcycle'], 'num_trailer': search_avail.var.vehicles['trailer']}
 	   } else {
-		post_data = {"arrival": search_avail.var.camping_period['checkin'],"departure":search_avail.var.camping_period['checkout'],"num_adult": 2,"num_child":0,"num_concession": 0,"num_infant": 0,"campground": button_data['campground_id'], 'campsite_class': button_data['campsite_class_id']}
+		post_data = {"arrival": search_avail.var.camping_period['checkin'],"departure":search_avail.var.camping_period['checkout'],"num_adult": search_avail.var.campers['adult'],"num_child":search_avail.var.campers['children'],"num_concession": search_avail.var.campers['concession'],"num_infant": search_avail.var.campers['infant'], "campground": button_data['campground_id'], 'campsite_class': button_data['campsite_class_id'], 'num_vehicle': search_avail.var.vehicles['vehicle'], 'num_campervan': search_avail.var.vehicles['campervan'], 'num_motorcycle': search_avail.var.vehicles['motorcycle'], 'num_trailer': search_avail.var.vehicles['trailer']}
 		   // campsite_class: 75
 	   }
 
@@ -647,8 +650,8 @@ var search_avail = {
 			    var campsiteresultserror = "";
 			    if (campsitehtmlbefore == '' && campsitehtmlafter == '' && campsitehtmlmiddlestart == '' && campsitehtmlmiddleend == '') {
 				    campsiteresultserror = "<center><span style='color:red; font-weight:bold;'>Sorry, there was no results matching your filter selection.</span></center>";
-				
 		            }
+
             		    $("#campsite-availablity-results").html("<div class='row align-items-center'>"+campsiteresultserror+campsitehtmlbefore+campsitehtmlmiddlestart+campsitehtmlmiddleend+campsitehtmlafter+"</div>");
          	  }
             });

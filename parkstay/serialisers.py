@@ -70,6 +70,12 @@ class CampsiteBookingSerializer(serializers.Serializer):
     num_concession = serializers.IntegerField(default=0)
     num_child = serializers.IntegerField(default=0)
     num_infant = serializers.IntegerField(default=0)
+
+    num_vehicle = serializers.IntegerField(default=0)
+    num_campervan = serializers.IntegerField(default=0)
+    num_motorcycle = serializers.IntegerField(default=0)
+    num_trailer = serializers.IntegerField(default=0)
+
     campground = serializers.IntegerField(default=0)
     campsite_class = serializers.IntegerField(default=0)
     campsite = serializers.IntegerField(default=0)
