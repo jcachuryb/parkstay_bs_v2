@@ -25,16 +25,24 @@
 
 window.onload = function() {
    search_avail.var.page = 'campsite-availablity';
+   
+   {% if cg.arrival is not None %}
+   {% endif %}
+   {% if cg.departure is not None %}
+   {% endif %}
    search_avail.var.campground_id = '{{ cg.campground.id }}';
    search_avail.var.campers.adult = parseInt('{{ cg.num_adult }}');
    search_avail.var.campers.concession = parseInt('{{ cg.num_concession }}');
    search_avail.var.campers.children = parseInt('{{ cg.num_children }}');
    search_avail.var.campers.infant = parseInt('{{ cg.num_infants }}');
+   {% if change_booking.id > 0 %}
+   search_avail.var.change_booking_id = parseInt('{{ change_booking.id }}');
+   {% endif %}
    search_avail.total_campers();	
    search_avail.get_search_locations();
    search_avail.get_locations();
    search_avail.get_places(); 
-   search_avail.init_dateselection();	
+	search_avail.init_dateselection({% if cg.arrival %}'{{ cg.arrival }}'{% else %}null{% endif %},{% if cg.departure %}'{{ cg.departure }}'{% else %}null{% endif %});	
    search_avail.init();
    $(".filter-features").click(function() {
        console.log("Filters Updated (Reloading)");
@@ -61,6 +69,18 @@ window.onload = function() {
 
         </div>
 	{% endif %}
+                 {% if change_booking %}
+                 <div class="alert alert-info d-flex align-items-center" role="alert">
+                   <div>
+			   <p><i class="bi bi-calendar2-x-fill"></i>&nbsp;&nbsp; You are preparing to change booking PB{{ change_booking.id }} with arrival {{ change_booking.arrival|date:"j M Y" }} and departure {{ change_booking.departure|date:"j M Y" }}<p>
+
+			  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please use the options below to change your booking,  we have prefilled information from your current booking</p>
+		    
+                   </div>
+                 </div>
+		 {% endif %}
+
+
 <ul class="nav nav-pills ">
   <li class="nav-item">
     <a class="nav-link active" aria-current="page" href="#">BOOKING</a>
@@ -120,7 +140,8 @@ window.onload = function() {
             </div>
             {% endif %}
 
-            <div class="col-lg-12 ">
+
+                 <div class="col-lg-12 ">
                  <form autocomplete="off" onkeydown="return event.key != 'Enter';"> 
 		 <div class="round-box col-12 px-3"> 
 			 <div class="col-12">

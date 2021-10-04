@@ -14,6 +14,7 @@ from django.utils import timezone
 
 #from ledger.payments.models import Invoice, CashTransaction
 from ledger_api_client.ledger_models import Invoice
+from ledger_api_client.ledger_models import EmailUserRO as EmailUser
 
 from ledger_api_client.utils import oracle_parser, update_payments
 from ledger_api_client.utils import create_basket_session, create_checkout_session, place_order_submission, use_existing_basket, use_existing_basket_from_invoice
@@ -31,7 +32,7 @@ from ledger_api_client.utils import Order
 logger = logging.getLogger('booking_checkout')
 
 
-def create_booking_by_class(campground_id, campsite_class_id, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, num_vehicle=0,num_motorcycle=0,num_campervan=0,num_trailer=0):
+def create_booking_by_class(campground_id, campsite_class_id, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, num_vehicle=0,num_motorcycle=0,num_campervan=0,num_trailer=0, old_booking=None):
     """Create a new temporary booking in the system."""
     # get campground
     campground = Campground.objects.get(pk=campground_id)
@@ -53,7 +54,7 @@ def create_booking_by_class(campground_id, campsite_class_id, start_date, end_da
             raise ValidationError('No matching campsites found.')
 
         # get availability for sites, filter out the non-clear runs
-        availability = get_campsite_availability(sites_qs, start_date, end_date)
+        availability = get_campsite_availability(sites_qs, start_date, end_date, None,old_booking)
         excluded_site_ids = set()
         for site_id, dates in availability.items():
             if not all([v[0] == 'open' for k, v in dates.items()]):
@@ -90,10 +91,11 @@ def create_booking_by_class(campground_id, campsite_class_id, start_date, end_da
                 'num_vehicle': num_vehicle,
                 'num_campervan' : num_campervan,
                 'num_motorcycle' : num_motorcycle,
-                'num_trailer' : num_trailer
+                'num_trailer' : num_trailer,
             },
             expiry_time=timezone.now() + timedelta(seconds=settings.BOOKING_TIMEOUT),
-            campground=campground
+            campground=campground,
+            old_booking=old_booking
         )
         for i in range((end_date - start_date).days):
             cb = CampsiteBooking.objects.create(
@@ -112,15 +114,15 @@ def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_conc
 
     # the CampsiteBooking table runs the risk of a race condition,
     # wrap all this behaviour up in a transaction 
-    old_booking_id = None
-    if old_booking:
-        old_booking_id = old_booking.id
+    #old_booking_id = None
+    #if old_booking:
+    #    old_booking_id = old_booking
 
     campsite_qs = Campsite.objects.filter(pk__in=sites_qs)
     with transaction.atomic():
         # get availability for campsite, error out if booked/closed
         user = overridden_by
-        availability = get_campsite_availability(campsite_qs, start_date, end_date,user)
+        availability = get_campsite_availability(campsite_qs, start_date, end_date,user, old_booking)
         for site_id, dates in availability.items():
             if not override_checks:
                 if updating_booking:
@@ -158,8 +160,7 @@ def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_conc
                 'num_vehicle': num_vehicle,
                 'num_campervan' : num_campervan,
                 'num_motorcycle' : num_motorcycle,
-                'num_trailer' : num_trailer
-
+                'num_trailer' : num_trailer,
             },
             cost_total=cost_total,
             override_price=Decimal(override_price) if (override_price is not None) else None,
@@ -171,7 +172,7 @@ def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_conc
             campground=campsite_qs[0].campground,
             customer=customer,
             do_not_send_invoice=do_not_send_invoice,
-            old_booking=old_booking_id
+            old_booking=old_booking
         )
 
         for cs in campsite_qs:
@@ -229,17 +230,25 @@ def get_open_campgrounds(campsites_qs, start_date, end_date):
     return set(campground_map.keys())
 
 
-def get_campsite_availability(campsites_qs, start_date, end_date, user = None):
+def get_campsite_availability(campsites_qs, start_date, end_date, user = None, old_booking=None):
     # Added line to use is_officer from helper methods
     from parkstay.helpers import is_officer
     """Fetch the availability of each campsite in a queryset over a range of visit dates."""
+    if old_booking is not None:
     # fetch all of the single-day CampsiteBooking objects within the date range for the sites
-    bookings_qs = CampsiteBooking.objects.filter(
-        campsite__in=campsites_qs,
-        date__gte=start_date,
-        date__lt=end_date,
-        booking__is_canceled=False,
-    ).order_by('date', 'campsite__name')
+         bookings_qs = CampsiteBooking.objects.filter(
+             campsite__in=campsites_qs,
+             date__gte=start_date,
+             date__lt=end_date,
+             booking__is_canceled=False,
+         ).exclude(booking_id=old_booking).order_by('date', 'campsite__name')
+    else:
+         bookings_qs = CampsiteBooking.objects.filter(
+             campsite__in=campsites_qs,
+             date__gte=start_date,
+             date__lt=end_date,
+             booking__is_canceled=False,
+         ).order_by('date', 'campsite__name')
 
     # prefill all slots as 'open'
     duration = (end_date - start_date).days
@@ -722,6 +731,10 @@ def create_temp_bookingupdate(request, arrival, departure, booking_details, old_
                                      num_concession=booking_details['num_concession'],
                                      num_child=booking_details['num_child'],
                                      num_infant=booking_details['num_infant'],
+                                     num_vehicle=booking_details['num_vehicle'],
+                                     num_campervan=booking_details['num_campervan'],
+                                     num_motorcycle=booking_details['num_motorcycle'],
+                                     num_trailer=booking_details['num_trailer'],
                                      cost_total=total_price,
                                      customer=old_booking.customer,
                                      override_price=old_booking.override_price,
@@ -942,6 +955,10 @@ def create_or_update_booking(request, booking_details, updating=False, override_
                                          num_concession=booking_details['num_concession'],
                                          num_child=booking_details['num_child'],
                                          num_infant=booking_details['num_infant'],
+                                         num_vehicle=booking_details['num_vehicle'],
+                                         num_campervan=booking_details['num_campervan'],
+                                         num_motorcycle=booking_details['num_motorcycle'],
+                                         num_trailer=booking_details['num_trailer'],
                                          cost_total=booking_details['cost_total'],
                                          override_price=booking_details['override_price'],
                                          override_reason=booking_details['override_reason'],
@@ -1145,6 +1162,23 @@ def bind_booking(booking, basket):
         booking.booking_type = 1  # internet booking
         booking.expiry_time = None
         booking.save()
+        if booking.old_booking:
+            if booking.old_booking > 0:
+                logger.info(u'cancelling old booking started {}'.format(booking.old_booking))
+                old_booking = Booking.objects.get(id=int(booking.old_booking))
+                logger.info(u'cancelling old booking started 1')
+                old_booking.is_canceled = True
+                logger.info(u'cancelling old booking started 2')
+                if booking.created_by is not None:
+                     logger.info(u'created by {}'.format(booking.created_by))
+                     print ("CANCELL BOOKING")
+                     print (EmailUser.objects.get(id=booking.created_by))
+                     old_booking.canceled_by = EmailUser.objects.get(id=int(booking.created_by))
+                logger.info(u'cancelling old booking started 3')
+                old_booking.cancelation_time = timezone.now()
+                old_booking.cancellation_reason = "Booking Changed Online"
+                old_booking.save()
+                logger.info(u'cancelling old booking completed {}'.format(booking.old_booking))
         logger.info(u'booking completed {}'.format(booking.id))
             #delete_session_booking(request.session)
             #request.session['ps_last_booking'] = booking.id

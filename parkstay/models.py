@@ -1017,7 +1017,10 @@ class CampsiteBooking(models.Model):
 
     def save(self, *args, **kwargs):
         #csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date, booking__is_canceled=False)).count()
-        csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date,booking__is_canceled=False)).exclude(booking__id=self.booking.id).exclude(booking__old_booking=self.booking.id).count() 
+        print (self.booking.id)
+        print (self.booking.old_booking)
+        #if self.booking.is_canceled is False:
+        csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date,booking__is_canceled=False)).exclude(booking__id=self.booking.id).exclude(booking__old_booking=self.booking.id).exclude(booking__id=self.booking.old_booking).count() 
         if csb > 0: 
             raise ValidationError('Duplicate booking date for this campsite.')
         super(CampsiteBooking, self).save(*args, **kwargs)
@@ -1147,6 +1150,7 @@ class Booking(models.Model):
     confirmation_sent = models.BooleanField(default=False)
     updated = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)
+    created_by = models.IntegerField(blank=True, null=True)
     canceled_by = models.ForeignKey(EmailUser, on_delete=models.PROTECT, blank=True, null=True, related_name='canceled_bookings')
     property_cache = JSONField(null=True, blank=True, default={})
     property_cache_version = models.CharField(max_length=10, blank=True, null=True)
@@ -1379,7 +1383,7 @@ class Booking(models.Model):
         customer = self.customer
         concurrent_booking=False      
         #is_canceled=False#
-        other_bookings = Booking.objects.filter(Q(departure__gt=arrival, departure__lte=departure) | Q(arrival__gte=arrival, arrival__lt=departure), customer=customer).exclude(id=self.id, is_canceled=True)
+        other_bookings = Booking.objects.filter(Q(departure__gt=arrival, departure__lte=departure) | Q(arrival__gte=arrival, arrival__lt=departure), customer=customer).exclude(id=self.id).exclude(is_canceled=True,)
         current_booking = CampsiteBooking.objects.filter(booking=self)
         for i in other_bookings:
              if i.id != self.id:
@@ -1393,7 +1397,8 @@ class Booking(models.Model):
         #if self.pk:
         #    other_bookings.exclude(id=self.pk)
         if customer and concurrent_booking is True and self.booking_type != 3:
-            raise ValidationError('You cannot make concurrent bookings.')
+            if self.is_canceled is False:
+                 raise ValidationError('You cannot make concurrent bookings.')
         if not self.campground.oracle_code:
             raise ValidationError('Campground does not have an Oracle code.')
         if self.campground.park.entry_fee_required and not self.campground.park.oracle_code:
