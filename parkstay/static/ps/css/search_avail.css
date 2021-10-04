@@ -109,7 +109,7 @@
 
 .product-box {
     width: 300px; 
-    height: 360px; 
+    height: 368px; 
     border: 1px solid rgba(188,188,188,0.73); 
     background-color: #FFFFFF; 
     margin: 5px; padding: 5px;
@@ -238,3 +238,18 @@
 .avail-font-bold {
     font-weight:bold;
 }
+
+.product-selected-site { 
+    background-color: #ffebdd;
+    text-align: center;
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.product-not-selected-site {
+    font-size: 14px;
+
+}
+
+

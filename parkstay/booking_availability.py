@@ -312,7 +312,7 @@ def get_campground_booking_range(campground_id, status):
     return filtered_table_array
 
 
-def get_campsite_availability(ground_id, sites_array, start_date, end_date, user = None):
+def get_campsite_availability(ground_id, sites_array, start_date, end_date, user = None, change_booking_id=None):
     is_officer_boolean = False
     if user:
        is_officer_boolean = is_officer(user) 
@@ -320,14 +320,27 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     sa_qy = []
     for s in sites_array:
           sa_qy.append(s['pk'])
+    if change_booking_id is not None:
+        change_booking_id = int(change_booking_id)
+    # get current booking from change booking id
 
     # fetch all of the single-day CampsiteBooking objects within the date range for the sites
-    bookings_qs = models.CampsiteBooking.objects.filter(
-        campsite_id__in=sa_qy,
-        date__gte=start_date,
-        date__lt=end_date,
-        booking__is_canceled=False,
-    ).order_by('date', 'campsite__name')
+    bookings_qs = None
+    if change_booking_id is None:
+        bookings_qs = models.CampsiteBooking.objects.filter(
+            campsite_id__in=sa_qy,
+            date__gte=start_date,
+            date__lt=end_date,
+            booking__is_canceled=False,
+        ).order_by('date', 'campsite__name')
+    else:
+        bookings_qs = models.CampsiteBooking.objects.filter(
+            campsite_id__in=sa_qy,
+            date__gte=start_date,
+            date__lt=end_date,
+            booking__is_canceled=False,
+        ).exclude(booking_id=change_booking_id).order_by('date', 'campsite__name')
+
 
     # prefill all slots as 'open'
     duration = (end_date - start_date).days

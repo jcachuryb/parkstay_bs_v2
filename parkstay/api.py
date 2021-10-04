@@ -985,6 +985,18 @@ def campsite_availablity_view(request,  *args, **kwargs):
             del request.session['ps_booking']
 
     campground_id = kwargs.get('campground_id', None)
+    change_booking_id = request.GET.get('change_booking_id', None)
+
+    # change booking data
+    current_booking_campsite_id = None
+    current_booking_campsite_class_id = None
+    change_booking_qs = []
+    if change_booking_id is not None:
+        change_booking_qs = models.CampsiteBooking.objects.filter(booking_id=change_booking_id)
+    for cb in change_booking_qs:
+          current_booking_campsite_id = cb.campsite_id 
+          current_booking_campsite_class_id = cb.campsite.campsite_class.id
+
     show_all = False
     # convert GET parameters to objects
     #ground = Campground.objects.get(id=campground_id)
@@ -999,6 +1011,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
         "num_infant": request.GET.get('num_infant', 0),
         "gear_type": request.GET.get('gear_type', 'all')
     }
+
     serializer = CampgroundCampsiteFilterSerializer(data=data)
     serializer.is_valid(raise_exception=True)
 
@@ -1009,6 +1022,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     num_child = serializer.validated_data['num_child']
     num_infant = serializer.validated_data['num_infant']
     gear_type = serializer.validated_data['gear_type']
+
     # get a length of the stay (in days), capped if necessary to the request maximum
     length = max(0, (end_date - start_date).days)
 
@@ -1034,6 +1048,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     
     for s in sites_qs:
         sites_array.append({'pk': s['id'], 'data': s})
+
     # fetch rate map
     rates = {
         siteid: {
@@ -1043,7 +1058,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     }
 
     # fetch availability map
-    availability = booking_availability.get_campsite_availability(ground['id'],sites_array, start_date, end_date)
+    availability = booking_availability.get_campsite_availability(ground['id'],sites_array, start_date, end_date,None, change_booking_id)
 
     # create our result object, which will be returned as JSON
     result = {
@@ -1062,6 +1077,8 @@ def campsite_availablity_view(request,  *args, **kwargs):
         'maxChildren': 30,
         'sites': [],
         'classes': {},
+        'current_booking_campsite_id': current_booking_campsite_id,
+        'current_booking_campsite_class_id': current_booking_campsite_class_id
     }
     # group results by campsite class
     if ground['site_type'] in (1, 2):
@@ -1745,6 +1762,14 @@ def places(request, *args, **kwargs):
 @csrf_exempt
 @require_http_methods(['POST'])
 def create_booking(request, *args, **kwargs):
+    change_booking_id = request.POST.get('change_booking_id',None)
+    if change_booking_id == '':
+         change_booking_id = None
+    else:
+        if int(change_booking_id) > 0:
+            change_booking_id = int(change_booking_id) 
+        else:
+            change_booking_id = None
     """Create a temporary booking and link it to the current session"""
     data = {
         'arrival': request.POST.get('arrival'),
@@ -1761,7 +1786,9 @@ def create_booking(request, *args, **kwargs):
 
         'campground': request.POST.get('campground', 0),
         'campsite_class': request.POST.get('campsite_class', 0),
-        'campsite': request.POST.get('campsite', 0)
+        'campsite': request.POST.get('campsite', 0),
+        'old_booking': change_booking_id,
+        'created_by': request.user.id
     }
 
     serializer = CampsiteBookingSerializer(data=data)
@@ -1781,7 +1808,7 @@ def create_booking(request, *args, **kwargs):
     num_campervan = serializer.validated_data['num_campervan']
     num_motorcycle = serializer.validated_data['num_motorcycle']
     num_trailer = serializer.validated_data['num_trailer']
-
+    old_booking = serializer.validated_data['old_booking']
 
 
     if 'ps_booking' in request.session:
@@ -1818,20 +1845,27 @@ def create_booking(request, *args, **kwargs):
     # try to create a temporary booking
     try:
         if campsite:
+            print ("BY SITE")
             booking = utils.create_booking_by_site(
                 Campsite.objects.filter(id=campsite), start_date, end_date,
                 num_adult, num_concession,
-                num_child, num_infant, num_vehicle, num_campervan, num_motorcycle, num_trailer
+                num_child, num_infant, num_vehicle, num_campervan, num_motorcycle, num_trailer, 0, None, None, None, False, None, None, False, False, False, old_booking 
             )
+            booking.created_by = request.user.id
+            booking.save()
         else:
+            print ("BY CLASS")
             booking = utils.create_booking_by_class(
                 campground, campsite_class,
                 start_date, end_date,
                 num_adult, num_concession,
                 num_child, num_infant,
                 num_vehicle, num_campervan, 
-                num_motorcycle, num_trailer
+                num_motorcycle, num_trailer, old_booking
             )
+            booking.created_by = request.user.id
+            booking.save()
+
 
     except ValidationError as e:
         if hasattr(e, 'error_dict'):

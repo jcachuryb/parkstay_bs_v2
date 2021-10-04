@@ -247,6 +247,8 @@ class MakeBookingsView(TemplateView):
         if 'ps_booking' in request.session:
             if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
                 booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
+                print ("CURRENT")
+                print (booking.id)
 
         #booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
         form_context = {
@@ -412,6 +414,8 @@ class BookingSuccessView(TemplateView):
                 print("BookingSuccessView - get 4.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 utils.delete_session_booking(request.session)
                 print("BookingSuccessView - get 5.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+                print ("CURRENT BOOKING ID")
+                print (booking.id)
                 request.session['ps_last_booking'] = booking.id
 
             except BindBookingException:
@@ -504,13 +508,42 @@ class SearchAvailablityByCampground(TemplateView):
         num_concession= request.GET.get('num_concession', 0)
         num_children= request.GET.get('num_children', 0)
         num_infants= request.GET.get('num_infants', 0)
+        arrival=request.GET.get('arrival', None)
+        departure=request.GET.get('departure', None)
+        change_booking_id = request.GET.get('change_booking_id', None)
+
+        today = timezone.now().date()
+        context['change_booking'] = None
+        if self.request.user.is_authenticated:
+              if change_booking_id is not None:
+                    if int(change_booking_id) > 0:
+                          if Booking.objects.filter(id=change_booking_id).count() > 0:
+                               cb = Booking.objects.get(id=change_booking_id) 
+                               if cb.customer.id == request.user.id:
+                                       if cb.arrival > today:
+                                            context['change_booking'] = cb
+        if context['change_booking'] is None:
+              if change_booking_id is not None:
+                      self.template_name = 'ps/search_availabilty_campground_change_booking_error.html'
+                      return render(request, self.template_name, context)
+
+             
+                               
+                              
+                              
+                                     
+
+
+
 
         context['cg']['campground_id'] = campground_id
         context['cg']['num_adult'] = num_adult
         context['cg']['num_concession'] = num_concession
         context['cg']['num_children'] = num_children
         context['cg']['num_infants'] = num_infants
-         
+        context['cg']['arrival'] = arrival
+        context['cg']['departure'] = departure
+
         campground_query = Campground.objects.get(id=campground_id)
         max_people = Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_people'))["max_people__max"]
         max_vehicles = Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_vehicles'))["max_vehicles__max"]
