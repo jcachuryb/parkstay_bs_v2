@@ -51,7 +51,7 @@
 		<div class="col-sm-9">
                        <div class="row">
                            <div class="col-sm-4">
-                               <b>Campground </b>
+                               <b>Campground</b>
                            </div>
                            <div class="col-sm-8">
  				{{ booking.campground.name }}, {{ booking.campground.park.name }}
@@ -111,7 +111,8 @@
                   <div class="col-sm-12" style="margin-top: 1em">
 			{% if booking.arrival > today %}
 			    {% if booking.is_canceled is not True %}
-			<button type="button" class="btn btn-primary">Cancel Booking</button>
+                        <a class="btn btn-primary" href='{% url "cancel_booking" booking.id %}'>Cancel Booking</a>
+
 			<a class="btn btn-primary" href='/search-availablity/campground/?site_id={{ booking.campground.id }}&arrival={{ booking.arrival|date:"Y/m/d" }}&departure={{ booking.departure|date:"Y/m/d" }}&num_adult={{ booking.details.num_adult }}&num_concession={{ booking.details.num_concession }}&num_children={{ booking.details.num_child }}&num_infants={{ booking.details.num_infant }}&gear_type=all&change_booking_id={{ booking.id }}' >Change Booking</a>
 			<button type="button" class="btn btn-primary">Change vehicle details</button>
 			    {% endif %}

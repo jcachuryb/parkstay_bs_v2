@@ -388,6 +388,39 @@ class MakeBookingsView(TemplateView):
         return result
 
 
+class CancelBookingView(TemplateView):
+    template_name = 'ps/booking/cancel_booking.html'
+
+    def get(self, request, *args, **kwargs):
+        booking_id = kwargs['booking_id']
+
+        booking = Booking.objects.get(id=booking_id)
+        campsitebooking = CampsiteBooking.objects.filter(booking_id=booking_id)
+        totalbooking = '0.00'
+        for cb in campsitebooking:
+             print (cb)
+
+        context = {
+            'booking': booking,
+            'campsitebooking': campsitebooking
+        }
+        response = render(request, self.template_name, context)
+        return response
+
+    def post(self, request, *args, **kwargs):
+        booking_id = kwargs['booking_id']
+        booking = Booking.objects.get(id=int(booking_id))
+        booking.is_canceled = True
+        booking.canceled_by = request.user
+        booking.cancelation_time = timezone.now()
+        booking.cancellation_reason = "Booking Cancelled Online"
+        booking.save()
+        context = {'booking': booking,}
+        self.template_name = 'ps/booking/cancel_booking_complete.html' 
+        response = render(request, self.template_name, context)
+        #response = HttpResponse("CANCELLTION COMPLETED")
+        return response
+
 class BookingSuccessView(TemplateView):
     template_name = 'ps/booking/success.html'
 
