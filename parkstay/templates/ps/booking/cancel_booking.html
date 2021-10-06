@@ -1,0 +1,45 @@
+{% extends 'ps/base.html' %}
+{% load static %}
+{% load forms %}
+{% block content %}
+    <div class="container">
+        <h3>Cancel Booking</h3>
+	<form method='POST' action="?" id='cancellation_form'>
+	     {% csrf_token %}
+	     <div class="round-box col-12 px-3"> 
+	         <div class="col-12">
+			 <p>You are requesting to cancel your booking PB{{ booking.id }} at campground with arrival {{ booking.arrival|date:"d M Y" }} and departure {{ booking.departure|date:"d M Y" }}  <b>{{ booking.campground.name }}</b>.</p>
+			 <p>Please confirm your cancellation with the actions below.</p>
+ 	         </div>
+	     </div>
+
+	     <div class="row">
+	         <div class="col-6">
+	         </div>
+                 <div class="col-6 text-end">
+			 <button type="button" class="btn btn-primary">Cancel</button>
+	         	<button id='cancellation_btn' type="button" class="btn btn-danger">Complete Cancellation</button>
+                 </div>
+	     </div>
+	</form>
+
+    </div>
+<script>
+	var cancellation = {
+		cancel: function() { 
+			$('#cancellation_form').submit();
+
+		}
+	}
+        $('#cancellation_btn').click(function() { 
+		$('#cancellation_form').submit();
+        }
+
+
+	);
+
+</script>
+
+
+
+{% endblock %}

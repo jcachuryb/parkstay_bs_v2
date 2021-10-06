@@ -212,9 +212,6 @@ class Campground(models.Model):
     def save(self, *args, **kwargs):
         print ("SAVE")
         cg = Campground.objects.get(id=self.id)
-        print ("CG")
-        print (cg.name)
-        print (self.name)
         cache.delete('campgrounds')
         cache.delete('campgrounds_dt')
         cache.delete('CampgroundMapViewSet')
@@ -1008,6 +1005,7 @@ class CampsiteBooking(models.Model):
     date = models.DateField(db_index=True)
     booking = models.ForeignKey('Booking', related_name="campsites", on_delete=models.CASCADE, null=True)
     booking_type = models.SmallIntegerField(choices=BOOKING_TYPE_CHOICES, default=0)
+    amount = models.DecimalField(max_digits=8, decimal_places=2, default='0.00', blank=True, null=True, unique=False)
 
     def __str__(self):
         return '{} - {}'.format(self.campsite, self.date)

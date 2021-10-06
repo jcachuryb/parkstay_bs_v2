@@ -1,32 +1,33 @@
-<div class="card" style='display:none'>
-  <div class="card-header">
-      <div class="row">
-      <div class="col-sm-6">
-     {% if booking.departure > today %} 
-     {% if booking.is_canceled is True %}
-        <h4><span class="badge bg-danger ">CANCELLED</span> {{ booking.confirmation_number }}</h4>
-     {% else %}
-        <h4><span class="badge bg-success ">CONFIRMED</span> {{ booking.confirmation_number }}</h4>
-     {% endif %}
-     {% else %}
-        {% if booking.is_canceled is True %}
-		<h4><span class="badge bg-danger ">CANCELLED</span> {{ booking.confirmation_number }}</h4>
-	{% else %}
-	        <h4><span class="badge bg-success ">COMPLETED</span> {{ booking.confirmation_number }}</h4>
-	{% endif %}
-     {% endif %}
-     </div>
-     <div class="col-sm-6 text-end">
-          <h4>Invoice: <a href=''>051600202929</a></h4>
-     </div> 
-     </div>
-  </div>
-  <div class="card-body"> 
-     <div class="row">
+<div class="card">
+  <div class="card-body" style='background-color: #f3f3f3'> 
+            <div class="row">
+                  <div class="col-sm-12" style="margin-top: 1em">
+                {% if booking.status == 'Paid' or booking.status == 'Over Paid' or booking.status == 'Canceled - Payment (Paid)' %}
+		              {% if booking.is_canceled is not True %}
+                              <p><i class="bi bi-file-pdf-fill" style='color:red'></i> <a href="{% url 'get_confirmation' booking.id %}" style='color:red; text-decoration:none'>Booking Confirmation</a>
+			      {% endif %}
+                              <i class="bi bi-file-pdf-fill" style='color:red'></i> <a href="" style='color:red; text-decoration: none;'>Invoice</a></p>
+                {% else %}
+		              
+                {% endif %}
+                 </div>
+              </div>
+              <div class="row">
+
 		<div class="col-sm-3">
  			    <img class="img-thumbnail img-responsive" alt="" src="/campground-image/140/243/?mediafile={{ booking.campground.first_image.image.url }}"/>
 		</div>
+
 		<div class="col-sm-9">
+                       <div class="row">
+                           <div class="col-sm-4">
+                               <b>Campground</b>
+                           </div>
+                           <div class="col-sm-8">
+ 				{{ booking.campground.name }}, {{ booking.campground.park.name }}
+                           </div>
+                       </div>
+
                        <div class="row">
                            <div class="col-sm-4">
                                <b>Camp Site</b>
@@ -76,13 +77,15 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="row"><div class="col-sm-12" style="margin-top: 1em">
-			    {% if booking.status == 'Paid' or booking.status == 'Over Paid' %}
-			      <p><i class="bi bi-file-pdf-fill" style='color:red'></i> <a href="{% url 'get_confirmation' booking.id %}" style='color:red; text-decoration:none'>Booking Confirmation</a></p>
-			      <p><i class="bi bi-file-pdf-fill" style='color:red'></i> <a href="" style='color:red; text-decoration: none;'>Invoice</a></p>
-                <p style="font-size: 1.5rem; font-weight: bold;">You must bring your printed confirmation with you to the campground.</p>
-                {% else %}<p style="font-size: 1.5rem; font-weight: bold;">You must bring your printed confirmation with you to the campground. Confirmation is only available after the booking is paid in full.</p>{% endif %}
-            </div>
+            <div class="row">
+                  <div class="col-sm-12" style="margin-top: 1em">
+			    {% if booking.is_canceled is not True %}
+                        <a class="btn btn-primary" href='{% url "cancel_booking" booking.id %}'>Cancel Booking</a>
+
+			<a class="btn btn-primary" href='/search-availablity/campground/?site_id={{ booking.campground.id }}&arrival={{ booking.arrival|date:"Y/m/d" }}&departure={{ booking.departure|date:"Y/m/d" }}&num_adult={{ booking.details.num_adult }}&num_concession={{ booking.details.num_concession }}&num_children={{ booking.details.num_child }}&num_infants={{ booking.details.num_infant }}&gear_type=all&change_booking_id={{ booking.id }}' >Change Booking</a>
+			<button type="button" class="btn btn-primary">Change vehicle details</button>
+			    {% endif %}
+		  </div>
 
 
 
@@ -91,77 +94,5 @@
      </div>
   </div>
 </div>
-</div>
-
-<br>
-<div class="well" style='idisplay:none'>
-    <div class="row"><div class="col-sm-12">
-        <h3 class="text-primary">{{ booking.campground.name }}, {{ booking.campground.park.name }}</h3>
-    </div></div>
-    <div class="row">
-        <div class="col-sm-3">
-            <img class="img-thumbnail img-responsive" alt="" src="/campground-image/140/243/?mediafile={{ booking.campground.first_image.image.url }}"/>
-            
-        </div>
-        <div class="col-sm-9">
-            <div class="row">
-                <div class="col-sm-4">
-                    <b>Camp Site</b>
-                </div>
-                <div class="col-sm-8">
-                {% if booking.campground.site_type == 2 %}
-                    {{ booking.first_campsite.type }}
-                {% else %}
-                    {{ booking.first_campsite.name }} ({{ booking.first_campsite.type }})
-                {% endif %}
-                </div>
-            </div>
-
-	    <div class="row">
-                <div class="col-sm-4">
-                    <b>Dates</b>
-                </div>
-                <div class="col-sm-8">
-                    {{ booking.stay_dates }}
-                </div>
-            </div>
-
-	    <div class="row">
-                <div class="col-sm-4">
-                    <b>Number of guests</b>
-                </div>
-                <div class="col-sm-8">
-                    {{ booking.stay_guests }}
-                </div>
-            </div>
-	    <div class="row">
-                <div class="col-sm-4">
-                    <b>Booking confirmation number</b>
-                </div>
-                <div class="col-sm-8">
-                    {{ booking.confirmation_number }}
-                </div>
-            </div>
-	    <div class="row">
-                <div class="col-sm-4">
-                    <b>Payment status</b>
-                </div>
-                <div class="col-sm-8">
-                    {% if booking.status == 'Over Paid' %}
-                        Paid
-                    {% else %}
-                        {{ booking.status }}
-                    {% endif %} 
-                </div>
-            </div>
-	    <div class="row"><div class="col-sm-12" style="margin-top: 1em">
-                {% if booking.status == 'Paid' or booking.status == 'Over Paid' %}<p><a href="{% url 'get_confirmation' booking.id %}" class="btn btn-info btn-lg" >Print</a></p>
-                <p style="font-size: 1.5rem; font-weight: bold;">You must bring your printed confirmation with you to the campground.</p>
-                {% else %}<p style="font-size: 1.5rem; font-weight: bold;">You must bring your printed confirmation with you to the campground. Confirmation is only available after the booking is paid in full.</p>{% endif %}
-            </div>
-
-	    </div>
-        </div>
-    </div>
 </div>
 
