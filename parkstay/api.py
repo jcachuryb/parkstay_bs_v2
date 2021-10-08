@@ -40,6 +40,7 @@ from parkstay import utils
 from parkstay import property_cache 
 from parkstay import models
 from parkstay.helpers import can_view_campground
+from parkstay import models as parkstay_models
 from parkstay.models import (Campground,
                              District,
                              Contact,
@@ -1623,6 +1624,122 @@ def invoice_callback(invoice_ref):
       for i in bi:
          i.booking.save()
 
+def peak_periods(request, *args, **kwargs):
+    #pg =parkstay_models.PeakGroup.objects.get(id=25)
+    #parkstay_models.PeakPeriod.objects.create(start_date='2022-01-01', end_date='2022-01-30', active=True,peak_group=pg)
+    peakgroup_id = request.GET.get('peakgroup_id',None)
+    item_list = []
+    item_obj = parkstay_models.PeakPeriod.objects.filter(peak_group_id=peakgroup_id).order_by('start_date')
+    for i in item_obj:
+        item_list.append({'id': i.id, 'start_date': i.start_date.strftime("%d/%m/%Y"),'end_date': i.end_date.strftime("%d/%m/%Y"), 'active': i.active, 'created' : i.created.strftime("%d/%m/%Y, %H:%M:%S")})
+    dumped_data = json.dumps(item_list)
+    return HttpResponse(dumped_data, content_type='application/json')
+
+
+def save_peak_period(request,*args, **kwargs):
+    status = 503
+    try:
+         data = json.load(request)
+         payload = data.get('payload')
+         action = payload['action']
+         period_id = payload['period_id']
+         peakgroup_id=  payload['peakgroup_id']
+         start_date = payload['start_date']
+         end_date = payload['end_date']
+         active = payload['active'] 
+         period_status_boolean = False
+         start_date_dt = datetime.strptime(start_date, '%d/%m/%Y').date()
+         end_date_dt = datetime.strptime(end_date, '%d/%m/%Y').date()
+
+         if active == 'true':
+             period_status_boolean = True
+         
+         PeakPeriod=None
+         peakgroup = parkstay_models.PeakGroup.objects.get(id=int(peakgroup_id))
+         if action == 'save': 
+             PeakPeriod = parkstay_models.PeakPeriod.objects.get(id=int(period_id))
+             start_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__lte=start_date_dt, end_date__gte=start_date_dt).exclude(id=int(period_id)).count()
+             end_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__gte=end_date_dt, end_date__lte=end_date_dt).exclude(id=int(period_id)).count()
+         else:
+             start_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__lte=start_date_dt, end_date__gte=start_date_dt).count()
+             end_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__gte=end_date_dt, end_date__lte=end_date_dt).count()
+         print (start_date_conflict)
+         print (end_date_conflict)
+
+
+         if start_date_dt > end_date_dt:
+              raise ValidationError("Start date is greater than end date.")
+
+         if start_date_conflict > 0 and end_date_conflict > 0:
+               raise ValidationError("Both start and end date conflict with another date range")
+ 
+         if start_date_conflict > 0:
+               raise ValidationError("Start date conflict with another date range")
+        
+         if end_date_conflict > 0:
+               raise ValidationError("End date conflict with another date range")
+
+         print ("YES")
+         print (period_id)
+         if action == 'create':
+            peakgroup = parkstay_models.PeakGroup.objects.get(id=int(peakgroup_id))
+            PeakPeriod = parkstay_models.PeakPeriod.objects.create(peak_group=peakgroup, start_date=start_date_dt,end_date=end_date_dt,active=period_status_boolean)
+
+
+         if action == 'save':
+            PeakPeriod.start_date = start_date_dt 
+            PeakPeriod.end_date = end_date_dt
+            PeakPeriod.active = period_status_boolean
+            PeakPeriod.save()
+
+         status = 200
+         res = {"status": status, "message" : "Success"}
+    except Exception as e:
+         status = 503
+         res = {
+                "status": status, "message": str(e)
+         }
+
+    return HttpResponse(json.dumps(res), content_type='application/json', status=status)
+
+def peak_groups(request, *args, **kwargs):
+    dumped_data = cache.get('PeakPeriodGroups')
+    if dumped_data is None:
+        item_list = []
+        item_obj = parkstay_models.PeakGroup.objects.all()
+        for i in item_obj:
+            item_list.append({'id': i.id, 'name': i.name,'active': i.active})
+
+        dumped_data = geojson.dumps(item_list)
+        cache.set('PeakPeriodGroups', dumped_data,  3600)
+
+    return HttpResponse(dumped_data, content_type='application/json')
+
+def save_peak_group(request,*args, **kwargs):
+    #print (request.POST)
+    #print (request.POST.get('group_name',None))
+    print (request)
+    status = 503
+    try:
+         data = json.load(request)
+         payload = data.get('payload')
+         group_name = payload['group_name']
+         peak_status = payload['peak_status']
+         peak_status_boolean = False
+         if peak_status == 'true':
+             peak_status_boolean = True
+         parkstay_models.PeakGroup.objects.create(name=group_name,active=peak_status_boolean)
+         status = 200
+         res = {"status": status, "message" : "Success"}
+    except Exception as e:
+         status = 503
+         res = {
+                "status": status, "message": str(e)
+         }
+
+    return HttpResponse(json.dumps(res), content_type='application/json', status=status)
+
+
 def campground_map_view(request, *args, **kwargs):
      from django.core import serializers
      dumped_data = cache.get('CampgroundMapViewSet')
@@ -1845,7 +1962,6 @@ def create_booking(request, *args, **kwargs):
     # try to create a temporary booking
     try:
         if campsite:
-            print ("BY SITE")
             booking = utils.create_booking_by_site(
                 Campsite.objects.filter(id=campsite), start_date, end_date,
                 num_adult, num_concession,
@@ -1854,7 +1970,6 @@ def create_booking(request, *args, **kwargs):
             booking.created_by = request.user.id
             booking.save()
         else:
-            print ("BY CLASS")
             booking = utils.create_booking_by_class(
                 campground, campsite_class,
                 start_date, end_date,

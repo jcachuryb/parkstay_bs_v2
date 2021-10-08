@@ -840,15 +840,38 @@ class CampsiteBookingRange(BookingRange):
     def __str__(self):
         return '{}: {} {} - {}'.format(self.campsite, self.status, self.range_start, self.range_end)
 
-
 class CampsiteStayHistory(StayHistory):
     campsite = models.ForeignKey('Campsite', on_delete=models.PROTECT, related_name='stay_history')
-
 
 class CampgroundStayHistory(StayHistory):
     campground = models.ForeignKey('Campground', on_delete=models.PROTECT, related_name='stay_history')
 
+class PeakGroup(models.Model):
+      name = models.CharField(max_length=255, unique=True)
+      active = models.BooleanField(default=True)
+      created = models.DateTimeField(default=timezone.now)
+      #cache.set('PeakPeriodGroups'
+     
+      def __str__(self):
+          return self.name
 
+
+      def save(self, *args, **kwargs):
+          cache.delete('PeakPeriodGroups')
+          self.full_clean()
+          super(PeakGroup, self).save(*args, **kwargs)
+
+
+class PeakPeriod(models.Model):
+      peak_group = models.ForeignKey('PeakGroup', on_delete=models.PROTECT, related_name='peak_group')
+      start_date = models.DateField() 
+      end_date = models.DateField()
+      active = models.BooleanField(default=True)
+      created = models.DateTimeField(default=timezone.now)
+
+      def __str__(self):
+            return "{} - {}".format(self.start_date.strftime("%d/%m/%Y"), self.end_date.strftime("%d/%m/%Y"))
+    
 class Feature(models.Model):
     TYPE_CHOICES = (
         (0, 'Campground'),

@@ -362,7 +362,7 @@ var search_avail = {
             }
     },
     select_site: function(button_element) { 
- 	  var databutton = $(button_element).attr('data-button');
+ 	  var databutton = $(button_element).target.attr('data-button');
 	  var button_data = $.parseJSON(databutton);
 	  var post_data = {};
           $('#search-filters-campsites').hide();  

@@ -8,7 +8,7 @@
               <h4><span class="badge bg-danger ">CANCELLED</span> {{ booking.confirmation_number }}</h4>
            {% else %}
               {% if booking.departure >= today and booking.arrival <= today %}
-                  <h4><span class="badge bg-warning ">IN PROGRESS</span> {{ booking.confirmation_number }}</h4>
+                  <h4><span class="badge bg-warning ">CAMPING NOW</span> {{ booking.confirmation_number }}</h4>
               {% else %}
                   <h4><span class="badge bg-success ">CONFIRMED</span> {{ booking.confirmation_number }}</h4>
               {% endif %}
@@ -18,7 +18,7 @@
            	<h4><span class="badge bg-danger ">CANCELLED</span> {{ booking.confirmation_number }}</h4>
            {% else %}
              	{% if booking.departure >= today and booking.arrival <= today %} 
-                       <h4><span class="badge bg-warning ">IN PROGRESS</span> {{ booking.confirmation_number }}</h4>
+                       <h4><span class="badge bg-warning ">CAMPING NOW</span> {{ booking.confirmation_number }}</h4>
            	{% else %}
                        <h4><span class="badge bg-success ">COMPLETED</span> {{ booking.confirmation_number }}</h4>
            	{% endif %}
