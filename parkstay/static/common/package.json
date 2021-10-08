@@ -10,6 +10,7 @@
     "jqueryui": "^1.11.1",
     "moment": "^2.21.0",
     "daterangepicker": "^3.1.0",
+    "bootstrap-datepicker": "1.9.0",
     "twitter-bootstrap": "^2.1.1",
     "twbs": "0.0.6",
     "bootstrap": "5.0.2",

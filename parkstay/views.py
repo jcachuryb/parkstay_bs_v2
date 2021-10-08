@@ -31,6 +31,7 @@ from parkstay.models import (Campground,
                                 CampsiteRate,
                                 ParkEntryRate
                                 )
+from parkstay import models as parkstay_models
 from ledger_api_client.ledger_models import EmailUserRO as EmailUser
 from ledger_api_client.ledger_models import Address
 from ledger_api_client.ledger_models import EmailIdentity
@@ -386,6 +387,17 @@ class MakeBookingsView(TemplateView):
         result = utils.checkout(request, booking, lines, invoice_text=reservation)
 
         return result
+
+class PeakPeriodGroup(TemplateView):
+    template_name = 'ps/dash/peak_periods.html'
+
+    def get(self, request, *args, **kwargs):
+        #booking_id = kwargs['booking_id']
+        #parkstay_models.PeakGroup.objects.create(name='Test 2')
+        peakgroups = parkstay_models.PeakGroup.objects.all()
+        context = {'peakgroups': peakgroups}
+        response = render(request, self.template_name, context)
+        return response
 
 
 class CancelBookingView(TemplateView):
