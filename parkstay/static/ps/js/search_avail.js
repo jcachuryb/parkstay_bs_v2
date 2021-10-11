@@ -17,7 +17,6 @@ var search_avail = {
     change_camper_counters: function(group, direction) {
 	   
 	   if (group in search_avail.var.campers) {
-
 		if (direction == 'up') { 
 			search_avail.var.campers[group] = search_avail.var.campers[group] + 1;
 		}
@@ -37,8 +36,6 @@ var search_avail = {
            if (search_avail.var.page == 'campsite-availablity') {
             ///   search_avail.load_campsite_availabilty();
            }
-
-
     },
     total_campers: function() {
 	     search_avail.var.campers['total_people']  = search_avail.var.campers['adult'] + search_avail.var.campers['concession'] + search_avail.var.campers['children'];    
@@ -65,7 +62,6 @@ var search_avail = {
            if (search_avail.var.page == 'campsite-availablity') {
               // search_avail.load_campsite_availabilty();
            }
-
     },
     get_search_locations: function() {
                 $.ajax({

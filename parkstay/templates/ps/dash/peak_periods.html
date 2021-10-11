@@ -83,7 +83,7 @@
                             <div class='col-12'>
                             <button type="button" class="btn btn-primary peakcreate" button-data='{"action": "create"}'>Create</button>
 
-                            <div class="spinner-border text-primary" role="status" style="display:none" id="peakperiod-loader-3">
+                            <div class="spinner-border text-primary" role="status" style="display:none" id="peakperiod-loader-create">
                                  <span class="visually-hidden">Loading...</span>
                             </div>&nbsp;&nbsp;&nbsp;
                             </div>
@@ -150,7 +150,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" id='group-close-modal' data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="management.save_peak_group();">Save</button>
+	<button type="button" class="btn btn-primary peak-group-create" ooionclick="management.save_peak_group();" button-data='{"action": "create"}'>Save</button>
 	<div class="spinner-border text-primary" role="status" style='display:none' id='peakgroup_progress_loader'>
 		  <span class="visually-hidden">Loading...</span>
 	</div>
@@ -188,6 +188,15 @@ $( ".peakcreate" ).click(function() {
 
           console.log(buttondata);
           management.save_peak_period(buttondata_obj);
+});
+
+$( ".peak-group-create" ).click(function() {
+          console.log('peakcreate');
+          var buttondata = $(this)[0].attributes['button-data'].value;
+          var buttondata_obj = JSON.parse(buttondata);
+
+          console.log(buttondata);
+          management.save_peak_group(buttondata_obj);
 });
 
 
