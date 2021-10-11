@@ -1663,8 +1663,6 @@ def save_peak_period(request,*args, **kwargs):
          else:
              start_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__lte=start_date_dt, end_date__gte=start_date_dt).count()
              end_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__gte=end_date_dt, end_date__lte=end_date_dt).count()
-         print (start_date_conflict)
-         print (end_date_conflict)
 
 
          if start_date_dt > end_date_dt:
@@ -1679,8 +1677,6 @@ def save_peak_period(request,*args, **kwargs):
          if end_date_conflict > 0:
                raise ValidationError("End date conflict with another date range")
 
-         print ("YES")
-         print (period_id)
          if action == 'create':
             peakgroup = parkstay_models.PeakGroup.objects.get(id=int(peakgroup_id))
             PeakPeriod = parkstay_models.PeakPeriod.objects.create(peak_group=peakgroup, start_date=start_date_dt,end_date=end_date_dt,active=period_status_boolean)
@@ -1706,7 +1702,7 @@ def peak_groups(request, *args, **kwargs):
     dumped_data = cache.get('PeakPeriodGroups')
     if dumped_data is None:
         item_list = []
-        item_obj = parkstay_models.PeakGroup.objects.all()
+        item_obj = parkstay_models.PeakGroup.objects.all().order_by('id')
         for i in item_obj:
             item_list.append({'id': i.id, 'name': i.name,'active': i.active})
 
@@ -1718,17 +1714,30 @@ def peak_groups(request, *args, **kwargs):
 def save_peak_group(request,*args, **kwargs):
     #print (request.POST)
     #print (request.POST.get('group_name',None))
-    print (request)
+
     status = 503
     try:
          data = json.load(request)
          payload = data.get('payload')
+         action = payload['action']
+         group_id = None
+         if action == 'save':
+              group_id = payload['group_id']
+             
          group_name = payload['group_name']
          peak_status = payload['peak_status']
+
          peak_status_boolean = False
          if peak_status == 'true':
              peak_status_boolean = True
-         parkstay_models.PeakGroup.objects.create(name=group_name,active=peak_status_boolean)
+
+         if action == 'save':
+              pg = parkstay_models.PeakGroup.objects.get(id=int(group_id))
+              pg.name=group_name
+              pg.active=peak_status_boolean
+              pg.save()
+         else: 
+              parkstay_models.PeakGroup.objects.create(name=group_name,active=peak_status_boolean)
          status = 200
          res = {"status": status, "message" : "Success"}
     except Exception as e:
