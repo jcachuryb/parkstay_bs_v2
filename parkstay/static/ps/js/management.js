@@ -112,7 +112,6 @@ var management = {
                         } else {
                               $('#peak-periods-tbody').html("<tr><td colspan='4' class='text-center'>No results found<td></tr>");
                         }
-
 		       
 			console.log(response);
                     },
@@ -214,8 +213,6 @@ var management = {
                                   management.var.peak_group_collapsed_id = buttondata_obj['id'];
                             });
 
-
-
                             $( ".peakgroupsave" ).click(function() {
                                       console.log('peakgroupsave');
                                       var buttondata = $(this)[0].attributes['button-data'].value;
@@ -224,8 +221,6 @@ var management = {
                                       console.log(buttondata);
                                       management.save_peak_group(buttondata_obj);
                             });
-
-
 
 		 	} else {
 				$('#peak-groups-tbody').html("<tr><td colspan='4' class='text-center'>No results found<td></tr>");
@@ -319,8 +314,7 @@ var management = {
              if (buttondata_obj['action'] == 'create') {
 	         group_name = $('#group-name');
                  peak_status = $('#peak-status');
-
-		 peakgroup_progress_loader = $('#peakgroup_progress_loader');
+		 peakgroup_progress_loader = $('#peakgroup_progress_loader_create');
 	     } else {
 		 group_id = buttondata_obj['group_id'];
 		 group_name = $('#row-group-name-'+buttondata_obj['group_id']);
@@ -330,14 +324,16 @@ var management = {
 
              var data = {'action': buttondata_obj['action'], 'group_id': group_id, 'group_name' : group_name.val(),'peak_status': peak_status.val()};
 
-             $('#peakgroup_progress_loader').show();
+             peakgroup_progress_loader.show();
              $("#group-name").prop('disabled', true);
 	     $('#peak-status').prop('disabled', true);
-
+	     $('#group-flat-success').hide();
+             $('#group-flat-error').hide();
+	     $('#popup-error').hide();
              $.ajax({
                  url: management.var.peak_groups_save_url,
                  method: "POST",  
-		 headers:{'X-CSRFToken':management.var.csrf_token},
+		 headers: {'X-CSRFToken':management.var.csrf_token},
                  data: JSON.stringify({'payload': data,}),
                  contentType: "application/json",
                  success: function(data){
@@ -346,6 +342,9 @@ var management = {
 		       peak_status.prop('disabled', false);
 		       management.load_peak_groups();
                        $('#group-close-modal').click();
+
+		       $('#group-flat-success').html("Successfull");
+		       $('#group-flat-success').show();
                        // alert(JSON.stringify(data));
                  },
                  error: function(errMsg) {
@@ -353,8 +352,14 @@ var management = {
 	             group_name.prop('disabled', false);
 	             peak_status.prop('disabled', false);
 		     peakgroup_progress_loader.hide();
-		     $('#popup-error').html(errMsg.responseJSON.message);
-		     $('#popup-error').show();
+                     if (buttondata_obj['action'] == 'save') { 
+			  $('#group-flat-error').html(errMsg.responseJSON.message);
+                          $('#group-flat-error').show();
+                     } else {
+		          $('#popup-error').html(errMsg.responseJSON.message);
+		          $('#popup-error').show();
+		     }
+
 		     management.load_peak_groups();
                      // alert(JSON.stringify(errMsg));
                  }
