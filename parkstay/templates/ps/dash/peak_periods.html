@@ -3,13 +3,24 @@
 {% load forms %}
 {% block content %}
 {% csrf_token %}
+
     <div class="container">
+
+        <div class="alert alert-danger" role="alert" id='group-flat-error' style='display:none'>
+
+        </div>
+        <div class="alert alert-success" role="alert" id='group-flat-success' style='display:none'>
+
+        </div>
+
+
         <div style='padding: 1.5rem;
     margin-right: 0;
     margin-left: 0;
     border-width: 1px;
     border-top-left-radius: .25rem;
-    border-top-right-radius: .25rem;     margin: 1rem -.75rem 0;
+    border-top-right-radius: .25rem;     
+    margin: 1rem -.75rem 0;
     border: 1px solid #dee2e6;'>
         <div class='row'>
             <div class='col-6'>
@@ -36,12 +47,11 @@
 	</table>
       </div>
     </div>
-<script>
-	management.var.csrf_token = '{{ csrf_token }}';
-	management.load_peak_groups();
 
-</script>
-
+    <script>
+    	management.var.csrf_token = '{{ csrf_token }}';
+    	management.load_peak_groups();
+    </script>
 
 <div class="modal fade" id="ViewPeakPeriodModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog modal-xl">
@@ -90,9 +100,7 @@
                    </div>
             </div>
             </form>
-
         </div>         
-
 
         <table class="table table-striped">
             <thead class='table-dark'>
@@ -151,7 +159,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" id='group-close-modal' data-bs-dismiss="modal">Close</button>
 	<button type="button" class="btn btn-primary peak-group-create" ooionclick="management.save_peak_group();" button-data='{"action": "create"}'>Save</button>
-	<div class="spinner-border text-primary" role="status" style='display:none' id='peakgroup_progress_loader'>
+	<div class="spinner-border text-primary" role="status" style='display:none' id='peakgroup_progress_loader_create'>
 		  <span class="visually-hidden">Loading...</span>
 	</div>
       </div>
