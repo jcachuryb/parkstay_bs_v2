@@ -194,20 +194,6 @@ var management = {
                     }
                     $('#booking-policy-tbody').html(html);
 
-                    var policy_types_list = policy_types;
-                    var policy_type_html ="";
-                    for (let i = 0; i < policy_types_list.length; i++) {
-                           policy_type_html = policy_type_html + "<option value='"+policy_types_list[i]['id']+"'>"+policy_types_list[i]['name']+"</option>";
-                    }
-                    $("#peak-policy-type").html(policy_type_html);
-                    $("#policy-type").html(policy_type_html);
-
-                    var edit_policy_group_html = '';
-                    for (let i = 0; i < management.var.peak_groups.length; i++) {
-                              edit_policy_group_html = edit_policy_group_html + "<option value='"+management.var.peak_groups[i].id+"'>"+management.var.peak_groups[i].name+"</option>";
-                    }
-                    $('#peak-policy-group').html(edit_policy_group_html);
-
                     $( ".booking-policy-delete" ).click(function() {
                     	  console.log('booking-policy-delete');
                     	  var buttondata = $(this)[0].attributes['button-data'].value;
@@ -289,7 +275,25 @@ var management = {
                     // open edit popup end
 
 
-                } 
+                } else {
+  			$('#booking-policy-tbody').html("<tr><td colspan='3' class='text-center'>No results found<td></tr>");
+
+	 	}
+                    var policy_types_list = policy_types;
+                    var policy_type_html ="";
+                    for (let i = 0; i < policy_types_list.length; i++) {
+                           policy_type_html = policy_type_html + "<option value='"+policy_types_list[i]['id']+"'>"+policy_types_list[i]['name']+"</option>";
+                    }
+                    $("#peak-policy-type").html(policy_type_html);
+                    $("#policy-type").html(policy_type_html);
+
+                    var edit_policy_group_html = '';
+                    for (let i = 0; i < management.var.peak_groups.length; i++) {
+                              edit_policy_group_html = edit_policy_group_html + "<option value='"+management.var.peak_groups[i].id+"'>"+management.var.peak_groups[i].name+"</option>";
+                    }
+                    $('#peak-policy-group').html(edit_policy_group_html);
+
+
             },
             error: function (error) {
                 console.log('Error loading peak groups');
