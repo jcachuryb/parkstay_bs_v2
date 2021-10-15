@@ -846,6 +846,7 @@ class CampsiteStayHistory(StayHistory):
 class CampgroundStayHistory(StayHistory):
     campground = models.ForeignKey('Campground', on_delete=models.PROTECT, related_name='stay_history')
 
+
 class PeakGroup(models.Model):
       name = models.CharField(max_length=255, unique=True)
       active = models.BooleanField(default=True)
@@ -862,6 +863,7 @@ class PeakGroup(models.Model):
           super(PeakGroup, self).save(*args, **kwargs)
 
 
+
 class PeakPeriod(models.Model):
       peak_group = models.ForeignKey('PeakGroup', on_delete=models.PROTECT, related_name='peak_group')
       start_date = models.DateField() 
@@ -871,7 +873,44 @@ class PeakPeriod(models.Model):
 
       def __str__(self):
             return "{} - {}".format(self.start_date.strftime("%d/%m/%Y"), self.end_date.strftime("%d/%m/%Y"))
-    
+
+
+class BookingPolicy(models.Model):
+
+      BOOKING_POLICY = (
+          (0, 'Per Day'),
+          (1, 'Fixed Fee'),
+          (2, 'Booking Percentage')
+      )
+
+      # General Policy
+      policy_name = models.CharField(max_length=255, unique=True)
+      policy_type = models.SmallIntegerField(choices=BOOKING_POLICY, default=0)
+      amount = models.DecimalField(max_digits=8, decimal_places=2, default='0.00', blank=True, null=True, unique=False)
+
+      # Policy with grace period
+      grace_time = models.PositiveIntegerField(default=10080)
+
+      # Peak Policy
+      peak_policy_enabled = models.BooleanField(default=False)
+      peak_policy_type = models.SmallIntegerField(choices=BOOKING_POLICY, default=0, blank=True, null=True)
+      peak_group = models.ForeignKey('PeakGroup', on_delete=models.PROTECT, related_name='peak_group_policy', blank=True, null=True,)
+      peak_amount = models.DecimalField(max_digits=8, decimal_places=2, default='0.00', blank=True, null=True, unique=False)
+      peak_grace_time = models.PositiveIntegerField(default=10080,blank=True, null=True)
+
+      # active
+      active = models.BooleanField(default=True)
+      created = models.DateTimeField(default=timezone.now)
+
+      def __str__(self):
+          return self.policy_name
+
+      def save(self, *args, **kwargs):
+          cache.delete('BookingPolicy')
+          self.full_clean()
+          super(BookingPolicy, self).save(*args, **kwargs)
+
+
 class Feature(models.Model):
     TYPE_CHOICES = (
         (0, 'Campground'),

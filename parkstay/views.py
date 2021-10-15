@@ -392,13 +392,21 @@ class PeakPeriodGroup(TemplateView):
     template_name = 'ps/dash/peak_periods.html'
 
     def get(self, request, *args, **kwargs):
-        #booking_id = kwargs['booking_id']
-        #parkstay_models.PeakGroup.objects.create(name='Test 2')
-        peakgroups = parkstay_models.PeakGroup.objects.all()
-        context = {'peakgroups': peakgroups}
+        #peakgroups = parkstay_models.PeakGroup.objects.all()
+        #context = {'peakgroups': peakgroups}
+        context = {}
         response = render(request, self.template_name, context)
         return response
 
+class BookingPolicy(TemplateView):
+    template_name = 'ps/dash/booking_policy.html'
+
+    def get(self, request, *args, **kwargs):
+        #booking_id = kwargs['booking_id']
+        #parkstay_models.PeakGroup.objects.create(name='Test 2')
+        context = {}
+        response = render(request, self.template_name, context)
+        return response
 
 class CancelBookingView(TemplateView):
     template_name = 'ps/booking/cancel_booking.html'
