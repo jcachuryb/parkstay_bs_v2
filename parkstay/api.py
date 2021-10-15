@@ -1627,69 +1627,97 @@ def invoice_callback(invoice_ref):
 def peak_periods(request, *args, **kwargs):
     #pg =parkstay_models.PeakGroup.objects.get(id=25)
     #parkstay_models.PeakPeriod.objects.create(start_date='2022-01-01', end_date='2022-01-30', active=True,peak_group=pg)
-    peakgroup_id = request.GET.get('peakgroup_id',None)
-    item_list = []
-    item_obj = parkstay_models.PeakPeriod.objects.filter(peak_group_id=peakgroup_id).order_by('start_date')
-    for i in item_obj:
-        item_list.append({'id': i.id, 'start_date': i.start_date.strftime("%d/%m/%Y"),'end_date': i.end_date.strftime("%d/%m/%Y"), 'active': i.active, 'created' : i.created.strftime("%d/%m/%Y, %H:%M:%S")})
-    dumped_data = json.dumps(item_list)
+
+    if request.user.is_authenticated:
+         if request.user.is_staff is True:
+               peakgroup_id = request.GET.get('peakgroup_id',None)
+               item_list = []
+               item_obj = parkstay_models.PeakPeriod.objects.filter(peak_group_id=peakgroup_id).order_by('start_date')
+               for i in item_obj:
+                   item_list.append({'id': i.id, 'start_date': i.start_date.strftime("%d/%m/%Y"),'end_date': i.end_date.strftime("%d/%m/%Y"), 'active': i.active, 'created' : i.created.strftime("%d/%m/%Y, %H:%M:%S")})
+               dumped_data = json.dumps(item_list)
+         else:
+                  status = 501
+                  res = {"status": status, "message" : "Unauthorised"}
+                  dumped_data = json.dumps(res)
+    else:
+         status = 501
+         res = {"status": status, "message" : "Unauthorised"}
+         dumped_data = json.dumps(res)
     return HttpResponse(dumped_data, content_type='application/json')
 
 
 def save_peak_period(request,*args, **kwargs):
     status = 503
     try:
-         data = json.load(request)
-         payload = data.get('payload')
-         action = payload['action']
-         period_id = payload['period_id']
-         peakgroup_id=  payload['peakgroup_id']
-         start_date = payload['start_date']
-         end_date = payload['end_date']
-         active = payload['active'] 
-         period_status_boolean = False
-         start_date_dt = datetime.strptime(start_date, '%d/%m/%Y').date()
-         end_date_dt = datetime.strptime(end_date, '%d/%m/%Y').date()
 
-         if active == 'true':
-             period_status_boolean = True
-         
-         PeakPeriod=None
-         peakgroup = parkstay_models.PeakGroup.objects.get(id=int(peakgroup_id))
-         if action == 'save': 
-             PeakPeriod = parkstay_models.PeakPeriod.objects.get(id=int(period_id))
-             start_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__lte=start_date_dt, end_date__gte=start_date_dt).exclude(id=int(period_id)).count()
-             end_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__gte=end_date_dt, end_date__lte=end_date_dt).exclude(id=int(period_id)).count()
-         else:
-             start_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__lte=start_date_dt, end_date__gte=start_date_dt).count()
-             end_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__gte=end_date_dt, end_date__lte=end_date_dt).count()
+         if request.user.is_authenticated:
+             if request.user.is_staff is True:
+                  data = json.load(request)
+                  payload = data.get('payload')
+                  action = payload['action']
+                  period_id = payload['period_id']
+                  peakgroup_id =  payload['peakgroup_id']
+                  start_date = payload['start_date']
+                  end_date = payload['end_date']
+                  active = payload['active'] 
+                  period_status_boolean = False
+                  if action == 'delete':
+                     start_date_dt = ''
+                     end_date_dt = ''
+                  else:
+                     start_date_dt = datetime.strptime(start_date, '%d/%m/%Y').date()
+                     end_date_dt = datetime.strptime(end_date, '%d/%m/%Y').date()
 
+                  if active == 'true':
+                      period_status_boolean = True
+                  
+                  PeakPeriod=None
+                  peakgroup = parkstay_models.PeakGroup.objects.get(id=int(peakgroup_id))
+                  if action == 'save': 
+                      PeakPeriod = parkstay_models.PeakPeriod.objects.get(id=int(period_id))
+                      start_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__lte=start_date_dt, end_date__gte=start_date_dt).exclude(id=int(period_id)).count()
+                      end_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__gte=end_date_dt, end_date__lte=end_date_dt).exclude(id=int(period_id)).count()
+                  elif action == 'delete':
+                      parkstay_models.PeakPeriod.objects.filter(id=int(period_id)).delete()
+                      start_date_conflict = 0
+                      end_date_conflict = 0
+                  else:
+                      start_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__lte=start_date_dt, end_date__gte=start_date_dt).count()
+                      end_date_conflict = parkstay_models.PeakPeriod.objects.filter(peak_group=peakgroup,start_date__gte=end_date_dt, end_date__lte=end_date_dt).count()
 
-         if start_date_dt > end_date_dt:
-              raise ValidationError("Start date is greater than end date.")
+                  if start_date_dt > end_date_dt:
+                       raise ValidationError("Start date is greater than end date.")
 
-         if start_date_conflict > 0 and end_date_conflict > 0:
-               raise ValidationError("Both start and end date conflict with another date range")
+                  if start_date_conflict > 0 and end_date_conflict > 0:
+                        raise ValidationError("Both start and end date conflict with another date range")
  
-         if start_date_conflict > 0:
-               raise ValidationError("Start date conflict with another date range")
+                  if start_date_conflict > 0:
+                        raise ValidationError("Start date conflict with another date range")
         
-         if end_date_conflict > 0:
-               raise ValidationError("End date conflict with another date range")
+                  if end_date_conflict > 0:
+                        raise ValidationError("End date conflict with another date range")
 
-         if action == 'create':
-            peakgroup = parkstay_models.PeakGroup.objects.get(id=int(peakgroup_id))
-            PeakPeriod = parkstay_models.PeakPeriod.objects.create(peak_group=peakgroup, start_date=start_date_dt,end_date=end_date_dt,active=period_status_boolean)
+                  if action == 'create':
+                     peakgroup = parkstay_models.PeakGroup.objects.get(id=int(peakgroup_id))
+                     PeakPeriod = parkstay_models.PeakPeriod.objects.create(peak_group=peakgroup, start_date=start_date_dt,end_date=end_date_dt,active=period_status_boolean)
 
 
-         if action == 'save':
-            PeakPeriod.start_date = start_date_dt 
-            PeakPeriod.end_date = end_date_dt
-            PeakPeriod.active = period_status_boolean
-            PeakPeriod.save()
+                  if action == 'save':
+                     PeakPeriod.start_date = start_date_dt 
+                     PeakPeriod.end_date = end_date_dt
+                     PeakPeriod.active = period_status_boolean
+                     PeakPeriod.save()
 
-         status = 200
-         res = {"status": status, "message" : "Success"}
+                  status = 200
+                  res = {"status": status, "message" : "Success"}
+             else:        
+                  status = 501
+                  res = {"status": status, "message" : "Unauthorised"}
+
+         else:
+              status = 501
+              res = {"status": status, "message" : "Unauthorised"}
     except Exception as e:
          status = 503
          res = {
@@ -1699,47 +1727,76 @@ def save_peak_period(request,*args, **kwargs):
     return HttpResponse(json.dumps(res), content_type='application/json', status=status)
 
 def peak_groups(request, *args, **kwargs):
-    dumped_data = cache.get('PeakPeriodGroups')
-    if dumped_data is None:
-        item_list = []
-        item_obj = parkstay_models.PeakGroup.objects.all().order_by('id')
-        for i in item_obj:
-            item_list.append({'id': i.id, 'name': i.name,'active': i.active})
 
-        dumped_data = geojson.dumps(item_list)
-        cache.set('PeakPeriodGroups', dumped_data,  3600)
+    if request.user.is_authenticated:
+         if request.user.is_staff is True:
+              dumped_data = cache.get('PeakPeriodGroups')
+              if dumped_data is None:
+                  item_list = []
+                  item_obj = parkstay_models.PeakGroup.objects.all().order_by('id')
+                  for i in item_obj:
+                      item_list.append({'id': i.id, 'name': i.name,'active': i.active})
+
+                  dumped_data = geojson.dumps(item_list)
+                  cache.set('PeakPeriodGroups', dumped_data,  3600)
+         else:
+                  status = 501
+                  res = {"status": status, "message" : "Unauthorised"}
+                  dumped_data = json.dumps(res)
+    else:
+         status = 501
+         res = {"status": status, "message" : "Unauthorised"}
+         dumped_data = json.dumps(res)
 
     return HttpResponse(dumped_data, content_type='application/json')
+
 
 def save_peak_group(request,*args, **kwargs):
     #print (request.POST)
     #print (request.POST.get('group_name',None))
-
+    #import time
+    #time.sleep(2.4)
     status = 503
+
     try:
-         data = json.load(request)
-         payload = data.get('payload')
-         action = payload['action']
-         group_id = None
-         if action == 'save':
-              group_id = payload['group_id']
-             
-         group_name = payload['group_name']
-         peak_status = payload['peak_status']
+         if request.user.is_authenticated:
+             if request.user.is_staff is True:
+                   data = json.load(request)
+                   payload = data.get('payload')
+                   action = payload['action']
+                   group_id = None
 
-         peak_status_boolean = False
-         if peak_status == 'true':
-             peak_status_boolean = True
+                   if action == 'save' or action == 'delete':
+                        group_id = payload['group_id']
+                       
+                   group_name = payload['group_name']
+                   peak_status = payload['peak_status']
+                   peak_status_boolean = False
 
-         if action == 'save':
-              pg = parkstay_models.PeakGroup.objects.get(id=int(group_id))
-              pg.name=group_name
-              pg.active=peak_status_boolean
-              pg.save()
-         else: 
-              parkstay_models.PeakGroup.objects.create(name=group_name,active=peak_status_boolean)
-         status = 200
-         res = {"status": status, "message" : "Success"}
+                   if peak_status == 'true':
+                       peak_status_boolean = True
+
+                   if action == 'save':
+                        pg = parkstay_models.PeakGroup.objects.get(id=int(group_id))
+                        pg.name=group_name
+                        pg.active=peak_status_boolean
+                        pg.save()
+                   elif action == 'delete':
+                        parkstay_models.PeakGroup.objects.filter(id=int(group_id)).delete()
+                        cache.delete('PeakPeriodGroups')
+                   else: 
+                        parkstay_models.PeakGroup.objects.create(name=group_name,active=peak_status_boolean)
+                   status = 200
+                   res = {"status": status, "message" : "Success"}
+
+             else:
+                  status = 501
+                  res = {"status": status, "message" : "Unauthorised"}
+         else:
+              status = 501
+              res = {"status": status, "message" : "Unauthorised"}
+
+
     except Exception as e:
          status = 503
          res = {
@@ -1748,6 +1805,160 @@ def save_peak_group(request,*args, **kwargs):
 
     return HttpResponse(json.dumps(res), content_type='application/json', status=status)
 
+
+def booking_policy(request, *args, **kwargs):
+    #parkstay_models.BookingPolicy.objects.create(policy_name='Test 3',policy_type=1, amount='0.00', peak_group_id=25)
+    if request.user.is_authenticated:
+         if request.user.is_staff is True:
+              dumped_data = cache.get('BookingPolicy')
+              if dumped_data is None:
+                  bpo_array = []
+                  for bpo in parkstay_models.BookingPolicy.BOOKING_POLICY:
+                      bpo_list = list(bpo)
+                      bpo_array.append({"id": bpo_list[0], "name": bpo_list[1]})
+                  item_options = {'policy_types': bpo_array, 'dataitems': []} 
+                  item_list = []
+
+                  item_obj = parkstay_models.BookingPolicy.objects.all().order_by('id')
+                  for i in item_obj:
+                      peak_group_id = None
+                      if i.peak_group:
+                          peak_group_id = i.peak_group.id
+
+                      item_list.append({'id': i.id, 'policy_name' : i.policy_name, 'policy_type' : i.policy_type, 'active': i.active, 'amount':  str(i.amount), 'grace_time': i.grace_time, 'peak_policy_enabled': i.peak_policy_enabled, 'peak_policy_type': i.peak_policy_type, 'peak_group': peak_group_id, 'peak_amount': str(i.peak_amount), 'peak_grace_time': i.peak_grace_time, 'active': i.active})
+                  item_options['dataitems'] = item_list
+                  
+                  dumped_data = geojson.dumps(item_options)
+                  cache.set('BookingPolicy', dumped_data,  3600)
+         else:
+                  status = 501
+                  res = {"status": status, "message" : "Unauthorised"}
+                  dumped_data = json.dumps(res)
+    else:
+         status = 501
+         res = {"status": status, "message" : "Unauthorised"}
+         dumped_data = json.dumps(res)
+
+    return HttpResponse(dumped_data, content_type='application/json')
+
+def save_booking_policy(request,*args, **kwargs):
+    status = 503
+
+    try:
+         if request.user.is_authenticated:
+             if request.user.is_staff is True:
+                   data = json.load(request)
+                   payload = data.get('payload')
+                   action = payload['action']
+                   policy_id = payload['policy_id']
+                   policyname = payload['policyname']
+                   policytype = payload['policytype']
+                   policyamount = payload['policyamount']
+                   policygracetime = payload['policygracetime']
+
+                   #peakpolicyenabled = payload['peakpolicyenabled']
+                   peakpolicytype = payload['peakpolicytype']
+                   peakpolicygroup = payload['peakpolicygroup']
+                   peakpolicyamont = payload['peakpolicyamont']
+                   peakpolicygracetime = payload['peakpolicygracetime']
+
+                   policyactive = False
+                   peak_policy_enabled = False
+                   if payload['policyactive'] == 'true':
+                        policyactive = True 
+                   if payload['peakpolicyenabled'] == 'true':
+                        peak_policy_enabled = True
+
+                   if peakpolicyamont == '':
+                       peakpolicyamont = '0.00'
+                   if policyamount == '':
+                       policyamount = '0.00'
+                   if peakpolicygracetime == '':
+                       peakpolicygracetime = 0
+
+
+
+                   if action == 'save':
+                       bookingpolicy = parkstay_models.BookingPolicy.objects.get(id=policy_id)
+                       bookingpolicy.policy_name = policyname
+                       bookingpolicy.policy_type = policytype
+                       bookingpolicy.amount = policyamount
+                       bookingpolicy.grace_time = policygracetime 
+                       bookingpolicy.peak_policy_enabled = peak_policy_enabled 
+                       print (peak_policy_enabled)
+                       if peak_policy_enabled is True:
+                           bookingpolicy.peak_policy_type= peakpolicytype
+                           ppg=None
+                           if peakpolicygroup:
+                               ppg= parkstay_models.PeakGroup.objects.get(id=peakpolicygroup)
+                           bookingpolicy.peak_group = ppg
+                           bookingpolicy.peak_amount = peakpolicyamont 
+                           bookingpolicy.peak_grace_time = peakpolicygracetime 
+                       bookingpolicy.active = policyactive
+                       bookingpolicy.save()
+                   if action == 'delete':
+                       print ("DELETING")
+                       parkstay_models.BookingPolicy.objects.filter(id=int(policy_id)).delete()
+                       cache.delete('BookingPolicy')
+                   if action == 'create': 
+                       ppg=None
+                       if peakpolicygroup: 
+                          ppg= parkstay_models.PeakGroup.objects.get(id=peakpolicygroup)
+
+                       parkstay_models.BookingPolicy.objects.create(policy_name=policyname,
+                                                                    policy_type=policytype,
+                                                                    amount=policyamount,
+                                                                    grace_time=policygracetime,
+                                                                    peak_policy_enabled=peak_policy_enabled,
+                                                                    peak_policy_type=peakpolicytype,
+                                                                    peak_group=ppg,
+                                                                    peak_amount=peakpolicyamont,
+                                                                    peak_grace_time=peakpolicygracetime,
+                                                                    active=policyactive
+                                                                    )
+
+
+
+
+
+                   #if action == 'save' or action == 'delete':
+                   #     group_id = payload['group_id']
+
+                   #group_name = payload['group_name']
+                   #peak_status = payload['peak_status']
+                   #peak_status_boolean = False
+
+                   #if peak_status == 'true':
+                   #    peak_status_boolean = True
+
+                   #if action == 'save':
+                   #     pg = parkstay_models.PeakGroup.objects.get(id=int(group_id))
+                   #     pg.name=group_name
+                   #     pg.active=peak_status_boolean
+                   #     pg.save()
+                   #elif action == 'delete':
+                   #     parkstay_models.PeakGroup.objects.filter(id=int(group_id)).delete()
+                   #     cache.delete('PeakPeriodGroups')
+                   #else:
+                   #     parkstay_models.PeakGroup.objects.create(name=group_name,active=peak_status_boolean)
+                   status = 200
+                   res = {"status": status, "message" : "Success"}
+
+             else:
+                  status = 501
+                  res = {"status": status, "message" : "Unauthorised"}
+         else:
+              status = 501
+              res = {"status": status, "message" : "Unauthorised"}
+
+
+    except Exception as e:
+         status = 503
+         res = {
+                "status": status, "message": str(e)
+         }
+
+    return HttpResponse(json.dumps(res), content_type='application/json', status=status)
 
 def campground_map_view(request, *args, **kwargs):
      from django.core import serializers
