@@ -1,10 +1,10 @@
 <template lang="html" id="booking-dashboard">
 <div class="row">
   <div class="col-lg-12" v-show="!isLoading">
-      <div class="well"     style="overflow: auto;">
+      <div class="card p-3"     style="overflow: auto;">
           <div class="row">
               <div class="col-lg-12">
-                  <button v-if="!exportingCSV" type="button" class="btn btn-default pull-right" id="print-btn" @click="print()">
+                  <button v-if="!exportingCSV" type="button" class="btn btn-outline-secondary pull-right" id="print-btn" @click="print()">
                       <i class="fa fa-file-excel-o" aria-hidden="true"></i> Export to CSV
                   </button>
                   <button v-else type="button" class="btn btn-default pull-right" disabled>

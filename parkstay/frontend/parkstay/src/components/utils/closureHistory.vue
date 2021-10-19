@@ -6,7 +6,7 @@
             <h1>Closure History</h1>
         </div>
         <div class="col-sm-4">
-            <button @click="showClose()" class="btn btn-primary pull-right table_btn">Add Closure Period</button>
+            <button @click="showClose()" class="btn btn-primary table_btn">Add Closure Period</button>
         </div>
         <datatable ref="closure_dt" :dtHeaders ="ch_headers" :dtOptions="ch_options" id="cg_table"></datatable>
      </div>

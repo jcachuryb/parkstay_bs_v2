@@ -416,7 +416,6 @@ class CampgroundNotice(models.Model):
 def campground_image_path(instance, filename):
     return '/'.join(['parkstay', 'campground_images', filename])
 
-
 class CampgroundGroupMembers(models.Model):
       #id = models.IntegerField()
       campgroundgroup_id = models.IntegerField()
@@ -424,8 +423,12 @@ class CampgroundGroupMembers(models.Model):
 
       class Meta:
           managed = False
-          abstract = True
+          #abstract = True
           db_table = 'parkstay_campgroundgroup_members'
+
+
+      def __str__(self):
+           return str(self.emailuser_id)
 
 #db_table='emailuser'
 #db_table='parkstay_campgroundgroup_members'
@@ -443,7 +446,7 @@ class CampgroundGroup(models.Model):
 #print (CampgroundGroup.members.through._meta)
 #CampgroundGroup.members.through._meta.get_field('emailuser').column='emailuser_id'
 
-CampgroundGroup.members.through._meta.get_field('emailuserro').column='emailuser_id'
+CampgroundGroup.members.through._meta.get_field('emailuserro_id').column='emailuser_id'
 
 
 class CampgroundGroupCampgrounds(models.Model):
@@ -457,7 +460,8 @@ class CampgroundGroupCampgrounds(models.Model):
           abstract = True
           db_table = 'parkstay_campgroundgroup_campgrounds'
 
-
+      def __str__(self):
+          return str(campground_id)
 #class CampgroundGroupMembers(models.Model):
 #      #id = models.IntegerField()
 #      #campgroundgroup_id = models.ForeignKey(CampgroundGroup, related_name='campgroundgroupcampgrounds')

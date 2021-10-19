@@ -1,5 +1,12 @@
 <template lang="html">
 <div  id="cg_attr" >
+
+<style>
+.pagination {
+float:right !important;
+}
+</style>
+
 	<div v-show="!isLoading">
 		<form id="attForm">
 		<div class="col-sm-12">

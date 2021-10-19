@@ -1,6 +1,6 @@
 <template lang="html">
    <div id="DataTable">
-      <table class="hover table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%" :id="id">
+      <table class="hover table border table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%" :id="id">
             <thead>
                 <tr>
                     <th :data-class="(i == 0 )? 'expand':null" v-for="(header,i) in dtHeaders"> {{ header}}</th>
@@ -13,7 +13,8 @@
 
 </template>
 <script>
-    import {$, DataTable, DataTableBs,DataTableRes} from '../../hooks'
+    
+    import {$, DataTableBs} from '../../hooks'
     import ResponsiveDatatablesHelper from "./responsive_datatable_helper.js"
 module.exports = {
    name : 'DataTable',
@@ -74,6 +75,7 @@ module.exports = {
       let vm = this;
       vm.table =$('#'+vm.id);
       $.fn.dataTable.ext.errMode = 'throw';
+      // $.fn.dataTable.ext.classes.sPageButton = 'page-link page-item';
       vm.initEvents();
    }
 };

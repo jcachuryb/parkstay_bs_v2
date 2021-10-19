@@ -2,16 +2,13 @@
    <div class="panel-group" id="applications-accordion" role="tablist" aria-multiselectable="true">
         <pkCsClose ref="closeCampsite" @closeCampsite="closeCampsite()"></pkCsClose>
         <pkCsOpen ref="openCampsite" @openCampsite="openCampsite()"></pkCsOpen>
-      <div class="panel panel-default" id="applications">
+      <div class="card p-3" id="applications" >
         <div class="panel-heading" role="tab" id="applications-heading">
             <h4 class="panel-title">
-                <a role="button" data-toggle="collapse" href="#applications-collapse"
-                   aria-expanded="false" aria-controls="applications-collapse">
                     <h3>{{title}}</h3>
-                </a>
             </h4>
         </div>
-        <div id="applications-collapse" class="panel-collapse collapse in" role="tabpanel"
+        <div id="applications-collapse" class="" role="tabpanel"
              aria-labelledby="applications-heading">
             <div class="panel-body">
                <div class="col-lg-12">
@@ -26,24 +23,21 @@
             </div>
          </div>
       </div>
-      <div class="panel panel-default" id="applications" style="margin-top:50px;">
+      <div class="card p-3" id="applications" style="margin-top:50px;">
         <div class="panel-heading" role="tab" id="applications-heading">
             <h4 class="panel-title">
-                <a role="button" data-toggle="collapse" href="#campsites"
-                   aria-expanded="false" aria-controls="collapseOne">
                     <h3>Camp Sites</h3>
-                </a>
             </h4>
         </div>
-        <div class="panel-collapse collapse in" role="tabpanel"
+        <div class="" role="tabpanel"
              aria-labelledby="applications-heading" id="campsites">
             <div class="panel-body">
                <div class="col-lg-12">
                   <div class="row">
                      <div class="well">
                         <div class="col-sm-offset-8 col-sm-4">
-                            <button @click="showBulkCloseCampsites = true" class="btn btn-primary pull-right table_btn" >Close Campsites</button> 
-                            <router-link :to="{name:'add_campsite',params:{id:campground_id}}" class="btn btn-primary pull-right table_btn" style="margin-right: 1em;">Add Campsite</router-link>
+                            <button @click="showBulkCloseCampsites = true" class="btn btn-primary table_btn" >Close Campsites</button> 
+                            <router-link :to="{name:'add_campsite',params:{id:campground_id}}" class="btn btn-primary table_btn" style="margin-right: 1em;">Add Campsite</router-link>
                         </div>
                         <datatable ref="cg_campsites_dt" :dtHeaders ="cs_headers" :dtOptions="cs_options" id="cs_table"></datatable>
                      </div>

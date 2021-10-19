@@ -1,15 +1,12 @@
 <template lang="html">
     <div id="campsite-type-dash">
-       <div class="panel panel-default" id="applications">
+       <div class="card p-3" id="applications">
          <div class="panel-heading" role="tab" id="applications-heading">
              <h4 class="panel-title">
-                 <a role="button" data-toggle="collapse" href="#applications-collapse"
-                    aria-expanded="false" aria-controls="applications-collapse">
                      <h3>Camp Site Types</h3>
-                 </a>
              </h4>
          </div>
-         <div id="applications-collapse" class="panel-collapse collapse in" role="tabpanel"
+         <div id="applications-collapse" class="" role="tabpanel"
               aria-labelledby="applications-heading">
             <div class="panel-body">
               <div id="groundsList">
@@ -27,7 +24,7 @@
                           </div>
                       </div>
                       <div class="col-md-4">
-                          <div class="form-group pull-right">
+                          <div class="form-group">
                               <router-link :to="{name:'campsite-type'}" style="margin-top: 20px;" class="btn btn-primary table_btn" >Add Camp Site Type</router-link>
                           </div>
                       </div>

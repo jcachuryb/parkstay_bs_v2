@@ -22,7 +22,7 @@ module.exports = {
         close: function (){
             this.$parent.close();
         },
-        addCloseEvent: function (){
+        addCloseEvent: function () {
             document.addEventListener("keydown", (e) => {
                 if (this.isModalOpen && e.keyCode == 27){
                     this.close();
