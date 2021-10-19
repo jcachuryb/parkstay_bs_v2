@@ -3,20 +3,21 @@
     <pkCgClose></pkCgClose>
     <pkCgOpen></pkCgOpen>
     <div class="panel-group" id="returns-accordion" role="tablist" aria-multiselectable="true">
-        <div class="panel panel-default" id="returns">
+        <div class="panel panel-default border p-3" id="returns">
             <div class="panel-heading" role="tab" id="returns-heading">
                 <h4 class="panel-title">
-                   <a role="button" data-toggle="collapse" href="#returns-collapse"
-                      aria-expanded="true" aria-controls="collapseOne">
                        <h3>{{title}}</h3>
-                   </a>
                </h4>
             </div>
-            <div id="returns-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="returns-heading">
+            <div id="returns-collapse" oldclass="panel-collapse collapse in" role="tabpanel" aria-labelledby="returns-heading">
                 <div class="panel-body">
                     <div id="groundsList">
+                        <div class="col-12">
                         <form class="form" id="campgrounds-filter-form">
+                            <div class="row">
+
                             <div class="col-md-8">
+                                <div class="row">
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label for="campgrounds-filter-status">Status: </label>
@@ -54,15 +55,22 @@
                                         </select>
                                     </div>
                                 </div>
+                                </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="form-group pull-right">
+                                <div class="form-group text-end">
                                     <a style="margin-top: 20px;" class="btn btn-primary" @click="addCampground()">Add Campground</a>
                                     <a style="margin-top: 20px;" class="btn btn-primary" @click="showBulkClose = true">Close Campgrounds</a>
                                 </div>
                             </div>
+                            </div>
                         </form>
+		<BR>
+		<BR>
+                        </div>
+                        <div class="col-12">
                         <datatable :dtHeaders="['Campground','Status','Region','District','Park','Action']" :dtOptions="dtoptions" ref="dtGrounds" id="campground-table" ></datatable>
+			</div>
                     </div>
                 </div>
             </div>
@@ -84,7 +92,7 @@ import bulkClose from '../utils/closureHistory/bulk-close.vue'
 import {bus} from '../utils/eventBus.js'
 import { mapGetters } from 'vuex'
 module.exports = {
-    name: 'pk-campgrounds',
+    name: 'campgrounds',
     data: function() {
         let vm =this;
         return {

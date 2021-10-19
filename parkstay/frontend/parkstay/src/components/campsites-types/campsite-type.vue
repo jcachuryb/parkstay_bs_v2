@@ -1,15 +1,12 @@
 <template lang="html">
     <div id="campsite-type">
-       <div class="panel panel-default" id="applications">
+       <div class="card p-3" id="applications">
          <div class="panel-heading" role="tab" id="applications-heading">
              <h4 class="panel-title">
-                 <a role="button" data-toggle="collapse" href="#applications-collapse"
-                    aria-expanded="false" aria-controls="applications-collapse">
                      <h3>Camp Site Type</h3>
-                 </a>
              </h4>
          </div>
-         <div id="applications-collapse" class="panel-collapse collapse in" role="tabpanel"
+         <div id="applications-collapse" class="" role="tabpanel"
               aria-labelledby="applications-heading">
               <div class="panel-body">
                 <div class="col-lg-12">

@@ -1,9 +1,12 @@
 // module for all third party dependencies
 
 import $ from 'jquery'
-var DataTable = require('datatables.net');
-var DataTableBs = require('datatables.net-bs');
-var DataTableRes = require('datatables.net-responsive-bs');
+var JqueryIn = $;
+//var DataTable = require('datatables.net');
+var DataTable = require('datatables.net-bs5');
+//var DataTableBs = require('datatables.net-bs');
+var DataTableBs = require('datatables.net-bs5');
+//var DataTableRes = require('datatables.net-responsive-bs');
 var bootstrap = require('bootstrap');
 var moment = require('moment/moment.js');
 var MomentRange = require('moment-range');
@@ -46,7 +49,7 @@ export {
     $,
     DataTable,
     DataTableBs,
-    DataTableRes,
+//    DataTableRes,
     Moment,
     datetimepicker,
     api_endpoints,

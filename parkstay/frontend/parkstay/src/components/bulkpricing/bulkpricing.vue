@@ -1,48 +1,47 @@
 <template lang="html" >
     <div id="bulkpricing">
-       <div class="panel panel-default" id="applications">
+       <div class="card p-3" id="applications">
          <div class="panel-heading" role="tab" id="applications-heading">
              <h4 class="panel-title">
-                 <a role="button" data-toggle="collapse" href="#applications-collapse"
-                    aria-expanded="false" aria-controls="applications-collapse">
                      <h3>Bulk Pricing</h3>
-                 </a>
              </h4>
          </div>
-             <div id="applications-collapse" class="panel-collapse collapse in" role="tabpanel"
+             <div id="applications-collapse" class="" role="tabpanel"
                   aria-labelledby="applications-heading">
                   <loader :isLoading="isLoading" >{{loading.join(' , ')}}</loader>
                 <div class="panel-body" v-show="!isLoading">
                           <alert :show="showError" :duration="7000" type="danger">{{errorString}}</alert>
                           <alert :show="showSuccess" :duration="7000" type="success"><strong>Bulk pricing was successfull </strong></alert>
-                          <div class="well well-sm">
+                          <div class="round-box px-3 mt-4">
                               <div class="row">
                                   <div class="col-lg-12">
-                                      <div class="col-md-3">
-                                          <div class="radio">
-                                            <label for="">Set price per : </label>
+                                      <div class="row">
+                                          <div class="col-md-3">
+                                              <div class="radio">
+                                                <label for="">Set price per : </label>
+                                              </div>
                                           </div>
-                                      </div>
-                                      <div class="col-md-3">
-                                          <div class="radio">
-                                            <label for="">
-                                                <input type="radio" :value="priceOptions[1]" v-model="setPrice">
-                                                Park/Campground
-                                            </label>
+                                          <div class="col-md-3">
+                                              <div class="radio">
+                                                <label for="">
+                                                    <input class="form-check-input" type="radio" :value="priceOptions[1]" v-model="setPrice">
+                                                    Park/Campground
+                                                </label>
+                                              </div>
                                           </div>
-                                      </div>
-                                      <div class="col-md-3">
-                                          <div class="radio">
-                                            <label for="">
-                                                <input type="radio" :value="priceOptions[2]" v-model="setPrice">
-                                                Campsite Type
-                                            </label>
+                                          <div class="col-md-3">
+                                              <div class="radio">
+                                                <label for="">
+                                                    <input class="form-check-input" type="radio" :value="priceOptions[2]" v-model="setPrice">
+                                                    Campsite Type
+                                                </label>
+                                              </div>
                                           </div>
-                                      </div>
+                                       </div>
                                   </div>
                               </div>
                           </div>
-                          <div class="well well-sm">
+                          <div class=" round-box px-3 mt-4 ">
                               <div class="row">
                                 <div class="col-lg-12">
                                     <h3>Add New Pricing Period For {{setPrice}}</h3><br/>
@@ -135,7 +134,7 @@
                                               </div>
                                           </div>
                                       </div>
-                                      <reason type="price" v-model="bulkpricing.reason" style="margin:0px 0px;" required="true"></reason>
+                                      <reason type="price" v-model="bulkpricing.reason" required="true"></reason>
                                       <div v-show="requireDetails">
                                           <div class="form-group">
                                               <div class="col-md-2">
@@ -146,9 +145,9 @@
                                               </div>
                                           </div>
                                       </div>
-                                      <div class="btn-group btn-group-sm">
-                                          <button type="button" class="btn btn-primary" style="margin-right:10px;" @click.prevent="sendData()">Save</button>
-                                          <button type="button" class="btn btn-default" @click="goBack()" >Cancel</button>
+                                      <div class="btn-group btn-group-sm pt-3">
+                                          <button type="button" class="btn btn-primary" @click.prevent="sendData()">Save</button>
+                                          <button type="button" class="btn btn-danger" @click="goBack()" >Cancel</button>
                                       </div>
                                     </form>
                                 </div>
@@ -157,16 +156,8 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="parkentry-heading">
-                <h4 class="panel-title">
-                    <a role="button" data-toggle="collapse" href="#parkentry-collapse"
-                       aria-expanded="false" aria-controls="parkentry-collapse">
-                        <h3>Park Entry</h3>
-                    </a>
-                </h4>
-            </div>
-            <div id="parkentry-collapse" class="panel-collapse collapse in" role="tabpanel"
+        <div class="card p-3 mt-4">
+            <div id="parkentry-collapse" class="" role="tabpanel"
                  aria-labelledby="parkentry-heading">
               <div class="panel-body" >
                   <div class="col-lg-12">

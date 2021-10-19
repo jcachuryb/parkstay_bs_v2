@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 #from ledger.accounts.models import EmailUser
 from ledger_api_client.ledger_models import EmailUserRO as EmailUser
+from parkstay import models as parkstay_models
 from django.core.cache import cache
 
 
@@ -41,9 +42,17 @@ def is_customer(user):
 def get_all_officers():
     return EmailUser.objects.filter(groups__name='Parkstay Officers')
 
-
 def can_view_campground(user, campground):
+    allowed_groups = parkstay_models.CampgroundGroupMembers.objects.filter(emailuser_id=user.id)
     for g in campground.campgroundgroup_set.all():
-        if user in g.members.all():
-            return True
+        for m in allowed_groups:
+            print (m.emailuser_id)
+            if g.id == m.campgroundgroup_id:
+                return True
+        #if g.id == 3:
+        #    print (g.id)
+            #print (g.members.all()) 
+            #if user in g.members.all():
+            #    print ("can_view_campground True")
+            #    return True
     return False

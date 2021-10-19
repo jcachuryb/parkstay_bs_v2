@@ -1,7 +1,7 @@
 <template lang="html">
     <div id="campsite">
         <pkCsClose ref="closeCampsite" @closeCampsite="closeCampsite()"></pkCsClose>
-        <div class="col-lg-12">
+        <div class="col-lg-12 card p-3">
            <div class="row" >
                <form name="campsiteForm">
                    <div class="panel panel-primary">

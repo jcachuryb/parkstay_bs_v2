@@ -7,16 +7,13 @@
             <h1>Price History</h1>
         </div>
         <div class="col-sm-4">
-            <button v-show="showAddBtn" @click="showHistory()" class="btn btn-primary pull-right table_btn">Add Price History</button>
+            <button v-show="showAddBtn" @click="showHistory()" class="btn btn-primary table_btn">Add Price History</button>
         </div>
-asdf dsaf dsaf dsafdsa
         <datatable ref="history_dt" :dtHeaders="dt_headers" :dtOptions="dt_options" id="ph_table"></datatable>
      </div>
     <confirmbox id="deleteHistory" :options="deleteHistoryPrompt"></confirmbox>
 </div>
-START
 {{ dt_options }}
-EMD
 </template>
 
 <script>

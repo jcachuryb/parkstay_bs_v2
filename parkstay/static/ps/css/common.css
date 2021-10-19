@@ -1,0 +1,12 @@
+.modal-backdrop {
+     opacity: 0.6;
+}
+.close {
+   font-size: 30px;
+   text-decoration: none;
+}
+
+.dataTables_processing {
+ z-index: 10;
+}
+
