@@ -420,16 +420,21 @@ class CancelBookingView(TemplateView):
     def get(self, request, *args, **kwargs):
         booking_id = kwargs['booking_id']
 
+        # ADD PERMISSIONS HERE
+
         booking = Booking.objects.get(id=booking_id)
         campsitebooking = CampsiteBooking.objects.filter(booking_id=booking_id)
         totalbooking = '0.00'
+
+        cancellation_data = utils.booking_cancellation_fees(booking)  
         for cb in campsitebooking:
              print (cb)
 
         context = {
             'booking': booking,
-            'campsitebooking': campsitebooking
-        }
+            'campsitebooking': campsitebooking,
+            'cancellation_data' : cancellation_data
+            }
         response = render(request, self.template_name, context)
         return response
 
