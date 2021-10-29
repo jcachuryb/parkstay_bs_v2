@@ -224,11 +224,12 @@ export default {
                     mRender: function(data, type, full) {
                         if (data && full.update_level == 2) {
                             var id = full.id;
-                            var column = "<td ><a href='#' class='editPrice' data-rate=\"__ID__\" >Edit</a><br/>"
+                            var column = "<td ><a href='#' class='editPrice' data-rate=\"__ID__\" data-bookingpolicyid=\"__BOOKINGPOLICYID__\">Edit</a><br/>"
                             if (full.deletable){
                                 column += "<a href='#' class='deletePrice' data-rate=\"__ID__\">Delete</a></td>";
                             }
-                            column = column.replace(/__ID__/g, full.id)
+                            column = column.replace(/__ID__/g, full.id);
+                            column = column.replace(/__BOOKINGPOLICYID__/g, full.booking_policy);
                             return column
                         }
                         else {

@@ -171,7 +171,7 @@ export default {
                     mRender: function(data, type, full) {
                         if (data) {
                             var id = full.id;
-                            var column = "<td ><a href='#' class='editPrice' data-date_start=\"__START__\"  data-date_end=\"__END__\"  data-rate=\"__RATE__\" data-reason=\"__REASON__\" data-details=\"__DETAILS__\">Edit</a><br/>"
+                            var column = "<td ><a href='#' class='editPrice' data-date_start=\"__START__\"  data-date_end=\"__END__\"  data-rate=\"__RATE__\" data-reason=\"__REASON__\" data-details=\"__DETAILS__\"  data-bookingpolicyid=\"__BOOKINGPOLICYID__\" >Edit</a><br/>"
                             if (full.deletable){
                                 column += "<a href='#' class='deletePrice' data-date_start=\"__START__\"  data-date_end=\"__END__\"  data-rate=\"__RATE__\" data-reason=\"__REASON__\" data-details=\"__DETAILS__\">Delete</a></td>";
                             }
@@ -180,6 +180,7 @@ export default {
                             column = column.replace(/__RATE__/g, full.rate_id)
                             column = column.replace(/__REASON__/g, full.reason)
                             column = column.replace(/__DETAILS__/g, full.details)
+                            column = column.replace(/__BOOKINGPOLICYID__/g, full.booking_policy_id)
                             return column
                         }
                         else {

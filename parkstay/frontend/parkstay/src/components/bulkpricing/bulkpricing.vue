@@ -156,7 +156,16 @@
                 </div>
             </div>
         </div>
+
         <div class="card p-3 mt-4">
+
+            <div class="panel-heading" role="tab" id="parkentry-heading">
+                <h4 class="panel-title">
+                        <h3>Park Entry</h3>
+                </h4>
+            </div>
+
+
             <div id="parkentry-collapse" class="" role="tabpanel"
                  aria-labelledby="parkentry-heading">
               <div class="panel-body" >
@@ -243,6 +252,10 @@ export default {
                 }, {
                     data: 'motorbike'
                 }, {
+                   data: 'campervan',
+                }, {
+                   data: 'trailer',
+                }, {
                     data: 'reason',
                     mRender: function(data, type, full) {
                         if (data.id == 1){
@@ -271,7 +284,7 @@ export default {
                 },
             },
             priceHistoryDtHeaders:[
-                "Period Start","Period End", "Vehicle","Concession","Motorbike","Comment","Action"
+                "Period Start","Period End", "Car","Concession","Motorbike","Campervan","Trailer","Comment","Action"
             ]
 
         }

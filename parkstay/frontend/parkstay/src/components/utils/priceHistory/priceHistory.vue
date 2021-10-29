@@ -48,7 +48,7 @@ export default {
             }
         },
         level: {
-            validator: function (value){
+            validator: function (value) {
                 var levels = ['campground','campsite_class','campsite','park'];
                 return $.inArray(value,levels) > -1;
             },
@@ -73,7 +73,7 @@ export default {
         dt_headers:{
             type:Array,
             default:function () {
-                return ['iPeriod Start', 'Period End', 'Adult Price', 'Concession Price', 'Child Price', 'Comment', 'Action'];
+                return ['Period Start', 'Period End', 'Adult Price', 'Concession Price', 'Child Price', 'Comment', 'Action'];
             }
         }
     },
@@ -106,7 +106,8 @@ export default {
                 motorbike:'',
                 reason:{id:1},
                 period_start:'',
-                details:''
+                details:'',
+                booking_policy: ''
             },
             deleteHistory: null,
             deleteHistoryPrompt: {
@@ -153,6 +154,8 @@ export default {
             this.$refs.historyModal.isOpen = false;
         },
         deleteHistoryRecord: function(data) {
+            console.log("DELETEING");
+            console.log(data);
             var vm = this;
             var url = null;
             if (vm.level == 'park') {
@@ -225,16 +228,18 @@ export default {
             }
         },
         addHistory: function() {
-            if (this.level == 'campsite'){ this.price.campsite = this.object_id; }
+            if (this.level == 'campsite') {
+              this.price.campsite = this.object_id; 
+            }
             this.sendData(this.getAddURL(),'POST',JSON.stringify(this.price));
         },
         updateHistory: function() {
             if (this.level == 'campsite'){
                 this.price.campsite = this.object_id;
-                this.sendData(this.getEditURL(),'PUT',JSON.stringify(vm.price));
+                this.sendData(this.getEditURL(),'PUT',JSON.stringify(this.price));
             }
             else{
-                this.sendData(this.getEditURL(),'POST',JSON.stringify(vm.price));
+                this.sendData(this.getEditURL(),'POST',JSON.stringify(this.price));
             }
         },
         addParkHistory: function() {
@@ -261,7 +266,7 @@ export default {
                     vm.closeHistory()
                     vm.$refs.history_dt.vmDataTable.ajax.reload();
                 },
-                error:function (resp){
+                error:function (resp) {
                     var msg = helpers.apiError(resp);
                     vm.$refs.historyModal.errorString = msg;
                     vm.$refs.historyModal.errors = true;
@@ -274,36 +279,50 @@ export default {
             vm.$refs.history_dt.vmDataTable.on('click','.editPrice', function(e) {
                 e.preventDefault();
                 var rate = $(this).data('rate');
+                console.log("RATE editPrice");
+                console.log(rate);
+                console.log(api_endpoints.campsiterate_detail(rate));
+                console.log(vm.level);
+                var bookingpolicyid = $(this).data('bookingpolicyid');
                 if (vm.level == 'park') {
                     vm.$http.get(api_endpoints.park_entry_rate(rate)).then((response)=>{
                         vm.parkPrice = response.body;
                         vm.$refs.historyModal.selected_rate= rate;
                         vm.price.period_start = Moment(vm.price.period_start ).format('YYYY-MM-DD');
                         vm.price.period_end != null ? vm.price.period_end : '';
+                        vm.price.bookingpolicyid = bookingpolicyid;
                     },(error)=>{
                         console.log(error);
                     });
                     vm.showHistory();
-                }else if (vm.level != 'campsite'){
+                }else if (vm.level != 'campsite') {
                     var start = $(this).data('date_start');
                     var end = $(this).data('date_end');
                     var reason = $(this).data('reason');
                     var details = $(this).data('details');
+                    var bookingpolicyid = $(this).data('bookingpolicyid');
                     vm.$refs.historyModal.selected_rate= rate;
                     vm.price.period_start = Moment(start).format('D/MM/YYYY');
+                    vm.price.booking_policy = bookingpolicyid;
                     vm.price.original = {
                         'date_start': start,
                         'rate_id': rate,
                         'reason': reason,
-                        'details': details
+                        'details': details,
+                        'booking_policy': bookingpolicyid
                     };
                     end != null ? vm.price.date_end : '';
+                    console.log("CAMPSITE, PR");
+                    console.log(vm.price);
                     vm.showHistory();
                 }
                 else{
                    $.get(api_endpoints.campsiterate_detail(rate), function(data) {
                         vm.price.period_start = data.date_start;
                         vm.price.id = data.id;
+                        vm.price.booking_policy = bookingpolicyid;
+                        console.log("VM PERT");
+                        console.log(vm.price);
                         vm.$refs.historyModal.selected_rate = data.rate;
                         vm.showHistory();
                     });
@@ -324,7 +343,7 @@ export default {
                     console.log( $(btn).data('rate'));
                     vm.deleteHistory = $(btn).data('rate');
                 }
-
+                console.log("DELETE PRICE END");
                 bus.$emit('showAlert', 'deleteHistory');
             });
         },

@@ -28,7 +28,8 @@
                 </div>
             </div>
         </div>
-        <div class="modal-backdrop in"></div>
+        SHOW NOW
+        <div class="modal-backdrop show"></div>
     </div>
 </template>
 

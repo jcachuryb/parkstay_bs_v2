@@ -364,6 +364,8 @@ class Campground(models.Model):
         try:
             with transaction.atomic():
                 for c in self.campsites.all():
+                    print ("CAMPSITE")
+                    print (data)
                     cr = CampsiteRate(**data)
                     cr.campsite = c
                     cr.save()
@@ -882,11 +884,11 @@ class PeakPeriod(models.Model):
 class BookingPolicy(models.Model):
 
       BOOKING_POLICY = (
-          (0, 'Per Day'),
-          (1, 'Fixed Fee'),
-          (2, 'Booking Percentage')
+          (0, 'Fixed Daily'),
+          (1, 'Percentage Daily '),
       )
 
+      no_policy = models.BooleanField(default=False)
       # General Policy
       policy_name = models.CharField(max_length=255, unique=True)
       policy_type = models.SmallIntegerField(choices=BOOKING_POLICY, default=0)
@@ -1071,7 +1073,12 @@ class CampsiteBooking(models.Model):
     date = models.DateField(db_index=True)
     booking = models.ForeignKey('Booking', related_name="campsites", on_delete=models.CASCADE, null=True)
     booking_type = models.SmallIntegerField(choices=BOOKING_TYPE_CHOICES, default=0)
-    amount = models.DecimalField(max_digits=8, decimal_places=2, default='0.00', blank=True, null=True, unique=False)
+    booking_policy = models.ForeignKey('BookingPolicy', related_name="booking_policy", on_delete=models.PROTECT, null=True, blank=True)
+    #oracle_code = models.CharField(max_length=50, null=True, blank=True)
+    amount_adult = models.DecimalField(max_digits=8, decimal_places=2, default='0.00', blank=True, null=True, unique=False)
+    amount_child = models.DecimalField(max_digits=8, decimal_places=2, default='0.00', blank=True, null=True, unique=False)
+    amount_infant = models.DecimalField(max_digits=8, decimal_places=2, default='0.00', blank=True, null=True, unique=False)
+    amount_concession = models.DecimalField(max_digits=8, decimal_places=2, default='0.00', blank=True, null=True, unique=False)
 
     def __str__(self):
         return '{} - {}'.format(self.campsite, self.date)
@@ -1089,6 +1096,16 @@ class CampsiteBooking(models.Model):
             raise ValidationError('Duplicate booking date for this campsite.')
         super(CampsiteBooking, self).save(*args, **kwargs)
 
+class AdditionalBooking(models.Model):
+      booking = models.ForeignKey('Booking', related_name="additional_booking", on_delete=models.CASCADE, null=True)
+      fee_description = models.CharField(max_length=150, null=True, blank=True)
+      amount = models.DecimalField(max_digits=8, decimal_places=2, default='0.00', blank=True, null=True, unique=False)
+      identifier = models.CharField(max_length=150, null=True, blank=True)
+      oracle_code = models.CharField(max_length=50, null=True, blank=True)
+      created = models.DateTimeField(auto_now_add=True)
+
+      def __str__(self):
+          return str(self.fee_description)
 
 class Rate(models.Model):
     adult = models.DecimalField(max_digits=8, decimal_places=2, default='10.00')
@@ -1124,7 +1141,6 @@ class CampsiteRate(models.Model):
         (0, 'Standard'),
         (1, 'Discounted'),
     )
-
     UPDATE_LEVEL_CHOICES = (
         (0, 'Campground level'),
         (1, 'Campsite Class level'),
@@ -1143,6 +1159,7 @@ class CampsiteRate(models.Model):
     price_model = models.SmallIntegerField(choices=PRICE_MODEL_CHOICES, default=0)
     reason = models.ForeignKey('PriceReason', null=True, blank=True, on_delete=models.PROTECT)
     details = models.TextField(null=True, blank=True)
+    booking_policy = models.ForeignKey('BookingPolicy', null=True, blank=True, on_delete=models.PROTECT)
     update_level = models.SmallIntegerField(choices=UPDATE_LEVEL_CHOICES, default=0)
     objects = CampsiteRateManager()
 
@@ -1222,6 +1239,7 @@ class Booking(models.Model):
     do_not_send_invoice = models.BooleanField(default=False)
     error_sending_confirmation = models.BooleanField(default=False)
     error_sending_invoice = models.BooleanField(default=False)
+    campsite_oracle_code = models.CharField(max_length=50, null=True, blank=True)
     old_booking = models.IntegerField(blank=True, null=True) 
 
     # Properties
@@ -1712,7 +1730,9 @@ class BookingVehicleRego(models.Model):
     VEHICLE_CHOICES = (
         ('vehicle', 'Vehicle'),
         ('motorbike', 'Motorcycle'),
-        ('concession', 'Vehicle (concession)')
+        ('concession', 'Vehicle (concession)'),
+        ('campervan', 'Campervan'),
+        ('trailer', 'Trailer')
     )
     booking = models.ForeignKey(Booking, related_name="regos", on_delete=models.CASCADE)
     rego = models.CharField(max_length=50)
@@ -1729,6 +1749,8 @@ class ParkEntryRate(models.Model):
     vehicle = models.DecimalField(max_digits=8, decimal_places=2, default='0.00')
     concession = models.DecimalField(max_digits=8, decimal_places=2, default='0.00')
     motorbike = models.DecimalField(max_digits=8, decimal_places=2, default='0.00')
+    campervan = models.DecimalField(max_digits=8, decimal_places=2, default='0.00')
+    trailer = models.DecimalField(max_digits=8, decimal_places=2, default='0.00')
     period_start = models.DateField()
     period_end = models.DateField(null=True, blank=True)
     reason = models.ForeignKey("PriceReason", on_delete=models.PROTECT, null=True, blank=True)
@@ -1802,6 +1824,7 @@ class ViewPriceHistory(models.Model):
     details = models.TextField()
     reason_id = models.IntegerField()
     infant = models.DecimalField(max_digits=8, decimal_places=2)
+    booking_policy_id = models.IntegerField(null=True, blank=True)
 
     class Meta:
         abstract = True
