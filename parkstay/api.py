@@ -2199,7 +2199,9 @@ def get_booking_pricing(request, *args, **kwargs):
              row = {}
              row['id'] = cb.id
              row['date'] = cb.date.strftime("%d/%m/%Y")
-             row['booking_policy_id'] = cb.booking_policy.id
+             row['booking_policy_id'] = None
+             if cb.booking_policy:
+                 row['booking_policy_id'] = cb.booking_policy.id
 
              item_name = ''
              if cb.campsite.campground:
@@ -2323,7 +2325,7 @@ def create_booking(request, *args, **kwargs):
             booking.created_by = request.user.id
             booking.save()
         else:
-            booking = utils.create_booking_by_class(
+            booking = utils.create_booking_by_class(request,
                 campground, campsite_class,
                 start_date, end_date,
                 num_adult, num_concession,
@@ -2335,8 +2337,8 @@ def create_booking(request, *args, **kwargs):
             booking.save()
 
 
-        print ("DATA")
-        print (campsite_obj)
+        #print ("DATA")
+        #print (campsite_obj)
         booking_campsite = booking.campsites.all()[0].campsite if booking else None
         parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
         entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and booking_campsite.campground.park.entry_fee_required) else None

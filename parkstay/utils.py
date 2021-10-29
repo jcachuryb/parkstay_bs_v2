@@ -33,7 +33,7 @@ from ledger_api_client.utils import Order
 logger = logging.getLogger('booking_checkout')
 
 
-def create_booking_by_class(campground_id, campsite_class_id, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, num_vehicle=0,num_motorcycle=0,num_campervan=0,num_trailer=0, old_booking=None):
+def create_booking_by_class(request,campground_id, campsite_class_id, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, num_vehicle=0,num_motorcycle=0,num_campervan=0,num_trailer=0, old_booking=None):
     """Create a new temporary booking in the system."""
     # get campground
     campground = Campground.objects.get(pk=campground_id)
@@ -96,14 +96,53 @@ def create_booking_by_class(campground_id, campsite_class_id, start_date, end_da
             },
             expiry_time=timezone.now() + timedelta(seconds=settings.BOOKING_TIMEOUT),
             campground=campground,
-            old_booking=old_booking
+            old_booking=old_booking,
+            campsite_oracle_code=sites_qs[0].campground.oracle_code
         )
+
+
+        daily_rate_hash = {}
+        daily_rates = [get_campsite_current_rate(request, c, booking.arrival.strftime('%Y-%m-%d'), booking.departure.strftime('%Y-%m-%d')) for c in sites_qs]
+        for dr in daily_rates[0]:
+            daily_rate_hash[dr['date']] = dr
+
+
+
         for i in range((end_date - start_date).days):
+            cs=site
+            booking_date = start_date + timedelta(days=i)
+
+            total_amount_adult = Decimal(daily_rate_hash[str(booking_date)]['rate']['adult']) * int(num_adult)
+            total_amount_concession = Decimal(daily_rate_hash[str(booking_date)]['rate']['concession']) * int(num_concession)
+            total_amount_child = Decimal(daily_rate_hash[str(booking_date)]['rate']['child']) * int(num_child)
+            total_amount_infant = Decimal(daily_rate_hash[str(booking_date)]['rate']['infant']) * int(num_infant)
+            total_day_amount = total_amount_adult + total_amount_concession + total_amount_child + total_amount_infant
+            booking_policy_id = daily_rate_hash[str(booking_date)]['booking_policy']
+
+            BP = None
+            if booking_policy_id:
+
+                BP_obj = parkstay_models.BookingPolicy.objects.filter(id=booking_policy_id, active=True)
+                if BP_obj.count() > 0:
+                    BP = BP_obj[0]
+                else:
+                    raise ValidationError("This campground does not contain an active booking policy")
+
+            else:
+                raise ValidationError("This campground does not contain a booking policy")
+
+
+
             cb = CampsiteBooking.objects.create(
-                campsite=site,
+                campsite=cs,
                 booking_type=3,
                 date=start_date + timedelta(days=i),
-                booking=booking
+                booking=booking,
+                booking_policy=BP,
+                amount_adult=total_amount_adult,
+                amount_infant=total_amount_infant,
+                amount_child=total_amount_child,
+                amount_concession=total_amount_concession
             )
 
     # On success, return the temporary booking
@@ -196,9 +235,14 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
 
                 BP = None
                 if booking_policy_id:
-                    BP = parkstay_models.BookingPolicy.objects.get(id=booking_policy_id)
+                    BP_obj = parkstay_models.BookingPolicy.objects.filter(id=booking_policy_id, active=True)
+                    if BP_obj.count() > 0:
+                        BP = BP_obj[0]
+                    else:
+                        raise ValidationError("This campground does not contain an active booking policy")
+                
                 else:
-                    raise ValidationError("The campground does not contain a booking policy")
+                    raise ValidationError("This campground does not contain a booking policy")
                 
                 total_cost_calculated = total_cost_calculated + total_day_amount
                 cb = CampsiteBooking.objects.create(
