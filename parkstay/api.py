@@ -2170,7 +2170,16 @@ def get_booking_pricing(request, *args, **kwargs):
              row['id'] = cb.id
              row['date'] = cb.date.strftime("%d/%m/%Y")
              row['booking_policy_id'] = cb.booking_policy.id
-             row['item_name'] = cb.campsite.campground.name+' '+cb.campsite.name+' '+cb.campsite.campsite_class.name
+
+             item_name = ''
+             if cb.campsite.campground:
+                 item_name = item_name + cb.campsite.campground.name
+             if cb.campsite:
+                 item_name = item_name + " "+cb.campsite.name
+             if cb.campsite.campsite_class:
+                 item_name = item_name + " "+cb.campsite.campsite_class.name
+
+             row['item_name'] = item_name
              row['amount_adult'] = str(cb.amount_adult)
              row['amount_infant'] = str(cb.amount_infant)
              row['amount_child'] = str(cb.amount_child)
@@ -2190,7 +2199,16 @@ def get_booking_pricing(request, *args, **kwargs):
              row['id'] = cb.id
              row['date'] = cb.date.strftime("%d/%m/%Y")
              row['booking_policy_id'] = cb.booking_policy.id
-             row['item_name'] = cb.campsite.campground.name+' '+cb.campsite.name+' '+cb.campsite.campsite_class.name
+
+             item_name = ''
+             if cb.campsite.campground:
+                 item_name = item_name + cb.campsite.campground.name
+             if cb.campsite:
+                 item_name = item_name + " "+cb.campsite.name
+             if cb.campsite.campsite_class:
+                 item_name = item_name + " "+cb.campsite.campsite_class.name
+
+             row['item_name'] = item_name 
              row['amount_adult'] = str(cb.amount_adult)
              row['amount_infant'] = str(cb.amount_infant)
              row['amount_child'] = str(cb.amount_child)
