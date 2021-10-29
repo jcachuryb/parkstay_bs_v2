@@ -2382,7 +2382,7 @@ def create_booking(request, *args, **kwargs):
         # add cancellation fees if change booking
         cancellation_data = []
         if booking.old_booking:
-            cancellation_data =  utils.booking_cancellation_fees(booking)
+            cancellation_data =  utils.booking_change_fees(booking)
 
             parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                               fee_description="Cancellation Fee",

@@ -655,6 +655,50 @@ def get_park_entry_rate(request, start_date):
 
 
 def booking_cancellation_fees(booking):
+    cancellation_data = {'old_booking': {},'cancellation_fee': Decimal('0.00')}
+    cancellation_fee = Decimal('0.00')
+    number_of_cancellation_fees = 0
+
+    campsite_booking = parkstay_models.CampsiteBooking.objects.filter(booking=booking) 
+
+    for cb in campsite_booking:
+        cb_date = cb.date.strftime('%Y-%m-%d')
+        cancellation_data['old_booking'][cb_date] = {}
+        cancellation_data['old_booking'][cb_date]['exists'] = False
+        if cb.booking_policy:
+            cancellation_data['old_booking'][cb_date]['booking_policy_id'] = cb.booking_policy.id
+        else:
+            cancellation_data['old_booking'][cb_date]['booking_policy_id'] = None
+
+    for cb in campsite_booking:
+        cb_date = cb.date.strftime('%Y-%m-%d')
+
+        if cancellation_data['old_booking'][cb_date]['exists'] is False:
+             number_of_cancellation_fees = number_of_cancellation_fees + 1
+
+             pg = None
+             if cb.booking_policy:
+                 pg = parkstay_models.BookingPolicy.objects.get(id=cb.booking_policy.id)
+             if pg:
+                policy_type = 'normal'
+                if pg.peak_policy_enabled is True:
+                       pp = parkstay_models.PeakPeriod.objects.filter(peak_group=pg.peak_group, start_date__lte=cb.date, end_date__gte=cb.date, active=True)
+                       if pp.count():
+                           policy_type='peak'
+
+                if policy_type == 'peak':
+                      if pg.peak_policy_type == 0:
+                          cancellation_fee = cancellation_fee + pg.peak_amount
+                else:
+                      if pg.policy_type == 0:
+                          cancellation_fee = cancellation_fee + pg.amount
+
+    cancellation_data['cancellation_fee'] = cancellation_fee
+    return cancellation_data
+
+
+
+def booking_change_fees(booking):
     #parkstay_models.PeakGroup.
     cancellation_data = {'old_booking': {},'cancellation_fee': Decimal('0.00')}
     cancellation_fee = Decimal('0.00')
@@ -676,6 +720,7 @@ def booking_cancellation_fees(booking):
         cb_date = cb.date.strftime('%Y-%m-%d')
         if cb_date in cancellation_data['old_booking']:
             cancellation_data['old_booking'][cb_date]['exists'] = True
+
     for cb in old_campsite_booking:
         cb_date = cb.date.strftime('%Y-%m-%d')
 
