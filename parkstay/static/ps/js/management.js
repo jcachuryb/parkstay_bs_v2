@@ -240,7 +240,6 @@ var management = {
                           var buttondata_obj = JSON.parse(buttondata);
 
 			  if (buttondata_obj['no_policy'] == 'true') {
-				  alert('tes');
                                 $('#no-policy').prop('checked', true);
 				$('#booking-policy-details').hide();
 		          } else {

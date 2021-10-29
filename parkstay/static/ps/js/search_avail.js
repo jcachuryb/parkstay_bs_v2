@@ -368,6 +368,8 @@ var search_avail = {
 
     },
     create_booking: function(button_element) {
+	   var loadingmodal = $('#LoadingPopup');
+	   loadingmodal.modal('show');
 	   var databutton = $(button_element).attr('data-button');
 	   var button_data = $.parseJSON(databutton);
            var post_data = {};
@@ -378,16 +380,15 @@ var search_avail = {
 		post_data = {"arrival": search_avail.var.camping_period['checkin'],"departure":search_avail.var.camping_period['checkout'],"num_adult": search_avail.var.campers['adult'],"num_child":search_avail.var.campers['children'],"num_concession": search_avail.var.campers['concession'],"num_infant": search_avail.var.campers['infant'], "campground": button_data['campground_id'], 'campsite_class': button_data['campsite_class_id'], 'num_vehicle': search_avail.var.vehicles['vehicle'], 'num_campervan': search_avail.var.vehicles['campervan'], 'num_motorcycle': search_avail.var.vehicles['motorcycle'], 'num_trailer': search_avail.var.vehicles['trailer'], 'change_booking_id': search_avail.var.change_booking_id}
 		   // campsite_class: 75
 	   }
-
            $.ajax({
 		   url: "/api/create_booking/",
 		   cache: false,
 		   type: "POST",
 		   data: post_data,
 		   error: function (resp, status, error) {
-			console.log("FDF");
-			console.log(resp.responseJSON);
-                        console.log(resp.hasOwnProperty('responseJSON'));
+			console.log("LL");
+			console.log(loadingmodal);
+			setTimeout("$('#LoadingPopup').modal('hide');",800);
 			var errormessage = 'There was error attempting to create a booking for your selection.';
                         if (resp.hasOwnProperty('responseJSON')) {
 				if (resp.responseJSON.hasOwnProperty('msg')) {
@@ -401,13 +402,12 @@ var search_avail = {
 			$('#error-title').html('Error Message');
 			$('#error-message').html(errormessage);
 			$('#MessageBox').modal('show');
-			// alert("There was error attempting to create a booking");
-		 	console.log("Error initing booking creation");	
 		   },
 		   success: function(data) {
                           if (data['status'] == 'success') {
 				window.location = "/booking/";
 		          } else {
+
 				console.log("Error");
 			  }
 		   },
