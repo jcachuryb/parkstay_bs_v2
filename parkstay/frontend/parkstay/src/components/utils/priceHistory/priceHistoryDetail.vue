@@ -3,7 +3,7 @@
 
     <div class="modal-body">
         <form name="priceForm" class="form-horizontal">
-			<alert :show.sync="showError" type="danger">{{errorString}}</alert>
+	    <alert :show.sync="showError" type="danger">{{errorString}}</alert>
             <div class="row">
                 <div class="form-group">
                     <div class="col-md-2">
@@ -72,6 +72,7 @@
                     </div>
                 </div>
             </div>
+
             <reason type="price" v-model="priceHistory.reason" ></reason>
             <div v-show="requireDetails" class="row">
                 <div class="form-group">
@@ -83,9 +84,23 @@
                     </div>
                 </div>
             </div>
+
+
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-md-2">
+                        <label>Booking Policy: {{ priceHistory.booking_policy }}</label>
+                    </div>
+                    <div class="col-md-4">
+                        <select name="rate" v-model="priceHistory.booking_policy" class="form-control">
+                            <option value="">Select Booking Policy</option>
+                            <option v-for="p in booking_policy.dataitems":value="p.id">{{p.policy_name}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
-
 </bootstrapModal>
 </template>
 
@@ -109,6 +124,7 @@ module.exports = {
             selected_rate: '',
             title: '',
             rates: [],
+            booking_policy: [],
             current_closure: '',
             closeStartPicker: '',
             showDetails: false,
@@ -137,14 +153,19 @@ module.exports = {
     watch: {
         selected_rate: function() {
             let vm = this;
-            if (vm.selected_rate != ''){
+            if (vm.selected_rate != '') {
                 $.each(vm.rates, function(i, rate) {
-                    if (rate.id== vm.selected_rate){
+                    if (rate.id== vm.selected_rate) {
+                        console.log("SELECTED RATE");
+                        console.log(rate);
                         vm.priceHistory.rate = rate.id;
                         vm.priceHistory.adult = rate.adult;
                         vm.priceHistory.concession = rate.concession;
                         vm.priceHistory.child = rate.child;
                         vm.priceHistory.infant = rate.infant;
+                        console.log("RATE POLICY");
+                        // console.log(rate.booking_policy_id);
+                        // vm.priceHistory.booking_policy = rate.bookingpolicyid;
                     }
                 });
             }
@@ -154,6 +175,7 @@ module.exports = {
                 vm.priceHistory.concession = '';
                 vm.priceHistory.child = '';
                 vm.priceHistory.infant = '';
+                vm.priceHistory.booking_policy = '';
             }
         }
     },
@@ -177,7 +199,7 @@ module.exports = {
             if ($(this.form).valid()){
                 if (this.priceHistory.id || this.priceHistory.original){
                     this.$emit('updatePriceHistory');
-                }else {
+                } else {
                     this.$emit('addPriceHistory');
                 }
             }
@@ -187,6 +209,17 @@ module.exports = {
             $.get(api_endpoints.rates,function(data){
                 vm.rates = data;
             });
+        },
+        fetchBookingPolicy: function() {
+            let vm = this;
+            console.log("fetchBookingPolicy 1");
+            console.log(api_endpoints.booking_policy);
+            $.get(api_endpoints.booking_policy,function(data){
+                 vm.booking_policy = data;
+                 console.log("fetchBookingPolicy");
+                 console.log(vm.booking_policy);
+            });
+           
         },
         addFormValidations: function() {
             let vm = this;
@@ -254,6 +287,7 @@ module.exports = {
             vm.priceHistory.period_start = picker.data('DateTimePicker').date().format('DD/MM/YYYY');
         });
         vm.addFormValidations();
+        vm.fetchBookingPolicy();
         vm.fetchRates();
     }
 };

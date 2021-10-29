@@ -385,6 +385,7 @@ var search_avail = {
 		   type: "POST",
 		   data: post_data,
 		   error: function (request, status, error) {
+			alert("There was error attempting to create a booking");
 		 	console.log("Error initing booking creation");	
 		   },
 		   success: function(data) {

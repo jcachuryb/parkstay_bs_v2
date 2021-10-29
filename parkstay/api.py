@@ -693,12 +693,14 @@ class CampgroundViewSet(viewsets.ModelViewSet):
             else:
                 rate = Rate.objects.get_or_create(adult=serializer.validated_data['adult'], concession=serializer.validated_data['concession'], child=serializer.validated_data['child'], infant=serializer.validated_data['infant'])[0]
             if rate:
+                booking_policy_obj = models.BookingPolicy.objects.get(id=request.data['booking_policy'])
                 serializer.validated_data['rate'] = rate
                 data = {
                     'rate': rate,
                     'date_start': serializer.validated_data['period_start'],
                     'reason': PriceReason.objects.get(pk=serializer.validated_data['reason']),
                     'details': serializer.validated_data.get('details', None),
+                    'booking_policy': booking_policy_obj,
                     'update_level': 0
                 }
                 self.get_object().createCampsitePriceHistory(data)
@@ -735,12 +737,14 @@ class CampgroundViewSet(viewsets.ModelViewSet):
             else:
                 rate = Rate.objects.get_or_create(adult=serializer.validated_data['adult'], concession=serializer.validated_data['concession'], child=serializer.validated_data['child'], infant=serializer.validated_data['infant'])[0]
             if rate:
+                booking_policy_obj = models.BookingPolicy.objects.get(id=request.data['booking_policy'])
                 serializer.validated_data['rate'] = rate
                 new_data = {
                     'rate': rate,
                     'date_start': serializer.validated_data['period_start'],
                     'reason': PriceReason.objects.get(pk=serializer.validated_data['reason']),
                     'details': serializer.validated_data.get('details', None),
+                    'booking_policy': booking_policy_obj,
                     'update_level': 0
                 }
                 self.get_object().updatePriceHistory(dict(original_serializer.validated_data), new_data)
@@ -1825,7 +1829,7 @@ def booking_policy(request, *args, **kwargs):
                       if i.peak_group:
                           peak_group_id = i.peak_group.id
 
-                      item_list.append({'id': i.id, 'policy_name' : i.policy_name, 'policy_type' : i.policy_type, 'active': i.active, 'amount':  str(i.amount), 'grace_time': i.grace_time, 'peak_policy_enabled': i.peak_policy_enabled, 'peak_policy_type': i.peak_policy_type, 'peak_group': peak_group_id, 'peak_amount': str(i.peak_amount), 'peak_grace_time': i.peak_grace_time, 'active': i.active})
+                      item_list.append({'id': i.id, 'no_policy': i.no_policy, 'policy_name' : i.policy_name, 'policy_type' : i.policy_type, 'active': i.active, 'amount':  str(i.amount), 'grace_time': i.grace_time, 'peak_policy_enabled': i.peak_policy_enabled, 'peak_policy_type': i.peak_policy_type, 'peak_group': peak_group_id, 'peak_amount': str(i.peak_amount), 'peak_grace_time': i.peak_grace_time, 'active': i.active})
                   item_options['dataitems'] = item_list
                   
                   dumped_data = geojson.dumps(item_options)
@@ -1850,6 +1854,7 @@ def save_booking_policy(request,*args, **kwargs):
                    data = json.load(request)
                    payload = data.get('payload')
                    action = payload['action']
+                   no_policy = payload['no_policy']
                    policy_id = payload['policy_id']
                    policyname = payload['policyname']
                    policytype = payload['policytype']
@@ -1864,6 +1869,11 @@ def save_booking_policy(request,*args, **kwargs):
 
                    policyactive = False
                    peak_policy_enabled = False
+                   no_policy_enabled = False
+
+                   if no_policy == 'true':
+                        no_policy_enabled = True
+
                    if payload['policyactive'] == 'true':
                         policyactive = True 
                    if payload['peakpolicyenabled'] == 'true':
@@ -1880,12 +1890,12 @@ def save_booking_policy(request,*args, **kwargs):
 
                    if action == 'save':
                        bookingpolicy = parkstay_models.BookingPolicy.objects.get(id=policy_id)
+                       bookingpolicy.no_policy = no_policy_enabled
                        bookingpolicy.policy_name = policyname
                        bookingpolicy.policy_type = policytype
                        bookingpolicy.amount = policyamount
                        bookingpolicy.grace_time = policygracetime 
                        bookingpolicy.peak_policy_enabled = peak_policy_enabled 
-                       print (peak_policy_enabled)
                        if peak_policy_enabled is True:
                            bookingpolicy.peak_policy_type= peakpolicytype
                            ppg=None
@@ -1905,7 +1915,8 @@ def save_booking_policy(request,*args, **kwargs):
                        if peakpolicygroup: 
                           ppg= parkstay_models.PeakGroup.objects.get(id=peakpolicygroup)
 
-                       parkstay_models.BookingPolicy.objects.create(policy_name=policyname,
+                       parkstay_models.BookingPolicy.objects.create(no_policy=no_policy_enabled,
+                                                                    policy_name=policyname,
                                                                     policy_type=policytype,
                                                                     amount=policyamount,
                                                                     grace_time=policygracetime,
@@ -2094,7 +2105,111 @@ def places(request, *args, **kwargs):
 
     return HttpResponse(dumped_data, content_type='application/json')
 
-        
+def booking_updates(request, *args, **kwargs):
+
+    data = json.load(request)
+    payload = data.get('payload')
+    print (payload)
+
+    if 'ps_booking' in request.session:
+        booking_id = request.session['ps_booking']
+        booking = parkstay_models.Booking.objects.get(id=int(booking_id))
+        campsite = booking.campsites.all()[0].campsite if booking else None
+
+        vehicles = payload['vehicles']
+        parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
+        entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and campsite.campground.park.entry_fee_required) else None
+
+        vehicle_entry_fee = '0.00'
+        for v in vehicles:
+            if v[2] is True:
+                if v[0] == 0:
+                    vehicle_entry_fee = entry_fees.vehicle
+                if v[0] == 2:
+                    vehicle_entry_fee = entry_fees.motorbike
+                if v[0] == 3:
+                    vehicle_entry_fee = entry_fees.campervan
+                if v[0] == 4:
+                    vehicle_entry_fee = entry_fees.trailer
+                
+                parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                                 fee_description="Park Entry Fee for "+v[1],
+                                                                 amount=vehicle_entry_fee,
+                                                                 identifier="vehicles",
+                                                                 oracle_code=booking.campground.park.oracle_code
+
+                                                                )
+                print (v)
+
+
+    dumped_data = geojson.dumps({})
+    return HttpResponse(dumped_data, content_type='application/json')
+
+def get_booking_pricing(request, *args, **kwargs):
+    booking_id = None
+    booking_information = {'campsite_booking': [], 'additional_booking': [] ,'booking': {}, 'old_campsite_booking': [], 'old_additional_booking': []}
+    if 'ps_booking' in request.session:
+         booking_id = request.session['ps_booking']
+         booking = parkstay_models.Booking.objects.get(id=int(booking_id))
+
+         booking_information['booking']['id'] = booking.id
+         booking_information['booking']['cost_total'] = str(booking.cost_total)
+         old_campsite_booking = []
+         old_additional_booking = []
+         if booking.old_booking:
+             old_campsite_booking = CampsiteBooking.objects.filter(booking_id=booking.old_booking)
+             old_additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking_id=booking.old_booking, identifier='vehicles') 
+
+
+         campsite_booking = CampsiteBooking.objects.filter(booking=booking)
+         additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking=booking)
+
+         # old
+         for cb in old_campsite_booking:
+             row = {}
+             row['id'] = cb.id
+             row['date'] = cb.date.strftime("%d/%m/%Y")
+             row['booking_policy_id'] = cb.booking_policy.id
+             row['item_name'] = cb.campsite.campground.name+' '+cb.campsite.name+' '+cb.campsite.campsite_class.name
+             row['amount_adult'] = str(cb.amount_adult)
+             row['amount_infant'] = str(cb.amount_infant)
+             row['amount_child'] = str(cb.amount_child)
+             row['amount_concession'] = str(cb.amount_concession)
+             booking_information['old_campsite_booking'].append(row)
+
+         for ab in old_additional_booking:
+             row = {}
+             row['id'] = ab.id
+             row['amount'] = str(ab.amount)
+             row['item_name'] = ab.fee_description
+             booking_information['old_additional_booking'].append(row)
+
+         # new 
+         for cb in campsite_booking:
+             row = {}
+             row['id'] = cb.id
+             row['date'] = cb.date.strftime("%d/%m/%Y")
+             row['booking_policy_id'] = cb.booking_policy.id
+             row['item_name'] = cb.campsite.campground.name+' '+cb.campsite.name+' '+cb.campsite.campsite_class.name
+             row['amount_adult'] = str(cb.amount_adult)
+             row['amount_infant'] = str(cb.amount_infant)
+             row['amount_child'] = str(cb.amount_child)
+             row['amount_concession'] = str(cb.amount_concession)
+             booking_information['campsite_booking'].append(row)
+
+         for ab in additional_booking:
+             row = {}
+             row['id'] = ab.id
+             row['amount'] = str(ab.amount)
+             row['item_name'] = ab.fee_description
+             booking_information['additional_booking'].append(row)
+
+
+
+    dumped_data = geojson.dumps(booking_information)
+    return HttpResponse(dumped_data, content_type='application/json')
+
+
 
 @csrf_exempt
 @require_http_methods(['POST'])
@@ -2147,7 +2262,6 @@ def create_booking(request, *args, **kwargs):
     num_trailer = serializer.validated_data['num_trailer']
     old_booking = serializer.validated_data['old_booking']
 
-
     if 'ps_booking' in request.session:
         # Delete booking and start again
         booking_id = request.session['ps_booking']
@@ -2182,7 +2296,7 @@ def create_booking(request, *args, **kwargs):
     # try to create a temporary booking
     try:
         if campsite:
-            booking = utils.create_booking_by_site(
+            booking = utils.create_booking_by_site(request,
                 Campsite.objects.filter(id=campsite), start_date, end_date,
                 num_adult, num_concession,
                 num_child, num_infant, num_vehicle, num_campervan, num_motorcycle, num_trailer, 0, None, None, None, False, None, None, False, False, False, old_booking 
@@ -2201,6 +2315,60 @@ def create_booking(request, *args, **kwargs):
             booking.created_by = request.user.id
             booking.save()
 
+
+        print ("DATA")
+        print (campsite_obj)
+        booking_campsite = booking.campsites.all()[0].campsite if booking else None
+        parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
+        entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and booking_campsite.campground.park.entry_fee_required) else None
+
+        for i in range(0, num_vehicle):
+            parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                             fee_description="Park Entry Fee for Vehicle",
+                                                             amount=entry_fees.vehicle,
+                                                             identifier="vehicles",
+                                                             oracle_code=booking.campground.park.oracle_code
+                                                            )
+
+        for i in range(0, num_campervan):
+            parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                             fee_description="Park Entry Fee for Campervan",
+                                                             amount=entry_fees.campervan,
+                                                             identifier="vehicles",
+                                                             oracle_code=booking.campground.park.oracle_code
+                                                            )
+
+        for i in range(0, num_motorcycle):
+            parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                             fee_description="Park Entry Fee for Motorcycle",
+                                                             amount=entry_fees.motorbike,
+                                                             identifier="vehicles",
+                                                             oracle_code=booking.campground.park.oracle_code
+                                                            )
+
+        for i in range(0, num_trailer):
+            parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                             fee_description="Park Entry Fee for Trailer",
+                                                             amount=entry_fees.trailer,
+                                                             identifier="vehicles",
+                                                             oracle_code=booking.campground.park.oracle_code
+                                                            )
+
+
+        
+
+
+        # add cancellation fees if change booking
+        cancellation_data = []
+        if booking.old_booking:
+            cancellation_data =  utils.booking_cancellation_fees(booking)
+
+            parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                              fee_description="Cancellation Fee",
+                                              amount=cancellation_data['cancellation_fee'],
+                                              identifier='cancellation_fee',
+                                              oracle_code=booking.campsite_oracle_code
+                                            )
 
     except ValidationError as e:
         if hasattr(e, 'error_dict'):
@@ -3179,12 +3347,14 @@ class CampsiteRateViewSet(viewsets.ModelViewSet):
             else:
                 rate = Rate.objects.get_or_create(adult=rate_serializer.validated_data['adult'], concession=rate_serializer.validated_data['concession'], child=rate_serializer.validated_data['child'])[0]
             if rate:
+                booking_policy_obj = models.BookingPolicy.objects.get(id=request.data['booking_policy'])
                 data = {
                     'rate': rate.id,
                     'date_start': rate_serializer.validated_data['period_start'],
                     'campsite': rate_serializer.validated_data['campsite'],
                     'reason': rate_serializer.validated_data['reason'],
-                    'update_level': 2
+                    'update_level': 2,
+                    'booking_policy': request.data['booking_policy'] 
                 }
                 serializer = self.get_serializer(data=data)
                 serializer.is_valid(raise_exception=True)
@@ -3223,6 +3393,7 @@ class CampsiteRateViewSet(viewsets.ModelViewSet):
                     'date_start': rate_serializer.validated_data['period_start'],
                     'campsite': rate_serializer.validated_data['campsite'],
                     'reason': rate_serializer.validated_data['reason'],
+                    'booking_policy': request.data['booking_policy'],
                     'update_level': 2
                 }
                 instance = self.get_object()

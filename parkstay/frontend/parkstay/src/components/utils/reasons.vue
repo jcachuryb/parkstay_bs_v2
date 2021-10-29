@@ -73,7 +73,7 @@ export default {
     },
     mounted:function(){
         let vm =this;
-        if(vm.type){
+        if (vm.type) {
             switch (vm.type.toLowerCase()) {
                 case 'close':
                     vm.fetchClosureReasons();

@@ -57,7 +57,21 @@
 
         </div>
         <form>
-        <div class='col-12 round-box px-3 '>
+
+		
+         <div class='col-12 pb-3 pt-3'>
+               <div class='row'>
+                   <div class='col-12'>
+                         <input class="form-check-input" type="checkbox" value="" id="no-policy">
+                         <label class="form-check-label" for="flexCheckDefault">
+                            No Policy 
+                         </label>
+                   </div>
+             </div>
+         </div>
+        <div id='booking-policy-details'>
+
+        <div class='col-12 round-box px-3 ' id='normal-policy'>
             <div class='row'>
                    <div class='col-12'>
                         <label for="" class="form-label">Policy Name</label>
@@ -80,7 +94,7 @@
                    </div>
             </div>
          </div>
-         <div class='col-12 pb-3 pt-3'>
+         <div class='col-12 pb-3 pt-3' >
                <div class='row'>
                    <div class='col-12'>
                          <input class="form-check-input" type="checkbox" value="" id="peak-policy-enabled">
@@ -126,6 +140,10 @@
 			   <option value="false">Inactive</option>
 			</select>
                    </div>
+               </div>
+         </div>
+       </div>
+         <div class='col-12 px-3'>
                    <div class='col-12'>
                             <div class='col-12'>
                             <label for="" class="form-label">&nbsp;</label>
@@ -157,6 +175,7 @@ management.var.booking_policy_id_selected = null;
 $('#create-policy-btn').show();
 $('#save-policy-btn').hide();	
 
+var nopolicy = $('#no-policy');
 var policyname = $('#policy-name');
 var policytype = $('#policy-type');
 var policyamount = $('#policy-amount');
@@ -168,6 +187,7 @@ var peakpolicyamont = $('#peak-policy-amont');
 var peakpolicygracetime = $('#peak-policy-grace-time');
 var policyactive = $('#policy-active');
 
+nopolicy.val("");
 policyname.val("");
 policytype.val("");
 policyamount.val("");
@@ -179,6 +199,7 @@ peakpolicyamont.val("");
 peakpolicygracetime.val("");
 policyactive.val("true");	
 
+nopolicy.prop('disabled', false);
 policyname.prop('disabled', false);
 policytype.prop('disabled', false);
 policyamount.prop('disabled', false);
@@ -191,7 +212,6 @@ peakpolicygracetime.prop('disabled', false);
 policyactive.prop('disabled', false);
 $('#peak-policy-options').hide();
 $('#EditBookingPolicyModal').modal('show');
-
 });
 
 $( ".booking-policy-save" ).click(function() {
@@ -212,7 +232,25 @@ $("#peak-policy-enabled").click(function() {
 		$("#peak-policy-options").hide();
 		console.log(display_value);
 	}
-	
+});
+
+$("#no-policy").click(function() {
+
+        var nopolicy_check = $("#no-policy").prop('checked');
+        var policyname = $('#policy-name');
+	var policytype = $('#policy-type');
+
+
+        if (nopolicy_check == true) { 
+           $('#booking-policy-details').hide();
+	   policyname.val("No Policy");
+	   policytype.val(0);
+
+
+        } else {
+ 	   $('#booking-policy-details').show();
+	   policyname.val("");
+        }
 
 });
 

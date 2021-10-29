@@ -18,6 +18,7 @@ from ledger_api_client.ledger_models import EmailUserRO as EmailUser
 
 from ledger_api_client.utils import oracle_parser, update_payments
 from ledger_api_client.utils import create_basket_session, create_checkout_session, place_order_submission, use_existing_basket, use_existing_basket_from_invoice
+from parkstay import models as parkstay_models
 from parkstay.models import (Campground, Campsite, CampsiteRate, CampsiteBooking, Booking, BookingInvoice, CampsiteBookingRange, CampgroundBookingRange, CampgroundStayHistory, ParkEntryRate, BookingVehicleRego)
 from parkstay.serialisers import BookingRegoSerializer, ParkEntryRateSerializer, RateSerializer
 from parkstay.emails import send_booking_invoice, send_booking_confirmation
@@ -108,8 +109,7 @@ def create_booking_by_class(campground_id, campsite_class_id, start_date, end_da
     # On success, return the temporary booking
     return booking
 
-
-def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0,num_vehicle=0,num_campervan=0,num_motorcycle=0,num_trailer=0, cost_total=0, override_price=None, override_reason=None, override_reason_info=None, send_invoice=False, overridden_by=None, customer=None, updating_booking=False, override_checks=False,  do_not_send_invoice=False,old_booking=None):
+def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0,num_vehicle=0,num_campervan=0,num_motorcycle=0,num_trailer=0, cost_total=0, override_price=None, override_reason=None, override_reason_info=None, send_invoice=False, overridden_by=None, customer=None, updating_booking=False, override_checks=False,  do_not_send_invoice=False,old_booking=None):
     """Create a new temporary booking in the system for a set of specific campsites."""
 
     # the CampsiteBooking table runs the risk of a race condition,
@@ -123,6 +123,8 @@ def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_conc
         # get availability for campsite, error out if booked/closed
         user = overridden_by
         availability = get_campsite_availability(campsite_qs, start_date, end_date,user, old_booking)
+        print ("CAMPSITE ABAIL")
+        print (availability)
         for site_id, dates in availability.items():
             if not override_checks:
                 if updating_booking:
@@ -172,18 +174,43 @@ def create_booking_by_site(sites_qs, start_date, end_date, num_adult=0, num_conc
             campground=campsite_qs[0].campground,
             customer=customer,
             do_not_send_invoice=do_not_send_invoice,
-            old_booking=old_booking
+            old_booking=old_booking,
+            campsite_oracle_code=campsite_qs[0].campground.oracle_code
         )
-
+                 
+        daily_rate_hash = {}
+        daily_rates = [get_campsite_current_rate(request, c, booking.arrival.strftime('%Y-%m-%d'), booking.departure.strftime('%Y-%m-%d')) for c in campsite_qs]
+        for dr in daily_rates[0]:
+            daily_rate_hash[dr['date']] = dr
+        total_cost_calculated = Decimal('0.00')
         for cs in campsite_qs:
             for i in range((end_date - start_date).days):
+                booking_date = start_date + timedelta(days=i)
+
+                total_amount_adult = Decimal(daily_rate_hash[str(booking_date)]['rate']['adult']) * int(num_adult)
+                total_amount_concession = Decimal(daily_rate_hash[str(booking_date)]['rate']['concession']) * int(num_concession)
+                total_amount_child = Decimal(daily_rate_hash[str(booking_date)]['rate']['child']) * int(num_child)
+                total_amount_infant = Decimal(daily_rate_hash[str(booking_date)]['rate']['infant']) * int(num_infant)
+                total_day_amount = total_amount_adult + total_amount_concession + total_amount_child + total_amount_infant 
+                booking_policy_id = daily_rate_hash[str(booking_date)]['booking_policy']
+
+                BP = parkstay_models.BookingPolicy.objects.get(id=booking_policy_id)
+                
+                total_cost_calculated = total_cost_calculated + total_day_amount
                 cb = CampsiteBooking.objects.create(
                     campsite=cs,
                     booking_type=3,
                     date=start_date + timedelta(days=i),
-                    booking=booking
+                    booking=booking,
+                    booking_policy=BP,
+                    amount_adult=total_amount_adult,
+                    amount_infant=total_amount_infant,
+                    amount_child=total_amount_child,
+                    amount_concession=total_amount_concession
                 )
 
+    booking.cost_total = total_cost_calculated
+    booking.save()
     # On success, return the temporary booking
     return booking
 
@@ -526,9 +553,13 @@ def get_campsite_current_rate(request, campsite_id, start_date, end_date):
             if price_history:
                 rate = RateSerializer(price_history[0].rate, context={'request': request}).data
                 rate['campsite'] = campsite_id
+                booking_policy = None
+                if price_history[0].booking_policy:
+                    booking_policy = price_history[0].booking_policy.id
                 res.append({
                     "date": single_date.strftime("%Y-%m-%d"),
-                    "rate": rate
+                    "rate": rate,
+                    "booking_policy" : booking_policy
                 })
     return res
 
@@ -575,12 +606,219 @@ def get_park_entry_rate(request, start_date):
     return res
 
 
+def booking_cancellation_fees(booking):
+    #parkstay_models.PeakGroup.
+    cancellation_data = {'old_booking': {},'cancellation_fee': Decimal('0.00')}
+    cancellation_fee = Decimal('0.00')
+    number_of_cancellation_fees = 0
+
+    campsite_booking = parkstay_models.CampsiteBooking.objects.filter(booking=booking)
+    old_campsite_booking = parkstay_models.CampsiteBooking.objects.filter(booking_id=booking.old_booking)
+
+    for cb in old_campsite_booking:
+        cb_date = cb.date.strftime('%Y-%m-%d')
+        cancellation_data['old_booking'][cb_date] = {}
+        cancellation_data['old_booking'][cb_date]['exists'] = False
+        if cb.booking_policy:
+            cancellation_data['old_booking'][cb_date]['booking_policy_id'] = cb.booking_policy.id
+        else:
+            cancellation_data['old_booking'][cb_date]['booking_policy_id'] = None
+    
+    for cb in campsite_booking:
+        cb_date = cb.date.strftime('%Y-%m-%d')
+        if cb_date in cancellation_data['old_booking']:
+            cancellation_data['old_booking'][cb_date]['exists'] = True
+    for cb in old_campsite_booking:
+        cb_date = cb.date.strftime('%Y-%m-%d')
+
+        if cancellation_data['old_booking'][cb_date]['exists'] is False:
+             number_of_cancellation_fees = number_of_cancellation_fees + 1
+             pg = parkstay_models.BookingPolicy.objects.get(id=cb.booking_policy.id)
+             
+             policy_type = 'normal'
+             if pg.peak_policy_enabled is True:
+                    pp = parkstay_models.PeakPeriod.objects.filter(peak_group=pg.peak_group, start_date__lte=cb.date, end_date__gte=cb.date, active=True)
+                    if pp.count(): 
+                        policy_type='peak'
+    
+             if policy_type == 'peak':
+                   if pg.peak_policy_type == 0:
+                       cancellation_fee = cancellation_fee + pg.peak_amount
+             else:
+                   if pg.policy_type == 0:
+                       cancellation_fee = cancellation_fee + pg.amount
+
+    #invoice_lines.append({
+    #     'ledger_description': 'Cancellation Fee',
+    #     "quantity": 1,
+    #     "price_incl_tax": str(cancellation_fee),
+    #     "oracle_code": booking.campsite_oracle_code,
+    #     "line_status" : 1 
+    #     })
+    cancellation_data['cancellation_fee'] = cancellation_fee
+ 
+    return cancellation_data 
+
+
+def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
+    # reverse booking charges from old booking
+    total_price = Decimal(0)
+    old_booking = None
+    line_status = 3
+    campsite_booking = parkstay_models.CampsiteBooking.objects.filter(booking=booking)
+    num_days = int((booking.departure - booking.arrival).days)
+
+    total_amount_adult = Decimal('0.00')
+    total_amount_child = Decimal('0.00')
+    total_amount_infant = Decimal('0.00')
+    total_amount_concession = Decimal('0.00')
+
+    for cb in campsite_booking:
+        total_amount_adult = total_amount_adult + cb.amount_adult
+        total_amount_child = total_amount_child + cb.amount_child
+        total_amount_infant = total_amount_infant + cb.amount_infant
+        total_amount_concession = total_amount_concession = cb.amount_concession
+
+
+    if booking.details['num_adult'] > 0:
+       invoice_lines.append({
+            'ledger_description': 'Adjustment - Camping fee {} - {} night(s)'.format('adult', num_days),
+            "quantity": booking.details['num_adult'],
+            "price_incl_tax": str(total_amount_adult - total_amount_adult - total_amount_adult),
+            "oracle_code": booking.campsite_oracle_code,
+            "line_status" : line_status
+            })
+
+    if booking.details['num_child'] > 0:
+       invoice_lines.append({
+            'ledger_description': 'Adjustment - Camping fee {} - {} night(s)'.format('child', num_days),
+            "quantity": booking.details['num_child'],
+            "price_incl_tax": str(total_amount_child - total_amount_child- total_amount_child),
+            "oracle_code": booking.campsite_oracle_code,
+            "line_status" : line_status
+            })
+
+
+    if booking.details['num_infant'] > 0:
+       invoice_lines.append({
+            'ledger_description': 'Adjustment - Camping fee {} - {} night(s)'.format('infant', num_days),
+            "quantity": booking.details['num_infant'],
+            "price_incl_tax": str(total_amount_infant - total_amount_infant - total_amount_infant),
+            "oracle_code": booking.campsite_oracle_code,
+            "line_status" : line_status
+            })
+
+
+    if booking.details['num_concession'] > 0:
+       invoice_lines.append({
+            'ledger_description': 'Adjustment - Camping fee {} - {} night(s)'.format('concession', num_days),
+            "quantity": booking.details['num_concession'],
+            "price_incl_tax": str(total_amount_concession - total_amount_concession - total_amount_concession),
+            "oracle_code": booking.campsite_oracle_code,
+            "line_status" : line_status
+            })
+
+    additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier='vehicles')
+    for ab in additional_booking:
+       invoice_lines.append({
+            'ledger_description': "Adjustment - "+ab.fee_description,
+            "quantity": 1,
+            "price_incl_tax": str(ab.amount - ab.amount - ab.amount),
+            "oracle_code": ab.oracle_code,
+            "line_status" : line_status
+            })
+
+    return invoice_lines
+
+
+def price_or_lineitemsv2(request, booking):
+    total_price = Decimal(0)
+    invoice_lines = []
+    old_booking = None
+    # changed line items
+    if booking.old_booking:
+        old_booking = parkstay_models.Booking.objects.get(id=int(booking.old_booking))
+        invoice_lines = price_or_lineitemsv2old_booking(request,old_booking, invoice_lines)
+        #invoice_lines = booking_cancellation_fees(request,booking, invoice_lines)
+    # new line items 
+    line_status = 1
+    campsite_booking = parkstay_models.CampsiteBooking.objects.filter(booking=booking)
+    num_days = int((booking.departure - booking.arrival).days) 
+    
+    total_amount_adult = Decimal('0.00')
+    total_amount_child = Decimal('0.00')
+    total_amount_infant = Decimal('0.00') 
+    total_amount_concession = Decimal('0.00')
+
+    for cb in campsite_booking:
+        total_amount_adult = total_amount_adult + cb.amount_adult
+        total_amount_child = total_amount_child + cb.amount_child
+        total_amount_infant = total_amount_infant + cb.amount_infant
+        total_amount_concession = total_amount_concession = cb.amount_concession
+
+        
+    if booking.details['num_adult'] > 0:
+       invoice_lines.append({
+            'ledger_description': 'Camping fee {} - {} night(s)'.format('adult', num_days),
+            "quantity": booking.details['num_adult'],
+            "price_incl_tax": str(total_amount_adult),
+            "oracle_code": booking.campsite_oracle_code,
+            "line_status" : line_status
+
+            })
+
+    if booking.details['num_child'] > 0:
+       invoice_lines.append({
+            'ledger_description': 'Camping fee {} - {} night(s)'.format('child', num_days),
+            "quantity": booking.details['num_child'],
+            "price_incl_tax": str(total_amount_child),
+            "oracle_code": booking.campsite_oracle_code,
+            "line_status" : line_status
+            })
+
+
+    if booking.details['num_infant'] > 0:
+       invoice_lines.append({
+            'ledger_description': 'Camping fee {} - {} night(s)'.format('infant', num_days),
+            "quantity": booking.details['num_infant'],
+            "price_incl_tax": str(total_amount_infant),
+            "oracle_code": booking.campsite_oracle_code,
+            "line_status" : line_status
+            })
+
+
+    if booking.details['num_concession'] > 0:
+       invoice_lines.append({
+            'ledger_description': 'Camping fee {} - {} night(s)'.format('concession', num_days),
+            "quantity": booking.details['num_concession'],
+            "price_incl_tax": str(total_amount_concession),
+            "oracle_code": booking.campsite_oracle_code,
+            "line_status" : line_status
+            })
+
+    additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking=booking)
+    for ab in additional_booking:
+       invoice_lines.append({
+            'ledger_description': ab.fee_description,
+            "quantity": 1,
+            "price_incl_tax": str(ab.amount),
+            "oracle_code": ab.oracle_code,
+            "line_status" : line_status
+            })
+
+    return invoice_lines
+
+    
+
+
+
 def price_or_lineitems(request, booking, campsite_list, lines=True, old_booking=None):
     total_price = Decimal(0)
     rate_list = {}
     invoice_lines = []
     if not lines and not old_booking:
         raise Exception('An old booking is required if lines is set to false')
+
     # Create line items for customers
     daily_rates = [get_campsite_current_rate(request, c, booking.arrival.strftime('%Y-%m-%d'), booking.departure.strftime('%Y-%m-%d')) for c in campsite_list]
     if not daily_rates:
@@ -589,11 +827,11 @@ def price_or_lineitems(request, booking, campsite_list, lines=True, old_booking=
         for c in rates:
             # This line is used to initialize th rate_list, it updates the blank rate_list with the initially found values (triggered only once)
             if c['rate']['campsite'] not in rate_list.keys():
-                rate_list[c['rate']['campsite']] = {c['rate']['id']: {'start': c['date'], 'end': c['date'], 'adult': c['rate']['adult'], 'concession': c['rate']['concession'], 'child': c['rate']['child'], 'infant': c['rate']['infant']}}
+                rate_list[c['rate']['campsite']] = {c['rate']['id']: {'start': c['date'], 'end': c['date'], 'adult': c['rate']['adult'], 'concession': c['rate']['concession'], 'child': c['rate']['child'], 'infant': c['rate']['infant'], 'booking_policy_id': c['booking_policy']}}
             else:
                 # This line is triggered when there are multiple rates,it updates rates_list with the other rate (i.e updates the others rates found into rate_list)
                 if c['rate']['id'] not in rate_list[c['rate']['campsite']].keys():
-                    rate_list[c['rate']['campsite']][c['rate']['id']] = {'start':c['date'],'end':c['date'],'adult':c['rate']['adult'],'concession':c['rate']['concession'],'child':c['rate']['child'],'infant':c['rate']['infant']}
+                    rate_list[c['rate']['campsite']][c['rate']['id']] = {'start':c['date'],'end':c['date'],'adult':c['rate']['adult'],'concession':c['rate']['concession'],'child':c['rate']['child'],'infant':c['rate']['infant'], 'booking_policy_id': c['booking_policy']}
                 else:
                     # This line is triggered when the rate for a particular date does not change compared to the previous day,only end date is updated in rate_list
                     rate_list[c['rate']['campsite']][c['rate']['id']]['end'] = c['date']
@@ -615,11 +853,14 @@ def price_or_lineitems(request, booking, campsite_list, lines=True, old_booking=
                     multibook_campsite = campsite
                     multibook_index = index
         rate_list = {multibook_campsite: {multibook_index: multibook_rate}}
+
     # Get Guest Details
     guests = {}
+    guests_json_keys  = ['num_adult','num_child','num_infant','num_concession']
     for k, v in booking.details.items():
-        if 'num_' in k:
+        if k in guests_json_keys:
             guests[k.split('num_')[1]] = v
+            
     for guest_type, guest_count in guests.items():
         if int(guest_count) > 0:
             for campsite_id, price_periods in rate_list.items():
@@ -724,7 +965,8 @@ def create_temp_bookingupdate(request, arrival, departure, booking_details, old_
     # delete all the campsites in the old moving so as to transfer them to the new booking
     old_booking.campsites.all().delete()
 
-    booking = create_booking_by_site(booking_details['campsites'],
+    booking = create_booking_by_site(request, 
+                                     booking_details['campsites'],
                                      start_date=arrival,
                                      end_date=departure,
                                      num_adult=booking_details['num_adult'],
@@ -948,7 +1190,8 @@ def update_booking(request, old_booking, booking_details):
 def create_or_update_booking(request, booking_details, updating=False, override_checks=False):
     booking = None
     if not updating:
-        booking = create_booking_by_site(booking_details['campsites'],
+        booking = create_booking_by_site(request,
+                                         booking_details['campsites'],
                                          start_date=booking_details['start_date'],
                                          end_date=booking_details['end_date'],
                                          num_adult=booking_details['num_adult'],

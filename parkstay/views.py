@@ -220,7 +220,9 @@ class MakeBookingsView(TemplateView):
             'infant': Decimal('0.00'),
             'vehicle': entry_fees.vehicle if entry_fees else Decimal('0.00'),
             'vehicle_conc': entry_fees.concession if entry_fees else Decimal('0.00'),
-            'motorcycle': entry_fees.motorbike if entry_fees else Decimal('0.00')
+            'motorcycle': entry_fees.motorbike if entry_fees else Decimal('0.00'),
+            'campervan' : entry_fees.campervan if entry_fees else Decimal('0.00'),
+            'trailer': entry_fees.trailer if entry_fees else Decimal('0.00')
         }
 
         if booking:
@@ -313,7 +315,7 @@ class MakeBookingsView(TemplateView):
  
 
         # update vehicle registrations from form
-        VEHICLE_CHOICES = {'0': 'vehicle', '1': 'concession', '2': 'motorbike'}
+        VEHICLE_CHOICES = {'0': 'vehicle', '1': 'concession', '2': 'motorbike', '3': 'campervan', '4': 'trailer'}
         BookingVehicleRego.objects.filter(booking=booking).delete()
         for vehicle in vehicles:
             obj_check = BookingVehicleRego.objects.filter(booking = booking,
@@ -344,8 +346,12 @@ class MakeBookingsView(TemplateView):
 
         # generate final pricing
         try:
-            lines = utils.price_or_lineitems(request, booking, booking.campsite_id_list)
+            #lines = utils.price_or_lineitems(request, booking, booking.campsite_id_list)
+
+            lines = utils.price_or_lineitemsv2(request, booking)
+            
         except Exception as e:
+            print (e)
             form.add_error(None, '{} Please contact Parks and Visitors services with this error message, the campground/campsite and the time of the request.'.format(str(e)))
             return self.render_page(request, booking, form, vehicles, show_errors=True)
             

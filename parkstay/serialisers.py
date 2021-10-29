@@ -545,7 +545,7 @@ class CampsiteRateReadonlySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CampsiteRate
-        fields = ('id', 'adult', 'concession', 'child', 'infant', 'date_start', 'date_end', 'rate', 'editable', 'deletable', 'update_level')
+        fields = ('id', 'adult', 'concession', 'child', 'infant', 'date_start', 'date_end', 'rate', 'editable', 'deletable', 'update_level','booking_policy')
 
 
 class RateDetailSerializer(serializers.Serializer):
@@ -560,6 +560,7 @@ class RateDetailSerializer(serializers.Serializer):
     reason = serializers.IntegerField()
     details = serializers.CharField(required=False, allow_blank=True)
     campsite = serializers.IntegerField(required=False)
+    booking_policy = serializers.IntegerField()
 
     def validate_rate(self, value):
         if value:
@@ -581,7 +582,7 @@ class CampgroundPriceHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CampgroundPriceHistory
-        fields = ('id', 'date_start', 'date_end', 'rate_id', 'adult', 'concession', 'child', 'infant', 'editable', 'deletable', 'reason', 'details')
+        fields = ('id', 'date_start', 'date_end', 'rate_id', 'adult', 'concession', 'child', 'infant', 'editable', 'deletable', 'reason', 'details','booking_policy_id')
         read_only_fields = ('id', 'editable', 'deletable', 'adult', 'concession', 'child', 'infant')
 
     def validate(self, obj):
@@ -626,7 +627,7 @@ class CampsiteClassPriceHistorySerializer(serializers.ModelSerializer):
 class ParkEntryRateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParkEntryRate
-        fields = ("id", "period_start", "period_end", "reason", "details", "vehicle", "concession", "motorbike", "editable")
+        fields = ("id", "period_start", "period_end", "reason", "details", "vehicle","campervan","trailer", "concession", "motorbike", "editable")
         read_only_fields = ('editable',)
 
     def __init__(self, *args, **kwargs):

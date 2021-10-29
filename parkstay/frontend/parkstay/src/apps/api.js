@@ -113,7 +113,7 @@ module.exports = {
         return process.env.PARKSTAY_URL + "/api/campsite_rate/"+id+".json"
     },
     rates:process.env.PARKSTAY_URL + "/api/rates.json",
-
+    booking_policy: process.env.PARKSTAY_URL + "/api/booking_policy/",
     // campsite types
     campsite_classes:process.env.PARKSTAY_URL + "/api/campsite_classes.json",
     campsite_classes_active:process.env.PARKSTAY_URL + "/api/campsite_classes.json?active_only=true",

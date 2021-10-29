@@ -20,7 +20,7 @@
     }
 **/
 <template lang="html" id="confirmbox">
-    <div :id="confirmModal" class="modal fade">
+    <div :id="confirmModal" class="modal iiifade show" >
       <div class="modal-dialog modal-sm">
       <div class="modal-content">
           <!-- dialog body -->
@@ -116,6 +116,12 @@ var confirmModal = module.exports = {
        var vm = this;
        vm.confirmBox(this.options);
        bus.$on('showAlert', function(id){
+          console.log("ShowAlert +1");
+          console.log(vm.confirmModal);
+          console.log(id);
+          console.log(vm.id);
+          console.log($("#"+vm.confirmModal));
+          //$("#"+vm.confirmModal).modal('show');
           if(id === vm.id){
               $("#"+vm.confirmModal).modal('show');
           }

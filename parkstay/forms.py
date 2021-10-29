@@ -9,7 +9,10 @@ class LoginForm(forms.Form):
 VEHICLE_TYPES = (
     ('0', 'Vehicle'),
     ('1', 'Vehicle (concession)'),
-    ('2', 'Motorcycle')
+    ('2', 'Motorcycle'),
+    ('3', 'Campervan'),
+    ('4', 'Trailer')
+
 )
 
 

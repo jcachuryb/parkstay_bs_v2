@@ -181,7 +181,7 @@ var management = {
 
                           html+= "</td>";
                           html+= "<td align='right'>";
-                          var buttondata='{"policy_id": '+response[i].id+', "policy_name" :"'+response[i].policy_name+'","policy_amount": "'+response[i].amount+'", "policy_type" : "'+response[i].policy_type+'","active": "'+response[i].active+'", "grace_time": "'+response[i].grace_time+'","peak_policy_enabled": "'+response[i].peak_policy_enabled+'","peak_policy_type": "'+response[i].peak_policy_type+'","peak_group": "'+response[i].peak_group+'","peak_amount":"'+response[i].peak_amount+'", "peak_grace_time": "'+response[i].peak_grace_time+'","policy_types_list": '+JSON.stringify(policy_types)+' }';
+                          var buttondata='{"policy_id" : '+response[i].id+', "no_policy" : "'+response[i].no_policy+'" ,"policy_name" : "'+response[i].policy_name+'","policy_amount": "'+response[i].amount+'", "policy_type" : "'+response[i].policy_type+'","active": "'+response[i].active+'", "grace_time": "'+response[i].grace_time+'","peak_policy_enabled": "'+response[i].peak_policy_enabled+'","peak_policy_type": "'+response[i].peak_policy_type+'","peak_group": "'+response[i].peak_group+'","peak_amount":"'+response[i].peak_amount+'", "peak_grace_time": "'+response[i].peak_grace_time+'","policy_types_list": '+JSON.stringify(policy_types)+' }';
                           var buttondata_delete='{"policy_id": '+response[i].id+', "action" : "delete"}';
                           html+= "<button type='button' class='btn btn-primary btn-sm edit-booking-policy' button-data='"+buttondata+"' >Edit</button>";
                           html+= "&nbsp;<button type='button' class='btn btn-danger btn-sm booking-policy-delete' button-data='"+buttondata_delete+"' >Delete</button>";
@@ -211,6 +211,7 @@ var management = {
 			  $('#save-policy-btn').show();
 			  $('#bookingpolicy-loader-popup').hide();
 			  $('#EditBookingPolicyModal').modal('show');
+			  var nopolicy = $('#no-policy');
                           var policyname = $('#policy-name');
                           var policytype = $('#policy-type');
                           var policyamount = $('#policy-amount');
@@ -223,7 +224,7 @@ var management = {
                           var peakpolicygracetime = $('#peak-policy-grace-time');
                           var policyactive = $('#policy-active');
 
-
+			  nopolicy.prop('disabled', false);
                           policyname.prop('disabled', false);
                           policytype.prop('disabled', false);
                           policyamount.prop('disabled', false);
@@ -234,8 +235,18 @@ var management = {
                           peakpolicyamont.prop('disabled', false);
                           peakpolicygracetime.prop('disabled', false);
                           policyactive.prop('disabled', false);
+
                           var buttondata = $(this)[0].attributes['button-data'].value;
                           var buttondata_obj = JSON.parse(buttondata);
+
+			  if (buttondata_obj['no_policy'] == 'true') {
+				  alert('tes');
+                                $('#no-policy').prop('checked', true);
+				$('#booking-policy-details').hide();
+		          } else {
+                                nopolicy.prop('checked', false);
+				$('#booking-policy-details').show();
+			  }
 
 			  if (buttondata_obj['peak_policy_enabled'] == 'true') {
 				$('#peak-policy-enabled').prop('checked', true);
@@ -284,6 +295,7 @@ var management = {
                     for (let i = 0; i < policy_types_list.length; i++) {
                            policy_type_html = policy_type_html + "<option value='"+policy_types_list[i]['id']+"'>"+policy_types_list[i]['name']+"</option>";
                     }
+
                     $("#peak-policy-type").html(policy_type_html);
                     $("#policy-type").html(policy_type_html);
 
@@ -292,7 +304,6 @@ var management = {
                               edit_policy_group_html = edit_policy_group_html + "<option value='"+management.var.peak_groups[i].id+"'>"+management.var.peak_groups[i].name+"</option>";
                     }
                     $('#peak-policy-group').html(edit_policy_group_html);
-
 
             },
             error: function (error) {
@@ -382,7 +393,7 @@ var management = {
 
 			    $('#peak-groups-tbody').html(html);
 
-                            $( ".peakgroup-row" ).click(function() {
+                            $(".peakgroup-row" ).click(function() {
 
                                   if (management.var.peak_group_collapsed_id != null) {
                                           $('#pg-rowcollapse-'+management.var.peak_group_collapsed_id).hide();
@@ -395,7 +406,7 @@ var management = {
                                   management.var.peak_group_collapsed_id = buttondata_obj['id'];
                             });
 
-                            $( ".peakgroupsave" ).click(function() {
+                            $(".peakgroupsave" ).click(function() {
                                       console.log('peakgroupsave');
                                       var buttondata = $(this)[0].attributes['button-data'].value;
                                       var buttondata_obj = JSON.parse(buttondata);
@@ -415,6 +426,8 @@ var management = {
     },
     save_booking_policy: function(buttondata_obj) {
 	 console.log("save_booking_policy");
+
+	 var nopolicy = $('#no-policy');
          var action = buttondata_obj['action'];
 	 console.log(action);
 	 var policy_id = management.var.booking_policy_id_selected;
@@ -433,13 +446,18 @@ var management = {
          if ( peakpolicyenabled.is(":checked") == true ) { 
 	    ppe='true';
 	 }
+	 var nop = 'false';
+         if ( nopolicy.is(":checked") == true ) {
+             nop = 'true';
+	 }
 
-         var data = {'action' : action, 'policy_id': policy_id, 'policyname': policyname.val(), 'policytype': policytype.val(), 'policyamount': policyamount.val(), 'policygracetime': policygracetime.val(),   'peakpolicyenabled': ppe, 'peakpolicytype': peakpolicytype.val(), 'peakpolicygroup': peakpolicygroup.val(), 'peakpolicyamont': peakpolicyamont.val(), 'peakpolicygracetime': peakpolicygracetime.val(), 'policyactive': policyactive.val()};
+         var data = {'action' : action, 'no_policy': nop, 'policy_id': policy_id, 'policyname': policyname.val(), 'policytype': policytype.val(), 'policyamount': policyamount.val(), 'policygracetime': policygracetime.val(),   'peakpolicyenabled': ppe, 'peakpolicytype': peakpolicytype.val(), 'peakpolicygroup': peakpolicygroup.val(), 'peakpolicyamont': peakpolicyamont.val(), 'peakpolicygracetime': peakpolicygracetime.val(), 'policyactive': policyactive.val()};
 
          $('#booking-policy-popup-error').html('');
          $('#booking-policy-popup-error').hide();
          $('#bookingpolicy-loader-popup').show();
 
+	 nopolicy.prop('disabled', true);
          policyname.prop('disabled', true);
          policytype.prop('disabled', true);
 	 policyamount.prop('disabled', true);
@@ -479,6 +497,7 @@ var management = {
              },
              error: function(errMsg) {
 		   $('#bookingpolicy-loader-popup').hide();
+		   nopolicy.prop('disabled', false)  
                    policyname.prop('disabled', false);
 		   policytype.prop('disabled', false);
 		   policyamount.prop('disabled', false);

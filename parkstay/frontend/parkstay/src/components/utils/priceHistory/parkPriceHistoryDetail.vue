@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="form-group">
                     <div class="col-md-2">
-                        <label>Vehicle : </label>
+                        <label>Car : </label>
                     </div>
                     <div class="col-md-4">
                         <input name="vehicle"  v-model="priceHistory.vehicle" type='number' class="form-control" />
@@ -34,6 +34,31 @@
                     </div>
                 </div>
             </div>
+
+
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-md-2">
+                        <label>Campervan : </label>
+                    </div>
+                    <div class="col-md-4">
+                        <input name="motorbike"  v-model="priceHistory.campervan" type='number' class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-md-2">
+                        <label>Trailer : </label>
+                    </div>
+                    <div class="col-md-4">
+                        <input name="motorbike"  v-model="priceHistory.trailer" type='number' class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+
             <div class="row">
                 <div class="form-group">
                     <div class="col-md-2">
@@ -132,7 +157,7 @@ module.exports = {
             if ($(this.form).valid()){
                 if (this.priceHistory.id){
                     this.$emit('updateParkPriceHistory');
-                }else {
+                } else {
                     this.$emit('addParkPriceHistory');
                 }
             }
@@ -144,6 +169,8 @@ module.exports = {
                     vehicle: "required",
                     concession: "required",
                     motorbike: "required",
+                    campervan: "required",
+                    trailer: "required",
                     period_start: "required",
                     details: {
                         required: {
@@ -157,6 +184,8 @@ module.exports = {
                     vehicle: "Enter an vehicle rate",
                     concession: "Enter a concession rate",
                     motorbike: "Enter a motorbike rate",
+                    campervan: "Enter a campervan rate",
+                    trailer: "Enter a trailer rate",
                     period_start: "Enter a start date",
                     details: "Details required if Other reason is selected"
                 },
