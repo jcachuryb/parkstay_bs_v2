@@ -1000,7 +1000,8 @@ def campsite_availablity_view(request,  *args, **kwargs):
         change_booking_qs = models.CampsiteBooking.objects.filter(booking_id=change_booking_id)
     for cb in change_booking_qs:
           current_booking_campsite_id = cb.campsite_id 
-          current_booking_campsite_class_id = cb.campsite.campsite_class.id
+          if cb.campsite.campsite_class:
+              current_booking_campsite_class_id = cb.campsite.campsite_class.id
 
     show_all = False
     # convert GET parameters to objects
