@@ -79,7 +79,7 @@ class CampsiteBookingSerializer(serializers.Serializer):
     campground = serializers.IntegerField(default=0)
     campsite_class = serializers.IntegerField(default=0)
     campsite = serializers.IntegerField(default=0)
-    created_by = serializers.IntegerField(default=None)
+    created_by = serializers.IntegerField(default=None, allow_null=True)
     old_booking = serializers.IntegerField(default=None, allow_null=True)
 
 class BookingRangeSerializer(serializers.ModelSerializer):
