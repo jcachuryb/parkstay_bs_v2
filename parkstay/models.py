@@ -708,7 +708,10 @@ class Campsite(models.Model):
     # ==============================
     @property
     def type(self):
-        return self.campsite_class.name
+        if self.campsite_class:
+            return self.campsite_class.name
+        else:
+            return ''
 
     @property
     def price(self):
