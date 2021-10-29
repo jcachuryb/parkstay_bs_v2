@@ -384,8 +384,24 @@ var search_avail = {
 		   cache: false,
 		   type: "POST",
 		   data: post_data,
-		   error: function (request, status, error) {
-			alert("There was error attempting to create a booking");
+		   error: function (resp, status, error) {
+			console.log("FDF");
+			console.log(resp.responseJSON);
+                        console.log(resp.hasOwnProperty('responseJSON'));
+			var errormessage = 'There was error attempting to create a booking for your selection.';
+                        if (resp.hasOwnProperty('responseJSON')) {
+				if (resp.responseJSON.hasOwnProperty('msg')) {
+					if (resp.responseJSON.msg.hasOwnProperty('error')) {
+                                             errormessage = resp.responseJSON.msg.error;
+					}
+
+				}
+		 	}
+
+			$('#error-title').html('Error Message');
+			$('#error-message').html(errormessage);
+			$('#MessageBox').modal('show');
+			// alert("There was error attempting to create a booking");
 		 	console.log("Error initing booking creation");	
 		   },
 		   success: function(data) {

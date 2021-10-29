@@ -194,7 +194,11 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
                 total_day_amount = total_amount_adult + total_amount_concession + total_amount_child + total_amount_infant 
                 booking_policy_id = daily_rate_hash[str(booking_date)]['booking_policy']
 
-                BP = parkstay_models.BookingPolicy.objects.get(id=booking_policy_id)
+                BP = None
+                if booking_policy_id:
+                    BP = parkstay_models.BookingPolicy.objects.get(id=booking_policy_id)
+                else:
+                    raise ValidationError("The campground does not contain a booking policy")
                 
                 total_cost_calculated = total_cost_calculated + total_day_amount
                 cb = CampsiteBooking.objects.create(
