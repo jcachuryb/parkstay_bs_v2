@@ -316,7 +316,6 @@
                                               </div>
                                           </div>
                                       </div>
-
 			</div>
 		</div>
 
@@ -402,7 +401,7 @@
       </div>
     </div>
 
-
+    {% if request.user.is_staff is True %}
 
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
@@ -441,7 +440,7 @@
                          </div>
                  </div>
 
-
+         {% endif %}
 
 
                  <div class="round-box col-12 px-3">
@@ -569,7 +568,6 @@
             </div>
         </div>
     </div></form>
-
     <div class="modal fade" id="OverridePriceModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
       <div class="modal-dialog modal-xl">
         <div class="modal-content">

@@ -2,6 +2,26 @@
 {% load static %}
 {% load forms %}
 {% block content %}
+
+   {% if booking.is_canceled is False %}
+    <div class="modal" tabindex="-1" id='CancellationConfirm' >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Are you sure?</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Please confirm that you wish to cancel your booking.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" id='cancellation_confirm_btn' class="btn btn-danger">Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="container">
         <h3>Cancel Booking</h3>
 	<form method='POST' action="?" id='cancellation_form'>
@@ -9,16 +29,20 @@
 	     <div class="round-box col-12 px-3"> 
 	         <div class="col-12">
 			 <p>You are requesting to cancel your booking PB{{ booking.id }} at campground with arrival {{ booking.arrival|date:"d M Y" }} and departure {{ booking.departure|date:"d M Y" }}  <b>{{ booking.campground.name }}</b>.</p>
-			 <p>Please confirm your cancellation with the actions below.</p>
+
+			 <p>If you continue with the cancellation of your booking you will be refunded <span style='color: green; font-weight:bold;'>${{ totalbooking }}</span> which is including any cancellation fees.
+			 <p>To complete this booking cancellation please click the "Complete Cancellation" button below.</p>
  	         </div>
 	     </div>
-	     {{ cancellation_data.cancellation_fee }}
+	     
+
+
 	     <div class="row">
 	         <div class="col-6">
 	         </div>
                  <div class="col-6 text-end">
 			 <button type="button" class="btn btn-primary">Cancel</button>
-	         	<button id='cancellation_btn' type="button" class="btn btn-danger">Complete Cancellation</button>
+	         	<button id='cancellation_btn' type="button" class="btn btn-danger" onclick="cancellation.cancel();" >Complete Cancellation</button>
                  </div>
 	     </div>
 	</form>
@@ -27,19 +51,29 @@
 <script>
 	var cancellation = {
 		cancel: function() { 
-			$('#cancellation_form').submit();
+                         $('#CancellationConfirm').modal('show');
+			//$('#cancellation_form').submit();
 
 		}
 	}
-        $('#cancellation_btn').click(function() { 
-		$('#cancellation_form').submit();
-        }
 
+        $('#cancellation_btn').click(function() {
+                $('#CancellationConfirm').modal('show'); 
+        });
 
-	);
+        $('#cancellation_confirm_btn').click(function() {
+                   $('#cancellation_form').submit();                    
+	});
 
 </script>
+{% else %}
+ <div class="container">
 
+<div class="alert alert-danger" role="alert" id='popup-error'> This booking has already been cancelled </div>
+ </div>
+
+
+{% endif %}
 
 
 {% endblock %}
