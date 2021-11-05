@@ -23,6 +23,7 @@ from parkstay.models import (Campground, Campsite, CampsiteRate, CampsiteBooking
 from parkstay.serialisers import BookingRegoSerializer, ParkEntryRateSerializer, RateSerializer
 from parkstay.emails import send_booking_invoice, send_booking_confirmation
 from parkstay.exceptions import BindBookingException
+import hashlib
 #from ledger.basket.models import Basket
 
 ###### WRITE order api to ledger_api_client.order to retreive order information
@@ -1330,16 +1331,18 @@ def clean_none_to_empty(value):
      return value
 
 def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=False):
+    old_booking = '' 
+    if booking.old_booking:
+        old_booking = 'PS-'+str(booking.old_booking)
+
     basket_params = {
         'products': lines,
         'vouchers': vouchers,
         'system': settings.PS_PAYMENT_SYSTEM_ID,
         'custom_basket': True,
         'booking_reference': 'PS-'+str(booking.id),
+        'booking_reference_link': old_booking
     }
-    print ("CHECKOUT")
-    print (booking.customer)
-    print (request.user.id)
     #basket, basket_hash = create_basket_session(request, basket_params)
     basket_user_id = None
     if request.user.id is not None:
@@ -1348,14 +1351,15 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         basket_user_id = booking.customer.id
 
     basket_hash = create_basket_session(request,basket_user_id, basket_params)
-    print ("B HASH")
-    print (basket_hash)
+    #checkouthash =  hashlib.sha256('TEST'.encode('utf-8')).hexdigest()
+
+    checkouthash = request.session.get('checkouthash','')
     #basket, basket_hash = use_existing_basket_from_invoice('00193349270')
-    print (request.build_absolute_uri(reverse('public_booking_success')))
+
     checkout_params = {
         'system': settings.PS_PAYMENT_SYSTEM_ID,
         'fallback_url': request.build_absolute_uri('/'),
-        'return_url': request.build_absolute_uri(reverse('public_booking_success')),
+        'return_url': request.build_absolute_uri(reverse('public_booking_success'))+'?checkouthash='+checkouthash,
         'return_preload_url': request.build_absolute_uri(reverse('public_booking_success')),
         'force_redirect': True,
         'proxy': True if internal else False,
@@ -1363,6 +1367,7 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'session_type' : 'ledger_api'
         #'amount_override': float('1.00')
     }
+
     #if not internal:
     #    checkout_params['check_url'] = request.build_absolute_uri('/api/booking/{}/booking_checkout_status.json'.format(booking.id))
     if internal or request.user.is_anonymous:

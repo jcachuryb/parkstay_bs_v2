@@ -18,7 +18,7 @@
 {% block content %}
 
 <div class="modal fade" id="LoadingPopup" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-body">
         <div class="alert alert-danger" role="alert" id='popup-error' style='display:none'>
@@ -133,7 +133,7 @@ window.onload = function() {
                    <div>
 			   <p><i class="bi bi-calendar2-x-fill"></i>&nbsp;&nbsp; You are preparing to change booking PB{{ change_booking.id }} with arrival {{ change_booking.arrival|date:"j M Y" }} and departure {{ change_booking.departure|date:"j M Y" }}<p>
 
-			  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please use the options below to change your booking,  we have prefilled information from your current booking</p>
+			  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please use the options below to change your booking,  we have prefilled information from your current booking and will recalculate your booking fees on the next step.</p>
 		    
                    </div>
                  </div>

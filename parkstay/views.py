@@ -241,7 +241,8 @@ class MakeBookingsView(TemplateView):
             'timer': timer,
             'pricing': pricing,
             'show_errors': show_errors,
-            'cg' : context['cg']
+            'cg' : context['cg'],
+            'request': request
         })
 
     def get(self, request, *args, **kwargs):
@@ -420,23 +421,42 @@ class CancelBookingView(TemplateView):
     def get(self, request, *args, **kwargs):
         booking_id = kwargs['booking_id']
 
-        # ADD PERMISSIONS HERE
+        #today = timezone.now().date()
+        today = datetime.now().date()
 
-        booking = Booking.objects.get(id=booking_id)
-        campsitebooking = CampsiteBooking.objects.filter(booking_id=booking_id)
-        totalbooking = '0.00'
+        booking = None
+        booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
+        if booking_data.count() > 0:
+            booking = booking_data[0]
+            if booking.customer.id == request.user.id or request.user.is_staff is True:
+                    print (booking.arrival)
+                    print (today)
+                    if booking.arrival > today:
+                             campsitebooking = CampsiteBooking.objects.filter(booking_id=booking_id)
+                             totalbooking = Decimal('0.00')
 
-        cancellation_data = utils.booking_cancellation_fees(booking)  
-        for cb in campsitebooking:
-             print (cb)
+                             cancellation_data = utils.booking_cancellation_fees(booking)  
+                             for cb in campsitebooking:
+                                  totalbooking = totalbooking + cb.amount_adult + cb.amount_infant + cb.amount_child + cb.amount_concession
 
-        context = {
-            'booking': booking,
-            'campsitebooking': campsitebooking,
-            'cancellation_data' : cancellation_data
-            }
-        response = render(request, self.template_name, context)
-        return response
+                             additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier='vehicles')
+                             for ab in additional_booking:
+                                  totalbooking = totalbooking + ab.amount
+
+                             #totalbooking = totalbooking - Decimal(cancellation_data['cancellation_fee'])
+
+                             context = {
+                                 'booking': booking,
+                                 'campsitebooking': campsitebooking,
+                                 'cancellation_data' : cancellation_data,
+                                 'totalbooking' : str(totalbooking)
+                                 }
+                             response = render(request, self.template_name, context)
+                             return response
+        context = {}
+        self.template_name = 'ps/search_availabilty_campground_cancel_booking_error.html'
+        return render(request, self.template_name, context)
+
 
     def post(self, request, *args, **kwargs):
         booking_id = kwargs['booking_id']
@@ -456,30 +476,33 @@ class BookingSuccessView(TemplateView):
     template_name = 'ps/booking/success.html'
 
     def get(self, request, *args, **kwargs):
+        checkouthash = request.GET.get('checkouthash','')
         try:
-            print("BookingSuccessView - get 1.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             basket = None
-            
+            print ("CHEC HASH")
+            print (checkouthash)
+            session_checkouthash = request.session.get('checkouthash')
+            if session_checkouthash == checkouthash:
+                pass
+            else:
+                context = {}
+                self.template_name = 'ps/booking/success-error.html'
+                response = render(request, self.template_name, context)
+                return response
             booking = utils.get_session_booking(request.session)
+
             print (booking)
             if self.request.user.is_authenticated:
-                pass
                 basket = Basket.objects.filter(status='Submitted', owner=request.user).order_by('-id')[:1]
             else:
-                pass
                 basket = Basket.objects.filter(status='Submitted', owner=booking.customer).order_by('-id')[:1]
 
 
             #booking = utils.get_session_booking(request.session)
             #invoice_ref = request.GET.get('invoice')
             try:
-                print("BookingSuccessView - get 3.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S")) 
                 utils.bind_booking(booking, basket)
-                print("BookingSuccessView - get 4.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 utils.delete_session_booking(request.session)
-                print("BookingSuccessView - get 5.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-                print ("CURRENT BOOKING ID")
-                print (booking.id)
                 request.session['ps_last_booking'] = booking.id
 
             except BindBookingException:
@@ -495,6 +518,12 @@ class BookingSuccessView(TemplateView):
             'booking': booking
         }
         print("BookingSuccessView - get 6.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
+        print ("CHEC HASH")
+
+        print (checkouthash)
+        print (request.session.get('checkouthash'))
+
         response = render(request, self.template_name, context)
         response.delete_cookie(settings.OSCAR_BASKET_COOKIE_OPEN)
         return response
@@ -581,23 +610,21 @@ class SearchAvailablityByCampground(TemplateView):
         if self.request.user.is_authenticated:
               if change_booking_id is not None:
                     if int(change_booking_id) > 0:
-                          if Booking.objects.filter(id=change_booking_id).count() > 0:
-                               cb = Booking.objects.get(id=change_booking_id) 
-                               if cb.customer.id == request.user.id:
+                          if Booking.objects.filter(id=change_booking_id, is_canceled=False).count() > 0:
+                               cb = Booking.objects.get(id=change_booking_id)
+                               print ("CUSTOMER")
+                               print (cb.customer)
+                               print ("REQUEST")
+                               print (request.user)
+                               print (cb.id)
+                               if cb.customer.id == request.user.id or request.user.is_staff is True:
                                        if cb.arrival > today:
                                             context['change_booking'] = cb
+
         if context['change_booking'] is None:
               if change_booking_id is not None:
                       self.template_name = 'ps/search_availabilty_campground_change_booking_error.html'
                       return render(request, self.template_name, context)
-
-             
-                               
-                              
-                              
-                                     
-
-
 
 
         context['cg']['campground_id'] = campground_id

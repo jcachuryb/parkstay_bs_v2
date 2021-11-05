@@ -2403,7 +2403,10 @@ def create_booking(request, *args, **kwargs):
 
     # add the booking to the current session
     request.session['ps_booking'] = booking.pk
+    checkouthash =  hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
+    request.session['checkouthash'] = checkouthash 
 
+    request.session['checkouthash'] = checkouthash
     return HttpResponse(geojson.dumps({
         'status': 'success',
         'pk': booking.pk
