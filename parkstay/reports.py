@@ -64,7 +64,7 @@ def booking_refunds(start, end):
         # Get the required invoices
         for e in cash:
             booking, invoice = None, None
-            if e.invoice.system == '0019':
+            if e.invoice.system == settings.PS_PAYMENT_SYSTEM_ID.replace("S","0"):
                 try:
                     booking = BookingInvoice.objects.get(invoice_reference=e.invoice.reference).booking
                     invoice = e.invoice
@@ -92,7 +92,7 @@ def booking_refunds(start, end):
             booking, invoice = None, None
             try:
                 invoice = Invoice.objects.get(reference=b.crn1)
-                if invoice.system == '0019':
+                if invoice.system == settings.PS_PAYMENT_SYSTEM_ID.replace("S","0"):
                     try:
                         booking = BookingInvoice.objects.get(invoice_reference=invoice.reference).booking
                     except BookingInvoice.DoesNotExist:
@@ -128,8 +128,8 @@ def booking_refunds(start, end):
 def booking_bpoint_settlement_report(_date):
     try:
         bpoint, cash = [], []
-        bpoint.extend([x for x in BpointTransaction.objects.filter(created__date=_date, response_code=0, crn1__startswith='0019').exclude(crn1__endswith='_test')])
-        cash = CashTransaction.objects.filter(created__date=_date, invoice__reference__startswith='0019').exclude(type__in=['move_out', 'move_in'])
+        bpoint.extend([x for x in BpointTransaction.objects.filter(created__date=_date, response_code=0, crn1__startswith=settings.PS_PAYMENT_SYSTEM_ID.replace("S","0")).exclude(crn1__endswith='_test')])
+        cash = CashTransaction.objects.filter(created__date=_date, invoice__reference__startswith=settings.PS_PAYMENT_SYSTEM_ID.replace("S","0")).exclude(type__in=['move_out', 'move_in'])
 
         strIO = StringIO()
         fieldnames = ['Payment Date', 'Settlement Date', 'Confirmation Number', 'Name', 'Type', 'Amount', 'Invoice']
