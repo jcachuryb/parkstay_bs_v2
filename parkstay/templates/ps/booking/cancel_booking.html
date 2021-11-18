@@ -4,19 +4,65 @@
 {% block content %}
 
    {% if booking.is_canceled is False %}
-    <div class="modal" tabindex="-1" id='CancellationConfirm' >
+    {% include "ps/modal_loader.html" %}
+    {% include "ps/modal_error.html" %}
+
+
+     <div class="modal" tabindex="-1" id='CancellationConfirm' aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
+       <div class="modal-dialog">
+         <div class="modal-content">
+           <div class="modal-header">
+             <h5 class="modal-title">Are you sure?</h5>
+             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+           </div>
+           <div class="modal-body">
+             <p>Please confirm that you wish to cancel your booking.</p>
+           </div>
+           <div class="modal-footer">
+             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+             <button type="button" id='cancellation_confirm_btn' class="btn btn-danger">Confirm</button>
+           </div>
+         </div>
+       </div>
+     </div>
+
+    <div class="modal" tabindex="-1" id='CancellationComplete' aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Are you sure?</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p>Please confirm that you wish to cancel your booking.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" id='cancellation_confirm_btn' class="btn btn-danger">Confirm</button>
+              <div class="container">
+                    <div class="row">
+
+                   <div class="col-12 col-sm-12 text-center">
+                  	  <center>
+                           <div style='max-width:100%; background-color: #fbfbfb; ipadding: 20px; border-radius: 1px; ' stylea='box-shadow: -1px 1px 5px 0px rgba(138,138,138,0.75);
+                               -webkit-box-shadow: -1px 1px 5px 0px rgba(138,138,138,0.75);
+                               -moz-box-shadow: -1px 1px 5px 0px rgba(138,138,138,0.75);'>
+
+                       <div class="col-12 text-center" style='background-color: #00a900; padding: 10px; color: #FFFFFF;'>
+                               <h1><i class="bi bi-check-circle" style="color: #FFFFFF; font-size: 90px;"></i></h1>
+                               <p class='fw-bold'>Successful!</p>
+                       </div>
+                       <div class="col-12 text-center fw-bold">
+                              <br>
+                       </div>
+                       <div class="col-12 text-center" style='padding: 20px;'>
+
+                           <div class="col-12 text-center">
+                                   <p>Your cancellation for booking PS{{ booking.id }} is complete.</p>
+                                   <p>Any refunds related to this booking have been completed.  Please allow 2-5 business days for any refunds to appear in your account.</p>
+                           </div>
+                           <div class="col-12 text-center">
+                                   <br>
+                                   <a href='{% url "search_availablity_information" %}' class="btn btn-primary">Make Booking</a>
+                                   <a href='{% url "public_my_bookings" %}' class="btn btn-primary">My Bookings</a>
+
+                           </div>
+                        </div>
+                  	  </center>
+                     </div>
+
+                  </div>
+              </div>
           </div>
         </div>
       </div>
@@ -34,8 +80,6 @@
 			 <p>To complete this booking cancellation please click the "Complete Cancellation" button below.</p>
  	         </div>
 	     </div>
-	     
-
 
 	     <div class="row">
 	         <div class="col-6">
@@ -46,7 +90,6 @@
                  </div>
 	     </div>
 	</form>
-
     </div>
 <script>
 	var cancellation = {
@@ -62,7 +105,30 @@
         });
 
         $('#cancellation_confirm_btn').click(function() {
-                   $('#cancellation_form').submit();                    
+		$('#CancellationConfirm').modal('hide');
+		$('#LoadingPopup').modal('show');
+                $.ajax({
+                    url: "?",
+                    method: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json',
+		    headers: {'X-CSRFToken' : '{{ csrf_token }}' },
+                    // data: "{}",
+                    success: function(response) {
+			    //$('#LoadingPopup').modal('hide');
+			    if (response['status']  == 200 && response['message'] == 'success') {
+				    $('#CancellationComplete').modal('show');
+		            }
+                    },
+                    error: function(error) {
+                        $('#LoadingPopup').modal('hide');
+                        $('#error-title').html('Error');
+                        $('#error-message').html(error);
+                        $('#MessageBox').modal('show');
+                        console.log('Error performing cancellation');
+                    },
+                });
+                //$('#cancellation_form').submit();                    
 	});
 
 </script>
