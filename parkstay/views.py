@@ -10,6 +10,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
+from ledger_api_client.utils import create_basket_session, create_checkout_session, place_order_submission, use_existing_basket, use_existing_basket_from_invoice, process_api_refund
 from django import forms
 #from ledger.basket.models import Basket
 from parkstay.forms import LoginForm, MakeBookingsForm, AnonymousMakeBookingsForm, VehicleInfoFormset
@@ -48,6 +49,7 @@ from parkstay.helpers import is_officer
 from parkstay import utils
 from parkstay import booking_availability
 import json
+import hashlib
 
 logger = logging.getLogger('booking_checkout')
 
@@ -313,7 +315,6 @@ class MakeBookingsView(TemplateView):
         booking.details['toc'] = request.POST.get('toc',False)
         booking.details['outsideregion'] = request.POST.get('outsideregion', False)
         booking.details['trav_res'] = request.POST.get('trav_res', False)
- 
 
         # update vehicle registrations from form
         VEHICLE_CHOICES = {'0': 'vehicle', '1': 'concession', '2': 'motorbike', '3': 'campervan', '4': 'trailer'}
@@ -392,7 +393,6 @@ class MakeBookingsView(TemplateView):
         logger.info(u'{} built booking {} and handing over to payment gateway'.format(u'User {} with id {}'.format(booking.customer.get_full_name(),booking.customer.id) if booking.customer else u'An anonymous user',booking.id))
 
         result = utils.checkout(request, booking, lines, invoice_text=reservation)
-
         return result
 
 class PeakPeriodGroup(TemplateView):
@@ -429,21 +429,23 @@ class CancelBookingView(TemplateView):
         if booking_data.count() > 0:
             booking = booking_data[0]
             if booking.customer.id == request.user.id or request.user.is_staff is True:
-                    print (booking.arrival)
-                    print (today)
                     if booking.arrival > today:
-                             campsitebooking = CampsiteBooking.objects.filter(booking_id=booking_id)
-                             totalbooking = Decimal('0.00')
+                             booking_totals = utils.booking_total_to_refund(booking)
+                             totalbooking = booking_totals['refund_total']
+                             campsitebooking = booking_totals['campsitebooking']
+                             cancellation_data = booking_totals['cancellation_data']
+                             #campsitebooking = CampsiteBooking.objects.filter(booking_id=booking_id)
+                             #totalbooking = Decimal('0.00')
 
-                             cancellation_data = utils.booking_cancellation_fees(booking)  
-                             for cb in campsitebooking:
-                                  totalbooking = totalbooking + cb.amount_adult + cb.amount_infant + cb.amount_child + cb.amount_concession
+                             #cancellation_data = utils.booking_cancellation_fees(booking)  
+                             #for cb in campsitebooking:
+                             #     totalbooking = totalbooking + cb.amount_adult + cb.amount_infant + cb.amount_child + cb.amount_concession
 
-                             additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier='vehicles')
-                             for ab in additional_booking:
-                                  totalbooking = totalbooking + ab.amount
+                             #additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier='vehicles')
+                             #for ab in additional_booking:
+                             #     totalbooking = totalbooking + ab.amount
 
-                             #totalbooking = totalbooking - Decimal(cancellation_data['cancellation_fee'])
+                             ##totalbooking = totalbooking - Decimal(cancellation_data['cancellation_fee'])
 
                              context = {
                                  'booking': booking,
@@ -451,6 +453,7 @@ class CancelBookingView(TemplateView):
                                  'cancellation_data' : cancellation_data,
                                  'totalbooking' : str(totalbooking)
                                  }
+
                              response = render(request, self.template_name, context)
                              return response
         context = {}
@@ -461,16 +464,52 @@ class CancelBookingView(TemplateView):
     def post(self, request, *args, **kwargs):
         booking_id = kwargs['booking_id']
         booking = Booking.objects.get(id=int(booking_id))
-        booking.is_canceled = True
-        booking.canceled_by = request.user
-        booking.cancelation_time = timezone.now()
-        booking.cancellation_reason = "Booking Cancelled Online"
-        booking.save()
-        context = {'booking': booking,}
-        self.template_name = 'ps/booking/cancel_booking_complete.html' 
-        response = render(request, self.template_name, context)
-        #response = HttpResponse("CANCELLTION COMPLETED")
-        return response
+        if booking.customer.id == request.user.id or request.user.is_staff is True:
+               # > remove any sessions
+               if request.session:
+                  if 'ps_booking' in request.session:
+                      booking_session = utils.get_session_booking(request.session)
+                      if booking_session.booking_type == 3:
+                         booking_session.delete()
+                      utils.delete_session_booking(request.session)
+               # < remove any sessions
+
+               # Attemping to refund
+               booking_totals = utils.booking_total_to_refund(booking)
+               totalbooking = booking_totals['refund_total']
+               campsitebooking = booking_totals['campsitebooking']
+               cancellation_data = booking_totals['cancellation_data']
+
+               ## PLACE IN UTILS
+               lines = []
+               lines = utils.price_or_lineitemsv2old_booking(request,booking, lines)
+               cancellation_data =  utils.booking_change_fees(booking)
+
+               lines.append({'ledger_description':'Booking Cancellation Fee',"quantity":1,"price_incl_tax":str(cancellation_data['cancellation_fee']),"oracle_code":booking.campsite_oracle_code, 'line_status': 1})
+           
+               basket_params = {
+                   'products': lines,
+                   'vouchers': [],
+                   'system': settings.PS_PAYMENT_SYSTEM_ID,
+                   'custom_basket': True,
+                   'booking_reference': 'PS-'+str(booking.id),
+                   'booking_reference_link': 'PS-'+str(booking.id)
+
+               }
+               checkouthash =  hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
+               request.session['checkouthash'] = checkouthash
+
+               return_url = request.build_absolute_uri()+"/booking/cancellation-success/?checkouthash="+checkouthash
+               return_preload_url = request.build_absolute_uri()+"/booking/return-cancelled/"
+               jsondata = process_api_refund(request, basket_params, booking.customer.id, return_url, return_preload_url)
+               if jsondata['message'] == 'success':
+                   booking.is_canceled = True
+                   booking.canceled_by = request.user
+                   booking.cancelation_time = timezone.now()
+                   booking.cancellation_reason = "Booking Cancelled Online"
+                   booking.save()
+               response = HttpResponse(json.dumps(jsondata), content_type='application/json')
+               return response
 
 class BookingSuccessView(TemplateView):
     template_name = 'ps/booking/success.html'
@@ -479,8 +518,6 @@ class BookingSuccessView(TemplateView):
         checkouthash = request.GET.get('checkouthash','')
         try:
             basket = None
-            print ("CHEC HASH")
-            print (checkouthash)
             session_checkouthash = request.session.get('checkouthash')
             if session_checkouthash == checkouthash:
                 pass
@@ -491,7 +528,6 @@ class BookingSuccessView(TemplateView):
                 return response
             booking = utils.get_session_booking(request.session)
 
-            print (booking)
             if self.request.user.is_authenticated:
                 basket = Basket.objects.filter(status='Submitted', owner=request.user).order_by('-id')[:1]
             else:
@@ -509,6 +545,8 @@ class BookingSuccessView(TemplateView):
                 return redirect('public_make_booking')
             
         except Exception as e:
+            print ("SUCCESS EXCEPTION")
+            print (e)
             if ('ps_last_booking' in request.session) and Booking.objects.filter(id=request.session['ps_last_booking']).exists():
                 booking = Booking.objects.get(id=request.session['ps_last_booking'])
             else:
@@ -518,11 +556,6 @@ class BookingSuccessView(TemplateView):
             'booking': booking
         }
         print("BookingSuccessView - get 6.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
-
-        print ("CHEC HASH")
-
-        print (checkouthash)
-        print (request.session.get('checkouthash'))
 
         response = render(request, self.template_name, context)
         response.delete_cookie(settings.OSCAR_BASKET_COOKIE_OPEN)

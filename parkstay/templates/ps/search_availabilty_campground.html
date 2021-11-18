@@ -17,67 +17,8 @@
 
 {% block content %}
 
-<div class="modal fade" id="LoadingPopup" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="alert alert-danger" role="alert" id='popup-error' style='display:none'>
-
-        </div>
-        <div class='col-12'>
-            <center>
-             <br>
-             <br>
-
-                <div class="spinner-border text-primary" style='width: 8rem; height: 8rem' role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-            <div><h3>Please Wait</h3></div>
-             <br>
-             <br>
-            </center>
-        </div>
-
-
-
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div class="modal fade" id="MessageBox" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="alert alert-danger" role="alert" id='popup-error' style='display:none'>
-
-        </div>
-        <div class='col-12'>
-            <center>
-            <i class="bi bi-x-circle-fill text-center" style='color: red; font-size: 100px;'></i>
-            <h2 id='error-title'>Error Message</h2>
-            <div id='error-message'>There was error processing your request.</div>
-            <br>
-            <button type="button" class="btn btn-primary" id='group-close-modal' data-bs-dismiss="modal">Close</button>
-	    
-                    <div class="spinner-border text-primary" role="status" style='display:none' id='peakgroup_progress_loader_create'>
-                  <span class="visually-hidden">Loading...</span>
-        </div>
-	    <br>
-            <br>
-            </center>
-	</div>
-
-    
-
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
+{% include "ps/modal_loader.html" %}
+{% include "ps/modal_error.html" %}
 
 <!-- https://cssbuttoncreator.com/ -->
 <script>
@@ -119,7 +60,7 @@ window.onload = function() {
 	<div class="col-lg-12 mb-4">
                  <div class="round-box col-12 px-3 pt-3 pb-3" style='background-color: #f1f1f1; border: 1px solid #d2d2d2;'>
                              <div>
-                                    <i class="bi-bell-fill" id='bell-flash' style='font-size: 20px; color: #ff0000; padding-right:8px;' ></i>
+                                    <i class="bi-bell-fill" id='bell-flash' style='font-size: 20px; color: #ff0000; padding-right:8px;'></i>
 				    <span style='color:#ff0000; margin-top: -10px;'>{{ cg.campground.park.alert_count }} active alert(s) found for this park <a href='{{ cg.campground.park.alert_url }}' type="button" class="btn btn-danger" style='color:#FFF'>Read More</a>
 				     </span>
 

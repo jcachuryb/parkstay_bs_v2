@@ -655,6 +655,25 @@ def get_park_entry_rate(request, start_date):
     return res
 
 
+def booking_total_to_refund(booking):
+
+     booking_totals = {'refund_total': Decimal('0.00')}
+     campsitebooking = parkstay_models.CampsiteBooking.objects.filter(booking=booking)
+     totalbooking = Decimal('0.00')
+
+     cancellation_data = booking_cancellation_fees(booking)
+     for cb in campsitebooking:
+          totalbooking = totalbooking + cb.amount_adult + cb.amount_infant + cb.amount_child + cb.amount_concession
+
+     additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier='vehicles')
+     for ab in additional_booking:
+          totalbooking = totalbooking + ab.amount
+     booking_totals['refund_total'] = totalbooking
+     booking_totals['campsitebooking'] = campsitebooking
+     booking_totals['cancellation_data'] = cancellation_data
+     return booking_totals
+
+
 def booking_cancellation_fees(booking):
     cancellation_data = {'old_booking': {},'cancellation_fee': Decimal('0.00')}
     cancellation_fee = Decimal('0.00')
@@ -1470,23 +1489,18 @@ def delete_session_booking(session):
 def bind_booking(booking, basket):
     if booking.booking_type == 3:
         logger.info(u'bind_booking start {}'.format(booking.id))
-        print ("1")
-        #order_obj = Order()
         order = Order.objects.get(basket_id=basket[0].id)
-        print ("2")
         invoice = Invoice.objects.get(order_number=order.number)
         invoice_ref = invoice.reference
-        print ('3')
         book_inv, created = BookingInvoice.objects.get_or_create(booking=booking, invoice_reference=invoice_ref)
         logger.info(u'{} finished temporary booking {}, creating new BookingInvoice with reference {}'.format(u'User {} with id {}'.format(booking.customer.get_full_name(), booking.customer.id) if booking.customer else u'An anonymous user', booking.id, invoice_ref))
-        print ("5") 
         try:
             inv = Invoice.objects.get(reference=invoice_ref)
         except Invoice.DoesNotExist:
             logger.error(u'{} tried making a booking with an incorrect invoice'.format(u'User {} with id {}'.format(booking.customer.get_full_name(), booking.customer.id) if booking.customer else u'An anonymous user'))
             raise BindBookingException
 
-        if inv.system not in ['0019']:
+        if inv.system not in [settings.PS_PAYMENT_SYSTEM_ID.replace("S","0")]:
             logger.error(u'{} tried making a booking with an invoice from another system with reference number {}'.format(u'User {} with id {}'.format(booking.customer.get_full_name(), booking.customer.id) if booking.customer else u'An anonymous user', inv.reference))
             raise BindBookingException
 
@@ -1512,8 +1526,6 @@ def bind_booking(booking, basket):
                 logger.info(u'cancelling old booking started 2')
                 if booking.created_by is not None:
                      logger.info(u'created by {}'.format(booking.created_by))
-                     print ("CANCELL BOOKING")
-                     print (EmailUser.objects.get(id=booking.created_by))
                      old_booking.canceled_by = EmailUser.objects.get(id=int(booking.created_by))
                 logger.info(u'cancelling old booking started 3')
                 old_booking.cancelation_time = timezone.now()
@@ -1547,7 +1559,7 @@ def daterange(start_date, end_date):
 
 
 def oracle_integration(date, override):
-    system = '0019'
+    system = settings.PS_PAYMENT_SYSTEM_ID.replace("S","0") 
     oracle_codes = oracle_parser(date, system, 'Parkstay', override=override)
 
 
