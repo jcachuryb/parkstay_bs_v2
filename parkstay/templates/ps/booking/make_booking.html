@@ -32,6 +32,11 @@
             </div></div>
         </div>
     </div>
+{% elif request.user.is_authenticated is False %}
+<div class="container">
+   <div class='alert alert-danger'> Sorry you are not logged in,  please login to complete your booking. </div>
+</div>
+
 {% else %}
 <div id="addBooking">
 
@@ -197,25 +202,20 @@
                               <div class="row">
                                   <div class="col-lg-6">
                                       <div class="well">
+					  {% if request.user.is_staff %}
                                           <div class="row">
-                                          {% if request.user.is_anonymous %}
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                  {{form.email.label_tag}}
-                                                  {{ form.email|class:'form-control'}}
+						  {{ form.email.label_tag }}
+						  {{ form.email|class:'form-control' }}
                                                 </div>
                                             </div>
                                             <div class="col-md-6" >
                                                 <div class="form-group">
-                                                    {{form.confirm_email.label_tag}}
-                                                    {{ form.confirm_email|class:'form-control'}}
+						    {{ form.confirm_email.label_tag }}
+						    {{ form.confirm_email|class:'form-control' }}
                                                 </div>
                                             </div>
-                                          {% else %}
-                                            <div class="col-md-12">
-                                                <p>Logged in as user <b>{{ request.user.email }}</b>.</p>
-                                            </div>
-                                          {% endif %}
                                           </div>
                                           <div class="row">
                                             <div class="col-md-6">
@@ -253,7 +253,56 @@
                                                 </div>
                                             </div>
                                           </div>
+                                          {% else %}
+                                            <div class="col-md-12">
+                                                <p>Logged in as user <b>{{ request.user.email }}</b>.</p>
+                                            </div>
+                                          <div class="row" style='display:none'>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                  {{form.first_name.label_tag}}
+                                                  {{ form.first_name|class:'form-control-hidden'}}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    {{form.last_name.label_tag}}
+                                                    {{ form.last_name|class:'form-control'}}
+                                                </div>
+                                            </div>
+                                          </div>
+                                          <div class="row"  istyle='display:none'>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    {{form.postcode.label_tag}}
+                                                    {{ form.postcode|class:'form-control'}}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    {{form.country.label_tag}}
+                                                    {{ form.country|class:'form-control'}}
+                                                </div>
+                                            </div>
+                                          </div>
+                                          <div class="row"  istyle='display:none'>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    {{form.phone.label_tag}}
+                                                    {{ form.phone|class:'form-control'}}
+                                                </div>
+                                            </div>
+                                          </div>
+
+
+
+                                          {% endif %}
+
+
+
                                       </div>
+
+
                                   </div>
                              </div>
                          </div>
