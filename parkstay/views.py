@@ -250,6 +250,7 @@ class MakeBookingsView(TemplateView):
     def get(self, request, *args, **kwargs):
         # TODO: find campsites related to campground
         booking = None
+        form = None
         if 'ps_booking' in request.session:
             if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
                 booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
@@ -264,14 +265,15 @@ class MakeBookingsView(TemplateView):
             'num_infant': booking.details.get('num_infant', 0) if booking else 0,
             'country': 'AU',
         }
-
-        if request.user.is_anonymous:
-            form = AnonymousMakeBookingsForm(form_context)
-        else:
-            form_context['first_name'] = request.user.first_name
-            form_context['last_name'] = request.user.last_name
-            form_context['phone'] = request.user.phone_number
-            form = MakeBookingsForm(form_context)
+        #form = AnonymousMakeBookingsForm(form_context)
+        if request.user.is_authenticated:
+            if request.user.is_staff:
+                form = AnonymousMakeBookingsForm(form_context)
+            else:
+                form_context['first_name'] = request.user.first_name
+                form_context['last_name'] = request.user.last_name
+                form_context['phone'] = request.user.phone_number
+                form = MakeBookingsForm(form_context)
 
         vehicles = VehicleInfoFormset()
         return self.render_page(request, booking, form, vehicles)
@@ -287,8 +289,14 @@ class MakeBookingsView(TemplateView):
                 del request.session['ps_booking']
 
         #booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
-        if request.user.is_anonymous:
-            form = AnonymousMakeBookingsForm(request.POST)
+
+
+        if request.user.is_authenticated:
+            if request.user.is_staff:
+        #if request.user.is_anonymous:
+                form = AnonymousMakeBookingsForm(request.POST)
+            else:
+                form = MakeBookingsForm(request.POST)
         else:
             form = MakeBookingsForm(request.POST)
         vehicles = VehicleInfoFormset(request.POST)   
@@ -361,23 +369,25 @@ class MakeBookingsView(TemplateView):
         total = sum([Decimal(p['price_incl_tax'])*p['quantity'] for p in lines])
 
         # get the customer object
-        if request.user.is_anonymous:
-            # searching on EmailIdentity looks for both EmailUser and Profile objects with the email entered by user
-            customer_qs = EmailIdentity.objects.filter(email__iexact=form.cleaned_data.get('email'))
-            if customer_qs:
-                customer = customer_qs.first().user
+        #if request.user.is_anonymous:
+        if request.user.is_authenticated:
+            if request.user.is_staff:
+                  # searching on EmailIdentity looks for both EmailUser and Profile objects with the email entered by user
+                  customer_qs = EmailIdentity.objects.filter(email__iexact=form.cleaned_data.get('email'))
+                  if customer_qs:
+                      customer = customer_qs.first().user
+                  else:
+                      customer = EmailUser.objects.create(
+                              email=form.cleaned_data.get('email').lower(),
+                              first_name=form.cleaned_data.get('first_name'),
+                              last_name=form.cleaned_data.get('last_name'),
+                              phone_number=form.cleaned_data.get('phone'),
+                              mobile_number=form.cleaned_data.get('phone')
+                      )
+                      customer = EmailUser.objects.filter(email__iexact=form.cleaned_data.get('email').lower())[0] 
+                      Address.objects.create(line1='address', user=customer, postcode=form.cleaned_data.get('postcode'), country=form.cleaned_data.get('country').iso_3166_1_a2)
             else:
-                customer = EmailUser.objects.create(
-                        email=form.cleaned_data.get('email').lower(),
-                        first_name=form.cleaned_data.get('first_name'),
-                        last_name=form.cleaned_data.get('last_name'),
-                        phone_number=form.cleaned_data.get('phone'),
-                        mobile_number=form.cleaned_data.get('phone')
-                )
-                customer = EmailUser.objects.filter(email__iexact=form.cleaned_data.get('email').lower())[0] 
-                Address.objects.create(line1='address', user=customer, postcode=form.cleaned_data.get('postcode'), country=form.cleaned_data.get('country').iso_3166_1_a2)
-        else:
-            customer = request.user
+                  customer = request.user
         
         # FIXME: get feedback on whether to overwrite personal info if the EmailUser
         # already exists
