@@ -425,6 +425,26 @@ class BookingPolicy(TemplateView):
         response = render(request, self.template_name, context)
         return response
 
+class ChangeBookingView(TemplateView):
+    #template_name = 'ps/booking/change_booking.html'
+     def get(self, request, *args, **kwargs):
+         booking_id = kwargs['booking_id']
+         booking = None
+         booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
+         if booking_data.count() > 0:
+             booking = booking_data[0]
+             if booking.customer.id == request.user.id or request.user.is_staff is True:
+                  arrival_date = booking.arrival.strftime("%Y/%m/%d")
+                  departure_date = booking.departure.strftime("%Y/%m/%d")
+                     
+                  response = HttpResponse("<script>window.location='/search-availablity/campground/?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details['num_adult'])+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&gear_type=all&change_booking_id="+str(booking.id)+"';</script>", content_type='text/html')
+                  return response
+         context = {}
+         self.template_name = 'ps/search_availabilty_campground_cancel_booking_error.html'
+         return render(request, self.template_name, context)
+
+
+
 class CancelBookingView(TemplateView):
     template_name = 'ps/booking/cancel_booking.html'
 
