@@ -80,16 +80,15 @@ window.onload = function() {
                  </div>
 		 {% endif %}
 
-
 <ul class="nav nav-pills ">
   <li class="nav-item">
-    <a class="nav-link active" aria-current="page" href="#">BOOKING</a>
+    <a class="nav-link active" id='campsite-booking-tab' aria-current="page" href="#" onclick="search_avail.change_tabs('campsite-booking');" >BOOKING</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">CAMPGROUND DETAILS</a>
+    <a class="nav-link" id='campground-details-tab' href="#" onclick="search_avail.change_tabs('campground-details');" >CAMPGROUND DETAILS</a>
   </li>
 </ul>
-
+<div id='campsite-booking'>
 <br>
         <div class="row">
 	    {% if cg.campground_notices|length > 0 %}
@@ -551,6 +550,14 @@ window.onload = function() {
 		  </div>
          </div>
      </div>
+      
+     <!-- booking campsite tab -->
+     </div>
+     <div id='campground-details' style='display:none'>
+             {% include "ps/search_availabilty_campground_details.html" %}
+     </div>
+
+
 </div>
 <br>
 <br>

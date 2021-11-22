@@ -24,6 +24,7 @@ from ledger_api_client.ledger_models import Invoice, EmailUserRO as EmailUser
 #from ledger.payments.cash.models import CashTransaction
 from rest_framework import viewsets, serializers, status, generics, views
 from parkstay import property_cache 
+from django.utils.safestring import mark_safe
 
 
 PARKING_SPACE_CHOICES = (
@@ -205,6 +206,7 @@ class Campground(models.Model):
     max_advance_booking = models.IntegerField(default=180)
     oracle_code = models.CharField(max_length=50, null=True, blank=True)
     campground_map = models.FileField(upload_to=update_campground_map_filename, null=True, blank=True)
+    campground_image = models.ForeignKey("CampgroundImage", on_delete=models.PROTECT, blank=True, null=True, related_name='campground_primary_image')
 
     def __str__(self):
         return self.name
@@ -513,6 +515,20 @@ class CampgroundImage(models.Model):
         checksum = hashlib.md5()
         checksum.update(content.read())
         return base64.b64encode(checksum.digest())
+
+    def image_preview(self):
+        if self.image:
+            return mark_safe('<img src="{0}" height="150" />'.format("/campground-image/146/248/?mediafile="+self.image.url))
+        else:
+            return '(No image)'
+
+    def image_size(self, height, width):
+        if self.image:
+            return mark_safe('<img src="{0}" style="max-width:100%" />'.format("/campground-image/"+str(width)+"/"+str(height)+"/?mediafile="+self.image.url))
+        else:
+            return '(No image)'
+
+
 
     def createImage(self, content):
         base64_data = self.strip_b64_header(content)

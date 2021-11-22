@@ -690,6 +690,10 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['campground']['park']['id'] = campground_query.park.id
         context['cg']['campground']['park']['alert_count'] = campground_query.park.alert_count
         context['cg']['campground']['park']['alert_url'] = settings.ALERT_URL
+        if campground_query.campground_image:
+            context['cg']['campground']['campground_image'] = campground_query.campground_image.image_size(1200,800)
+        else:
+            context['cg']['campground']['campground_image'] = ""
 
         context['cg']['campground_notices_red'] = 0
         context['cg']['campground_notices_orange'] = 0
