@@ -61,6 +61,7 @@ class CampgroundAdmin(admin.GeoModelAdmin):
     search_fields = ('name',)
     list_filter = ('campground_type', 'site_type')
     openlayers_url = 'https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js'
+    raw_id_fields = ('campground_image',)
     inlines = [CampgroundNoticeInline,CampsiteInline]
 
 #from django.forms.models import BaseInlineFormSet, ModelForm
@@ -322,6 +323,11 @@ class PlacesAdmin(admin.GeoModelAdmin):
     ordering = ('name',)
     search_fields = ('name',)
     openlayers_url = 'https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js'
+
+@admin.register(models.CampgroundImage)
+class CampgroundImage(admin.ModelAdmin):
+      list_display = ('campground','image_preview',)
+      search_fields = ('campground__name',)
 
 admin.site.register(models.Rate)
 admin.site.register(models.Region)

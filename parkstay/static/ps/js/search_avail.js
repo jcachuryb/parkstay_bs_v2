@@ -14,6 +14,14 @@ var search_avail = {
 	   'campers': {'adult': 0, 'concession':0, 'children':0, 'infant':0, 'total_people': 0},
 	   'vehicles': {'vehicle': 0,'campervan': 0, 'motorcycle': 0, 'trailer': 0}
     },
+    change_tabs: function(tabname) {
+          $("#campsite-booking").hide();
+	  $("#campground-details").hide();
+	  $("#campsite-booking-tab").removeClass("active");
+	  $("#campground-details-tab").removeClass("active");
+          $("#"+tabname+"-tab").addClass('active');
+	  $("#"+tabname).show();
+    },
     change_camper_counters: function(group, direction) {
 	   
 	   if (group in search_avail.var.campers) {
@@ -567,6 +575,13 @@ var search_avail = {
 				    
 				campsitehtml = campsitehtml + "</div>";
 				campsitehtml = campsitehtml + "<div class='product-availablity-short-description'>"+campsites[s].short_description+"</div>";
+
+                                if (campsites[s].hasOwnProperty("warning")) {
+                                   campsitehtml = campsitehtml + "<div id='campsite-warning-"+campsites[s].id+"' class='campsite-warning'>"+campsites[s].warning+"</div>";
+                                } else {
+				   campsitehtml = campsitehtml + "<div id='campsite-warning-"+campsites[s].id+"'>&nbsp;</div>";
+				}
+
 				campsitehtml = campsitehtml + "<div class='row'>";
 				campsitehtml = campsitehtml + "<div class='col-3'>";
 
@@ -579,7 +594,7 @@ var search_avail = {
 				} else {
 			             campsitehtml = campsitehtml + "<i class='bi bi-x-square-fill product-availablity-status product-availablity-selection-red' ></i>";
 				}
-
+                                
                                 campsitehtml = campsitehtml + "<div id='campsite-availablity-by-day"+campsites[s].id+"' class='product-available-dates-box' >";
 				campsitehtml = campsitehtml + "<h4>Availablity</h4>";
 				campsitehtml = campsitehtml + "<table cellpadding='0' cellspacing='0' style=''><tr>";
