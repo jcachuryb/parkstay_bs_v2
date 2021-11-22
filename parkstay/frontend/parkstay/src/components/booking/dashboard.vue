@@ -340,13 +340,13 @@ export default {
               }
               if (full.editable) {
                 var change_booking =
-                  "<a href='edit/" +
-                  full.id +
-                  "' class='text-primary' data-change = '" +
+                  "<a href='/booking/change/"+
+                  full.id+
+                  "/' class='text-primary' data-change = '" +
                   htmlEscape(booking) +
                   "' > Change</a><br/>";
                 var cancel_booking =
-                  "<a href='#' class='text-primary' data-cancel='" +
+                  "<a href='/booking/cancel/"+full.id+"/' class='text-primary' data-cancel='" +
                   htmlEscape(booking) +
                   "' > Cancel</a><br/>";
                 column += cancel_booking;
@@ -354,8 +354,7 @@ export default {
               }
               full.has_history
                 ? (column +=
-                    "<a href='edit/" +
-                    full.id +
+                    "<a href='edit/"+full.id+
                     "' class='text-primary' data-history = '" +
                     htmlEscape(booking) +
                     "' > View History</a><br/>")
@@ -511,71 +510,71 @@ export default {
         });
       /* End Region Selector*/
 
-      vm.$refs.bookings_table.vmDataTable.on(
-        "click",
-        "a[data-change]",
-        function(e) {
-          e.preventDefault();
-          var selected_booking = JSON.parse($(this).attr("data-change"));
-          vm.selected_booking = selected_booking.id;
-          vm.$router.push({
-            name: "edit-booking",
-            params: {
-              booking_id: selected_booking.id
-            }
-          });
-          //vm.$refs.changebooking.fetchBooking(vm.selected_booking);
-        }
-      );
+      //vm.$refs.bookings_table.vmDataTable.on(
+      //  "click",
+      //  "a[data-change]",
+      //  function(e) {
+      //    e.preventDefault();
+      //    var selected_booking = JSON.parse($(this).attr("data-change"));
+      //    vm.selected_booking = selected_booking.id;
+      //    vm.$router.push({
+      //      name: "edit-booking",
+      //      params: {
+      //        booking_id: selected_booking.id
+      //      }
+      //    });
+      //    //vm.$refs.changebooking.fetchBooking(vm.selected_booking);
+      //  }
+      //);
 
-      vm.$refs.bookings_table.vmDataTable.on(
-        "click",
-        "a[data-cancel]",
-        function(e) {
-          vm.selected_booking = JSON.parse($(this).attr("data-cancel"));
-          swal({
-            title: "Cancel Booking",
-            text: "Provide a cancellation reason",
-            type: "warning",
-            input: "textarea",
-            showCancelButton: true,
-            confirmButtonText: "Submit",
-            showLoaderOnConfirm: true,
-            preConfirm: function(reason) {
-              return new Promise(function(resolve, reject) {
-                vm.$http
-                  .delete(
-                    api_endpoints.booking(vm.selected_booking.id) +
-                      "?reason=" +
-                      reason,
-                    {
-                      emulateJSON: true,
-                      headers: { "X-CSRFToken": helpers.getCookie("csrftoken") }
-                    }
-                  )
-                  .then(
-                    response => {
-                      resolve();
-                    },
-                    error => {
-                      reject(helpers.apiVueResourceError(error));
-                    }
-                  );
-              });
-            },
-            allowOutsideClick: false
-          }).then(function(reason) {
-            vm.$refs.bookings_table.vmDataTable.ajax.reload();
-            swal({
-              type: "success",
-              title: "Booking Canceled",
-              html:
-                "Booking PS" + vm.selected_booking.id + " has been cancelled"
-            });
-          });
-          //bus.$emit('showAlert', 'cancelBooking');
-        }
-      );
+      //vm.$refs.bookings_table.vmDataTable.on(
+      //  "click",
+      //  "a[data-cancel]",
+      //  function(e) {
+      //    vm.selected_booking = JSON.parse($(this).attr("data-cancel"));
+      //    swal({
+      //      title: "Cancel Booking",
+      //      text: "Provide a cancellation reason",
+      //      type: "warning",
+      //      input: "textarea",
+      //      showCancelButton: true,
+      //      confirmButtonText: "Submit",
+      //      showLoaderOnConfirm: true,
+      //      preConfirm: function(reason) {
+      //        return new Promise(function(resolve, reject) {
+      //          vm.$http
+      //            .delete(
+      //              api_endpoints.booking(vm.selected_booking.id) +
+      //                "?reason=" +
+      //                reason,
+      //              {
+      //                emulateJSON: true,
+      //                headers: { "X-CSRFToken": helpers.getCookie("csrftoken") }
+      //              }
+      //            )
+      //            .then(
+      //              response => {
+      //                resolve();
+      //              },
+      //              error => {
+      //                reject(helpers.apiVueResourceError(error));
+      //              }
+      //            );
+      //        });
+      //      },
+      //      allowOutsideClick: false
+      //    }).then(function(reason) {
+      //      vm.$refs.bookings_table.vmDataTable.ajax.reload();
+      //      swal({
+      //        type: "success",
+      //        title: "Booking Canceled",
+      //        html:
+      //          "Booking PS" + vm.selected_booking.id + " has been cancelled"
+      //      });
+      //    });
+      //    //bus.$emit('showAlert', 'cancelBooking');
+      //  }
+      //);
       vm.dateToPicker.on("dp.change", function(e) {
         if (vm.dateToPicker.data("DateTimePicker").date()) {
           vm.filterDateTo = e.date.format("DD/MM/YYYY");

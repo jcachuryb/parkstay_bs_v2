@@ -2854,7 +2854,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                       row['has_history'] = b['property_cache']['has_history']
                       row['cost_total'] = float(b['cost_total'])
                       row['amount_paid'] = b['property_cache']['amount_paid']
-                      row['vehicle_payment_status'] = b['property_cache']['vehicle_payment_status']
+                      row['vehicle_payment_status'] = "" #b['property_cache']['vehicle_payment_status']
                       row['refund_status'] = b['property_cache']['refund_status'] 
                       row['is_canceled'] = 'Yes' if b['is_canceled'] else 'No'
                       row['cancelation_reason'] = b['cancellation_reason']
