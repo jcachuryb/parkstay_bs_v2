@@ -274,13 +274,13 @@ var search_avail = {
     },
     init_dateselection: function(start,end) { 
         if (start == null) {
-            start = moment().add(1, 'days');
+            start = moment().add(0, 'days');
 	} else {
               var start_date= Date.parse(start);
 	      start = moment(start_date);
 	}
 	if (end == null) {
-            end = moment().add(8,'days');
+            end = moment().add(1,'days');
 	} else {
             var end_date = Date.parse(end);
 	    end = moment(end_date);
@@ -567,13 +567,13 @@ var search_avail = {
 
 				campsitehtml = campsitehtml + "<div><i class='bi bi-person-fill'></i> "+campsites[s].min_people+" to "+campsites[s].max_people+" <img src='/static/ps/img/car.png' style='height:16px;'>  "+campsites[s].max_vehicles+" <img src='/static/ps/img/trailer.png' style='height:16px;'>  "+campsites[s].max_vehicles+"</div>";
 
-				campsitehtml = campsitehtml + "<div class='product-availablity'>";
+				//campsitehtml = campsitehtml + "<div class='product-availablity'>";
 
-				for(let f = 0; f < campsites[s].features.length; f++) {
-					campsitehtml = campsitehtml + "<div class='product-availablity-features'>"+campsites[s].features[f].name+"</div>";
-			 	}
+				//for(let f = 0; f < campsites[s].features.length; f++) {
+				//	campsitehtml = campsitehtml + "<div class='product-availablity-features'>"+campsites[s].features[f].name+"</div>";
+			 	//}
 				    
-				campsitehtml = campsitehtml + "</div>";
+				//campsitehtml = campsitehtml + "</div>";
 				campsitehtml = campsitehtml + "<div class='product-availablity-short-description'>"+campsites[s].short_description+"</div>";
 
                                 if (campsites[s].hasOwnProperty("warning")) {

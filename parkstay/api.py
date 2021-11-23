@@ -3110,6 +3110,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                 #        clean_data.append(bk)
                 #    print("MLINE 9.81", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             return Response(OrderedDict([
+                ('config', {'ledger_url': settings.LEDGER_UI_URL }),
                 ('recordsTotal', recordsTotal),
                 ('recordsFiltered', recordsFiltered),
                 ('results', filteredResults)

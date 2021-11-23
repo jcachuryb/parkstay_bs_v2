@@ -7,15 +7,14 @@
             display: none;
         }
     </style>
+
 {% endblock %}
 
-
- {% include 'ps/menu.html' %}
+{% include 'ps/menu.html' %}
 
 {% block menu %}
- {% include 'ps/menu.html' %}
-
- {% if show == 'yes' %}
+{% include 'ps/menu.html' %}
+{% if show == 'yes' %}
 
 <div class="topbar row" id="menu" v-cloak>
     <div class="container-fluid">
@@ -98,6 +97,7 @@
 
 {% block custom_js %}
 {% if not DEV_STATIC %}
+    <input type='hidden' id='ledger_ui_url' value='{{ LEDGER_UI_URL }}'>
     <script type="text/javascript" src="{% static 'parkstay/js/manifest.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
     <script type="text/javascript" src="{% static 'parkstay/js/vendor.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
     <script type="text/javascript" src="{% static 'parkstay/js/parkstay.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>

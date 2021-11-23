@@ -313,7 +313,11 @@ export default {
                   "' target='_blank' class='text-primary'>Invoice</a><br/>"
                 : "";
               var column = "<td >";
+              var ledger_ui_url = $('#ledger_ui_url').val();
+              console.log(ledger_ui_url);
+              
               if (full.invoices.length > 0) {
+                column += "<a href='"+ledger_ui_url+"/ledger/payments/oracle/payments?invoice_no="+full.invoices[0]+"'>Ledger Payments</a><br>";
                 var invoice_string = "/ledger/payments/invoice/payment?";
                 $.each(full.invoices, function(i, n) {
                   invoice_string += "invoice=" + n + "&";

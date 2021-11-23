@@ -122,6 +122,7 @@ class DashboardView(UserPassesTestMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         # if page is called with ratis_id, inject the ground_id
         context = {}
+        context = {'LEDGER_UI_URL' : settings.LEDGER_UI_URL}
         response = render(request, self.template_name, context)
         response.delete_cookie(settings.OSCAR_BASKET_COOKIE_OPEN)
         return response
