@@ -19,5 +19,6 @@ def parkstay_url(request):
         'QUEUE_DOMAIN' : settings.QUEUE_DOMAIN,
         'QUEUE_URL' : settings.QUEUE_URL,
         'QUEUE_ACTIVE_HOSTS' : settings.QUEUE_ACTIVE_HOSTS,
+        'LEDGER_UI_URL' : settings.LEDGER_UI_URL,
         'template_group' : 'parks'
     }

@@ -20,10 +20,10 @@
                     </div>
                 </div><div class="row">
                     <div class="small-12 medium-12 large-4 columns">
-                        <label>Arrival <input id="dateArrival" name="arrival" type="text" placeholder="dd/mm/yyyy" v-on:change="updateDates"/></label>
+                        <label>Arrival <input id="dateArrival" name="arrival" type="text" placeholder="dd/mm/yyyy" vonchange="updateDates"/></label>
                     </div>
                     <div class="small-12 medium-12 large-4 columns">
-                        <label>Departure <input id="dateDeparture" name="departure" type="text" placeholder="dd/mm/yyyy" v-on:change="updateDates"/></label>
+                        <label>Departure <input id="dateDeparture" name="departure" type="text" placeholder="dd/mm/yyyy" vonchange="updateDates"/></label>
                     </div>
                     <div class="small-12 medium-12 large-4 columns">
                         <label>
@@ -831,13 +831,16 @@ export default {
                     'num_children': this.numChildren,
                     'num_infants': this.numInfants,
                     'gear_type': this.gearType,
+                    'arrival' : $('#checkin').val(),
+                    'departure' : $('#checkout').val()
                 };
-                if (this.arrivalDate && this.departureDate) {
-
-                    params['arrival'] = this.arrivalDate.format('YYYY/MM/DD');
-                    params['departure'] = this.departureDate.format('YYYY/MM/DD');
-
-                }
+                //params['arrival'] = $('#checkin').val();
+                //params['departure'] = $('#checkout').val();
+               
+                //if (this.arrivalDate && this.departureDate) {
+                //    params['arrival'] = this.arrivalDate.format('YYYY/MM/DD');
+                //    params['departure'] = this.departureDate.format('YYYY/MM/DD');
+                //}
                 return $.param(params);
             }
         },
