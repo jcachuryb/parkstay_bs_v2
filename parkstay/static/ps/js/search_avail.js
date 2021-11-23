@@ -12,7 +12,8 @@ var search_avail = {
            'places': [],
 	   'search_locations': [],
 	   'campers': {'adult': 0, 'concession':0, 'children':0, 'infant':0, 'total_people': 0},
-	   'vehicles': {'vehicle': 0,'campervan': 0, 'motorcycle': 0, 'trailer': 0}
+	   'vehicles': {'vehicle': 0,'campervan': 0, 'motorcycle': 0, 'trailer': 0},
+	   'loaded': {'locations': false,'search_locations': false, 'places': false}
     },
     change_tabs: function(tabname) {
           $("#campsite-booking").hide();
@@ -80,6 +81,7 @@ var search_avail = {
                     data: "{}",
                     success: function(response) {
                             search_avail.var.search_locations = response;
+			    search_avail.var.loaded.search_locations = true;
                     },
                     error: function (error) {
                         alert('Error loading search locations');
@@ -95,6 +97,7 @@ var search_avail = {
                     data: "{}",
                     success: function(response) {
                             search_avail.var.locations = response;
+			    search_avail.var.loaded.locations = true;
                             // console.log(response);
 
                     },
@@ -112,6 +115,7 @@ var search_avail = {
                     // data: "{}",
                     success: function (response) {
                             search_avail.var.places = response;
+			    search_avail.var.loaded.places = true;
                             // console.log(response);
                     },
                     error: function (error) {
@@ -181,7 +185,7 @@ var search_avail = {
         search_avail.var.camping_period['checkin'] = start.format('YYYY/MM/DD')
 	search_avail.var.camping_period['checkout'] = end.format('YYYY/MM/DD')
 
-        var whennights = search_avail.calculate_nights(start,end);
+        var whennights = search_avail.calculate_nights(start.format("YYYY-MM-DD"),end.format("YYYY-MM-DD"));
         $('#when-nights').html(whennights);
 	if (search_avail.var.page == 'campground') { 
 	   $('#map-reload').click();
@@ -191,9 +195,20 @@ var search_avail = {
         }
     },
     calculate_nights: function(start,end) {
-           oneDay = 24 * 60 * 60 * 1000; 
-           diffDays = Math.round(Math.abs((start - end) / oneDay));
-           diffDays = diffDays - 1; 
+
+	   var start_dt = Date.parse(start)
+	   var end_dt  = Date.parse(end)
+
+           console.log("calculate_nights");
+	   console.log(start);
+	   console.log(end);
+           oneDay = 24 * 60 * 60 * 1000;
+	   console.log(oneDay);
+	  
+
+           diffDays = Math.round(Math.abs((moment(start_dt) - moment(end_dt)) / oneDay));
+	   console.log(diffDays);
+           // diffDays = diffDays - 1; 
            return diffDays;
     },
     select_remove: function() {
@@ -307,13 +322,15 @@ var search_avail = {
             } else {
 
             var search_results = [];
-            for (let i = 0; i < search_avail.var.locations.features.length; i++) {
-                    if (search_avail.var.locations.features[i].properties.name.toLocaleLowerCase().indexOf(element_value.toLocaleLowerCase())!=-1) {
-                          console.log('found');
-                          // search_results.push({'id': search_avail.var.locations.features[i].properties.id , 'name': search_avail.var.locations.features[i].properties.name, 'type' :'locations','coord_1' : search_avail.var.locations.features[i].geometry.coordinates[0], 'coord_2': search_avail.var.locations.features[i].geometry.coordinates[1]});
-                    }
-                   // console.log(search_avail.var.locations.features[i].properties.name);
-            }
+	    if (search_avail.var.locations) { 
+                for (let i = 0; i < search_avail.var.locations.features.length; i++) {
+                        if (search_avail.var.locations.features[i].properties.name.toLocaleLowerCase().indexOf(element_value.toLocaleLowerCase())!=-1) {
+                              console.log('found');
+                              // search_results.push({'id': search_avail.var.locations.features[i].properties.id , 'name': search_avail.var.locations.features[i].properties.name, 'type' :'locations','coord_1' : search_avail.var.locations.features[i].geometry.coordinates[0], 'coord_2': search_avail.var.locations.features[i].geometry.coordinates[1]});
+                        }
+                       // console.log(search_avail.var.locations.features[i].properties.name);
+                }
+	    }
 
             for (let i = 0; i < search_avail.var.search_locations.features.length; i++) {
                     if (search_avail.var.search_locations.features[i].properties.name.toLocaleLowerCase().indexOf(element_value.toLocaleLowerCase())!=-1) {
@@ -760,6 +777,16 @@ var search_avail = {
 	    }
 	    setTimeout("search_avail.bellflash();",1000);
     },
+    init_cg: function () {
+              if (search_avail.var.loaded.locations == false || search_avail.var.loaded.search_locations == false ||  search_avail.var.loaded.places == false) {
+                      $('#LoadingPopup').modal('show');
+		      setTimeout("search_avail.init_cg()",1000);
+	      } else {
+                 $('#LoadingPopup').modal('hide');
+	      }
+              
+             
+    },	    
     init: function() {
 	 var enodes = [];
          search_avail.bellflash();
