@@ -17,6 +17,7 @@
 {% endblock %}
 
 {% block content %}
+{% include "ps/modal_loader.html" %}
 
 
 <!-- https://cssbuttoncreator.com/ -->
@@ -28,6 +29,7 @@ window.onload = function() {
    search_avail.get_locations();
    search_avail.get_places(); 
    search_avail.init_dateselection();	
+   search_avail.init_cg();
    console.log('loaded');
 
 }
