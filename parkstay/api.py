@@ -2161,7 +2161,6 @@ def get_booking_pricing(request, *args, **kwargs):
              old_campsite_booking = CampsiteBooking.objects.filter(booking_id=booking.old_booking)
              old_additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking_id=booking.old_booking, identifier='vehicles') 
 
-
          campsite_booking = CampsiteBooking.objects.filter(booking=booking)
          additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking=booking)
 
@@ -2224,8 +2223,6 @@ def get_booking_pricing(request, *args, **kwargs):
              row['amount'] = str(ab.amount)
              row['item_name'] = ab.fee_description
              booking_information['additional_booking'].append(row)
-
-
 
     dumped_data = geojson.dumps(booking_information)
     return HttpResponse(dumped_data, content_type='application/json')
