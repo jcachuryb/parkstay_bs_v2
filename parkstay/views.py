@@ -438,7 +438,7 @@ class ChangeBookingView(TemplateView):
                   arrival_date = booking.arrival.strftime("%Y/%m/%d")
                   departure_date = booking.departure.strftime("%Y/%m/%d")
                      
-                  response = HttpResponse("<script>window.location='/search-availablity/campground/?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details['num_adult'])+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&gear_type=all&change_booking_id="+str(booking.id)+"';</script>", content_type='text/html')
+                  response = HttpResponse("<script>window.location='/search-availablity/campground/?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details['num_adult'])+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&num_vehicle="+str(booking.details['num_vehicle'])+"&num_campervan="+str(booking.details['num_campervan'])+"&num_motorcycle="+str(booking.details['num_motorcycle'])+"&num_trailer="+str(booking.details['num_trailer'])+"&gear_type=all&change_booking_id="+str(booking.id)+"';</script>", content_type='text/html')
                   return response
          context = {}
          self.template_name = 'ps/search_availabilty_campground_cancel_booking_error.html'
@@ -657,7 +657,6 @@ class SearchAvailablityByCampground(TemplateView):
 
     template_name = 'ps/search_availabilty_campground.html'
 
-
     def get(self, request, *args, **kwargs):
         context = {'cg': {'campground': {},'campground_notices': []}}
         campground_id = request.GET.get('site_id', None)
@@ -665,6 +664,12 @@ class SearchAvailablityByCampground(TemplateView):
         num_concession= request.GET.get('num_concession', 0)
         num_children= request.GET.get('num_children', 0)
         num_infants= request.GET.get('num_infants', 0)
+        
+        num_vehicle= request.GET.get('num_vehicle', 1) # cars
+        num_campervan = request.GET.get('num_campervan', 0) 
+        num_motorcycle = request.GET.get('num_motorcycle', 0)
+        num_trailer = request.GET.get('num_trailer',0)
+
         arrival=request.GET.get('arrival', None)
         departure=request.GET.get('departure', None)
         change_booking_id = request.GET.get('change_booking_id', None)
@@ -676,14 +681,16 @@ class SearchAvailablityByCampground(TemplateView):
                     if int(change_booking_id) > 0:
                           if Booking.objects.filter(id=change_booking_id, is_canceled=False).count() > 0:
                                cb = Booking.objects.get(id=change_booking_id)
-                               print ("CUSTOMER")
-                               print (cb.customer)
-                               print ("REQUEST")
-                               print (request.user)
-                               print (cb.id)
                                if cb.customer.id == request.user.id or request.user.is_staff is True:
                                        if cb.arrival > today:
                                             context['change_booking'] = cb
+                                       else:
+                                           pass
+                                           if request.user.is_staff is True:
+                                                context['change_booking'] = cb
+                                           else:
+                                                context["error_message"] = "Sorry,  your booking has already started and cannot be changed."
+
 
         if context['change_booking'] is None:
               if change_booking_id is not None:
@@ -696,6 +703,12 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['num_concession'] = num_concession
         context['cg']['num_children'] = num_children
         context['cg']['num_infants'] = num_infants
+  
+        context['cg']['num_vehicle'] = num_vehicle
+        context['cg']['num_campervan'] = num_campervan
+        context['cg']['num_motorcycle'] = num_motorcycle
+        context['cg']['num_trailer'] = num_trailer
+
         context['cg']['arrival'] = arrival
         context['cg']['departure'] = departure
 

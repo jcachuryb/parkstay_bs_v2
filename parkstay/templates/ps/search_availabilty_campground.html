@@ -35,10 +35,17 @@ window.onload = function() {
    search_avail.var.campers.concession = parseInt('{{ cg.num_concession }}');
    search_avail.var.campers.children = parseInt('{{ cg.num_children }}');
    search_avail.var.campers.infant = parseInt('{{ cg.num_infants }}');
+
+   search_avail.var.vehicles.vehicle =  parseInt('{{ cg.num_vehicle }}');
+   search_avail.var.vehicles.campervan = parseInt('{{ cg.num_campervan }}');
+   search_avail.var.vehicles.motorcycle = parseInt('{{ cg.num_campervan }}');
+   search_avail.var.vehicles.trailer = parseInt('{{ cg.num_trailer }}');
+
    {% if change_booking.id > 0 %}
    search_avail.var.change_booking_id = parseInt('{{ change_booking.id }}');
    {% endif %}
-   search_avail.total_campers();	
+   search_avail.total_campers();
+   search_avail.total_vehicles();
    search_avail.get_search_locations();
    search_avail.get_locations();
    search_avail.get_places(); 

@@ -6,7 +6,11 @@
 {% block content %}
 <div class="container" style='z-index:1'>
     <div class="alert alert-danger" role="alert">
-	  There was error attempting to change booking,  unfortunately we can not change your booking at this time.
+	  {% if error_message %}
+               {{ error_message }}
+	  {% else %}
+	       There was error attempting to change booking,  unfortunately we can not change your booking at this time.
+	  {% endif %}
     </div>
 </div>
 
