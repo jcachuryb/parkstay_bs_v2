@@ -872,8 +872,8 @@ def price_or_lineitemsv2(request, booking):
         
     if booking.details['num_adult'] > 0:
        invoice_lines.append({
-            'ledger_description': 'Camping fee {} - {} night(s)'.format('adult', num_days),
-            "quantity": booking.details['num_adult'],
+            'ledger_description': 'Camping fee ({}) {} - {} night(s)'.format(booking.details['num_adult'], 'adult', num_days),
+            "quantity": 1, #booking.details['num_adult'],
             "price_incl_tax": str(total_amount_adult),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
@@ -882,8 +882,8 @@ def price_or_lineitemsv2(request, booking):
 
     if booking.details['num_child'] > 0:
        invoice_lines.append({
-            'ledger_description': 'Camping fee {} - {} night(s)'.format('child', num_days),
-            "quantity": booking.details['num_child'],
+            'ledger_description': 'Camping fee ({}) {} - {} night(s)'.format(booking.details['num_child'],'child', num_days),
+            "quantity": 1, #booking.details['num_child'],
             "price_incl_tax": str(total_amount_child),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
@@ -892,7 +892,7 @@ def price_or_lineitemsv2(request, booking):
 
     if booking.details['num_infant'] > 0:
        invoice_lines.append({
-            'ledger_description': 'Camping fee {} - {} night(s)'.format('infant', num_days),
+            'ledger_description': 'Camping fee ({}) {} - {} night(s)'.format(booking.details['num_infant'],'infant', num_days),
             "quantity": booking.details['num_infant'],
             "price_incl_tax": str(total_amount_infant),
             "oracle_code": booking.campsite_oracle_code,
@@ -902,7 +902,7 @@ def price_or_lineitemsv2(request, booking):
 
     if booking.details['num_concession'] > 0:
        invoice_lines.append({
-            'ledger_description': 'Camping fee {} - {} night(s)'.format('concession', num_days),
+            'ledger_description': 'Camping fee ({}) {} - {} night(s)'.format(booking.details['num_concession'],'concession', num_days),
             "quantity": booking.details['num_concession'],
             "price_incl_tax": str(total_amount_concession),
             "oracle_code": booking.campsite_oracle_code,

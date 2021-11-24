@@ -367,8 +367,8 @@ class MakeBookingsView(TemplateView):
             return self.render_page(request, booking, form, vehicles, show_errors=True)
             
         #print(lines)
-        total = sum([Decimal(p['price_incl_tax'])*p['quantity'] for p in lines])
-
+        #total = sum([Decimal(p['price_incl_tax'])*p['quantity'] for p in lines])
+        total = sum([Decimal(p['price_incl_tax']) for p in lines])
         # get the customer object
         #if request.user.is_anonymous:
         if request.user.is_authenticated:

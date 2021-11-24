@@ -16,18 +16,17 @@ class BookingTimerMiddleware(object):
             self.get_response = get_response
 
     def __call__(self, request):
-        return self.get_response(request)    
-    def process_request(self, request):
-    #def __call__(self, request):
-        #print((request.path, request.session.items(), request.COOKIES))
+            return self.pr(request)
 
+    def pr(self, request):
+        response= self.get_response(request)
         if 'ps_booking' in request.session:
             try:
                 booking = Booking.objects.get(pk=request.session['ps_booking'])
             except:
                 # no idea what object is in self.request.session['ps_booking'], ditch it
                 del request.session['ps_booking']
-                return
+                return response
             if booking.booking_type != 3:
                 # booking in the session is not a temporary type, ditch it
                 del request.session['ps_booking']
@@ -49,8 +48,8 @@ class BookingTimerMiddleware(object):
                 return response
                 #return HttpResponseRedirect(reverse('public_make_booking'))
             else:
-                return
-        return
+                return response
+        return response
 
 
 class CacheControl(object):
@@ -77,8 +76,11 @@ class CacheControl(object):
             #response['Cache-Control'] = 'public, max-age=60'
        elif request.path[:8] == '/static/':
             response['Cache-Control'] = 'public, max-age=3600'
+       elif request.path[:7] == '/media/':
+            response['Cache-Control'] = 'public, max-age=3600'
        else:
-            response['Cache-Control'] = 'private, no-store'
+            pass
+            #response['Cache-Control'] = 'private, no-store'
        return response
     #def patch_response_headers(response, cache_timeout=None):
         #response['Cache-Control'] = 'private, no-store'
