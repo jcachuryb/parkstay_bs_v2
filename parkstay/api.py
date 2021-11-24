@@ -2110,7 +2110,7 @@ def booking_updates(request, *args, **kwargs):
 
     data = json.load(request)
     payload = data.get('payload')
-    print (payload)
+    #print (payload)
 
     if 'ps_booking' in request.session:
         booking_id = request.session['ps_booking']

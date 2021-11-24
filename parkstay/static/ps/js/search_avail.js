@@ -65,12 +65,15 @@ var search_avail = {
                         }
                 }
            }
-
-           $('#vehicle-selection-inner-text').html(search_avail.var.vehicles['vehicle']+' vehicle , '+search_avail.var.vehicles['campervan']+' campervans, '+search_avail.var.vehicles['motorcycle']+' motorcycles, '+search_avail.var.vehicles['trailer']+' trailers');
+           search_avail.total_vehicles();
+           //$('#vehicle-selection-inner-text').html(search_avail.var.vehicles['vehicle']+' vehicle , '+search_avail.var.vehicles['campervan']+' campervans, '+search_avail.var.vehicles['motorcycle']+' motorcycles, '+search_avail.var.vehicles['trailer']+' trailers');
 
            if (search_avail.var.page == 'campsite-availablity') {
               // search_avail.load_campsite_availabilty();
            }
+    },
+    total_vehicles: function() {
+         $('#vehicle-selection-inner-text').html(search_avail.var.vehicles['vehicle']+' vehicle , '+search_avail.var.vehicles['campervan']+' campervans, '+search_avail.var.vehicles['motorcycle']+' motorcycles, '+search_avail.var.vehicles['trailer']+' trailers');
     },
     get_search_locations: function() {
                 $.ajax({
