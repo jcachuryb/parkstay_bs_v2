@@ -23,9 +23,10 @@ INSTALLED_APPS += [
 ]
 
 MIDDLEWARE_CLASSES += [
-    'parkstay.middleware.CacheControl',
     'parkstay.middleware.BookingTimerMiddleware',
+    'parkstay.middleware.CacheControl',
     'whitenoise.middleware.WhiteNoiseMiddleware'
+
 ]
 MIDDLEWARE = MIDDLEWARE_CLASSES
 MIDDLEWARE_CLASSES = None
