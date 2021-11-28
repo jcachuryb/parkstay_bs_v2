@@ -24,6 +24,7 @@ from parkstay.serialisers import BookingRegoSerializer, ParkEntryRateSerializer,
 from parkstay.emails import send_booking_invoice, send_booking_confirmation
 from parkstay.exceptions import BindBookingException
 import hashlib
+import json
 #from ledger.basket.models import Basket
 
 ###### WRITE order api to ledger_api_client.order to retreive order information
@@ -158,13 +159,22 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
     #if old_booking:
     #    old_booking_id = old_booking
 
+    print ("create_booking_by_site")
+    print (sites_qs)
     campsite_qs = Campsite.objects.filter(pk__in=sites_qs)
+    num_adult_pool = num_adult
+    num_concession_pool = num_concession
+    num_child_pool = num_child
+    num_infant_pool = num_infant
+    selecttype = request.POST.get('selecttype',None)
+    multiplesites = json.loads(request.POST.get('multiplesites', "[]"))
+
+
+
     with transaction.atomic():
         # get availability for campsite, error out if booked/closed
         user = overridden_by
         availability = get_campsite_availability(campsite_qs, start_date, end_date,user, old_booking)
-        print ("CAMPSITE ABAIL")
-        print (availability)
         for site_id, dates in availability.items():
             if not override_checks:
                 if updating_booking:
@@ -203,6 +213,8 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
                 'num_campervan' : num_campervan,
                 'num_motorcycle' : num_motorcycle,
                 'num_trailer' : num_trailer,
+                'multiplesites': multiplesites,
+                'selecttype' : selecttype
             },
             cost_total=cost_total,
             override_price=Decimal(override_price) if (override_price is not None) else None,
@@ -224,13 +236,74 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
             daily_rate_hash[dr['date']] = dr
         total_cost_calculated = Decimal('0.00')
         for cs in campsite_qs:
+            #num_adult_pool = num_adult
+            #num_concession_pool = num_concession
+            #num_child_pool = num_child
+            #num_infant_pool = num_infant
+
+            #for i in range((end_date - start_date).days):
+            #    booking_date = start_date + timedelta(days=i)
+            row_num_adult = 0
+            row_num_concession = 0
+            row_num_child = 0
+            row_num_infant = 0
+            #print ("ADULT POOL")
+            #print (num_adult_pool)
+            rna = cs.max_people
+
+            if rna > 0:
+                if num_adult_pool >= rna:
+                     row_num_adult = rna 
+                     num_adult_pool = num_adult_pool - rna
+                     rna = rna - rna
+                else:
+                    if num_adult_pool > 0:
+                      row_num_adult = num_adult_pool
+                      rna = rna - row_num_adult
+                      num_adult_pool = num_adult_pool - num_adult_pool
+            if rna > 0:
+                if num_concession_pool >= rna:
+                      row_num_concession = rna
+                      num_concession_pool = num_concession_pool - rna
+                      rna = rna - rna
+                else:
+                    if num_concession_pool > 0:
+                        row_num_concession = num_concession_pool
+                        rna = rna - num_concession_pool
+                        num_concession_pool = num_concession_pool - num_concession_pool
+
+            if rna > 0:
+                if num_child_pool >= rna:
+                    row_num_child = rna
+                    num_child_pool = num_child_pool - rna
+                    rna = rna - rna
+                else:
+                    if num_child_pool > 0:
+                       row_num_child = num_child_pool
+                       rna = rna - num_child_pool
+                       num_child_pool = num_child_pool - num_child_pool
+
+            if rna > 0:
+                if num_infant_pool >= rna:
+                    row_num_infant = rna
+                    num_infant_pool = num_infant_pool - rna
+                    rna = rna - rna
+                else:
+                    if num_infant_pool > 0:
+                       row_num_infant = num_infant_pool
+                       rna = rna - num_child_pool
+                       num_infant_pool = num_infant_pool - num_infant_pool
+
+
             for i in range((end_date - start_date).days):
                 booking_date = start_date + timedelta(days=i)
 
-                total_amount_adult = Decimal(daily_rate_hash[str(booking_date)]['rate']['adult']) * int(num_adult)
-                total_amount_concession = Decimal(daily_rate_hash[str(booking_date)]['rate']['concession']) * int(num_concession)
-                total_amount_child = Decimal(daily_rate_hash[str(booking_date)]['rate']['child']) * int(num_child)
-                total_amount_infant = Decimal(daily_rate_hash[str(booking_date)]['rate']['infant']) * int(num_infant)
+               
+                total_amount_adult = Decimal(daily_rate_hash[str(booking_date)]['rate']['adult']) * int(row_num_adult)
+                total_amount_concession = Decimal(daily_rate_hash[str(booking_date)]['rate']['concession']) * int(row_num_concession)
+                total_amount_child = Decimal(daily_rate_hash[str(booking_date)]['rate']['child']) * int(row_num_child)
+                total_amount_infant = Decimal(daily_rate_hash[str(booking_date)]['rate']['infant']) * int(row_num_infant)
+
                 total_day_amount = total_amount_adult + total_amount_concession + total_amount_child + total_amount_infant 
                 booking_policy_id = daily_rate_hash[str(booking_date)]['booking_policy']
 
@@ -795,8 +868,8 @@ def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
 
     if booking.details['num_adult'] > 0:
        invoice_lines.append({
-            'ledger_description': 'Adjustment - Camping fee {} - {} night(s)'.format('adult', num_days),
-            "quantity": booking.details['num_adult'],
+            'ledger_description': 'Adjustment - Camping fee ({}) {} - {} night(s)'.format(booking.details['num_adult'],'adult', num_days),
+            "quantity": 1, #booking.details['num_adult'],
             "price_incl_tax": str(total_amount_adult - total_amount_adult - total_amount_adult),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
@@ -804,8 +877,8 @@ def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
 
     if booking.details['num_child'] > 0:
        invoice_lines.append({
-            'ledger_description': 'Adjustment - Camping fee {} - {} night(s)'.format('child', num_days),
-            "quantity": booking.details['num_child'],
+            'ledger_description': 'Adjustment - Camping fee ({}) {} - {} night(s)'.format(booking.details['num_child'],'child', num_days),
+            "quantity": 1, #booking.details['num_child'],
             "price_incl_tax": str(total_amount_child - total_amount_child- total_amount_child),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
@@ -814,8 +887,8 @@ def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
 
     if booking.details['num_infant'] > 0:
        invoice_lines.append({
-            'ledger_description': 'Adjustment - Camping fee {} - {} night(s)'.format('infant', num_days),
-            "quantity": booking.details['num_infant'],
+            'ledger_description': 'Adjustment - Camping fee ({}) {} - {} night(s)'.format(booking.details['num_infant'], 'infant', num_days),
+            "quantity": 1, #booking.details['num_infant'],
             "price_incl_tax": str(total_amount_infant - total_amount_infant - total_amount_infant),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
@@ -824,8 +897,8 @@ def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
 
     if booking.details['num_concession'] > 0:
        invoice_lines.append({
-            'ledger_description': 'Adjustment - Camping fee {} - {} night(s)'.format('concession', num_days),
-            "quantity": booking.details['num_concession'],
+            'ledger_description': 'Adjustment - Camping fee ({}) {} - {} night(s)'.format(booking.details['num_concession'],'concession', num_days),
+            "quantity": 1, #booking.details['num_concession'],
             "price_incl_tax": str(total_amount_concession - total_amount_concession - total_amount_concession),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
@@ -893,7 +966,7 @@ def price_or_lineitemsv2(request, booking):
     if booking.details['num_infant'] > 0:
        invoice_lines.append({
             'ledger_description': 'Camping fee ({}) {} - {} night(s)'.format(booking.details['num_infant'],'infant', num_days),
-            "quantity": booking.details['num_infant'],
+            "quantity": 1, #booking.details['num_infant'],
             "price_incl_tax": str(total_amount_infant),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
@@ -903,7 +976,7 @@ def price_or_lineitemsv2(request, booking):
     if booking.details['num_concession'] > 0:
        invoice_lines.append({
             'ledger_description': 'Camping fee ({}) {} - {} night(s)'.format(booking.details['num_concession'],'concession', num_days),
-            "quantity": booking.details['num_concession'],
+            "quantity": 1, #booking.details['num_concession'],
             "price_incl_tax": str(total_amount_concession),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status

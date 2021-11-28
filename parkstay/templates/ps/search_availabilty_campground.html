@@ -476,7 +476,6 @@ window.onload = function() {
                          </div>
                  </div>
 
-
                  <div id='search-filters-campsites' class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
@@ -541,7 +540,20 @@ window.onload = function() {
 
 		  <textarea id='feature_json' style='display:none'>{{ features_json }}</textarea>
 		  </form>
-
+		  <div class="row">
+		      <div class="col-6">
+		           <div class='pull-right'>
+                               <div class="form-check form-switch">
+		                         <input class="form-check-input" type="checkbox" id="multiple-campsite-selection">
+		                         <label class="form-check-label" for="flexSwitchCheckDefault">Enable Multiple Campsite Selection</label>
+		               </div>
+		           </div>
+		      </div>
+		      <div class="col-6 text-end">
+			      <button type="button" class="btn btn-primary" id='more-filters' onclick="search_avail.create_booking(this);" data-button='{"site_type":0,"campsite_id":null,"selecttype":"multiple"}' >PROCEED</button>
+		      </div>
+		  </div>
+		  <br>
                   <div id='campsite-availablity' class="round-box col-12 px-3" istyle='float:left; '>
                           <div class="col-12" id='campsite-availablity-results'>
                                 Campsites
@@ -550,14 +562,13 @@ window.onload = function() {
 
 		  <div class="col-12" style='display:none'>
 			<div class="col-12" align='right'>
-			
 				<button type='button' name='search-avail' id='search-avail' class='form-button' style='width:100%'>Search</button>
 			</div>
 
 		  </div>
          </div>
      </div>
-      
+     
      <!-- booking campsite tab -->
      </div>
      <div id='campground-details' style='display:none'>

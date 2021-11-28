@@ -344,16 +344,31 @@ class MakeBookingsView(TemplateView):
             else:
                 form.add_error(None, 'Duplicate regos not permitted.If unknown add number, e.g. Hire1, Hire2.')
                 return self.render_page(request, booking, form, vehicles, show_errors=True)
-       
+
         # Check if number of people is exceeded in any of the campsites
+        max_people_accumulated_campsites = 0
+        min_people_accumulated_campsites = 0
+        appended_already = []
         for c in booking.campsites.all():
-            if booking.num_guests > c.campsite.max_people:
-                form.add_error(None, 'Number of people exceeded for the current camp site.')
-                return self.render_page(request, booking, form, vehicles, show_errors=True)
-            # Prevent booking if less than min people 
-            if booking.num_guests < c.campsite.min_people:
-                form.add_error('Number of people is less than the minimum allowed for the current campsite.')
-                return self.render_page(request, booking, form, vehicles, show_errors=True)
+                 if c.campsite.id not in appended_already: 
+                    max_people_accumulated_campsites = max_people_accumulated_campsites + c.campsite.max_people
+                    min_people_accumulated_campsites = min_people_accumulated_campsites + c.campsite.min_people
+                    # stop site duplication
+                    appended_already.append(c.campsite.id)
+
+
+        
+
+        if booking.num_guests > max_people_accumulated_campsites:
+               form.add_error(None, 'Number of people exceeded for the current camp site.')
+               return self.render_page(request, booking, form, vehicles, show_errors=True)
+        print ("NUM")
+        print (booking.num_guests)
+        print (min_people_accumulated_campsites)
+        # Prevent booking if less than min people 
+        if booking.num_guests < min_people_accumulated_campsites:
+               form.add_error('Number of people is less than the minimum allowed for the current campsite.')
+               return self.render_page(request, booking, form, vehicles, show_errors=True)
 
         # generate final pricing
         try:
