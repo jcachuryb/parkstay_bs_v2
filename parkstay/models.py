@@ -25,7 +25,6 @@ from ledger_api_client.ledger_models import Invoice, EmailUserRO as EmailUser
 from rest_framework import viewsets, serializers, status, generics, views
 from parkstay import property_cache 
 from django.utils.safestring import mark_safe
-from parkstay.fields import ForeignKeyAcrossDb
 
 PARKING_SPACE_CHOICES = (
     (0, 'Parking within site.'),
