@@ -6,7 +6,7 @@ def parkstay_url(request):
     for pg in models.ParkstayPermission.PERMISSION_GROUP:
         parkstay_permissions[pg[0]] = False
 
-    if request.user:
+    if request.user.is_authenticated:
         parkstay_permissions_obj = models.ParkstayPermission.objects.filter(email=request.user.email)
         for pp in parkstay_permissions_obj:
             if pp.active is True:
