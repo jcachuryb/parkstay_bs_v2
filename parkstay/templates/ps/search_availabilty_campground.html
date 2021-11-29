@@ -19,50 +19,16 @@
 
 {% include "ps/modal_loader.html" %}
 {% include "ps/modal_error.html" %}
+{% if error_message|length > 0 %}
+<div class="container" style='z-index:1'>
+       <div class='alert alert-danger'>{{ error_message }}</div>
+</div>
+{% else %}
+
 
 <!-- https://cssbuttoncreator.com/ -->
-<script>
-
-window.onload = function() {
-   search_avail.var.page = 'campsite-availablity';
-   
-   {% if cg.arrival is not None %}
-   {% endif %}
-   {% if cg.departure is not None %}
-   {% endif %}
-   search_avail.var.campground_id = '{{ cg.campground.id }}';
-   search_avail.var.campers.adult = parseInt('{{ cg.num_adult }}');
-   search_avail.var.campers.concession = parseInt('{{ cg.num_concession }}');
-   search_avail.var.campers.children = parseInt('{{ cg.num_children }}');
-   search_avail.var.campers.infant = parseInt('{{ cg.num_infants }}');
-
-   search_avail.var.vehicles.vehicle =  parseInt('{{ cg.num_vehicle }}');
-   search_avail.var.vehicles.campervan = parseInt('{{ cg.num_campervan }}');
-   search_avail.var.vehicles.motorcycle = parseInt('{{ cg.num_campervan }}');
-   search_avail.var.vehicles.trailer = parseInt('{{ cg.num_trailer }}');
-
-   {% if change_booking.id > 0 %}
-   search_avail.var.change_booking_id = parseInt('{{ change_booking.id }}');
-   {% endif %}
-   search_avail.total_campers();
-   search_avail.total_vehicles();
-   search_avail.get_search_locations();
-   search_avail.get_locations();
-   search_avail.get_places(); 
-	search_avail.init_dateselection({% if cg.arrival %}'{{ cg.arrival }}'{% else %}null{% endif %},{% if cg.departure %}'{{ cg.departure }}'{% else %}null{% endif %});	
-   search_avail.init();
-   $(".filter-features").click(function() {
-       console.log("Filters Updated (Reloading)");
-       search_avail.load_campsite_availabilty();
-   });
-
-   console.log('loaded');
-
-}
-
-</script>
-
 <div class="container" style='z-index:1'>
+
 	{% if cg.campground.park.alert_count > 0 %}
 	<div class="col-lg-12 mb-4">
                  <div class="round-box col-12 px-3 pt-3 pb-3" style='background-color: #f1f1f1; border: 1px solid #d2d2d2;'>
@@ -476,7 +442,6 @@ window.onload = function() {
                          </div>
                  </div>
 
-
                  <div id='search-filters-campsites' class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
@@ -541,7 +506,23 @@ window.onload = function() {
 
 		  <textarea id='feature_json' style='display:none'>{{ features_json }}</textarea>
 		  </form>
+		  {% if PARKSTAY_PERMISSIONS.0 is True %}
 
+		  <div class="row">
+		      <div class="col-6">
+		           <div class='pull-right'>
+                               <div class="form-check form-switch">
+		                         <input class="form-check-input" type="checkbox" id="multiple-campsite-selection">
+		                         <label class="form-check-label" for="flexSwitchCheckDefault">Enable Multiple Campsite Selection</label>
+		               </div>
+		           </div>
+		      </div>
+		      <div class="col-6 text-end">
+			      <button type="button" class="btn btn-primary" id='more-filters' onclick="search_avail.create_booking(this);" data-button='{"site_type":0,"campsite_id":null,"selecttype":"multiple"}' >PROCEED</button>
+		      </div>
+		  </div>
+		  <br>
+		  {% endif %}
                   <div id='campsite-availablity' class="round-box col-12 px-3" istyle='float:left; '>
                           <div class="col-12" id='campsite-availablity-results'>
                                 Campsites
@@ -550,14 +531,13 @@ window.onload = function() {
 
 		  <div class="col-12" style='display:none'>
 			<div class="col-12" align='right'>
-			
 				<button type='button' name='search-avail' id='search-avail' class='form-button' style='width:100%'>Search</button>
 			</div>
 
 		  </div>
          </div>
      </div>
-      
+     
      <!-- booking campsite tab -->
      </div>
      <div id='campground-details' style='display:none'>
@@ -569,10 +549,61 @@ window.onload = function() {
 <br>
 <br>
 
+<script>
+window.onload = function() {
+   search_avail.var.page = 'campsite-availablity';
+
+   {% if cg.arrival is not None %}
+   {% endif %}
+   {% if cg.departure is not None %}
+   {% endif %}
+   search_avail.var.campground_id = '{{ cg.campground.id }}';
+   search_avail.var.campers.adult = parseInt('{{ cg.num_adult }}');
+   search_avail.var.campers.concession = parseInt('{{ cg.num_concession }}');
+   search_avail.var.campers.children = parseInt('{{ cg.num_children }}');
+   search_avail.var.campers.infant = parseInt('{{ cg.num_infants }}');
+
+   search_avail.var.vehicles.vehicle =  parseInt('{{ cg.num_vehicle }}');
+   search_avail.var.vehicles.campervan = parseInt('{{ cg.num_campervan }}');
+   search_avail.var.vehicles.motorcycle = parseInt('{{ cg.num_campervan }}');
+   search_avail.var.vehicles.trailer = parseInt('{{ cg.num_trailer }}');
+
+   search_avail.total_campers();
+   search_avail.total_vehicles();
+   search_avail.get_search_locations();
+   search_avail.get_locations();
+   search_avail.get_places();
+   search_avail.init_dateselection({% if cg.arrival %}'{{ cg.arrival }}'{% else %}null{% endif %},{% if cg.departure %}'{{ cg.departure }}'{% else %}null{% endif %});
+   search_avail.init();
+
+   $(".filter-features").click(function() {
+       console.log("Filters Updated (Reloading)");
+       search_avail.load_campsite_availabilty();
+   });
+
+
+   {% if change_booking.id > 0 %}
+   search_avail.var.change_booking_id = parseInt('{{ change_booking.id }}');
+   search_avail.var.selecttype = '{{ change_booking.details.selecttype }}';
+      {% if change_booking.details.selecttype == 'multiple' %}
+         search_avail.var.multiplesites = {{ change_booking.details.multiplesites }};
+         $('#multiple-campsite-selection').click();
+      {% endif %}
+
+   {% endif %}
+
+   console.log('loaded');
+}
+</script>
+
+
+
 <script type="module">
 //	import Map from 'ol/Map';
 //	console.log(Map);
 </script>
+
+{% endif %}
 
 {% endblock %}
 
