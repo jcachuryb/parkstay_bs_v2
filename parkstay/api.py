@@ -122,6 +122,7 @@ from parkstay import pdf
 from parkstay.perms import PaymentCallbackPermission
 from parkstay import emails
 from parkstay import booking_availability
+from parkstay import context_processors
 
 # API Views
 class CampsiteBookingViewSet(viewsets.ModelViewSet):
@@ -2232,6 +2233,7 @@ def get_booking_pricing(request, *args, **kwargs):
 @csrf_exempt
 @require_http_methods(['POST'])
 def create_booking(request, *args, **kwargs):
+    context_p = context_processors.parkstay_url(request)
     change_booking_id = request.POST.get('change_booking_id',None)
     if change_booking_id == '':
          change_booking_id = None
@@ -2280,10 +2282,12 @@ def create_booking(request, *args, **kwargs):
     num_motorcycle = serializer.validated_data['num_motorcycle']
     num_trailer = serializer.validated_data['num_trailer']
     old_booking = serializer.validated_data['old_booking']
-    selecttype = request.POST.get('selecttype',None)
-    multiplesites = json.loads(request.POST.get('multiplesites', "[]"))
-    print (" MUL")
-    print (multiplesites)
+    if context_p['PARKSTAY_PERMISSIONS'][0] is True:
+       selecttype = request.POST.get('selecttype',None)
+       multiplesites = json.loads(request.POST.get('multiplesites', "[]"))
+    else:
+       selecttype = 'single'
+       multiplesites = []
     if 'ps_booking' in request.session:
         # Delete booking and start again
         booking_id = request.session['ps_booking']

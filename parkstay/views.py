@@ -48,6 +48,7 @@ from django.db.models import Max
 from parkstay.helpers import is_officer
 from parkstay import utils
 from parkstay import booking_availability
+from parkstay import context_processors
 import json
 import hashlib
 
@@ -674,6 +675,7 @@ class SearchAvailablityByCampground(TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = {'cg': {'campground': {},'campground_notices': []}}
+        context_p = context_processors.parkstay_url(request)
         campground_id = request.GET.get('site_id', None)
         num_adult = request.GET.get('num_adult', 0)
         num_concession= request.GET.get('num_concession', 0)
@@ -705,6 +707,14 @@ class SearchAvailablityByCampground(TemplateView):
                                                 context['change_booking'] = cb
                                            else:
                                                 context["error_message"] = "Sorry,  your booking has already started and cannot be changed."
+                                       if cb.details['selecttype'] == 'multiple':
+                                          if context_p['PARKSTAY_PERMISSIONS'][0] is True:
+                                              pass
+                                          else:
+                                              print ("MUL ERROR")
+                                              context["error_message"] = "Sorry, you don't have the ability to manage a booking with mulitple sites"
+
+                                       
 
 
         if context['change_booking'] is None:

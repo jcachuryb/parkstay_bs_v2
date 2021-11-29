@@ -612,7 +612,11 @@ var search_avail = {
 				if (site_type == 1 || site_type == 2) { 
 				    if (current_booking_campsite_class_id == campsites[s].type) {
 					current_booking_selection = true;
-					campsitehtml = campsitehtml + "<div class='product-selected-site' >SELECTED IN CURRENT BOOKING</div>";
+					if (search_avail.var.selecttype == 'single') { 
+					   campsitehtml = campsitehtml + "<div class='product-selected-site' >SELECTED IN CURRENT BOOKING</div>";
+					} else {
+						campsitehtml = campsitehtml + "<div class='product-not-selected-site' >&nbsp;</div>";
+					}
 				    } else {
 					campsitehtml = campsitehtml + "<div class='product-not-selected-site' >&nbsp;</div>";
 				    }
@@ -620,7 +624,12 @@ var search_avail = {
 				} else {
                                     if (current_booking_campsite_id == campsites[s].id ) { 
 					current_booking_selection = true;
-				        campsitehtml = campsitehtml + "<div class='product-selected-site' >SELECTED IN CURRENT BOOKING</div>";
+					if (search_avail.var.selecttype == 'single') {
+				            campsitehtml = campsitehtml + "<div class='product-selected-site' >SELECTED IN CURRENT BOOKING</div>";
+					} else {
+						campsitehtml = campsitehtml + "<div class='product-not-selected-site' >&nbsp;</div>";
+					}
+
 		                    } else {
  				        campsitehtml = campsitehtml + "<div class='product-not-selected-site' >&nbsp;</div>";
 				    }
@@ -700,7 +709,7 @@ var search_avail = {
 				    if (append_site == true) {
                                          if (search_avail.var.mcs_enabled == true) { 
 					 if (search_avail.var.multiplesites.indexOf(campsites[s].id) !== -1) {
-                                            campsitehtml = campsitehtml + "<button type='button' class='btn btn-primary' id='bookingcampsite' data-button='"+databuttonmany+"'   onclick='search_avail.delete_multiple_site(this)' +key_id++site_type+ ><i class='bi bi-check-circle-fill'></i> UNSELECT</button>&nbsp;";
+                                            campsitehtml = campsitehtml + "<button type='button' class='btn btn-warning' id='bookingcampsite' data-button='"+databuttonmany+"'   onclick='search_avail.delete_multiple_site(this)' +key_id++site_type+ ><i class='bi bi-check-circle-fill'></i> UNSELECT</button>&nbsp;";
 					 } else {
 					     campsitehtml = campsitehtml + "<button type='button' class='btn btn-primary' id='bookingcampsite' data-button='"+databuttonmany+"'   onclick='search_avail.select_multiple_site(this)' +key_id++site_type+ >Select</button>&nbsp;";
 					 }

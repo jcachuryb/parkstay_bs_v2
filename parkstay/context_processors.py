@@ -1,7 +1,18 @@
 from django.conf import settings
-
+from parkstay import models
 
 def parkstay_url(request):
+    parkstay_permissions = {}
+    for pg in models.ParkstayPermission.PERMISSION_GROUP:
+        parkstay_permissions[pg[0]] = False
+
+    if request.user:
+        parkstay_permissions_obj = models.ParkstayPermission.objects.filter(email=request.user.email)
+        for pp in parkstay_permissions_obj:
+            if pp.active is True:
+               parkstay_permissions[pp.permission_group] = True
+
+
     return {
         'EXPLORE_PARKS_SEARCH': '{}'.format(settings.EXPLORE_PARKS_URL),
         'EXPLORE_PARKS_CONTACT': '{}/contact-us'.format(settings.EXPLORE_PARKS_URL),
@@ -20,5 +31,6 @@ def parkstay_url(request):
         'QUEUE_URL' : settings.QUEUE_URL,
         'QUEUE_ACTIVE_HOSTS' : settings.QUEUE_ACTIVE_HOSTS,
         'LEDGER_UI_URL' : settings.LEDGER_UI_URL,
+        'PARKSTAY_PERMISSIONS' : parkstay_permissions,
         'template_group' : 'parks'
     }

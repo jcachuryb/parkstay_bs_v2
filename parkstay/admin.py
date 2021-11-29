@@ -329,6 +329,12 @@ class CampgroundImage(admin.ModelAdmin):
       list_display = ('campground','image_preview',)
       search_fields = ('campground__name',)
 
+@admin.register(models.ParkstayPermission)
+class ParkstayPermissionAdmin(admin.ModelAdmin):
+      list_display = ('email','permission_group','active')
+      list_filter = ('permission_group',)
+
+
 admin.site.register(models.Rate)
 admin.site.register(models.Region)
 admin.site.register(models.District)

@@ -25,7 +25,7 @@ from ledger_api_client.ledger_models import Invoice, EmailUserRO as EmailUser
 from rest_framework import viewsets, serializers, status, generics, views
 from parkstay import property_cache 
 from django.utils.safestring import mark_safe
-
+from parkstay.fields import ForeignKeyAcrossDb
 
 PARKING_SPACE_CHOICES = (
     (0, 'Parking within site.'),
@@ -706,7 +706,7 @@ class Campsite(models.Model):
     max_people = models.SmallIntegerField(default=12)
     max_vehicles = models.PositiveIntegerField(default=1)
     description = models.TextField(null=True)
-    short_description = models.TextField(null=True, blank=True, max_length=150)
+    short_description = models.TextField(null=True, blank=True, max_length=310)
 
     def __str__(self):
         return '{} - {}'.format(self.campground, self.name)
@@ -836,6 +836,17 @@ class Campsite(models.Model):
             return created_campsites
         except Exception:
             raise
+
+
+class ParkstayPermission(models.Model):
+      PERMISSION_GROUP = (
+          (0, 'Multiple Campsite Selection'),
+      )
+      email = models.CharField(max_length=300)
+      permission_group = models.SmallIntegerField(choices=PERMISSION_GROUP, default=0)
+      active = models.BooleanField(default=True)
+
+
 
 
 class CampsiteBookingRange(BookingRange):
