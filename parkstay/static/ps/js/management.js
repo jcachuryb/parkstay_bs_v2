@@ -181,7 +181,7 @@ var management = {
 
                           html+= "</td>";
                           html+= "<td align='right'>";
-                          var buttondata='{"policy_id" : '+response[i].id+', "no_policy" : "'+response[i].no_policy+'" ,"policy_name" : "'+response[i].policy_name+'","policy_amount": "'+response[i].amount+'", "policy_type" : "'+response[i].policy_type+'","active": "'+response[i].active+'", "grace_time": "'+response[i].grace_time+'","peak_policy_enabled": "'+response[i].peak_policy_enabled+'","peak_policy_type": "'+response[i].peak_policy_type+'","peak_group": "'+response[i].peak_group+'","peak_amount":"'+response[i].peak_amount+'", "peak_grace_time": "'+response[i].peak_grace_time+'","policy_types_list": '+JSON.stringify(policy_types)+' }';
+                          var buttondata='{"policy_id" : '+response[i].id+', "no_policy" : "'+response[i].no_policy+'" ,"policy_name" : "'+response[i].policy_name+'","policy_amount": "'+response[i].amount+'", "policy_type" : "'+response[i].policy_type+'","active": "'+response[i].active+'", "grace_time": "'+response[i].grace_time+'","peak_policy_enabled": "'+response[i].peak_policy_enabled+'","peak_policy_type": "'+response[i].peak_policy_type+'","peak_group": "'+response[i].peak_group+'","peak_amount":"'+response[i].peak_amount+'", "peak_grace_time": "'+response[i].peak_grace_time+'","policy_types_list": '+JSON.stringify(policy_types)+',"arrival_limit_enabled": "'+response[i].arrival_limit_enabled+'", "arrival_time" : "'+response[i].arrival_time+'", "peak_arrival_limit_enabled" : "'+response[i].peak_arrival_limit_enabled+'", "peak_arrival_time":"'+response[i].peak_arrival_time+'"  }';
                           var buttondata_delete='{"policy_id": '+response[i].id+', "action" : "delete"}';
                           html+= "<button type='button' class='btn btn-primary btn-sm edit-booking-policy' button-data='"+buttondata+"' >Edit</button>";
                           html+= "&nbsp;<button type='button' class='btn btn-danger btn-sm booking-policy-delete' button-data='"+buttondata_delete+"' >Delete</button>";
@@ -224,6 +224,12 @@ var management = {
                           var peakpolicygracetime = $('#peak-policy-grace-time');
                           var policyactive = $('#policy-active');
 
+                          var policyarrivalenabled = $('#policy-arrival-enabled');
+		          var policyarrivaltime = $('#policy-arrival-time');
+
+		          var peakpolicyarrivalenabled = $('#peak-policy-arrival-enabled');
+		          var peakpolicyarrivaltime = $('#peak-policy-arrival-time');
+
 			  nopolicy.prop('disabled', false);
                           policyname.prop('disabled', false);
                           policytype.prop('disabled', false);
@@ -235,6 +241,13 @@ var management = {
                           peakpolicyamont.prop('disabled', false);
                           peakpolicygracetime.prop('disabled', false);
                           policyactive.prop('disabled', false);
+
+                          policyarrivalenabled.prop('disabled', false);
+			  policyarrivaltime.prop('disabled', false);
+
+                          peakpolicyarrivalenabled.prop('disabled', false);
+			  peakpolicyarrivaltime.prop('disabled', false);
+
 
                           var buttondata = $(this)[0].attributes['button-data'].value;
                           var buttondata_obj = JSON.parse(buttondata);
@@ -254,6 +267,17 @@ var management = {
                                 $('#peak-policy-enabled').prop('checked', false);
 				$("#peak-policy-options").hide();
 			  }
+                          if (buttondata_obj['arrival_limit_enabled'] == 'true') {
+                                $('#policy-arrival-enabled').prop('checked', true);
+                          } else {
+                                $('#policy-arrival-enabled').prop('checked', false);
+                          }
+                          if (buttondata_obj['peak_arrival_limit_enabled'] == 'true') {
+                                $('#peak-policy-arrival-enabled').prop('checked', true);
+                          } else {
+                                $('#peak-policy-arrival-enabled').prop('checked', false);
+                          }
+
 
                           $('#policy-name').val(buttondata_obj['policy_name']);
 			  $('#policy-amount').val(buttondata_obj['policy_amount']);
@@ -261,6 +285,11 @@ var management = {
 			  $('#peak-policy-amont').val(buttondata_obj['peak_amount']);
                           $('#peak-policy-grace-time').val(buttondata_obj['peak_grace_time']);
 			  $('#policy-active').val(buttondata_obj['active']);
+
+			  //$('#policy-arrival-enabled').val(buttondata_obj['arrival_limit_enabled']);
+                          $('#policy-arrival-time').val(buttondata_obj['arrival_time']);
+			  //$('#peak-policy-arrival-enabled').val(buttondata_obj['peak_arrival_limit_enabled']);
+                          $('#peak-policy-arrival-time').val(buttondata_obj['peak_arrival_time']);
 			  // policy_types_list = JSON.parse(buttondata_obj['policy_types_list']);
 			  //var policy_types_list = buttondata_obj['policy_types_list'];
 			  //var policy_type_html ="";
@@ -436,21 +465,38 @@ var management = {
 	 var policygracetime = $('#policy-grace-time');
 	 var peakpolicyenabled = $('#peak-policy-enabled');
 
+         var policyarrivalenabled = $('#policy-arrival-enabled');
+	 var policyarrivaltime = $('#policy-arrival-time');
+
 	 var peakpolicytype = $('#peak-policy-type');
 	 var peakpolicygroup = $('#peak-policy-group');
 	 var peakpolicyamont = $('#peak-policy-amont');
 	 var peakpolicygracetime = $('#peak-policy-grace-time');
 	 var policyactive = $('#policy-active');
+
+	 var peakpolicyarrivalenabled = $('#peak-policy-arrival-enabled');
+	 var peakpolicyarrivaltime = $('#peak-policy-arrival-time');
+
 	 var ppe = 'false';
-         if ( peakpolicyenabled.is(":checked") == true ) { 
+         if (peakpolicyenabled.is(":checked") == true ) { 
 	    ppe='true';
 	 }
+
 	 var nop = 'false';
-         if ( nopolicy.is(":checked") == true ) {
+         if (nopolicy.is(":checked") == true) {
              nop = 'true';
 	 }
+         var pae = 'false';
+	 if (policyarrivalenabled.is(":checked") == true) {
+             pae = 'true';
+	 }
 
-         var data = {'action' : action, 'no_policy': nop, 'policy_id': policy_id, 'policyname': policyname.val(), 'policytype': policytype.val(), 'policyamount': policyamount.val(), 'policygracetime': policygracetime.val(),   'peakpolicyenabled': ppe, 'peakpolicytype': peakpolicytype.val(), 'peakpolicygroup': peakpolicygroup.val(), 'peakpolicyamont': peakpolicyamont.val(), 'peakpolicygracetime': peakpolicygracetime.val(), 'policyactive': policyactive.val()};
+	 var ppae = 'false';
+	 if (peakpolicyarrivalenabled.is(":checked") == true) {
+             ppae = 'true';
+         }
+
+         var data = {'action' : action, 'no_policy': nop, 'policy_id': policy_id, 'policyname': policyname.val(), 'policytype': policytype.val(), 'policyamount': policyamount.val(), 'policygracetime': policygracetime.val(),   'peakpolicyenabled': ppe, 'peakpolicytype': peakpolicytype.val(), 'peakpolicygroup': peakpolicygroup.val(), 'peakpolicyamont': peakpolicyamont.val(), 'peakpolicygracetime': peakpolicygracetime.val(), 'policyactive': policyactive.val(), 'policyarrivalenabled': pae, 'policyarrivaltime' : policyarrivaltime.val(), 'peakpolicyarrivalenabled': ppae, 'peakpolicyarrivaltime' : peakpolicyarrivaltime.val()};
 
          $('#booking-policy-popup-error').html('');
          $('#booking-policy-popup-error').hide();
@@ -467,6 +513,14 @@ var management = {
 	 peakpolicyamont.prop('disabled', true);
 	 peakpolicygracetime.prop('disabled', true);
 	 policyactive.prop('disabled', true);
+
+	 policyarrivalenabled.prop('disabled', true);
+	 policyarrivaltime.prop('disabled', true);
+
+	 peakpolicyarrivalenabled.prop('disabled', true);
+	 peakpolicyarrivaltime.prop('disabled', true);
+
+	 
 
          //$('#'+loader_id).show();
          //$('.peakrow').prop('disabled', true);
@@ -507,6 +561,13 @@ var management = {
 		   peakpolicyamont.prop('disabled', false);
 		   peakpolicygracetime.prop('disabled', false);
 		   policyactive.prop('disabled', false);
+
+                   policyarrivalenabled.prop('disabled', false);
+	           policyarrivaltime.prop('disabled', false);
+
+	           peakpolicyarrivalenabled.prop('disabled', false);
+	           peakpolicyarrivaltime.prop('disabled', false);
+
 
                    //$('#'+loader_id).hide();
                    //$("#"+start_id).prop('disabled', false);

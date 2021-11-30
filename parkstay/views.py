@@ -530,7 +530,8 @@ class CancelBookingView(TemplateView):
                ## PLACE IN UTILS
                lines = []
                lines = utils.price_or_lineitemsv2old_booking(request,booking, lines)
-               cancellation_data =  utils.booking_change_fees(booking)
+               #cancellation_data =  utils.booking_change_fees(booking)
+               cancellation_data = utils.booking_cancellation_fees(booking)
 
                lines.append({'ledger_description':'Booking Cancellation Fee',"quantity":1,"price_incl_tax":str(cancellation_data['cancellation_fee']),"oracle_code":booking.campsite_oracle_code, 'line_status': 1})
            
@@ -707,12 +708,15 @@ class SearchAvailablityByCampground(TemplateView):
                                                 context['change_booking'] = cb
                                            else:
                                                 context["error_message"] = "Sorry,  your booking has already started and cannot be changed."
-                                       if cb.details['selecttype'] == 'multiple':
-                                          if context_p['PARKSTAY_PERMISSIONS'][0] is True:
-                                              pass
-                                          else:
-                                              print ("MUL ERROR")
-                                              context["error_message"] = "Sorry, you don't have the ability to manage a booking with mulitple sites"
+                                       if 'selecttype' in cb.details:
+                                          if cb.details['selecttype'] == 'multiple':
+                                             if context_p['PARKSTAY_PERMISSIONS'][0] is True:
+                                                 pass
+                                             else:
+                                                 print ("MUL ERROR")
+                                                 context["error_message"] = "Sorry, you don't have the ability to manage a booking with mulitple sites"
+                                       else:
+                                           cb.details['selecttype'] = 'single'
 
                                        
 

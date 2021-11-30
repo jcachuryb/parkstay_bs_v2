@@ -1831,7 +1831,7 @@ def booking_policy(request, *args, **kwargs):
                       if i.peak_group:
                           peak_group_id = i.peak_group.id
 
-                      item_list.append({'id': i.id, 'no_policy': i.no_policy, 'policy_name' : i.policy_name, 'policy_type' : i.policy_type, 'active': i.active, 'amount':  str(i.amount), 'grace_time': i.grace_time, 'peak_policy_enabled': i.peak_policy_enabled, 'peak_policy_type': i.peak_policy_type, 'peak_group': peak_group_id, 'peak_amount': str(i.peak_amount), 'peak_grace_time': i.peak_grace_time, 'active': i.active})
+                      item_list.append({'id': i.id, 'no_policy': i.no_policy, 'policy_name' : i.policy_name, 'policy_type' : i.policy_type, 'active': i.active, 'amount':  str(i.amount), 'grace_time': i.grace_time, 'peak_policy_enabled': i.peak_policy_enabled, 'peak_policy_type': i.peak_policy_type, 'peak_group': peak_group_id, 'peak_amount': str(i.peak_amount), 'peak_grace_time': i.peak_grace_time, 'active': i.active, 'arrival_limit_enabled': i.arrival_limit_enabled, 'arrival_time' : i.arrival_time, 'peak_arrival_limit_enabled': i.peak_arrival_limit_enabled, 'peak_arrival_time' : i.peak_arrival_time })
                   item_options['dataitems'] = item_list
                   
                   dumped_data = geojson.dumps(item_options)
@@ -1869,9 +1869,17 @@ def save_booking_policy(request,*args, **kwargs):
                    peakpolicyamont = payload['peakpolicyamont']
                    peakpolicygracetime = payload['peakpolicygracetime']
 
+                   policyarrivalenabled = payload['policyarrivalenabled']
+                   policyarrivaltime = payload['policyarrivaltime']
+                   peakpolicyarrivalenabled = payload['peakpolicyarrivalenabled']
+                   peakpolicyarrivaltime = payload['peakpolicyarrivaltime']
+
+
                    policyactive = False
                    peak_policy_enabled = False
                    no_policy_enabled = False
+                   policy_arrival_enabled = False
+                   peak_policy_arrival_enabled = False
 
                    if no_policy == 'true':
                         no_policy_enabled = True
@@ -1880,6 +1888,12 @@ def save_booking_policy(request,*args, **kwargs):
                         policyactive = True 
                    if payload['peakpolicyenabled'] == 'true':
                         peak_policy_enabled = True
+ 
+                   if payload['policyarrivalenabled'] == 'true':
+                        policy_arrival_enabled = True
+                   
+                   if payload['peakpolicyarrivalenabled'] == 'true':
+                        peak_policy_arrival_enabled = True
 
                    if peakpolicyamont == '':
                        peakpolicyamont = '0.00'
@@ -1888,8 +1902,6 @@ def save_booking_policy(request,*args, **kwargs):
                    if peakpolicygracetime == '':
                        peakpolicygracetime = 0
 
-
-
                    if action == 'save':
                        bookingpolicy = parkstay_models.BookingPolicy.objects.get(id=policy_id)
                        bookingpolicy.no_policy = no_policy_enabled
@@ -1897,7 +1909,13 @@ def save_booking_policy(request,*args, **kwargs):
                        bookingpolicy.policy_type = policytype
                        bookingpolicy.amount = policyamount
                        bookingpolicy.grace_time = policygracetime 
-                       bookingpolicy.peak_policy_enabled = peak_policy_enabled 
+                       bookingpolicy.peak_policy_enabled = peak_policy_enabled
+
+                       bookingpolicy.arrival_limit_enabled = policy_arrival_enabled
+                       bookingpolicy.arrival_time = policyarrivaltime
+                       bookingpolicy.peak_arrival_limit_enabled = peak_policy_arrival_enabled
+                       bookingpolicy.peak_arrival_time = peakpolicyarrivaltime
+
                        if peak_policy_enabled is True:
                            bookingpolicy.peak_policy_type= peakpolicytype
                            ppg=None
@@ -1927,7 +1945,11 @@ def save_booking_policy(request,*args, **kwargs):
                                                                     peak_group=ppg,
                                                                     peak_amount=peakpolicyamont,
                                                                     peak_grace_time=peakpolicygracetime,
-                                                                    active=policyactive
+                                                                    active=policyactive,
+                                                                    arrival_limit_enabled=policy_arrival_enabled,
+                                                                    arrival_time=policyarrivaltime,
+                                                                    peak_arrival_limit_enabled=peak_policy_arrival_enabled,
+                                                                    peak_arrival_time=peakpolicyarrivaltime
                                                                     )
 
 

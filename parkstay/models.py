@@ -922,6 +922,8 @@ class BookingPolicy(models.Model):
       policy_name = models.CharField(max_length=255, unique=True)
       policy_type = models.SmallIntegerField(choices=BOOKING_POLICY, default=0)
       amount = models.DecimalField(max_digits=8, decimal_places=2, default='0.00', blank=True, null=True, unique=False)
+      arrival_limit_enabled = models.BooleanField(default=False)
+      arrival_time = models.PositiveIntegerField(default=10080,blank=True, null=True)
 
       # Policy with grace period
       grace_time = models.PositiveIntegerField(default=10080)
@@ -932,6 +934,9 @@ class BookingPolicy(models.Model):
       peak_group = models.ForeignKey('PeakGroup', on_delete=models.PROTECT, related_name='peak_group_policy', blank=True, null=True,)
       peak_amount = models.DecimalField(max_digits=8, decimal_places=2, default='0.00', blank=True, null=True, unique=False)
       peak_grace_time = models.PositiveIntegerField(default=10080,blank=True, null=True)
+      peak_arrival_limit_enabled = models.BooleanField(default=False)
+      peak_arrival_time = models.PositiveIntegerField(default=10080, blank=True, null=True)
+
 
       # active
       active = models.BooleanField(default=True)
