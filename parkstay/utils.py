@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone as timezone_dt
 import logging
 import traceback
 import threading
@@ -735,6 +735,7 @@ def booking_total_to_refund(booking):
      totalbooking = Decimal('0.00')
 
      cancellation_data = booking_cancellation_fees(booking)
+     totalbooking = totalbooking - cancellation_data['cancellation_fee']
      for cb in campsitebooking:
           totalbooking = totalbooking + cb.amount_adult + cb.amount_infant + cb.amount_child + cb.amount_concession
 
@@ -749,8 +750,9 @@ def booking_total_to_refund(booking):
 
 def booking_cancellation_fees(booking):
     cancellation_data = {'old_booking': {},'cancellation_fee': Decimal('0.00')}
-    cancellation_fee = Decimal('0.00')
-    number_of_cancellation_fees = 0
+    #cancellation_fee = Decimal('0.00')
+    #number_of_cancellation_fees = 0
+    old_arrival = booking.arrival
 
     campsite_booking = parkstay_models.CampsiteBooking.objects.filter(booking=booking) 
 
@@ -765,41 +767,43 @@ def booking_cancellation_fees(booking):
 
     for cb in campsite_booking:
         cb_date = cb.date.strftime('%Y-%m-%d')
+        cancellation_data = booking_policy_cancellation_rules(cancellation_data,cb_date,cb,old_arrival,booking)
+        #if cancellation_data['old_booking'][cb_date]['exists'] is False:
+        #     number_of_cancellation_fees = number_of_cancellation_fees + 1
 
-        if cancellation_data['old_booking'][cb_date]['exists'] is False:
-             number_of_cancellation_fees = number_of_cancellation_fees + 1
+        #     pg = None
+        #     if cb.booking_policy:
+        #         pg = parkstay_models.BookingPolicy.objects.get(id=cb.booking_policy.id)
+        #     if pg:
+        #        policy_type = 'normal'
+        #        if pg.peak_policy_enabled is True:
+        #               pp = parkstay_models.PeakPeriod.objects.filter(peak_group=pg.peak_group, start_date__lte=cb.date, end_date__gte=cb.date, active=True)
+        #               if pp.count():
+        #                   policy_type='peak'
 
-             pg = None
-             if cb.booking_policy:
-                 pg = parkstay_models.BookingPolicy.objects.get(id=cb.booking_policy.id)
-             if pg:
-                policy_type = 'normal'
-                if pg.peak_policy_enabled is True:
-                       pp = parkstay_models.PeakPeriod.objects.filter(peak_group=pg.peak_group, start_date__lte=cb.date, end_date__gte=cb.date, active=True)
-                       if pp.count():
-                           policy_type='peak'
+        #        if policy_type == 'peak':
+        #              if pg.peak_policy_type == 0:
+        #                  cancellation_fee = cancellation_fee + pg.peak_amount
+        #        else:
+        #              if pg.policy_type == 0:
+        #                  cancellation_fee = cancellation_fee + pg.amount
 
-                if policy_type == 'peak':
-                      if pg.peak_policy_type == 0:
-                          cancellation_fee = cancellation_fee + pg.peak_amount
-                else:
-                      if pg.policy_type == 0:
-                          cancellation_fee = cancellation_fee + pg.amount
-
-    cancellation_data['cancellation_fee'] = cancellation_fee
+    #cancellation_data['cancellation_fee'] = cancellation_fee
     return cancellation_data
 
 
 
 def booking_change_fees(booking):
+    print ("booking_change_fees")
     #parkstay_models.PeakGroup.
     cancellation_data = {'old_booking': {},'cancellation_fee': Decimal('0.00')}
-    cancellation_fee = Decimal('0.00')
-    number_of_cancellation_fees = 0
+    #cancellation_fee = Decimal('0.00')
+    # number_of_cancellation_fees = 0
 
     campsite_booking = parkstay_models.CampsiteBooking.objects.filter(booking=booking)
     old_campsite_booking = parkstay_models.CampsiteBooking.objects.filter(booking_id=booking.old_booking)
-
+    old_booking = parkstay_models.Booking.objects.get(id=booking.old_booking)
+    old_arrival = old_booking.arrival
     for cb in old_campsite_booking:
         cb_date = cb.date.strftime('%Y-%m-%d')
         cancellation_data['old_booking'][cb_date] = {}
@@ -813,26 +817,40 @@ def booking_change_fees(booking):
         cb_date = cb.date.strftime('%Y-%m-%d')
         if cb_date in cancellation_data['old_booking']:
             cancellation_data['old_booking'][cb_date]['exists'] = True
-
     for cb in old_campsite_booking:
         cb_date = cb.date.strftime('%Y-%m-%d')
+        cancellation_data = booking_policy_cancellation_rules(cancellation_data,cb_date,cb,old_arrival, old_booking)
+        #if cancellation_data['old_booking'][cb_date]['exists'] is False:
+        #     number_of_cancellation_fees = number_of_cancellation_fees + 1
+        #     pg = parkstay_models.BookingPolicy.objects.get(id=cb.booking_policy.id)
 
-        if cancellation_data['old_booking'][cb_date]['exists'] is False:
-             number_of_cancellation_fees = number_of_cancellation_fees + 1
-             pg = parkstay_models.BookingPolicy.objects.get(id=cb.booking_policy.id)
-             
-             policy_type = 'normal'
-             if pg.peak_policy_enabled is True:
-                    pp = parkstay_models.PeakPeriod.objects.filter(peak_group=pg.peak_group, start_date__lte=cb.date, end_date__gte=cb.date, active=True)
-                    if pp.count(): 
-                        policy_type='peak'
+        #     policy_type = 'normal'
+        #     if pg.peak_policy_enabled is True:
+        #            pp = parkstay_models.PeakPeriod.objects.filter(peak_group=pg.peak_group, start_date__lte=cb.date, end_date__gte=cb.date, active=True)
+        #            if pp.count(): 
+        #                policy_type='peak'
     
-             if policy_type == 'peak':
-                   if pg.peak_policy_type == 0:
-                       cancellation_fee = cancellation_fee + pg.peak_amount
-             else:
-                   if pg.policy_type == 0:
-                       cancellation_fee = cancellation_fee + pg.amount
+        #     if policy_type == 'peak':
+        #           if pg.peak_policy_type == 0:
+        #               if pg.peak_arrival_limit_enabled is True:
+        #                    #datetime.now().date()
+        #                    peak_arrival_time_calc = old_arrival - timedelta(days=pg.peak_arrival_time)
+        #                    if today_dt > peak_arrival_time_calc:
+        #                           cancellation_fee = cancellation_fee + pg.peak_amount
+        #                    else
+        #                           pass
+        #               else:
+        #                    cancellation_fee = cancellation_fee + pg.peak_amount
+        #     else:
+        #           if pg.policy_type == 0:
+        #               if pg.arrival_limit_enabled is True:
+        #                   arrival_time_calc = old_arrival - timedelta(days=pg.arrival_time)
+        #                   if today_dt >  arrival_time_calc :
+        #                       cancellation_fee = cancellation_fee + pg.amount
+        #                   else:
+        #                       pass
+        #               else:
+        #                    cancellation_fee = cancellation_fee + pg.amount
 
     #invoice_lines.append({
     #     'ledger_description': 'Cancellation Fee',
@@ -841,9 +859,51 @@ def booking_change_fees(booking):
     #     "oracle_code": booking.campsite_oracle_code,
     #     "line_status" : 1 
     #     })
-    cancellation_data['cancellation_fee'] = cancellation_fee
+    #cancellation_data['cancellation_fee'] = cancellation_fee
  
     return cancellation_data 
+
+def booking_policy_cancellation_rules(cancellation_data,cb_date,cb, old_arrival, old_booking):
+    today_dt= datetime.now().date()
+    today_datetime = datetime.now(timezone_dt.utc) 
+    total_seconds = (today_datetime - old_booking.created).total_seconds()
+    booking_grace_time = total_seconds/60
+    cancellation_fee = Decimal('0.00')
+    number_of_cancellation_fees = 0
+    if cancellation_data['old_booking'][cb_date]['exists'] is False:
+         number_of_cancellation_fees = number_of_cancellation_fees + 1
+         pg = parkstay_models.BookingPolicy.objects.get(id=cb.booking_policy.id)
+         policy_type = 'normal'
+         if pg.peak_policy_enabled is True:
+                pp = parkstay_models.PeakPeriod.objects.filter(peak_group=pg.peak_group, start_date__lte=cb.date, end_date__gte=cb.date, active=True)
+                if pp.count():
+                    policy_type='peak'
+         if policy_type == 'peak':
+               if booking_grace_time > pg.peak_grace_time:
+                   if pg.peak_policy_type == 0:
+                       if pg.peak_arrival_limit_enabled is True:
+                            #datetime.now().date()
+                            peak_arrival_time_calc = old_arrival - timedelta(days=pg.peak_arrival_time)
+                            if today_dt > peak_arrival_time_calc:
+                                   cancellation_fee = cancellation_fee + pg.peak_amount
+                            else:
+                                   pass
+                       else:
+                            cancellation_fee = cancellation_fee + pg.peak_amount
+         else:
+               if booking_grace_time > pg.grace_time:
+                   if pg.policy_type == 0:
+                       
+                       if pg.arrival_limit_enabled is True:
+                           arrival_time_calc = old_arrival - timedelta(days=pg.arrival_time)
+                           if today_dt >  arrival_time_calc :
+                               cancellation_fee = cancellation_fee + pg.amount
+                           else:
+                               pass
+                       else:
+                            cancellation_fee = cancellation_fee + pg.amount
+    cancellation_data['cancellation_fee'] = cancellation_fee
+    return cancellation_data
 
 
 def price_or_lineitemsv2old_booking(request, booking, invoice_lines):

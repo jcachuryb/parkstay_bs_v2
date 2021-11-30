@@ -554,7 +554,6 @@ var search_avail = {
                                     }
 				}
 
-
                                 if (append_site == true) {
                                      var gearType = campsites[s].gearType;
 
@@ -603,9 +602,11 @@ var search_avail = {
 
 					}
 			        }
+
                                 if (campsites[s].class)  {
 					class_name = " - "+data.classes[campsites[s].class]
 				}
+
 				campsitehtml = campsitehtml + "<div class='col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4 col-xxl-3'><center>";
 			        campsitehtml = campsitehtml + "<div class='product-box' >";
 				campsitehtml = campsitehtml + "<div class='product-box-header "+product_box_header_class+"'><h2>"+campsites[s].name+" "+class_name+"</h2></div>";
@@ -677,7 +678,6 @@ var search_avail = {
                                         if (campsites[s].availability[a][0] == true) {
 						avail_calender = 'product-available-date-avail';
 					}
-                                        
 
                                         campsitehtml = campsitehtml + "<td class='product-available-date "+avail_calender+"'>"+dasplit[2]+"/"+dasplit[1]+"</td>";
 					availloop = availloop  + 1;
