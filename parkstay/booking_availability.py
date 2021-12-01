@@ -25,7 +25,7 @@ def get_campsites_for_campground(ground, gear_type):
     features_array = get_features() 
     cached_data = None
     if cached_data is None:
-        sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name','short_description').order_by('name')
+        sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name','short_description','vehicle','motorcycle','trailer').order_by('name')
         for cs in sites_qs:
             sites_qs_features = models.Campsite.objects.filter(id=cs['id']).values('features')
             row = {}
@@ -36,8 +36,11 @@ def get_campsites_for_campground(ground, gear_type):
             row['campsite_class__name'] = cs['campsite_class__name']
             row['wkb_geometry'] = cs['wkb_geometry']
             row['tent'] = cs['tent']
+            row['vehicle'] = cs['vehicle']
+            row['motorcycle'] = cs['motorcycle']
             row['campervan'] = cs['campervan']
             row['caravan'] = cs['caravan']
+            row['trailer'] = cs['trailer']
             row['min_people'] = cs['min_people']
             row['max_people'] = cs['max_people']
             row['max_vehicles'] = cs['max_vehicles']
@@ -63,8 +66,11 @@ def get_campsites_for_campground(ground, gear_type):
          row['wkb_geometry'] = cs['wkb_geometry']
          row['features'] = cs['features']
          row['tent'] = cs['tent']
+         row['vehicle'] = cs['vehicle']
+         row['motorcycle'] = cs['motorcycle']
          row['campervan'] = cs['campervan']
          row['caravan'] = cs['caravan']
+         row['trailer'] = cs['trailer']
          row['min_people'] = cs['min_people']
          row['max_people'] = cs['max_people']
          row['max_vehicles'] = cs['max_vehicles']

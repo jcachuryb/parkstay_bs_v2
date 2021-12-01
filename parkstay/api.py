@@ -1259,7 +1259,10 @@ def campsite_availablity_view(request,  *args, **kwargs):
                 'gearType': {
                     'tent': si['tent'],
                     'campervan': si['campervan'],
-                    'caravan': si['caravan']
+                    'caravan': si['caravan'],
+                    'vehicle': si['vehicle'],
+                    'motorcycle': si['motorcycle'],
+                    'trailer' : si['trailer']
                 },
                 'features': si['features'],
                 'min_people': si['min_people'],
@@ -2276,6 +2279,7 @@ def create_booking(request, *args, **kwargs):
 
         'num_vehicle' : request.POST.get('num_vehicle',0),
         'num_campervan' : request.POST.get('num_campervan',0),
+        'num_caravan' : request.POST.get('num_caravan',0),
         'num_motorcycle' : request.POST.get('num_motorcycle',0),
         'num_trailer' : request.POST.get('num_trailer',0),
 
@@ -2301,9 +2305,11 @@ def create_booking(request, *args, **kwargs):
 
     num_vehicle = serializer.validated_data['num_vehicle']
     num_campervan = serializer.validated_data['num_campervan']
+    num_caravan = serializer.validated_data['num_caravan']
     num_motorcycle = serializer.validated_data['num_motorcycle']
     num_trailer = serializer.validated_data['num_trailer']
     old_booking = serializer.validated_data['old_booking']
+
     if context_p['PARKSTAY_PERMISSIONS'][0] is True:
        selecttype = request.POST.get('selecttype',None)
        multiplesites = json.loads(request.POST.get('multiplesites', "[]"))
@@ -2357,7 +2363,7 @@ def create_booking(request, *args, **kwargs):
             booking = utils.create_booking_by_site(request,
                 cs_obj, start_date, end_date,
                 num_adult, num_concession,
-                num_child, num_infant, num_vehicle, num_campervan, num_motorcycle, num_trailer, 0, None, None, None, False, None, None, False, False, False, old_booking 
+                num_child, num_infant, num_vehicle, num_campervan, num_motorcycle, num_trailer,num_caravan, 0, None, None, None, False, None, None, False, False, False, old_booking 
             )
 
             booking.created_by = request.user.id
@@ -2369,7 +2375,7 @@ def create_booking(request, *args, **kwargs):
                 num_adult, num_concession,
                 num_child, num_infant,
                 num_vehicle, num_campervan, 
-                num_motorcycle, num_trailer, old_booking
+                num_motorcycle, num_trailer,num_caravan, old_booking
             )
             booking.created_by = request.user.id
             booking.save()

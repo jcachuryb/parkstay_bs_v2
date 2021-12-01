@@ -50,6 +50,17 @@
             <div class="row">
                 <div class="form-group">
                     <div class="col-md-2">
+                        <label>Caravan : </label>
+                    </div>
+                    <div class="col-md-4">
+                        <input name="caravan"  v-model="priceHistory.caravan" type='number' class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-md-2">
                         <label>Trailer : </label>
                     </div>
                     <div class="col-md-4">
@@ -174,7 +185,7 @@ module.exports = {
                     period_start: "required",
                     details: {
                         required: {
-                            depends: function(el){
+                            depends: function(el) {
                                 return vm.priceHistory.reason=== '1';
                             }
                         }
@@ -185,6 +196,7 @@ module.exports = {
                     concession: "Enter a concession rate",
                     motorbike: "Enter a motorbike rate",
                     campervan: "Enter a campervan rate",
+                    caravan: "Enter a caravan rate",
                     trailer: "Enter a trailer rate",
                     period_start: "Enter a start date",
                     details: "Details required if Other reason is selected"

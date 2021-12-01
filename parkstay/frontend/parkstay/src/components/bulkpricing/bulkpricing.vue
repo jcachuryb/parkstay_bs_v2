@@ -254,6 +254,8 @@ export default {
                 }, {
                    data: 'campervan',
                 }, {
+                   data: 'caravan',
+                }, {
                    data: 'trailer',
                 }, {
                     data: 'reason',
@@ -284,7 +286,7 @@ export default {
                 },
             },
             priceHistoryDtHeaders:[
-                "Period Start","Period End", "Car","Concession","Motorbike","Campervan","Trailer","Comment","Action"
+                "Period Start","Period End","Car","Concession","Motorbike","Campervan","Caravan","Trailer","Comment","Action"
             ]
 
         }

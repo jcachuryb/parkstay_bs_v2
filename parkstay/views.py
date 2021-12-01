@@ -327,7 +327,7 @@ class MakeBookingsView(TemplateView):
         booking.details['trav_res'] = request.POST.get('trav_res', False)
 
         # update vehicle registrations from form
-        VEHICLE_CHOICES = {'0': 'vehicle', '1': 'concession', '2': 'motorbike', '3': 'campervan', '4': 'trailer'}
+        VEHICLE_CHOICES = {'0': 'vehicle', '1': 'concession', '2': 'motorbike', '3': 'campervan', '4': 'trailer', '5': 'caravan'}
         BookingVehicleRego.objects.filter(booking=booking).delete()
         for vehicle in vehicles:
             obj_check = BookingVehicleRego.objects.filter(booking = booking,
@@ -454,7 +454,7 @@ class ChangeBookingView(TemplateView):
                   arrival_date = booking.arrival.strftime("%Y/%m/%d")
                   departure_date = booking.departure.strftime("%Y/%m/%d")
                      
-                  response = HttpResponse("<script>window.location='/search-availablity/campground/?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details['num_adult'])+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&num_vehicle="+str(booking.details['num_vehicle'])+"&num_campervan="+str(booking.details['num_campervan'])+"&num_motorcycle="+str(booking.details['num_motorcycle'])+"&num_trailer="+str(booking.details['num_trailer'])+"&gear_type=all&change_booking_id="+str(booking.id)+"';</script>", content_type='text/html')
+                  response = HttpResponse("<script>window.location='/search-availablity/campground/?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details['num_adult'])+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&num_vehicle="+str(booking.details['num_vehicle'])+"&num_campervan="+str(booking.details['num_campervan'])+"&num_motorcycle="+str(booking.details['num_motorcycle'])+"&num_trailer="+str(booking.details['num_trailer'])+"&num_caravan="+str(booking.details['num_caravan'])+"&gear_type=all&change_booking_id="+str(booking.id)+"';</script>", content_type='text/html')
                   return response
          context = {}
          self.template_name = 'ps/search_availabilty_campground_cancel_booking_error.html'
@@ -687,6 +687,7 @@ class SearchAvailablityByCampground(TemplateView):
         num_campervan = request.GET.get('num_campervan', 0) 
         num_motorcycle = request.GET.get('num_motorcycle', 0)
         num_trailer = request.GET.get('num_trailer',0)
+        num_caravan = request.GET.get('num_caravan',0)
 
         arrival=request.GET.get('arrival', None)
         departure=request.GET.get('departure', None)
@@ -737,6 +738,7 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['num_campervan'] = num_campervan
         context['cg']['num_motorcycle'] = num_motorcycle
         context['cg']['num_trailer'] = num_trailer
+        context['cg']['num_caravan'] = num_caravan
 
         context['cg']['arrival'] = arrival
         context['cg']['departure'] = departure
