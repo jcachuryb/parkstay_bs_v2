@@ -11,8 +11,8 @@ VEHICLE_TYPES = (
     ('1', 'Vehicle (concession)'),
     ('2', 'Motorcycle'),
     ('3', 'Campervan'),
-    ('4', 'Trailer')
-
+    ('4', 'Trailer'),
+    ('5', 'Caravan')
 )
 
 

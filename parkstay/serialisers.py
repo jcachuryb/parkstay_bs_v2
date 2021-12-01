@@ -73,6 +73,7 @@ class CampsiteBookingSerializer(serializers.Serializer):
 
     num_vehicle = serializers.IntegerField(default=0)
     num_campervan = serializers.IntegerField(default=0)
+    num_caravan = serializers.IntegerField(default=0)
     num_motorcycle = serializers.IntegerField(default=0)
     num_trailer = serializers.IntegerField(default=0)
 
@@ -627,7 +628,7 @@ class CampsiteClassPriceHistorySerializer(serializers.ModelSerializer):
 class ParkEntryRateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParkEntryRate
-        fields = ("id", "period_start", "period_end", "reason", "details", "vehicle","campervan","trailer", "concession", "motorbike", "editable")
+        fields = ("id", "period_start", "period_end", "reason", "details", "vehicle","campervan","caravan","trailer", "concession", "motorbike", "editable")
         read_only_fields = ('editable',)
 
     def __init__(self, *args, **kwargs):

@@ -211,7 +211,6 @@ class Campground(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        print ("SAVE")
         cg = Campground.objects.get(id=self.id)
         cache.delete('campgrounds')
         cache.delete('campgrounds_dt')
@@ -699,8 +698,11 @@ class Campsite(models.Model):
     wkb_geometry = models.PointField(srid=4326, blank=True, null=True)
     features = models.ManyToManyField('Feature')
     tent = models.BooleanField(default=True)
+    vehicle = models.BooleanField(default=False)
     campervan = models.BooleanField(default=False)
     caravan = models.BooleanField(default=False)
+    motorcycle = models.BooleanField(default=False)
+    trailer = models.BooleanField(default=False)
     min_people = models.SmallIntegerField(default=1)
     max_people = models.SmallIntegerField(default=12)
     max_vehicles = models.PositiveIntegerField(default=1)
@@ -1767,7 +1769,8 @@ class BookingVehicleRego(models.Model):
         ('motorbike', 'Motorcycle'),
         ('concession', 'Vehicle (concession)'),
         ('campervan', 'Campervan'),
-        ('trailer', 'Trailer')
+        ('trailer', 'Trailer'),
+        ('caravan', 'Caravan')
     )
     booking = models.ForeignKey(Booking, related_name="regos", on_delete=models.CASCADE)
     rego = models.CharField(max_length=50)
@@ -1786,6 +1789,7 @@ class ParkEntryRate(models.Model):
     motorbike = models.DecimalField(max_digits=8, decimal_places=2, default='0.00')
     campervan = models.DecimalField(max_digits=8, decimal_places=2, default='0.00')
     trailer = models.DecimalField(max_digits=8, decimal_places=2, default='0.00')
+    caravan = models.DecimalField(max_digits=8, decimal_places=2, default='0.00')
     period_start = models.DateField()
     period_end = models.DateField(null=True, blank=True)
     reason = models.ForeignKey("PriceReason", on_delete=models.PROTECT, null=True, blank=True)

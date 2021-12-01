@@ -405,6 +405,19 @@
                                                                        </span>
                                                           </div>
                                                         </div>
+
+                                                        <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
+                                                          <div class="col-8 col-sm-8 fw-bold">Caravan</div>
+                                                          <div class="col-4 col-sm-4">
+                                                                        <span>
+                                                                       <i class='bi-dash-square plus-minus-counter'  onclick="search_avail.change_vehicle_counters('caravan','down')"></i>
+                                                                       </span>
+                                                                        <span>
+                                                                       <i class='bi-plus-square plus-minus-counter'  onclick="search_avail.change_vehicle_counters('caravan','up')" ></i>
+                                                                       </span>
+                                                          </div>
+                                                        </div>
+
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
                                                           <div class="col-8 col-sm-8 fw-bold">Motor cycles </div>
                                                           <div class="col-4 col-sm-4">
@@ -451,7 +464,7 @@
                          <div class="col-12" style='display:none' id='filter-options'>
                               <div class='row'>
 				<div class="col-6">
-					Tents
+					Tents/Swags
 				</div>					
 				<div class="col-6">
 					<div class="form-check form-switch">
@@ -518,7 +531,7 @@
 		           </div>
 		      </div>
 		      <div class="col-6 text-end">
-			      <button type="button" class="btn btn-primary" id='more-filters' onclick="search_avail.create_booking(this);" data-button='{"site_type":0,"campsite_id":null,"selecttype":"multiple"}' >PROCEED</button>
+			      <button type="button" class="btn btn-primary" id='proceed-booking' onclick="search_avail.create_booking(this);" data-button='{"site_type":0,"campsite_id":null,"selecttype":"multiple"}' style='display:none' >PROCEED</button>
 		      </div>
 		  </div>
 		  <br>
@@ -565,8 +578,9 @@ window.onload = function() {
 
    search_avail.var.vehicles.vehicle =  parseInt('{{ cg.num_vehicle }}');
    search_avail.var.vehicles.campervan = parseInt('{{ cg.num_campervan }}');
-   search_avail.var.vehicles.motorcycle = parseInt('{{ cg.num_campervan }}');
+   search_avail.var.vehicles.motorcycle = parseInt('{{ cg.num_motorcycle }}');
    search_avail.var.vehicles.trailer = parseInt('{{ cg.num_trailer }}');
+   search_avail.var.vehicles.caravan = parseInt('{{ cg.num_caravan }}');
 
    search_avail.total_campers();
    search_avail.total_vehicles();
