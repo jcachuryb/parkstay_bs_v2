@@ -1343,6 +1343,7 @@ def update_booking(request, old_booking, booking_details):
                 sent_regos = [r['rego'] for r in new_regos]
                 regos_serializers = []
                 update_regos_serializers = []
+
                 for n in new_regos:
                     if n['rego'] not in current_vehicle_regos:
                         n['booking'] = old_booking.id

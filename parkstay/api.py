@@ -447,10 +447,7 @@ class CampgroundMapFilterViewSet(viewsets.ReadOnlyModelViewSet):
                 ground_ids = utils.get_open_campgrounds(sites, scrubbed['arrival'], scrubbed['departure'])
 
             else:  # show all of the campgrounds with campsites
-                print ("CONTEXT 2")
-                print (context)
                 ground_ids = set((x[0] for x in Campsite.objects.filter(**context).values_list('campground')))
-                print (ground_ids)
                 # we need to be tricky here. for the default search (all, no timestamps),
                 # we want to include all of the "campgrounds" that don't have any campsites in the model! (e.g. third party)
                 if scrubbed['gear_type'] == 'all':
@@ -2073,6 +2070,7 @@ def campground_map_view(request, *args, **kwargs):
          #serializer_camp.is_valid()
          #dumped_data = geojson.dumps(serializer_camp.data)
          #cache.set('CampgroundMapViewSet', dumped_data,  3600)
+
          for c in queryset:
              row = {}
              row['type'] = "Feature"
@@ -2123,8 +2121,6 @@ def places(request, *args, **kwargs):
             gps = None
             if p.wkb_geometry:
                  gps = [p.wkb_geometry[0], p.wkb_geometry[1]]
-
-
             places_list.append({'id': p.id, 'name': p.name, 'gps': gps, 'zoom_level': p.zoom_level})
 
         dumped_data = geojson.dumps(places_list) 
@@ -2132,49 +2128,161 @@ def places(request, *args, **kwargs):
 
     return HttpResponse(dumped_data, content_type='application/json')
 
+def get_booking_vehicle_info(request, *args, **kwargs):
+    booking_id = kwargs.get('booking_id')
+    today = date.today()
+    booking_vehicle_list = []
+    booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
+    if booking_data.count() > 0:
+        booking = booking_data[0]
+        if booking.customer.id == request.user.id or request.user.is_staff is True:
+              if booking.departure > today:
+                  booking_vehicle_obj = parkstay_models.BookingVehicleRego.objects.filter(booking_id=booking_id)
+                  for bv in booking_vehicle_obj:
+                      booking_vehicle_list.append({'id': bv.id, 'rego': bv.rego, 'type': bv.type, 'hire_car': bv.hire_car, 'entry_fee': bv.entry_fee, 'park_entry_fee' : bv.park_entry_fee})
+
+                  dumped_data = geojson.dumps(booking_vehicle_list)
+                  return HttpResponse(dumped_data, content_type='application/json')
+              response = HttpResponse(json.dumps({'message' : 'error booking registration not found'}), content_type='application/json', status=500)
+              return response
+
+    response = HttpResponse(json.dumps({'message' : 'Permission Denied'}), content_type='application/json', status=500)
+    return response
+
+def booking_vehicle_update(request, *args, **kwargs):
+
+    payload = None
+    try:
+       today = date.today()
+       booking_id = kwargs.get('booking_id')
+       data = json.load(request)
+       payload = data.get('payload')
+
+       booking_id = payload['booking_id']
+       booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
+       if booking_data.count() > 0:
+           booking = booking_data[0]
+           if booking.customer.id == request.user.id or request.user.is_staff is True:
+                   if booking.departure > today:
+                        for bv in payload:
+                            if bv[0:7] == 'bvrego-':
+                                bvrego_split = bv.split("-")
+                                bv_id = bvrego_split[1]
+                                bvr_obj = parkstay_models.BookingVehicleRego.objects.filter(id=int(bv_id))
+                                if bvr_obj.count() > 0:
+                                      bvr = bvr_obj[0]
+                                bvr.rego = payload[bv]
+                                bvr.save()
+                        dumped_data = json.dumps({'status': 'success'})
+                        return HttpResponse(dumped_data, content_type='application/json')
+                   response = HttpResponse(json.dumps({'message' : 'error booking registration not found'}), content_type='application/json', status=500)
+                   return response
+
+       response = HttpResponse(json.dumps({'message' : 'Permission Denied'}), content_type='application/json', status=500)
+       return response
+
+
+    except Exception as e:
+        if hasattr(e, 'error_dict'):
+            error = repr(e.error_dict)
+        else:
+            error = {'error': str(e)}
+        return HttpResponse(geojson.dumps({
+            'status': 'error',
+            'msg': error,
+        }), status=400, content_type='application/json')
+
+    try:
+         print ("")
+         dumped_data = geojson.dumps({})
+         return HttpResponse(dumped_data, content_type='application/json')
+    except ValidationError as e:
+        if hasattr(e, 'error_dict'):
+            error = repr(e.error_dict)
+        else:
+            error = {'error': str(e)}
+        return HttpResponse(geojson.dumps({
+            'status': 'error',
+            'msg': error,
+        }), status=400, content_type='application/json')
+
+
 def booking_updates(request, *args, **kwargs):
 
     data = json.load(request)
     payload = data.get('payload')
     #print (payload)
 
-    if 'ps_booking' in request.session:
-        booking_id = request.session['ps_booking']
-        booking = parkstay_models.Booking.objects.get(id=int(booking_id))
-        campsite = booking.campsites.all()[0].campsite if booking else None
+    try: 
+         if 'ps_booking' in request.session:
+             booking_id = request.session['ps_booking']
+             booking = parkstay_models.Booking.objects.get(id=int(booking_id))
+             campsite = booking.campsites.all()[0].campsite if booking else None
 
-        vehicles = payload['vehicles']
-        parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
-        entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and campsite.campground.park.entry_fee_required) else None
+             vehicles = payload['vehicles']
+             parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
+             entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and campsite.campground.park.entry_fee_required) else None
 
-        vehicle_entry_fee = '0.00'
-        for v in vehicles:
-            if v[2] is True:
-                if v[0] == 0:
-                    vehicle_entry_fee = entry_fees.vehicle
-                if v[0] == 2:
-                    vehicle_entry_fee = entry_fees.motorbike
-                if v[0] == 3:
-                    vehicle_entry_fee = entry_fees.campervan
-                if v[0] == 4:
-                    vehicle_entry_fee = entry_fees.trailer
-                
-                parkstay_models.AdditionalBooking.objects.create(booking=booking,
-                                                                 fee_description="Park Entry Fee for "+v[1],
-                                                                 amount=vehicle_entry_fee,
-                                                                 identifier="vehicles",
-                                                                 oracle_code=booking.campground.park.oracle_code
+             #parkstay_models.BookingVehicleRego.objects.filter(booking=booking).delete()
 
-                                                                )
-                print (v)
+             vehicle_entry_fee = '0.00'
+             for v in vehicles:
+                 #if v[2] is True:
+                 vehicle_type=''
+                 if v[0] == 0:
+                     vehicle_entry_fee = entry_fees.vehicle
+                     vehicle_type='vehicle'
+                 if v[0] == 2:
+                     vehicle_entry_fee = entry_fees.motorbike
+                     vehicle_type='motorbike'
+                 if v[0] == 3:
+                     vehicle_entry_fee = entry_fees.campervan
+                     vehicle_type='campervan'
+                 if v[0] == 4:
+                     vehicle_entry_fee = entry_fees.trailer
+                     vehicle_type='trailer'
+                 if v[0] == 5:
+                     vehicle_entry_fee = entry_fees.caravan 
+                     vehicle_type='caravan'
+                     
+                 entry_fee = False
+                 if v[2] == True:
+                     entry_fee = True
+                 hire_care = False
+                 if v[4] == True:
+                     hire_care = True
+                 bvr = parkstay_models.BookingVehicleRego.objects.get(id=v[3])
+                 bvr.booking=booking
+                 bvr.rego=v[1]
+                 bvr.type=vehicle_type
+                 bvr.entry_fee=entry_fee
+                 bvr.hire_car=hire_care
+                 bvr.save()
+
+                 parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                                      fee_description="Park Entry Fee for "+v[1],
+                                                                      amount=vehicle_entry_fee,
+                                                                      identifier="vehicles",
+                                                                      oracle_code=booking.campground.park.oracle_code
+                                                                  )
+         dumped_data = geojson.dumps({})
+         return HttpResponse(dumped_data, content_type='application/json')
+    except ValidationError as e:
+        if hasattr(e, 'error_dict'):
+            error = repr(e.error_dict)
+        else:
+            error = {'error': str(e)}
+        return HttpResponse(geojson.dumps({
+            'status': 'error',
+            'msg': error,
+        }), status=400, content_type='application/json')
 
 
-    dumped_data = geojson.dumps({})
-    return HttpResponse(dumped_data, content_type='application/json')
 
 def get_booking_pricing(request, *args, **kwargs):
     booking_id = None
-    booking_information = {'campsite_booking': [], 'additional_booking': [] ,'booking': {}, 'old_campsite_booking': [], 'old_additional_booking': []}
+    booking_information = {'campsite_booking': [], 'additional_booking': [], 'booking_vehicle' : [], 'booking': {}, 'old_campsite_booking': [], 'old_additional_booking': [], 'old_booking_vehicle': []}
+
     if 'ps_booking' in request.session:
          booking_id = request.session['ps_booking']
          booking = parkstay_models.Booking.objects.get(id=int(booking_id))
@@ -2183,12 +2291,16 @@ def get_booking_pricing(request, *args, **kwargs):
          booking_information['booking']['cost_total'] = str(booking.cost_total)
          old_campsite_booking = []
          old_additional_booking = []
+         old_booking_vehicle_rego = []
+
          if booking.old_booking:
              old_campsite_booking = CampsiteBooking.objects.filter(booking_id=booking.old_booking)
-             old_additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking_id=booking.old_booking, identifier='vehicles') 
+             old_additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking_id=booking.old_booking, identifier='vehicles')
+             old_booking_vehicle_rego = parkstay_models.BookingVehicleRego.objects.filter(booking_id=booking.old_booking)
 
          campsite_booking = CampsiteBooking.objects.filter(booking=booking)
          additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking=booking)
+         booking_vehicle_rego = parkstay_models.BookingVehicleRego.objects.filter(booking=booking)
 
          # old
          for cb in old_campsite_booking:
@@ -2218,6 +2330,17 @@ def get_booking_pricing(request, *args, **kwargs):
              row['amount'] = str(ab.amount)
              row['item_name'] = ab.fee_description
              booking_information['old_additional_booking'].append(row)
+
+         for bv in old_booking_vehicle_rego:
+             row = {}
+             row['id'] = bv.id
+             row['rego'] = bv.rego
+             row['type'] = bv.type
+             row['entry_fee'] = bv.entry_fee
+             row['hire_car'] = bv.hire_car
+             row['park_entry_fee'] = bv.park_entry_fee
+             booking_information['old_booking_vehicle'].append(row)
+
 
          # new 
          for cb in campsite_booking:
@@ -2249,6 +2372,18 @@ def get_booking_pricing(request, *args, **kwargs):
              row['amount'] = str(ab.amount)
              row['item_name'] = ab.fee_description
              booking_information['additional_booking'].append(row)
+
+
+         for bv in booking_vehicle_rego:
+             row = {}
+             row['id'] = bv.id
+             row['rego'] = bv.rego
+             row['type'] = bv.type
+             row['entry_fee'] = bv.entry_fee
+             row['hire_car'] = bv.hire_car
+             row['park_entry_fee'] = bv.park_entry_fee
+             booking_information['booking_vehicle'].append(row)
+
 
     dumped_data = geojson.dumps(booking_information)
     return HttpResponse(dumped_data, content_type='application/json')
@@ -2380,14 +2515,45 @@ def create_booking(request, *args, **kwargs):
             booking.created_by = request.user.id
             booking.save()
 
+        
 
         #print ("DATA")
         #print (campsite_obj)
         booking_campsite = booking.campsites.all()[0].campsite if booking else None
         parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
         entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and booking_campsite.campground.park.entry_fee_required) else None
+     
+        old_bvr_array = []
+        old_bvr_array = {0 : {},1: {},2:{},3:{},4:{},5:{}}
+        if booking.old_booking:
+             old_bvr_count = {'vehicle': 0, 'motorcycle': 0, 'campervan': 0, 'trailer': 0, 'caravan': 0}
+             old_bvr = parkstay_models.BookingVehicleRego.objects.filter(booking_id=booking.old_booking)
+             for t in old_bvr:
+                 if t.type == 'vehicle':
+                     old_bvr_array[0][old_bvr_count['vehicle']] = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee}
+                     old_bvr_count['vehicle'] = old_bvr_count['vehicle'] + 1
+                 if t.type == 'motorbike': 
+                     old_bvr_array[2][old_bvr_count['motorcycle']]  = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee}
+                     old_bvr_count['motorcycle'] = old_bvr_count['motorcycle'] + 1
+                 if t.type == 'campervan':
+                     old_bvr_array[3][old_bvr_count['campervan']] = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee}
+                     old_bvr_count['campervan'] = old_bvr_count['campervan'] + 1
+                 if t.type == 'trailer': 
+                     old_bvr_array[4][old_bvr_count['trailer']] = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee}
+                     old_bvr_count['trailer'] = old_bvr_count['trailer'] + 1
+                 if t.type == 'caravan':
+                     old_bvr_array[5][old_bvr_count['caravan']] =  {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee}
+                     old_bvr_count['caravan'] = old_bvr_count['caravan'] + 1
 
+        parkstay_models.BookingVehicleRego.objects.filter(booking=booking).delete()
         for i in range(0, num_vehicle):
+            rego_text = ''
+            entry_fee = True
+            if i in  old_bvr_array[0]:
+                rego_text = old_bvr_array[0][i]['rego']
+                entry_fee = old_bvr_array[0][i]['entry_fee'] 
+
+            parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='vehicle',entry_fee=entry_fee)
             parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Vehicle",
                                                              amount=entry_fees.vehicle,
@@ -2396,6 +2562,13 @@ def create_booking(request, *args, **kwargs):
                                                             )
 
         for i in range(0, num_campervan):
+            rego_text = ''
+            entry_fee = True
+            if i in  old_bvr_array[3]:
+                 rego_text = old_bvr_array[3][i]['rego']
+                 entry_fee = old_bvr_array[3][i]['entry_fee']
+
+            parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='campervan',entry_fee=entry_fee)
             parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Campervan",
                                                              amount=entry_fees.campervan,
@@ -2404,6 +2577,13 @@ def create_booking(request, *args, **kwargs):
                                                             )
 
         for i in range(0, num_motorcycle):
+            rego_text = ''
+            entry_fee = True
+            if i in  old_bvr_array[2]:
+                 rego_text = old_bvr_array[2][i]['rego']
+                 entry_fee = old_bvr_array[2][i]['entry_fee']
+
+            parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='motorbike',entry_fee=entry_fee)
             parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Motorcycle",
                                                              amount=entry_fees.motorbike,
@@ -2412,6 +2592,13 @@ def create_booking(request, *args, **kwargs):
                                                             )
 
         for i in range(0, num_trailer):
+            rego_text = ''
+            entry_fee = True
+            if i in  old_bvr_array[4]:
+                rego_text = old_bvr_array[4][i]['rego']
+                entry_fee = old_bvr_array[4][i]['entry_fee']
+            # prepopulate entry_fee and park fee@#@@@@@@@@@@@@@@@@@@@@
+            parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='trailer',entry_fee=entry_fee)
             parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Trailer",
                                                              amount=entry_fees.trailer,
@@ -2419,8 +2606,22 @@ def create_booking(request, *args, **kwargs):
                                                              oracle_code=booking.campground.park.oracle_code
                                                             )
 
+        for i in range(0, num_caravan):
+            rego_text = ''
+            entry_fee = True
+            if i in  old_bvr_array[5]:
+                rego_text = old_bvr_array[5][i]['rego']
+                entry_fee = old_bvr_array[5][i]['entry_fee']
 
-        
+            parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='caravan',entry_fee=entry_fee)
+            parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                             fee_description="Park Entry Fee for Caravan",
+                                                             amount=entry_fees.trailer,
+                                                             identifier="vehicles",
+                                                             oracle_code=booking.campground.park.oracle_code
+                                                            )
+
+
 
 
         # add cancellation fees if change booking

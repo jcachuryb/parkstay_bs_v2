@@ -227,6 +227,9 @@ class CampsiteBookingInline(admin.TabularInline):
     model = models.CampsiteBooking
     extra = 0
     raw_id_fields=('campsite',)
+class BookingVehicleRegoInline(admin.TabularInline):
+    model = models.BookingVehicleRego
+    extra = 0
 
 @admin.register(models.Booking)
 class BookingAdmin(admin.ModelAdmin):
@@ -236,7 +239,7 @@ class BookingAdmin(admin.ModelAdmin):
     #search_fields = ('id','arrival', 'departure')
     search_fields = ('id',)
     list_filter = ('booking_type','arrival', 'departure', 'campground', )
-    inlines = [BookingInvoiceInline, CampsiteBookingInline, BookingAdditionalInline]
+    inlines = [BookingVehicleRegoInline, BookingInvoiceInline, CampsiteBookingInline, BookingAdditionalInline]
     readonly_fields=('created','property_cache','customer','overridden_by','canceled_by')
 
     def has_add_permission(self, request, obj=None):
