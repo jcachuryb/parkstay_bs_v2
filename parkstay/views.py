@@ -328,23 +328,23 @@ class MakeBookingsView(TemplateView):
 
         # update vehicle registrations from form
         VEHICLE_CHOICES = {'0': 'vehicle', '1': 'concession', '2': 'motorbike', '3': 'campervan', '4': 'trailer', '5': 'caravan'}
-        BookingVehicleRego.objects.filter(booking=booking).delete()
-        for vehicle in vehicles:
-            obj_check = BookingVehicleRego.objects.filter(booking = booking,
-            rego = vehicle.cleaned_data.get('vehicle_rego'),
-            type=VEHICLE_CHOICES[vehicle.cleaned_data.get('vehicle_type')],
-            entry_fee=vehicle.cleaned_data.get('entry_fee')).exists()
+        #BookingVehicleRego.objects.filter(booking=booking).delete()
+        #for vehicle in vehicles:
+        #    obj_check = BookingVehicleRego.objects.filter(booking = booking,
+        #    rego = vehicle.cleaned_data.get('vehicle_rego'),
+        #    type=VEHICLE_CHOICES[vehicle.cleaned_data.get('vehicle_type')],
+        #    entry_fee=vehicle.cleaned_data.get('entry_fee')).exists()
 
-            if(not obj_check):
-                BookingVehicleRego.objects.create(
-                    booking=booking, 
-                    rego=vehicle.cleaned_data.get('vehicle_rego'), 
-                    type=VEHICLE_CHOICES[vehicle.cleaned_data.get('vehicle_type')],
-                    entry_fee=vehicle.cleaned_data.get('entry_fee')
-                )
-            else:
-                form.add_error(None, 'Duplicate regos not permitted.If unknown add number, e.g. Hire1, Hire2.')
-                return self.render_page(request, booking, form, vehicles, show_errors=True)
+        #    if(not obj_check):
+        #        BookingVehicleRego.objects.create(
+        #            booking=booking, 
+        #            rego=vehicle.cleaned_data.get('vehicle_rego'), 
+        #            type=VEHICLE_CHOICES[vehicle.cleaned_data.get('vehicle_type')],
+        #            entry_fee=vehicle.cleaned_data.get('entry_fee')
+        #        )
+        #    else:
+        #        form.add_error(None, 'Duplicate regos not permitted.If unknown add number, e.g. Hire1, Hire2.')
+        #        return self.render_page(request, booking, form, vehicles, show_errors=True)
 
         # Check if number of people is exceeded in any of the campsites
         max_people_accumulated_campsites = 0
@@ -358,14 +358,10 @@ class MakeBookingsView(TemplateView):
                     appended_already.append(c.campsite.id)
 
 
-        
-
         if booking.num_guests > max_people_accumulated_campsites:
                form.add_error(None, 'Number of people exceeded for the current camp site.')
                return self.render_page(request, booking, form, vehicles, show_errors=True)
-        print ("NUM")
-        print (booking.num_guests)
-        print (min_people_accumulated_campsites)
+
         # Prevent booking if less than min people 
         if booking.num_guests < min_people_accumulated_campsites:
                form.add_error('Number of people is less than the minimum allowed for the current campsite.')
@@ -454,7 +450,7 @@ class ChangeBookingView(TemplateView):
                   arrival_date = booking.arrival.strftime("%Y/%m/%d")
                   departure_date = booking.departure.strftime("%Y/%m/%d")
                      
-                  response = HttpResponse("<script>window.location='/search-availablity/campground/?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details['num_adult'])+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&num_vehicle="+str(booking.details['num_vehicle'])+"&num_campervan="+str(booking.details['num_campervan'])+"&num_motorcycle="+str(booking.details['num_motorcycle'])+"&num_trailer="+str(booking.details['num_trailer'])+"&num_caravan="+str(booking.details['num_caravan'])+"&gear_type=all&change_booking_id="+str(booking.id)+"';</script>", content_type='text/html')
+                  response = HttpResponse("<script>window.location='/search-availablity/campground/?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details.get('num_adult',0))+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&num_vehicle="+str(booking.details['num_vehicle'])+"&num_campervan="+str(booking.details['num_campervan'])+"&num_motorcycle="+str(booking.details['num_motorcycle'])+"&num_trailer="+str(booking.details['num_trailer'])+"&num_caravan="+str(booking.details.get('num_caravan',0))+"&gear_type=all&change_booking_id="+str(booking.id)+"';</script>", content_type='text/html')
                   return response
          context = {}
          self.template_name = 'ps/search_availabilty_campground_cancel_booking_error.html'

@@ -3,6 +3,11 @@
 {% load forms %}
 {% block content %}
     <div class="container">
+        {% include "ps/modal_loader.html" %}
+        {% include "ps/modal_error.html" %}
+        {% include "ps/modal_booking_vehicle_updates.html" %}
+
+
         <div class="well">
             <input type='hidden' value='disabled' id='site_queue_manager_active'>
             <div class="row">

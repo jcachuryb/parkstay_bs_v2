@@ -42,6 +42,7 @@
 
     <input type='hidden' value='disabled' id='site_queue_manager_active'>
     <form method="POST" name="addBookingForm" @submit.prevent="validate()" novalidate><div class="container">
+
     {% csrf_token %}
 
     <div class="container" style='z-index:1'>
@@ -332,6 +333,7 @@
                                           <div class="col-md-6">
 						Pre-Pay Park Pass
 					  </div>
+
                                        </div>
                                        <div class="row form-group" v-for="(vehicle, index) in vehicles">
                                           <div class="col-md-2">
@@ -424,13 +426,26 @@
 
 						  <span v-if="vehicle[0] == 4">Trailer<span>
 						  </div>
+                                                  <div>
+                                                  <span v-if="vehicle[0] == 5">Caravan<span>
+                                                  </div>
+
                                                   <input class="form-control" v-bind:name="'form-'+Number(index).toString()+'-vehicle_type'" type="hidden" placeholder="Vehicle Type" v-model="vehicle[0]" autocomplete="off"  />
 
                                           </div>
                                           <div class="col-md-4">
                                               <input class="form-control" v-bind:name="'form-'+Number(index).toString()+'-vehicle_rego'" type="text" placeholder="Registration" v-model="vehicle[1]"  v-on:change="updateLocalStorage" autocomplete="off" v-on-keyup="updateVehiclesFees"/>
                                           </div>
-                                          <div class="col-md-6">
+
+                                          <div class="col-md-3">
+                                              <div class="form-check form-switch" v-if="pricing.vehicle">
+                                                   <label class="form-check-label">
+                                                   <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-entry_fee'" type="checkbox" v-model="vehicle[4]" v-on-click="updateVehiclesFees" checked/> Hire car</label>
+                                              </div>
+                                          </div>
+
+
+                                          <div class="col-md-3">
                                               <div class="form-check form-switch" v-if="pricing.vehicle">
                                                    <label class="form-check-label">
                                                    <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-entry_fee'" type="checkbox" v-model="vehicle[2]" v-on-click="updateVehiclesFees" checked/> Pre-pay park entrance fee</label>
@@ -668,8 +683,6 @@
       </div>
     </div>
 
-
-
 {% endif %}
 </div>
 {% endblock %}
@@ -828,7 +841,41 @@
 	                     console.log(input.attr("name"));
 	                     console.log(input.val());
 		});
+	    },
+	    buildVehicleInfo: function() {
+	        console.log("buildVehicleInfo");
+	        console.log(this);
+	        var vm = this;
+		var vehicles=[];
+                if (vm.booking_data.booking_vehicle) {
+                     for (let c = 0; c < vm.booking_data.booking_vehicle.length; c++) {
+			        var row = [];
+	                        var vehicle_type = null;
+	                        if (vm.booking_data.booking_vehicle[c].type == 'vehicle') {
+                                      vehicle_type = 0;
+	                        } 
+	                        if (vm.booking_data.booking_vehicle[c].type == 'motorbike') {
+                                       vehicle_type = 2;
+	                        }
 
+	                        if (vm.booking_data.booking_vehicle[c].type == 'campervan') {
+                                       vehicle_type = 3;
+	                        }
+	                        if (vm.booking_data.booking_vehicle[c].type == 'trailer') {
+                                       vehicle_type = 4;
+	                        }
+	                        if (vm.booking_data.booking_vehicle[c].type == 'caravan') {
+                                       vehicle_type = 5;
+	                        }
+			        row[0] = vehicle_type;
+			        row[1] = vm.booking_data.booking_vehicle[c].rego;
+			        row[2] = vm.booking_data.booking_vehicle[c].entry_fee;
+	                        row[3] = vm.booking_data.booking_vehicle[c].id
+	                        row[4] = vm.booking_data.booking_vehicle[c].hire_car;
+                                vehicles.push(row);
+                     }
+		     vm.vehicles = vehicles;
+                }
 	    },
             get_booking_pricing: function() { 
                 console.log("get_booking_pricing");
@@ -843,6 +890,7 @@
                           vm.booking_data = response;
 	                  vm.calculateTotal();
 			  vm.buildPricingTable();
+                          vm.buildVehicleInfo();
                           console.log(vm.booking_data);
                     },
                     error: function (error) {
@@ -852,6 +900,8 @@
             },
             update_booking: function() {
                 console.log("update booking");
+	        $('#vehicle-popup-error').hide();
+	        $('#vehicle-popup-error').html('');
                 var vm = this;
                 var post_data = {'vehicles': vm.vehicles}
                 $.ajax({
@@ -868,6 +918,9 @@
                           console.log(vm.booking_data);
                     },
                     error: function (error) {
+	                console.log(error.responseJSON.msg.error);
+	                $('#vehicle-popup-error').html(error.responseJSON.msg.error); 
+	                $('#vehicle-popup-error').show();
                         console.log('Error loading booking data');
                     },
                 });

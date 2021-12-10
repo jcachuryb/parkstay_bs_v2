@@ -12,7 +12,18 @@
     </style>
 {% endblock %}
 {% block content %}
+        {% include "ps/modal_loader.html" %}
+        {% include "ps/modal_error.html" %}
+        {% include "ps/modal_booking_vehicle_updates.html" %}
+	
+
     <div class="container">
+
+       <div class="alert alert-danger" role="alert" id='group-flat-error' style='display:none'>
+       </div>
+       <div class="alert alert-success" role="alert" id='group-flat-success' style='display:none'>
+       </div>
+
     <h2>My Bookings</h2>
 
 	    <div class="row">

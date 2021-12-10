@@ -1772,14 +1772,24 @@ class BookingVehicleRego(models.Model):
         ('trailer', 'Trailer'),
         ('caravan', 'Caravan')
     )
+
     booking = models.ForeignKey(Booking, related_name="regos", on_delete=models.CASCADE)
-    rego = models.CharField(max_length=50)
+    rego = models.CharField(max_length=50,blank=True)
     type = models.CharField(max_length=10, choices=VEHICLE_CHOICES)
+    hire_car = models.BooleanField(default=False)
     entry_fee = models.BooleanField(default=False)
     park_entry_fee = models.BooleanField(default=False)
 
-    class Meta:
-        unique_together = ('booking', 'rego')
+    def save(self, *args,**kwargs):
+        print ("SAVING INVOICE")
+        if len(self.rego) > 0:
+             if BookingVehicleRego.objects.filter(booking=self.booking,rego=self.rego).exclude(id=self.id).count() > 0:
+                  raise ValidationError("Rego number must be unique per each vehicle on a booking.");
+
+        super(BookingVehicleRego,self).save(*args,**kwargs)
+
+    #class Meta:
+    #    unique_together = ('booking', 'rego')
 
 
 class ParkEntryRate(models.Model):
