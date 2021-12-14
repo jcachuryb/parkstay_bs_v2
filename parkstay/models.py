@@ -842,6 +842,7 @@ class Campsite(models.Model):
 class ParkstayPermission(models.Model):
       PERMISSION_GROUP = (
           (0, 'Multiple Campsite Selection'),
+          (1, 'Override Price'),
       )
       email = models.CharField(max_length=300)
       permission_group = models.SmallIntegerField(choices=PERMISSION_GROUP, default=0)
@@ -1779,6 +1780,7 @@ class BookingVehicleRego(models.Model):
     hire_car = models.BooleanField(default=False)
     entry_fee = models.BooleanField(default=False)
     park_entry_fee = models.BooleanField(default=False)
+    additional_booking_id = models.IntegerField(null=True, blank=True, default=None)
 
     def save(self, *args,**kwargs):
         print ("SAVING INVOICE")

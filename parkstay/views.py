@@ -179,6 +179,13 @@ class MakeBookingsView(TemplateView):
         #num_concession= request.GET.get('num_concession', 0)
         #num_children= request.GET.get('num_children', 0)
         #num_infants= request.GET.get('num_infants', 0)
+        context['allow_price_override'] = False
+        if request.user.is_authenticated: 
+            if request.user.is_staff is True:
+                 if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=1).count() > 0:
+                      context['allow_price_override'] = True
+
+
         if booking:
             context['cg']['campground_id'] = booking.campground.id
             context['cg']['num_adult'] = booking.details['num_adult']
@@ -236,6 +243,11 @@ class MakeBookingsView(TemplateView):
             pricing['child'] = sum([x['child'] for x in pricing_list.values()])
             pricing['infant'] = sum([x['infant'] for x in pricing_list.values()])
 
+        override_reasons = []
+        if context['allow_price_override'] is True: 
+             override_reasons = parkstay_models.DiscountReason.objects.all()
+       
+
         return render(request, self.template_name, {
             'form': form, 
             'vehicles': vehicles,
@@ -246,7 +258,9 @@ class MakeBookingsView(TemplateView):
             'pricing': pricing,
             'show_errors': show_errors,
             'cg' : context['cg'],
-            'request': request
+            'allow_price_override' : context['allow_price_override'],
+            'request': request,
+            'override_reasons' : override_reasons
         })
 
     def get(self, request, *args, **kwargs):

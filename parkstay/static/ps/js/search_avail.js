@@ -683,8 +683,6 @@ var search_avail = {
 			         }
 
                                  if (append_site == true) {
-                                    console.log(search_avail.var.vehicles['total_vehicles_occupied_space']);
-                                    console.log( campsites[s].max_vehicles);
 				   if (search_avail.var.vehicles['total_vehicles_occupied_space'] > campsites[s].max_vehicles) { 
                                             append_site = false;
 			           }
