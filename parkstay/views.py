@@ -179,6 +179,13 @@ class MakeBookingsView(TemplateView):
         #num_concession= request.GET.get('num_concession', 0)
         #num_children= request.GET.get('num_children', 0)
         #num_infants= request.GET.get('num_infants', 0)
+        context['allow_price_override'] = False
+        if request.user.is_authenticated: 
+            if request.user.is_staff is True:
+                 if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=1).count() > 0:
+                      context['allow_price_override'] = True
+
+
         if booking:
             context['cg']['campground_id'] = booking.campground.id
             context['cg']['num_adult'] = booking.details['num_adult']
@@ -236,6 +243,11 @@ class MakeBookingsView(TemplateView):
             pricing['child'] = sum([x['child'] for x in pricing_list.values()])
             pricing['infant'] = sum([x['infant'] for x in pricing_list.values()])
 
+        override_reasons = []
+        if context['allow_price_override'] is True: 
+             override_reasons = parkstay_models.DiscountReason.objects.all()
+       
+
         return render(request, self.template_name, {
             'form': form, 
             'vehicles': vehicles,
@@ -246,7 +258,9 @@ class MakeBookingsView(TemplateView):
             'pricing': pricing,
             'show_errors': show_errors,
             'cg' : context['cg'],
-            'request': request
+            'allow_price_override' : context['allow_price_override'],
+            'request': request,
+            'override_reasons' : override_reasons
         })
 
     def get(self, request, *args, **kwargs):
@@ -710,7 +724,6 @@ class SearchAvailablityByCampground(TemplateView):
                                              if context_p['PARKSTAY_PERMISSIONS'][0] is True:
                                                  pass
                                              else:
-                                                 print ("MUL ERROR")
                                                  context["error_message"] = "Sorry, you don't have the ability to manage a booking with mulitple sites"
                                        else:
                                            cb.details['selecttype'] = 'single'
@@ -751,10 +764,26 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['campground']['park']['id'] = campground_query.park.id
         context['cg']['campground']['park']['alert_count'] = campground_query.park.alert_count
         context['cg']['campground']['park']['alert_url'] = settings.ALERT_URL
+        context['cg']['campground']['description'] = campground_query.description
+        context['cg']['campground']['about'] = campground_query.about
+        context['cg']['campground']['booking_information'] = campground_query.booking_information
+        context['cg']['campground']['campsite_information'] = campground_query.campsite_information
+        context['cg']['campground']['facilities_information'] = campground_query.facilities_information
+        context['cg']['campground']['campground_rules'] = campground_query.campground_rules
+        context['cg']['campground']['fee_information'] = campground_query.fee_information
+        context['cg']['campground']['health_and_safety_information'] = campground_query.health_and_safety_information
+        context['cg']['campground']['location_information'] = campground_query.location_information
+
         if campground_query.campground_image:
             context['cg']['campground']['campground_image'] = campground_query.campground_image.image_size(1200,800)
         else:
             context['cg']['campground']['campground_image'] = ""
+       
+        context['cg']['campground']['camping_images'] = []
+        campimages = parkstay_models.CampgroundImage.objects.filter(campground_id=campground_query.id)
+        for ci in campimages:
+            context['cg']['campground']['camping_images'].append({ 'image_url': ci.image.url })
+
 
         context['cg']['campground_notices_red'] = 0
         context['cg']['campground_notices_orange'] = 0

@@ -9,6 +9,7 @@ from decimal import Decimal as D
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.contrib.gis import forms
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.db import transaction
@@ -136,8 +137,11 @@ def update_campground_map_filename(instance, filename):
     return 'parkstay/campground_maps/{}/{}'.format(instance.id, filename)
 
 
-class Campground(models.Model):
+class CampgroundGPSAdminForm(forms.ModelForm):
+      wkb_geometry = forms.PointField(widget=forms.OSMWidget(attrs={'display_raw': True}))
 
+class Campground(models.Model):
+    form = CampgroundGPSAdminForm
     CAMPGROUND_TYPE_CHOICES = (
         (0, 'Bookable Online'),
         (1, 'Not Bookable Online'),
@@ -184,6 +188,15 @@ class Campground(models.Model):
     address = JSONField(null=True, blank=True)
     features = models.ManyToManyField('Feature')
     description = models.TextField(blank=True, null=True)
+    about = models.TextField(blank=True, null=True)
+    booking_information = models.TextField(blank=True, null=True)
+    campsite_information = models.TextField(blank=True, null=True)
+    facilities_information = models.TextField(blank=True, null=True)
+    campground_rules = models.TextField(blank=True, null=True)
+    fee_information = models.TextField(blank=True, null=True)
+    health_and_safety_information = models.TextField(blank=True, null=True)
+    location_information = models.TextField(blank=True, null=True)
+
     additional_info = models.TextField(blank=True, null=True)
     area_activities = models.TextField(blank=True, null=True)
 
@@ -842,6 +855,7 @@ class Campsite(models.Model):
 class ParkstayPermission(models.Model):
       PERMISSION_GROUP = (
           (0, 'Multiple Campsite Selection'),
+          (1, 'Override Price'),
       )
       email = models.CharField(max_length=300)
       permission_group = models.SmallIntegerField(choices=PERMISSION_GROUP, default=0)
@@ -1779,6 +1793,7 @@ class BookingVehicleRego(models.Model):
     hire_car = models.BooleanField(default=False)
     entry_fee = models.BooleanField(default=False)
     park_entry_fee = models.BooleanField(default=False)
+    additional_booking_id = models.IntegerField(null=True, blank=True, default=None)
 
     def save(self, *args,**kwargs):
         print ("SAVING INVOICE")

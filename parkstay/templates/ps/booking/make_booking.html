@@ -468,8 +468,8 @@
         </div>
       </div>
     </div>
-
     {% if request.user.is_staff is True %}
+              {% if allow_price_override is True %} 
 
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
@@ -507,7 +507,7 @@
                               </div>
                          </div>
                  </div>
-
+             {% endif %}
          {% endif %}
 
 
@@ -644,7 +644,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="alert alert-danger" role="alert" id='popup-error' style='display:none'>
+            <div class="alert alert-danger" role="alert" id='override-popup-error' style='display:none'>
     
             </div>
     
@@ -666,9 +666,28 @@
                                <tr><td></td></tr>
                                </tbody>
                        </table>
-    
-    
                 </div>
+                 <br><br>
+                 <h6>Override Reason</h6>
+                <div class='col-6'>
+                 <div class='col-12'>
+                <select class="form-control" name="override_reason_selection"><option value=""></option> 
+		{% for o in override_reasons %}
+                    <option value='{{ o.id }}'>{{ o.text }}</option>
+		{% endfor %}
+		</select>
+               </div>
+               <div class='col-12'>
+                     <div class="form-group"><label class="control-label">Override reason detail:</label> <textarea id="override_reason_details" class="form-control"></textarea></div> 
+                </div>
+		<div class='col-12'>
+	
+                      <p class="muted" style="color: red; font-weight: bold;">
+                           Note, these details will show on the customer invoice.
+                      </p>
+	        </div>
+                 </br></br>
+               </div>
     
             </form>
           </div>
@@ -723,6 +742,11 @@
 		    motorcycle: {{ booking.details.num_motorcycle }},
 		    trailer: {{ booking.details.num_trailer }},
 		    caravan: {{ booking.details.num_caravan }}
+	    },
+	    price_override :{
+
+	    },
+	    price_override_admin: { 
 	    },
             perDayFee: 0,
             entryFee: 0,
@@ -836,11 +860,20 @@
 		$('#VehicleModal').modal('show');
 	    },
 	    save_price_override: function() {
+	        var vm = this;
+	        var post_data = {};
 		$("form#override_price :input").each(function(){
 			     var input = $(this); // This is the jquery object of the input, do what you will
+	                     vm.price_override[input.attr("name")] = input.val();
 	                     console.log(input.attr("name"));
 	                     console.log(input.val());
 		});
+
+                vm.price_override_admin['override_reason_selection'] = $("select[name=override_reason_selection]").val();
+	        vm.price_override_admin['override_reason_details'] = $("#override_reason_details").val(); 
+
+	        console.log(vm.price_override);
+	        vm.update_booking();
 	    },
 	    buildVehicleInfo: function() {
 	        console.log("buildVehicleInfo");
@@ -902,8 +935,11 @@
                 console.log("update booking");
 	        $('#vehicle-popup-error').hide();
 	        $('#vehicle-popup-error').html('');
+		$('#override-popup-error').hide();
+		$('#override-popup-error').html('');
+
                 var vm = this;
-                var post_data = {'vehicles': vm.vehicles}
+                var post_data = {'vehicles': vm.vehicles, 'price_override': vm.price_override, 'price_override_admin' : vm.price_override_admin}
                 $.ajax({
                     url: vm.update_booking_url,
                     method: 'POST',
@@ -915,13 +951,25 @@
                           vm.booking_data = response;
                           vm.get_booking_pricing();
 			  $('#VehicleModal').modal('hide');
+			  $('#OverridePriceModal').modal('hide');
                           console.log(vm.booking_data);
                     },
                     error: function (error) {
-	                console.log(error.responseJSON.msg.error);
-	                $('#vehicle-popup-error').html(error.responseJSON.msg.error); 
+			var error_message = "There was unknown error.";
+			if (error.hasOwnProperty('responseJSON') ) { 
+                              if (error.responseJSON.hasOwnProperty('msg') ) {
+                                   if (error.responseJSON.msg.hasOwnProperty('error')) {
+                                        error_message = error.responseJSON.msg.error;
+			           }
+			      }
+
+		        }
+	                $('#vehicle-popup-error').html(error_message); 
 	                $('#vehicle-popup-error').show();
+			$('#override-popup-error').html(error_message);
+			$('#override-popup-error').show();
                         console.log('Error loading booking data');
+		        
                     },
                 });
             },

@@ -10,7 +10,7 @@ from django.db.models import Q
 #from ledger.accounts.models import EmailUser
 from ledger_api_client.ledger_models import EmailUserRO as EmailUser
 from django.http import HttpResponse
-
+from django_summernote.admin import SummernoteModelAdmin
 from copy import deepcopy
 
 admin.site.index_template = 'admin-index.html'
@@ -55,7 +55,8 @@ class CampsiteInline(admin.TabularInline):
     exclude = ['wkb_geometry',]
 
 @admin.register(models.Campground)
-class CampgroundAdmin(admin.GeoModelAdmin):
+class CampgroundAdmin(admin.GeoModelAdmin,SummernoteModelAdmin):
+    summernote_fields = ('about','booking_information','campsite_information','facilities_information','campground_rules','fee_information','health_and_safety_information','location_information')
     list_display = ('name', 'park', 'promo_area', 'campground_type', 'site_type', 'max_advance_booking')
     ordering = ('name',)
     search_fields = ('name',)
@@ -331,7 +332,7 @@ class PlacesAdmin(admin.GeoModelAdmin):
 class CampgroundImage(admin.ModelAdmin):
       list_display = ('campground','image_preview',)
       search_fields = ('campground__name',)
-
+      list_filter = ('campground',)
 @admin.register(models.ParkstayPermission)
 class ParkstayPermissionAdmin(admin.ModelAdmin):
       list_display = ('email','permission_group','active')

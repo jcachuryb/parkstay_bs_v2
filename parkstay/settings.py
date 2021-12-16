@@ -18,6 +18,7 @@ INSTALLED_APPS += [
     'taggit',
     'rest_framework',
     'rest_framework_gis',
+    'django_summernote',
     'ledger_api_client',
 #    'django_site_queue',
 ]

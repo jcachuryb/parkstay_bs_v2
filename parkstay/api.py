@@ -2220,7 +2220,10 @@ def booking_updates(request, *args, **kwargs):
              campsite = booking.campsites.all()[0].campsite if booking else None
 
              vehicles = payload['vehicles']
-             parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
+             price_override = payload['price_override']
+             price_override_admin = payload['price_override_admin']
+
+             #parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
              entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and campsite.campground.park.entry_fee_required) else None
 
              #parkstay_models.BookingVehicleRego.objects.filter(booking=booking).delete()
@@ -2251,6 +2254,7 @@ def booking_updates(request, *args, **kwargs):
                  hire_care = False
                  if v[4] == True:
                      hire_care = True
+
                  bvr = parkstay_models.BookingVehicleRego.objects.get(id=v[3])
                  bvr.booking=booking
                  bvr.rego=v[1]
@@ -2259,12 +2263,66 @@ def booking_updates(request, *args, **kwargs):
                  bvr.hire_car=hire_care
                  bvr.save()
 
-                 parkstay_models.AdditionalBooking.objects.create(booking=booking,
-                                                                      fee_description="Park Entry Fee for "+v[1],
-                                                                      amount=vehicle_entry_fee,
-                                                                      identifier="vehicles",
-                                                                      oracle_code=booking.campground.park.oracle_code
-                                                                  )
+                 if bvr.additional_booking_id:
+                       if entry_fee is False:
+                          parkstay_models.AdditionalBooking.objects.filter(id=bvr.additional_booking_id).delete()
+                          bvr.additional_booking_id = None
+                          bvr.save()
+                       else:
+                          ab_obj = parkstay_models.AdditionalBooking.objects.filter(id=bvr.additional_booking_id)
+                          if ab_obj.count() > 0:
+                                 ab = ab_obj[0]
+                                 ab.fee_description = "Park Entry Fee for "+v[1]
+                                 ab.save() 
+                 else:
+                         if entry_fee is True:
+                             ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                                          fee_description="Park Entry Fee for "+v[1],
+                                                                          amount=vehicle_entry_fee,
+                                                                          identifier="vehicles",
+                                                                          oracle_code=booking.campground.park.oracle_code
+                                                                      )
+                             bvr.additional_booking_id=ab.id
+                             bvr.save()
+
+
+             if price_override:
+                 if request.user.is_authenticated:
+                     if request.user.is_staff is True:
+                          if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=1).count() > 0:
+                                    dr = parkstay_models.DiscountReason.objects.filter(id=int(price_override_admin['override_reason_selection']))
+                                    if dr.count() > 0:
+                                        booking.override_reason = dr[0]
+                                        booking.override_reason_info = price_override_admin['override_reason_details']
+                                        booking.save()
+                                        parkstay_models.AdditionalBooking.objects.filter(identifier='priceoverride').delete()
+                                        ab_or = parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                             fee_description=booking.override_reason.text+" - "+booking.override_reason_info,
+                                                             amount='0.00',
+                                                             identifier="priceoverride",
+                                                             oracle_code=booking.campground.park.oracle_code
+                                                            )
+
+
+                                    for po in price_override:
+                                        if po[0:31] == 'price-override-campsites-adult-':
+                                               po_split = po.split("-")
+                                               priceoverride_campsite_additional_booking_id = po_split[4]
+                                               csb = parkstay_models.CampsiteBooking.objects.get(id=priceoverride_campsite_additional_booking_id)
+                                               csb.amount_adult = price_override['price-override-campsites-adult-'+priceoverride_campsite_additional_booking_id]
+                                               csb.amount_child = price_override['price-override-campsites-child-'+priceoverride_campsite_additional_booking_id]
+                                               csb.amount_infant = price_override['price-override-campsites-infant-'+priceoverride_campsite_additional_booking_id]
+                                               csb.amount_concession = price_override['price-override-campsites-concession-'+priceoverride_campsite_additional_booking_id]
+                                               csb.save()
+                                        if po[0:21] == 'price-override-other-':
+                                               po_split = po.split("-")
+                                               priceoverride_campsite_additional_booking_id = po_split[3]
+                                               if parkstay_models.AdditionalBooking.objects.filter(id=priceoverride_campsite_additional_booking_id).count() > 0:
+                                                  ab = parkstay_models.AdditionalBooking.objects.get(id=priceoverride_campsite_additional_booking_id)
+                                                  ab.amount = price_override[po]
+                                                  ab.save()
+
+
          dumped_data = geojson.dumps({})
          return HttpResponse(dumped_data, content_type='application/json')
     except ValidationError as e:
@@ -2281,7 +2339,7 @@ def booking_updates(request, *args, **kwargs):
 
 def get_booking_pricing(request, *args, **kwargs):
     booking_id = None
-    booking_information = {'campsite_booking': [], 'additional_booking': [], 'booking_vehicle' : [], 'booking': {}, 'old_campsite_booking': [], 'old_additional_booking': [], 'old_booking_vehicle': []}
+    booking_information = {'campsite_booking': [], 'additional_booking': [], 'booking_vehicle' : [], 'booking': {}, 'old_campsite_booking': [], 'old_additional_booking': [], 'old_booking_vehicle': [], 'override_details': {'override_reason_info': '', 'override_reason' : None} }
 
     if 'ps_booking' in request.session:
          booking_id = request.session['ps_booking']
@@ -2289,6 +2347,10 @@ def get_booking_pricing(request, *args, **kwargs):
 
          booking_information['booking']['id'] = booking.id
          booking_information['booking']['cost_total'] = str(booking.cost_total)
+         if booking.override_reason:
+             booking_information['override_details']['override_reason'] = booking.override_reason.id
+             booking_information['override_details']['override_reason_info'] = booking.override_reason_info
+
          old_campsite_booking = []
          old_additional_booking = []
          old_booking_vehicle_rego = []
@@ -2485,7 +2547,6 @@ def create_booking(request, *args, **kwargs):
     # try to create a temporary booking
     try:
         if campsite:
-            print (selecttype)
             booking = None
             if selecttype == 'multiple':
                 print (multiplesites)
@@ -2553,13 +2614,15 @@ def create_booking(request, *args, **kwargs):
                 rego_text = old_bvr_array[0][i]['rego']
                 entry_fee = old_bvr_array[0][i]['entry_fee'] 
 
-            parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='vehicle',entry_fee=entry_fee)
-            parkstay_models.AdditionalBooking.objects.create(booking=booking,
-                                                             fee_description="Park Entry Fee for Vehicle",
-                                                             amount=entry_fees.vehicle,
-                                                             identifier="vehicles",
-                                                             oracle_code=booking.campground.park.oracle_code
-                                                            )
+            bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='vehicle',entry_fee=entry_fee)
+            ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                        fee_description="Park Entry Fee for Vehicle",
+                                                        amount=entry_fees.vehicle,
+                                                        identifier="vehicles",
+                                                        oracle_code=booking.campground.park.oracle_code
+                                                     )
+            bvr.additional_booking_id =ab.id
+            bvr.save()
 
         for i in range(0, num_campervan):
             rego_text = ''
@@ -2568,13 +2631,15 @@ def create_booking(request, *args, **kwargs):
                  rego_text = old_bvr_array[3][i]['rego']
                  entry_fee = old_bvr_array[3][i]['entry_fee']
 
-            parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='campervan',entry_fee=entry_fee)
-            parkstay_models.AdditionalBooking.objects.create(booking=booking,
+            bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='campervan',entry_fee=entry_fee)
+            ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Campervan",
                                                              amount=entry_fees.campervan,
                                                              identifier="vehicles",
                                                              oracle_code=booking.campground.park.oracle_code
                                                             )
+            bvr.additional_booking_id =ab.id
+            bvr.save()
 
         for i in range(0, num_motorcycle):
             rego_text = ''
@@ -2583,13 +2648,15 @@ def create_booking(request, *args, **kwargs):
                  rego_text = old_bvr_array[2][i]['rego']
                  entry_fee = old_bvr_array[2][i]['entry_fee']
 
-            parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='motorbike',entry_fee=entry_fee)
-            parkstay_models.AdditionalBooking.objects.create(booking=booking,
+            bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='motorbike',entry_fee=entry_fee)
+            ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Motorcycle",
                                                              amount=entry_fees.motorbike,
                                                              identifier="vehicles",
                                                              oracle_code=booking.campground.park.oracle_code
                                                             )
+            bvr.additional_booking_id =ab.id
+            bvr.save()
 
         for i in range(0, num_trailer):
             rego_text = ''
@@ -2597,14 +2664,17 @@ def create_booking(request, *args, **kwargs):
             if i in  old_bvr_array[4]:
                 rego_text = old_bvr_array[4][i]['rego']
                 entry_fee = old_bvr_array[4][i]['entry_fee']
+
             # prepopulate entry_fee and park fee@#@@@@@@@@@@@@@@@@@@@@
-            parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='trailer',entry_fee=entry_fee)
-            parkstay_models.AdditionalBooking.objects.create(booking=booking,
+            bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='trailer',entry_fee=entry_fee)
+            ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Trailer",
                                                              amount=entry_fees.trailer,
                                                              identifier="vehicles",
                                                              oracle_code=booking.campground.park.oracle_code
                                                             )
+            bvr.additional_booking_id = ab.id
+            bvr.save()
 
         for i in range(0, num_caravan):
             rego_text = ''
@@ -2613,13 +2683,15 @@ def create_booking(request, *args, **kwargs):
                 rego_text = old_bvr_array[5][i]['rego']
                 entry_fee = old_bvr_array[5][i]['entry_fee']
 
-            parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='caravan',entry_fee=entry_fee)
-            parkstay_models.AdditionalBooking.objects.create(booking=booking,
+            bvr = arkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='caravan',entry_fee=entry_fee)
+            ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Caravan",
                                                              amount=entry_fees.trailer,
                                                              identifier="vehicles",
                                                              oracle_code=booking.campground.park.oracle_code
                                                             )
+            bvr.additional_booking_id =ab.id
+            bvr.save()
 
 
 

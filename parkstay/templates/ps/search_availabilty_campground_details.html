@@ -1,31 +1,74 @@
+
+
+<br>
+
+<!-- The dots/circles -->
+
 <h1>{{ cg.campground.name }}</h1>
-<div >{{ cg.campground.campground_image }}</div>
+<div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel" style='border: 1px solid #e7e7e7; padding: 10px;'>
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
+  </div>
+  <div class="carousel-inner">
+    {% for ci in cg.campground.camping_images %} 
+    <div class="carousel-item {% if forloop.counter == 1 %}active{% endif %}">
+	    <img src="/campground-image/650/1200/?mediafile={{ ci.image_url }}" class="d-block w-100" alt="...">
+    </div>
+    {% endfor %}
+
+
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+
+
 <br>
 <br>
+{% if cg.campground.about|length > 0 %}
+<p>{{ cg.campground.about|safe }}</p>
+{% endif %}
 
-<h5>Campsites suitable for</h5>
-<p>Tents and swags</p>
 
-<h5>Facilites</h5>
-<p></p>
+{% if cg.campground.booking_information|length > 0 %}
+<h5>Booking</h5>
+<p>{{ cg.campground.booking_information|safe }} </p>
+{% endif %}
 
-<h5>Accessibility</h5>
-<p>The surface</p>
+{% if cg.campground.campsite_information|length > 0 %}
+<h5>Campsites</h5>
+<p>{{ cg.campground.campsite_information|safe }}</p>
+{% endif %}
 
-<h5>Campground rules</h5>
-<p>Campfires are not permitted</p>
+{% if cg.campground.facilities_information|length > 0 %}
+<h5>Facilities</h5>
+<p>{{ cg.campground.facilities_information|safe }}</p>
+{% endif %}
 
-<h5>Fees</h5>
-<p>A per person</p>
-
-<h5>Your safety and health</h5>
-<p>Drinking water</p>
-
-<h5>Location</h5>
-LOCATION MAP
-
+{% if cg.campground.campground_rules|length > 0 %}
 <h5>Campground Rules</h5>
-<p>Campfires are permitted</p>
+<p>{{ cg.campground.campground_rules|safe }}</p>
+{% endif %}
 
+{% if cg.campground.fee_information|length > 0 %}
+<h5>Fees</h5>
+<p>{{ cg.campground.fee_information|safe }}</p>
+{% endif %}
 
+{% if cg.campground.health_and_safety_information|length > 0 %}
+<h5>Your safety and health</h5>
+<p>{{ cg.campground.health_and_safety_information|safe }}</p>
+{% endif %}
 
+{% if cg.campground.location_information|length > 0 %}
+<h5>Location </h5>
+<p>{{ cg.campground.location_information|safe }}</p>
+{% endif %}
