@@ -724,7 +724,6 @@ class SearchAvailablityByCampground(TemplateView):
                                              if context_p['PARKSTAY_PERMISSIONS'][0] is True:
                                                  pass
                                              else:
-                                                 print ("MUL ERROR")
                                                  context["error_message"] = "Sorry, you don't have the ability to manage a booking with mulitple sites"
                                        else:
                                            cb.details['selecttype'] = 'single'
@@ -765,10 +764,26 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['campground']['park']['id'] = campground_query.park.id
         context['cg']['campground']['park']['alert_count'] = campground_query.park.alert_count
         context['cg']['campground']['park']['alert_url'] = settings.ALERT_URL
+        context['cg']['campground']['description'] = campground_query.description
+        context['cg']['campground']['about'] = campground_query.about
+        context['cg']['campground']['booking_information'] = campground_query.booking_information
+        context['cg']['campground']['campsite_information'] = campground_query.campsite_information
+        context['cg']['campground']['facilities_information'] = campground_query.facilities_information
+        context['cg']['campground']['campground_rules'] = campground_query.campground_rules
+        context['cg']['campground']['fee_information'] = campground_query.fee_information
+        context['cg']['campground']['health_and_safety_information'] = campground_query.health_and_safety_information
+        context['cg']['campground']['location_information'] = campground_query.location_information
+
         if campground_query.campground_image:
             context['cg']['campground']['campground_image'] = campground_query.campground_image.image_size(1200,800)
         else:
             context['cg']['campground']['campground_image'] = ""
+       
+        context['cg']['campground']['camping_images'] = []
+        campimages = parkstay_models.CampgroundImage.objects.filter(campground_id=campground_query.id)
+        for ci in campimages:
+            context['cg']['campground']['camping_images'].append({ 'image_url': ci.image.url })
+
 
         context['cg']['campground_notices_red'] = 0
         context['cg']['campground_notices_orange'] = 0

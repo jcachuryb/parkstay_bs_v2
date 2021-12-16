@@ -78,6 +78,7 @@ api_patterns = [
 # URL Patterns
 urlpatterns = [
     path(r'admin/', admin.site.urls),
+    path('summernote/', include('django_summernote.urls')),
     url(r'^login/', LoginView.as_view(),name='login'),
     url(r'^logout/$', LogoutView.as_view(), {'next_page': '/'}, name='logout'),
     #url(r'^logout/$', LogoutView.as_view(), {'next_page': settings.LOGOUT_REDIRECT_URL}, name='logout'),
@@ -90,8 +91,8 @@ urlpatterns = [
     url(r'^search-availablity/information/', views.SearchAvailablity.as_view(), name='search_availablity_information'),
     url(r'^search-availablity/campground/', views.SearchAvailablityByCampground.as_view(), name='search_availablity_campground'),
     url(r'^campsites/(?P<ground_id>[0-9]+)/$', views.CampsiteBookingSelector.as_view(), name='campsite_booking_selector'),
-    url(r'^availability/$', views.CampsiteAvailabilitySelector.as_view(), name='campsite_availaiblity_selector'),
-    url(r'^availability_admin/$', views.AvailabilityAdmin.as_view(), name='availability_admin'),
+    #url(r'^availability/$', views.CampsiteAvailabilitySelector.as_view(), name='campsite_availaiblity_selector'),
+    #url(r'^availability_admin/$', views.AvailabilityAdmin.as_view(), name='availability_admin'),
     #url(r'^ical/campground/(?P<ground_id>[0-9]+)/$', views.CampgroundFeed(), name='campground_calendar'),
     url(r'^dashboard/peak-periods/$', views.PeakPeriodGroup.as_view(), name='dash-peak-periods'),
     url(r'^dashboard/booking-policy/$', views.BookingPolicy.as_view(), name='dash-booking-policy'),
