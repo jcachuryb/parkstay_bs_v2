@@ -157,11 +157,23 @@ def abort_booking_view(request, *args, **kwargs):
         utils.delete_session_booking(request.session)
         if change:
             # Redirect to the availability screen
-            return redirect(reverse('campsite_availaiblity_selector') + '?site_id={}&arrival={}&departure={}'.format(c_id, arrival.strftime('%Y/%m/%d'), departure.strftime('%Y/%m/%d')))
+            arrival_date = booking.arrival.strftime("%Y/%m/%d")
+            departure_date = booking.departure.strftime("%Y/%m/%d")
+
+            old_booking_data_url = ""
+            booking_data_url = "?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details.get('num_adult',0))+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&num_vehicle="+str(booking.details['num_vehicle'])+"&num_campervan="+str(booking.details['num_campervan'])+"&num_motorcycle="+str(booking.details['num_motorcycle'])+"&num_trailer="+str(booking.details['num_trailer'])+"&num_caravan="+str(booking.details.get('num_caravan',0))+"&gear_type=all"
+
+            if booking.old_booking is not None:
+                if int(booking.old_booking) > 0:
+                    old_booking_data_url = "&change_booking_id="+str(booking.old_booking)
+            return redirect(reverse('search_availablity_campground') + booking_data_url + old_booking_data_url)
+            #return redirect(reverse('search_availablity_campground') + '?site_id={}&arrival={}&departure={}'.format(c_id, arrival.strftime('%Y/%m/%d'), departure.strftime('%Y/%m/%d')))
         else:
             # Redirect to explore parks
-            return redirect(settings.EXPLORE_PARKS_URL+'/park-stay')
+            return redirect(settings.EXPLORE_PARKS_URL)
     except Exception as e:
+        print ("EXCEPTION in booking abort")
+        print (e)
         pass
     return redirect('public_make_booking')
 
@@ -197,7 +209,6 @@ class MakeBookingsView(TemplateView):
 
             context['cg']['nights'] = delta.days 
 
-
             context = booking_availability.campground_booking_information(context, booking.campground.id)
 
         #campground_query = Campground.objects.get(id=context['cg']['campground_id'])
@@ -216,8 +227,6 @@ class MakeBookingsView(TemplateView):
         #context['cg']['campground_notices_red'] = 0
         #context['cg']['campground_notices_orange'] = 0
         #context['cg']['campground_notices_blue'] = 0
-
-
 
         expiry = booking.expiry_time.isoformat() if booking else ''
         timer = (booking.expiry_time-timezone.now()).seconds if booking else -1
@@ -306,7 +315,6 @@ class MakeBookingsView(TemplateView):
 
         #booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
 
-
         if request.user.is_authenticated:
             if request.user.is_staff:
         #if request.user.is_anonymous:
@@ -315,6 +323,9 @@ class MakeBookingsView(TemplateView):
                 form = MakeBookingsForm(request.POST)
         else:
             form = MakeBookingsForm(request.POST)
+        
+        print ("POST")
+        print (request.POST)
         vehicles = VehicleInfoFormset(request.POST)   
         
         # re-render the page if there's no booking in the session
@@ -324,6 +335,18 @@ class MakeBookingsView(TemplateView):
         # re-render the page if the form doesn't validate
         if (not form.is_valid()) or (not vehicles.is_valid()):
             return self.render_page(request, booking, form, vehicles, show_errors=True)
+
+
+        bvr = BookingVehicleRego.objects.filter(booking=booking)
+        vehicle_errors = False
+        for v in bvr:
+            if len(v.rego) == 0 and v.hire_car is False:
+                 vehicle_errors = True
+                 form.add_error(None, 'Vehicle is missing rego.')
+
+        if vehicle_errors is True:
+            return self.render_page(request, booking, form, vehicles, show_errors=True)
+
         # update the booking object with information from the form
         if not booking.details:
             booking.details = {}
@@ -342,6 +365,15 @@ class MakeBookingsView(TemplateView):
 
         # update vehicle registrations from form
         VEHICLE_CHOICES = {'0': 'vehicle', '1': 'concession', '2': 'motorbike', '3': 'campervan', '4': 'trailer', '5': 'caravan'}
+
+
+
+        #for vehicle in vehicles:
+        #     rego = vehicle.cleaned_data.get('vehicle_rego')
+        #     type=VEHICLE_CHOICES[vehicle.cleaned_data.get('vehicle_type')]
+        #     entry_fee=vehicle.cleaned_data.get('entry_fee').exists()
+             
+
         #BookingVehicleRego.objects.filter(booking=booking).delete()
         #for vehicle in vehicles:
         #    obj_check = BookingVehicleRego.objects.filter(booking = booking,
@@ -789,7 +821,7 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['campground_notices_orange'] = 0
         context['cg']['campground_notices_blue'] = 0
 
-        campground_notices_query = CampgroundNotice.objects.filter(campground_id=campground_id)
+        campground_notices_query = CampgroundNotice.objects.filter(campground_id=campground_id).order_by("order")
         
         campground_notices_array = []
         for cnq in campground_notices_query:
@@ -797,7 +829,6 @@ class SearchAvailablityByCampground(TemplateView):
                    context['cg']['campground_notices_red'] = context['cg']['campground_notices_red'] + 1
                if cnq.notice_type == 1:
                    context['cg']['campground_notices_orange'] = context['cg']['campground_notices_orange'] + 1
-
                if cnq.notice_type == 2:
                    context['cg']['campground_notices_blue'] = context['cg']['campground_notices_blue'] + 1
 
