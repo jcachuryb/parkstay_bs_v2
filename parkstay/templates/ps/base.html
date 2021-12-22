@@ -65,26 +65,24 @@ MENU 2
             {% else %}
             <li class="nav-item"><a class="nav-link active" href="{% url 'search_availablity_information'%}">Search for a place to stay</a></li>
             {% endif %}
-
-
 {%endblock %}
 
 {% block menu_extra_dropdown_staff_top %}
-     <li><a  class="dropdown-item" href="/dashboard/reports">Reports</a></li>
+     <li><a  class="dropdown-item" href="{{ LEDGER_UI_URL }}/reports?system_id={{ LEDGER_SYSTEM_ID }} ">Financial Reports</a></li>
+     <li><a  class="dropdown-item" href="/dashboard/reports">Parkstay Reports(NOT FINISHED)</a></li>
      <li><hr class="dropdown-divider"></li>
      <li><a  class="dropdown-item" href="/dashboard/booking-policy/">Manage Booking Policies</a></li>
      <li><a  class="dropdown-item" href="/dashboard/peak-periods/">Manage Peak Groups</a></li>
-
 {% endblock %}         
 
 {% block menu_extra_dropdown_bottom %}
-<li><a  class="dropdown-item" href="{% url 'account' %}">Manage Account</a></li>
+     <li><a  class="dropdown-item" href="{% url 'account' %}">Manage Account</a></li>
 {% endblock %}
 
 
-   {% block menu_spacer %}
-    <BR>
-   {% endblock %}
+{% block menu_spacer %}
+ <BR>
+{% endblock %}
 
 
 

@@ -422,6 +422,7 @@ class CampgroundNotice(models.Model):
        campground = models.ForeignKey(Campground, related_name='campground_notice', on_delete=models.CASCADE)
        notice_type = models.IntegerField(choices=NOTICE_TYPE,default=0)
        message = models.CharField(max_length=70, null=True, blank=True, default='')
+       order = models.IntegerField(default=1)
        created = models.DateTimeField(auto_now_add=True)
 
        def __str__(self):

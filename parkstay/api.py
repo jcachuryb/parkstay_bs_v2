@@ -2272,12 +2272,21 @@ def booking_updates(request, *args, **kwargs):
                           ab_obj = parkstay_models.AdditionalBooking.objects.filter(id=bvr.additional_booking_id)
                           if ab_obj.count() > 0:
                                  ab = ab_obj[0]
-                                 ab.fee_description = "Park Entry Fee for "+v[1]
+                                 if hire_care is True and len(v[1]) == 0:
+                                      ab.fee_description = "Park Entry Fee for 'HIRE CAR'"
+                                 else:
+                                      ab.fee_description = "Park Entry Fee for "+v[1]
+
+
                                  ab.save() 
                  else:
                          if entry_fee is True:
+                             vh = v[1]
+                             if hire_care is True and len(vh) == 0:
+                                  vh = "'HIRE CAR'"
+
                              ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
-                                                                          fee_description="Park Entry Fee for "+v[1],
+                                                                          fee_description="Park Entry Fee for "+vh,
                                                                           amount=vehicle_entry_fee,
                                                                           identifier="vehicles",
                                                                           oracle_code=booking.campground.park.oracle_code
