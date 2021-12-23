@@ -158,7 +158,7 @@
                        </div>
                        <div>
 
-                       <div v-html="f.description.slice(0,55)" class='slick-slide-description'></div>
+                       <div v-if="f.park_name" v-html="f.park_name.slice(0,55)" class='slick-slide-description'></div>
                           <div v-if="f.available_campsites > 0" v-show="item=='item'" class="slick-slide-available-sites">Available Sites: {{ f.available_campsites }} </div>
                           <div v-if="f.available_campsites < 1" v-show="item=='item'" class="slick-slide-noavailable-sites" >No availabilty found</div>
                        <p v-if="f.price_hint && Number(f.price_hint)"><i><small>From ${{ f.price_hint }} per night</small></i></p>
@@ -246,6 +246,7 @@ margin: auto;
 }
 .slick-slide-description {
     height: 74px;
+    font-size: 12px;
 }
 .slick-slide-noavailable-sites {
     color:red;
@@ -1049,7 +1050,10 @@ export default {
                      var campsites = el.properties.campsites;
                      var campsites_total = el.properties.campsites.length;
                      var info_url = el.properties.info_url;
-
+                     var park_name = '';
+                     if (el.properties.park ) {
+                           park_name = el.properties.park.name
+                     }
 
                      // Tier 1 Filter Start
 
@@ -1105,7 +1109,7 @@ export default {
                           }
                      } 
 
-                     var row = {'id': null,'campground_name': '', 'distance': null, 'description': null, 'price_hint': '', 'images': [], 'campground_type': null, 'available_campsites': 0, 'info_url': null};
+                     var row = {'id': null,'campground_name': '', 'distance': null, 'description': null, 'price_hint': '', 'images': [], 'campground_type': null, 'available_campsites': 0, 'info_url': null, 'park_name': park_name};
                            
                      row['description'] = description;
                      row['images'] = images;
@@ -1115,6 +1119,8 @@ export default {
                      row['distance'] = vm.distance_between_gps(coord_1,coord_2,geo[0],geo[1],"K").toFixed(2);
                      row['available_campsites'] = campsites_total;
                      row['info_url'] = info_url;
+                     row['park_name'] = park_name;
+                     
 
                      row['campground_name'] = campground_name; 
                      if (campground_name) {
