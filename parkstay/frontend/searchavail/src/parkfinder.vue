@@ -159,8 +159,8 @@
                        <div>
 
                        <div v-html="f.description.slice(0,55)" class='slick-slide-description'></div>
-                       <div v-if="f.available_campsites > 0" class="slick-slide-available-sites">Available Sites: {{ f.available_campsites }} </div>
-                       <div v-if="f.available_campsites < 1" class="slick-slide-noavailable-sites" >No availabilty found</div>
+                          <div v-if="f.available_campsites > 0" v-show="item=='item'" class="slick-slide-available-sites">Available Sites: {{ f.available_campsites }} </div>
+                          <div v-if="f.available_campsites < 1" v-show="item=='item'" class="slick-slide-noavailable-sites" >No availabilty found</div>
                        <p v-if="f.price_hint && Number(f.price_hint)"><i><small>From ${{ f.price_hint }} per night</small></i></p>
                        <!-- This line has to be changed to use a v-if/else clause
                         Changed again to utilize changes in api to further enable forwarding offline sites to availability app
