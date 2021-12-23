@@ -32,6 +32,6 @@ def parkstay_url(request):
         'QUEUE_ACTIVE_HOSTS' : settings.QUEUE_ACTIVE_HOSTS,
         'LEDGER_UI_URL' : settings.LEDGER_UI_URL,
         'PARKSTAY_PERMISSIONS' : parkstay_permissions,
-        'template_group' : 'parks',
+        'template_group' : 'parksv2',
         'LEDGER_SYSTEM_ID' : settings.PS_PAYMENT_SYSTEM_ID.replace("S","0")
     }
