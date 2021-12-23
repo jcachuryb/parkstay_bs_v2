@@ -831,24 +831,31 @@ var search_avail = {
 				    buttondatamany['selecttype'] = 'multiple';
                                     var databutton = JSON.stringify(buttondata);
 				    var databuttonmany = JSON.stringify(buttondatamany);
+			            var cs_status = 'unknown';
 				    if (append_site == true) {
                                          if (search_avail.var.mcs_enabled == true) { 
 					 if (search_avail.var.multiplesites.indexOf(campsites[s].id) !== -1) {
+					    cs_status = 'selected';
                                             campsitehtml = campsitehtml + "<button type='button' class='btn btn-warning' id='bookingcampsite' data-button='"+databuttonmany+"'   onclick='search_avail.delete_multiple_site(this)' +key_id++site_type+ ><i class='bi bi-check-circle-fill'></i> UNSELECT</button>&nbsp;";
 					 } else {
 					     campsitehtml = campsitehtml + "<button type='button' class='btn btn-primary' id='bookingcampsite' data-button='"+databuttonmany+"'   onclick='search_avail.select_multiple_site(this)' +key_id++site_type+ >Select</button>&nbsp;";
 					 }
                                          } else {
                                              campsitehtml = campsitehtml + "<button type='button' class='btn btn-success' id='bookingcampsite' data-button='"+databutton+"'   onclick='search_avail.create_booking(this)' +key_id++site_type+ >Book Now</button>";
+				             cs_status = 'free';
+					     
                                          }
 				    } else {
 					 campsitehtml = campsitehtml + "<button type='button' class='btn btn-secondary avail-font-bold' id='bookingcampsite' >NO MATCH</button>";
+					 cs_status = 'nomatch';
 				    }
 				} else {
 				    if (append_site == true) {
 				        campsitehtml = campsitehtml + "<button type='button' class='btn btn-danger avail-font-bold' id='bookingcampsite' >Not Available</button>";
+					cs_status = 'notavailable';
 				    } else {
 					campsitehtml = campsitehtml + "<button type='button' class='btn btn-secondary avail-font-bold' id='bookingcampsite' >NO MATCH</button>";
+					cs_status = 'noavailablenotmatch';
 				    }
 				}
                                
@@ -898,19 +905,21 @@ var search_avail = {
 			        } else {
 				     if (append_site == true) {
 				     	if (campsite_available == true) {
-   				     	     campsitehtmlbefore= campsitehtmlbefore + campsitehtml;
+   				     	      campsitehtmlbefore= campsitehtmlbefore + campsitehtml;
 				     	} else {
-                                                  campsitehtmlafter= campsitehtmlafter + campsitehtml;
+					      campsitehtmlmiddlestart= campsitehtmlmiddlestart + campsitehtml;
+                                             //     campsitehtmlafter= campsitehtmlafter + campsitehtml;
 				     	}
 				     } else {
 				     	 if (campsite_available == true) {
-				     		campsitehtmlmiddlestart= campsitehtmlmiddlestart + campsitehtml;
+						campsitehtmlafter= campsitehtmlafter + campsitehtml;
+				     	        // campsitehtmlmiddlestart= campsitehtmlmiddlestart + campsitehtml;
 				              } else {
                                                       campsitehtmlmiddleend= campsitehtmlmiddleend + campsitehtml;
 				              }
 
-				     	 //campsitehtmlmiddle= campsitehtmlmiddle + campsitehtml;
-				     }
+				     	 ////campsitehtmlmiddle= campsitehtmlmiddle + campsitehtml;
+				       }
 				}
 		            }
 			    var campsiteresultserror = "";
