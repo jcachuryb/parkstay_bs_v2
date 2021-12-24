@@ -2226,6 +2226,7 @@ def booking_updates(request, *args, **kwargs):
              #parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
              entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and campsite.campground.park.entry_fee_required) else None
 
+             entry_fee_required = campsite.campground.park.entry_fee_required
              #parkstay_models.BookingVehicleRego.objects.filter(booking=booking).delete()
 
              vehicle_entry_fee = '0.00'
@@ -2233,19 +2234,24 @@ def booking_updates(request, *args, **kwargs):
                  #if v[2] is True:
                  vehicle_type=''
                  if v[0] == 0:
-                     vehicle_entry_fee = entry_fees.vehicle
+                     if entry_fee_required:
+                         vehicle_entry_fee = entry_fees.vehicle
                      vehicle_type='vehicle'
                  if v[0] == 2:
-                     vehicle_entry_fee = entry_fees.motorbike
+                     if entry_fee_required:
+                         vehicle_entry_fee = entry_fees.motorbike
                      vehicle_type='motorbike'
                  if v[0] == 3:
-                     vehicle_entry_fee = entry_fees.campervan
+                     if entry_fee_required:
+                         vehicle_entry_fee = entry_fees.campervan
                      vehicle_type='campervan'
                  if v[0] == 4:
-                     vehicle_entry_fee = entry_fees.trailer
+                     if entry_fee_required:
+                         vehicle_entry_fee = entry_fees.trailer
                      vehicle_type='trailer'
                  if v[0] == 5:
-                     vehicle_entry_fee = entry_fees.caravan 
+                     if entry_fee_required:
+                         vehicle_entry_fee = entry_fees.caravan 
                      vehicle_type='caravan'
                      
                  entry_fee = False
@@ -2262,9 +2268,10 @@ def booking_updates(request, *args, **kwargs):
                  bvr.entry_fee=entry_fee
                  bvr.hire_car=hire_care
                  bvr.save()
-
+                 print ("P ENTRY")
+                 print (entry_fee_required)
                  if bvr.additional_booking_id:
-                       if entry_fee is False:
+                       if entry_fee is False or entry_fee_required is False:
                           parkstay_models.AdditionalBooking.objects.filter(id=bvr.additional_booking_id).delete()
                           bvr.additional_booking_id = None
                           bvr.save()
@@ -2280,7 +2287,8 @@ def booking_updates(request, *args, **kwargs):
 
                                  ab.save() 
                  else:
-                         if entry_fee is True:
+                         print (entry_fee)
+                         if entry_fee is True and entry_fee_required is True:
                              vh = v[1]
                              if hire_care is True and len(vh) == 0:
                                   vh = "'HIRE CAR'"
@@ -2592,7 +2600,7 @@ def create_booking(request, *args, **kwargs):
         booking_campsite = booking.campsites.all()[0].campsite if booking else None
         parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
         entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and booking_campsite.campground.park.entry_fee_required) else None
-     
+
         old_bvr_array = []
         old_bvr_array = {0 : {},1: {},2:{},3:{},4:{},5:{}}
         if booking.old_booking:
@@ -2614,6 +2622,7 @@ def create_booking(request, *args, **kwargs):
                  if t.type == 'caravan':
                      old_bvr_array[5][old_bvr_count['caravan']] =  {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee}
                      old_bvr_count['caravan'] = old_bvr_count['caravan'] + 1
+        entry_fee_required = booking_campsite.campground.park.entry_fee_required
 
         parkstay_models.BookingVehicleRego.objects.filter(booking=booking).delete()
         for i in range(0, num_vehicle):
@@ -2622,11 +2631,13 @@ def create_booking(request, *args, **kwargs):
             if i in  old_bvr_array[0]:
                 rego_text = old_bvr_array[0][i]['rego']
                 entry_fee = old_bvr_array[0][i]['entry_fee'] 
-
+            entry_fee_amount = '0.00'
+            if entry_fee_required:
+                   entry_fee_amount = entry_fees.vehicle
             bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='vehicle',entry_fee=entry_fee)
             ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                         fee_description="Park Entry Fee for Vehicle",
-                                                        amount=entry_fees.vehicle,
+                                                        amount=entry_fee_amount,
                                                         identifier="vehicles",
                                                         oracle_code=booking.campground.park.oracle_code
                                                      )
@@ -2640,10 +2651,14 @@ def create_booking(request, *args, **kwargs):
                  rego_text = old_bvr_array[3][i]['rego']
                  entry_fee = old_bvr_array[3][i]['entry_fee']
 
+            entry_fee_amount = '0.00'
+            if entry_fee_required:
+                entry_fee_amount = entry_fees.campervan
+
             bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='campervan',entry_fee=entry_fee)
             ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Campervan",
-                                                             amount=entry_fees.campervan,
+                                                             amount=entry_fee_amount,
                                                              identifier="vehicles",
                                                              oracle_code=booking.campground.park.oracle_code
                                                             )
@@ -2656,11 +2671,15 @@ def create_booking(request, *args, **kwargs):
             if i in  old_bvr_array[2]:
                  rego_text = old_bvr_array[2][i]['rego']
                  entry_fee = old_bvr_array[2][i]['entry_fee']
+            
+            entry_fee_amount = '0.00'
+            if entry_fee_required:
+                entry_fee_amount = entry_fees.motorbike
 
             bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='motorbike',entry_fee=entry_fee)
             ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Motorcycle",
-                                                             amount=entry_fees.motorbike,
+                                                             amount=entry_fee_amount,
                                                              identifier="vehicles",
                                                              oracle_code=booking.campground.park.oracle_code
                                                             )
@@ -2674,11 +2693,15 @@ def create_booking(request, *args, **kwargs):
                 rego_text = old_bvr_array[4][i]['rego']
                 entry_fee = old_bvr_array[4][i]['entry_fee']
 
+            entry_fee_amount = '0.00'
+            if entry_fee_required:
+                entry_fee_amount = entry_fees.trailer
+
             # prepopulate entry_fee and park fee@#@@@@@@@@@@@@@@@@@@@@
             bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='trailer',entry_fee=entry_fee)
             ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Trailer",
-                                                             amount=entry_fees.trailer,
+                                                             amount=entry_fee_amount,
                                                              identifier="vehicles",
                                                              oracle_code=booking.campground.park.oracle_code
                                                             )
@@ -2692,10 +2715,14 @@ def create_booking(request, *args, **kwargs):
                 rego_text = old_bvr_array[5][i]['rego']
                 entry_fee = old_bvr_array[5][i]['entry_fee']
 
+            entry_fee_amount = '0.00'
+            if entry_fee_required:
+                entry_fee_amount = entry_fees.caravan
+
             bvr = arkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='caravan',entry_fee=entry_fee)
             ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                              fee_description="Park Entry Fee for Caravan",
-                                                             amount=entry_fees.trailer,
+                                                             amount=entry_fee_amount,
                                                              identifier="vehicles",
                                                              oracle_code=booking.campground.park.oracle_code
                                                             )
@@ -3039,16 +3066,10 @@ class BookingViewSet(viewsets.ModelViewSet):
             # Filter Campground based on permissions
             cg_query = Q()
             for cg in campground_groups:
-                 #print ('START')
                  c = cg.campgrounds.all()
                  for d in c:
-                     #print (d.id)
                      cg_query |= Q(campground__id=d.id)
-                 #print ("CG")
-                 #print (cg_query)
             booking_query &= Q(cg_query)
-                 #print (booking_query)
-                 #booking_query &= Q(campground__id=cg['campgrounds__id'])
 
             ########################################
 
@@ -3120,7 +3141,6 @@ class BookingViewSet(viewsets.ModelViewSet):
                 filteredResults = []
                 rowcount = 0
                 for b in bookings:
-                      
                       editable = False
                       today = datetime.now().date()
                       discount = float('0.00')

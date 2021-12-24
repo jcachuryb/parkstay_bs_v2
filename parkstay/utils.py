@@ -467,7 +467,6 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None, o
             results[b.campsite.pk][b.date][0] = 'closed & booked'
         else:
             results[b.campsite.pk][b.date][0] = 'booked'
-
     # strike out days before today
     today = date.today()
     if start_date < today:
@@ -1510,7 +1509,7 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
 
     checkouthash = request.session.get('checkouthash','')
     #basket, basket_hash = use_existing_basket_from_invoice('00193349270')
-
+    
     checkout_params = {
         'system': settings.PS_PAYMENT_SYSTEM_ID,
         'fallback_url': request.build_absolute_uri('/'),
@@ -1519,7 +1518,8 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'force_redirect': True,
         'proxy': True if internal else False,
         'invoice_text': invoice_text,
-        'session_type' : 'ledger_api'
+        'session_type' : 'ledger_api',
+        'basket_owner' : booking.customer.id 
         #'amount_override': float('1.00')
     }
 
