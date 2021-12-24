@@ -306,7 +306,7 @@ export default {
               var booking = JSON.stringify(full);
               var invoices = "";
               var invoice =
-                "/ledger/payments/invoice/" + full.invoice_reference;
+                "/ledger-toolkit-api/invoice-pdf/" + full.invoice_reference;
               var invoice_link = full.invoice_reference
                 ? "<a href='" +
                   invoice +
@@ -365,7 +365,7 @@ export default {
                 : "";
               $.each(full.active_invoices, (i, v) => {
                 invoices +=
-                  "<a href='/ledger/payments/invoice-pdf/" +
+                  "<a href='/ledger-toolkit-api/invoice-pdf/" +
                   v +
                   "' target='_blank' class='text-primary'><i style='color:red;' class='fa fa-file-pdf-o'></i>&nbsp #" +
                   v +

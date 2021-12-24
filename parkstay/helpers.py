@@ -43,10 +43,10 @@ def get_all_officers():
     return EmailUser.objects.filter(groups__name='Parkstay Officers')
 
 def can_view_campground(user, campground):
+    # REVIEW FORE CACHING
     allowed_groups = parkstay_models.CampgroundGroupMembers.objects.filter(emailuser_id=user.id)
     for g in campground.campgroundgroup_set.all():
         for m in allowed_groups:
-            print (m.emailuser_id)
             if g.id == m.campgroundgroup_id:
                 return True
         #if g.id == 3:

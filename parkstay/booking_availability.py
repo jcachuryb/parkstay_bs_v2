@@ -129,7 +129,7 @@ def not_bookable_online(ongoing_booking,ground,start_date,end_date,num_adult,num
 
 def json_serial(obj):
     if isinstance(obj, (datetime, date)):
-        print (obj.isoformat())
+        #print (obj.isoformat())
         return str(obj.isoformat())
     if isinstance(obj, Decimal):
         return str(obj)
@@ -244,7 +244,6 @@ def get_visit_rates(campground_id, campsites_array, start_date, end_date):
 
 def get_campground_booking_range_is_open(campground_id, start_date):
     print ("get_campground_booking_range_is_open:"+str(campground_id))
-    print (start_date)
     cgbr_cl = get_campground_booking_range(campground_id, 0)
     for c in cgbr_cl:
         end_date = start_date + timedelta(days=1)
@@ -435,7 +434,6 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
                 results[b.campsite.pk][b.date][0] = 'closed & booked'
             else:
                 results[b.campsite.pk][b.date][0] = 'booked'
-
 
 
     # strike out days before today
