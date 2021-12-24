@@ -42,6 +42,7 @@
 
         </div>
 	{% endif %}
+
                  {% if change_booking %}
                  <div class="alert alert-info d-flex align-items-center" role="alert">
                    <div>
@@ -53,16 +54,17 @@
                  </div>
 		 {% endif %}
 
-<ul class="nav nav-pills ">
-  <li class="nav-item">
-    <a class="nav-link active" id='campsite-booking-tab' aria-current="page" href="#" onclick="search_avail.change_tabs('campsite-booking');" >BOOKING</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" id='campground-details-tab' href="#" onclick="search_avail.change_tabs('campground-details');" >CAMPGROUND DETAILS</a>
-  </li>
-</ul>
-<div id='campsite-booking'>
-<br>
+        <ul class="nav nav-pills ">
+          <li class="nav-item">
+            <a class="nav-link active" id='campsite-booking-tab' aria-current="page" href="#" onclick="search_avail.change_tabs('campsite-booking');" >BOOKING</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id='campground-details-tab' href="#" onclick="search_avail.change_tabs('campground-details');" >CAMPGROUND DETAILS</a>
+          </li>
+        </ul>
+
+        <div id='campsite-booking'>
+        <br>
         <div class="row">
 	    {% if cg.campground_notices|length > 0 %}
             <div class="col-lg-12 ">
@@ -536,6 +538,14 @@
 		  </div>
 		  <br>
 		  {% endif %}
+		   <div class="row">
+			   <div class="col-6">
+			   </div> 
+			   <div class="col-6 text-end">
+				   <i class="bi bi-map-fill" style='color:#B8591F'></i> <A href='/media/{{ cg.campground.campground_map }}' target='campground_map_{{ cg.campground.id }}' style='text-decoration: none;'>View Map</a>
+			   </div>
+		   </div>
+
                   <div id='campsite-availablity' class="round-box col-12 px-3" istyle='float:left; '>
                           <div class="col-12" id='campsite-availablity-results'>
                                 Campsites

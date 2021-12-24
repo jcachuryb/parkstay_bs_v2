@@ -805,6 +805,7 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['campground']['fee_information'] = campground_query.fee_information
         context['cg']['campground']['health_and_safety_information'] = campground_query.health_and_safety_information
         context['cg']['campground']['location_information'] = campground_query.location_information
+        context['cg']['campground']['campground_map'] = campground_query.campground_map
 
         if campground_query.campground_image:
             context['cg']['campground']['campground_image'] = campground_query.campground_image.image_size(1200,800)
