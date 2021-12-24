@@ -618,10 +618,10 @@ class BookingSuccessView(TemplateView):
                 return response
             booking = utils.get_session_booking(request.session)
 
-            if self.request.user.is_authenticated:
-                basket = Basket.objects.filter(status='Submitted', owner=request.user).order_by('-id')[:1]
-            else:
-                basket = Basket.objects.filter(status='Submitted', owner=booking.customer).order_by('-id')[:1]
+            #if self.request.user.is_authenticated:
+            #    basket = Basket.objects.filter(status='Submitted', owner=request.user).order_by('-id')[:1]
+            #else:
+            basket = Basket.objects.filter(status='Submitted', booking_reference='PS-'+str(booking.id)).order_by('-id')[:1]
 
 
             #booking = utils.get_session_booking(request.session)
