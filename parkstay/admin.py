@@ -54,6 +54,12 @@ class CampsiteInline(admin.TabularInline):
     extra = 0
     exclude = ['wkb_geometry',]
 
+    def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+         if db_field.name == "features":
+                 kwargs["queryset"] = models.Feature.objects.filter(type=1)
+         return super(CampsiteInline, self).formfield_for_manytomany(db_field, request, **kwargs)
+
+
 @admin.register(models.Campground)
 class CampgroundAdmin(admin.GeoModelAdmin,SummernoteModelAdmin):
     summernote_fields = ('about','booking_information','campsite_information','facilities_information','campground_rules','fee_information','health_and_safety_information','location_information')
@@ -64,6 +70,12 @@ class CampgroundAdmin(admin.GeoModelAdmin,SummernoteModelAdmin):
     openlayers_url = 'https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js'
     raw_id_fields = ('campground_image',)
     inlines = [CampgroundNoticeInline,CampsiteInline]
+
+    def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+         if db_field.name == "features":
+                 kwargs["queryset"] = models.Feature.objects.filter(type=0)
+         return super(CampgroundAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+
 
 #from django.forms.models import BaseInlineFormSet, ModelForm
 #class AlwaysChangedModelForm(ModelForm):
@@ -338,6 +350,10 @@ class ParkstayPermissionAdmin(admin.ModelAdmin):
       list_display = ('email','permission_group','active')
       list_filter = ('permission_group',)
 
+@admin.register(models.CampsiteBookingLegacy)
+class CampsiteBookingLegacyAdmin(admin.ModelAdmin):
+      list_display = ('campsite_booking_id','campsite_id','date','booking_type','legacy_booking_id','is_cancelled','updated','created')
+      list_filter = ('campsite_id',)
 
 admin.site.register(models.Rate)
 admin.site.register(models.Region)

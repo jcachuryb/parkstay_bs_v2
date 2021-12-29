@@ -23,7 +23,7 @@ def get_campsites_for_campground(ground, gear_type):
     sites_array = []
     cached_data = cache.get('booking_availability.get_campsites_for_campground:'+str(ground['id']))
     features_array = get_features() 
-    cached_data = None
+    #cached_data = None
     if cached_data is None:
         sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name','short_description','vehicle','motorcycle','trailer').order_by('name')
         for cs in sites_qs:
@@ -324,6 +324,7 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     """Fetch the availability of each campsite in a queryset over a range of visit dates."""
     sa_qy = []
     for s in sites_array:
+          print (s['pk'])
           sa_qy.append(s['pk'])
     if change_booking_id is not None:
         change_booking_id = int(change_booking_id)
@@ -345,8 +346,12 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
             date__lt=end_date,
             booking__is_canceled=False,
         ).exclude(booking_id=change_booking_id).order_by('date', 'campsite__name')
-
-
+      
+    legacy_bookings = models.CampsiteBookingLegacy.objects.filter(campsite_id__in=sa_qy,
+                                                            date__gte=start_date,
+                                                            date__lt=end_date,
+                                                            is_cancelled=False  
+                                                            )
     # prefill all slots as 'open'
     duration = (end_date - start_date).days
     results = {site['pk']: {start_date + timedelta(days=i): ['open', None] for i in range(duration)} for site in sites_array}
@@ -420,7 +425,13 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
                     results[closure.campsite.pk][start + timedelta(days=i)][1] = str(reason)
 
     # strike out black bookings
-    #for b in bookings_qs.filter(booking_type=2):
+    # for b in bookings_qs.filter(booking_type=2):
+    
+    #legacy bookings
+    for lb in legacy_bookings:
+        if lb.booking_type == 2:
+             results[lb.campsite_id][lb.date][0] = 'closed'
+
     for b in bookings_qs:    
         if b.booking_type == 2:
             results[b.campsite.pk][b.date][0] = 'closed'
@@ -428,13 +439,21 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     # add booking status for real bookings
     # for b in bookings_qs.exclude(booking_type=2):
     #for b in bookings_qs.exclude(booking_type=2):
+
+    #legacy bookings
+    for lb in legacy_bookings.exclude(booking_type=2):
+        if lb.booking_type != 2:
+           if results[lb.campsite_id][lb.date][0] == 'closed':
+               results[lb.campsite_id][lb.date][0] = 'closed & booked'
+           else:
+               results[lb.campsite_id][lb.date][0] = 'booked'
+
     for b in bookings_qs.exclude(booking_type=2):
         if b.booking_type != 2:
             if results[b.campsite.pk][b.date][0] == 'closed':
                 results[b.campsite.pk][b.date][0] = 'closed & booked'
             else:
                 results[b.campsite.pk][b.date][0] = 'booked'
-
 
     # strike out days before today
     today = date.today()
@@ -516,4 +535,29 @@ def campground_booking_information(context, campground_id):
         context['cg']['campground_notices'] = campground_notices_array
 
         return context
+
+
+
+def get_campground(campground_id):
+
+     cg_hash = {}
+     cached_data = cache.get('api.get_campground('+campground_id+')')
+     if cached_data is None:
+         ground = models.Campground.objects.get(id=campground_id)
+         if ground:
+                cg_hash['id'] = ground.id
+                cg_hash['name'] = ground.name
+                cg_hash['campground_type'] = ground.campground_type
+                cg_hash['site_type'] = ground.site_type
+                cg_hash['long_description']  = ground.long_description
+                cg_hash['campground_map_url'] = ''
+                cg_hash['campground_map'] = ''
+
+                if ground.campground_map:
+                   cg_hash['campground_map_url'] = ground.campground_map.url
+                   cg_hash['campground_map'] = {'path': ground.campground_map.path}
+                cache.set('api.get_campground('+campground_id+')', json.dumps(cg_hash),  86400)
+     else:
+         cg_hash = json.loads(cached_data)
+     return cg_hash
 

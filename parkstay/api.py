@@ -947,29 +947,29 @@ class DecimalEncoder(json.JSONEncoder):
 #    queryset = Campground.objects.all()
 #    serializer_class = CampgroundSerializer
 
-def get_campground(campground_id):
-
-     cg_hash = {}
-     #ground = Campground.objects.filter(id=campground_id).values('id','name','park_id','ratis_id','contact_id','campground_type','promo_area','site_type','address','description','additional_info','area_activities','driving_directions','fees','othertransport','key','price_level','info_url','long_description','wkb_geometry','zoom_level','check_in','check_out','max_advance_booking','oracle_code','campground_map')
-     cached_data = cache.get('api.get_campground('+campground_id+')')
-     if cached_data is None: 
-         ground = Campground.objects.get(id=campground_id)
-         if ground:
-                cg_hash['id'] = ground.id
-                cg_hash['name'] = ground.name
-                cg_hash['campground_type'] = ground.campground_type
-                cg_hash['site_type'] = ground.site_type
-                cg_hash['long_description']  = ground.long_description
-                cg_hash['campground_map_url'] = ''
-                cg_hash['campground_map'] = ''
-
-                if ground.campground_map:
-                   cg_hash['campground_map_url'] = ground.campground_map.url
-                   cg_hash['campground_map'] = {'path': ground.campground_map.path}
-                cache.set('api.get_campground('+campground_id+')', json.dumps(cg_hash),  86400)
-     else:
-         cg_hash = json.loads(cached_data)
-     return cg_hash
+#def get_campground(campground_id):
+#
+#     cg_hash = {}
+#     #ground = Campground.objects.filter(id=campground_id).values('id','name','park_id','ratis_id','contact_id','campground_type','promo_area','site_type','address','description','additional_info','area_activities','driving_directions','fees','othertransport','key','price_level','info_url','long_description','wkb_geometry','zoom_level','check_in','check_out','max_advance_booking','oracle_code','campground_map')
+#     cached_data = cache.get('api.get_campground('+campground_id+')')
+#     if cached_data is None: 
+#         ground = Campground.objects.get(id=campground_id)
+#         if ground:
+#                cg_hash['id'] = ground.id
+#                cg_hash['name'] = ground.name
+#                cg_hash['campground_type'] = ground.campground_type
+#                cg_hash['site_type'] = ground.site_type
+#                cg_hash['long_description']  = ground.long_description
+#                cg_hash['campground_map_url'] = ''
+#                cg_hash['campground_map'] = ''
+#
+#                if ground.campground_map:
+#                   cg_hash['campground_map_url'] = ground.campground_map.url
+#                   cg_hash['campground_map'] = {'path': ground.campground_map.path}
+#                cache.set('api.get_campground('+campground_id+')', json.dumps(cg_hash),  86400)
+#     else:
+#         cg_hash = json.loads(cached_data)
+#     return cg_hash
 
 def campsite_availablity_view(request,  *args, **kwargs):
 
@@ -1004,7 +1004,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     show_all = False
     # convert GET parameters to objects
     #ground = Campground.objects.get(id=campground_id)
-    ground = get_campground(campground_id)
+    ground = booking_availability.get_campground(campground_id)
     # Validate parameters
     data = {
         "arrival": request.GET.get('arrival'),
@@ -1229,6 +1229,12 @@ def campsite_availablity_view(request,  *args, **kwargs):
                     'availability': [[True, '${}'.format(rate[start_date + timedelta(days=i)]), rate[start_date + timedelta(days=i)], [0, 0],None,(start_date + timedelta(days=i)).strftime('%Y-%m-%d')] for i in range(length)],
                     'breakdown': []
                 })
+
+
+                classes_map[k].update({
+                    'site_left': str(len(v))
+                })
+
 
         return HttpResponse(geojson.dumps( result ,cls=DecimalEncoder), content_type='application/json')
 

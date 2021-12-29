@@ -231,6 +231,7 @@ var search_avail = {
                     search_avail.load_campsite_availabilty();
 		    $('#camper-dropdown').hide();
 		    $('#vehicle-dropdown').hide();
+		    $("#campsite-availablity").removeClass("div-blur");
 
             }
     },
@@ -238,10 +239,13 @@ var search_avail = {
 	$('#camper-dropdown').hide();
         var vehicledropdown = $('#vehicle-dropdown').css('display');
         if (vehicledropdown == 'none') {
+		 	
+		 $("#campsite-availablity").addClass("div-blur");
                  $('#vehicle-dropdown').show();
         } else {
                 $('#vehicle-dropdown').hide();
 		search_avail.load_campsite_availabilty();
+		$("#campsite-availablity").removeClass("div-blur");
         }
     },
     campers_toggle: function() {
@@ -249,9 +253,11 @@ var search_avail = {
         var camperdropdown = $('#camper-dropdown').css('display');
         if (camperdropdown == 'none') { 
 		 $('#camper-dropdown').show();
+		 $("#campsite-availablity").addClass("div-blur");
 	} else {
 		$('#camper-dropdown').hide();
 		search_avail.load_campsite_availabilty();
+		$("#campsite-availablity").removeClass("div-blur");
 	}
     },
     select_days_earlier: function(days) {
@@ -446,10 +452,13 @@ var search_avail = {
                       //console.log(search_avail.var.places[i].name);
             }
 
-
+            console.log("KEY");
+            console.log(e.keyCode);
             if (e.keyCode === 13) {
                 if (search_results.length > 0) {
-                        search_avail.select_region(search_results[0]['id'],search_results[0]['name'], search_results[0]['coord_1'], search_results[0]['coord_2'], search_avail.var.places[i].zoom_level);
+			console.log ("enter");
+			console.log(search_results);
+                        search_avail.select_region(search_results[0]['id'],search_results[0]['name'], search_results[0]['coord_1'], search_results[0]['coord_2'], search_results[0]['zoom_level']);
                         // $('#region-park-selection').html(search_results[0]['name']);
                 }
             } else {

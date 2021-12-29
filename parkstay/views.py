@@ -44,6 +44,7 @@ from django_ical.views import ICalFeed
 from datetime import datetime, timedelta
 from decimal import *
 from django.db.models import Max
+from django.core.cache import cache
 
 from parkstay.helpers import is_officer
 from parkstay import utils
@@ -663,9 +664,10 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
 
         context = {}
         if action == '' or action is None or action == 'upcoming':
+
              context = {
                  'action': 'upcoming',
-                 'current_bookings': bookings.filter(departure__gte=today).order_by('arrival'),
+                 'current_bookings': self.booking_filter_upcoming(request.user), #bookings.filter(departure__gte=today).order_by('arrival'),
                  'past_bookings': [],
                  'today' : today
              }
@@ -674,11 +676,104 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
              context = {
                 'action': 'past_bookings',
                 'current_bookings': [],
-                'past_bookings': bookings.filter(departure__lt=today).order_by('-arrival'),
+                'past_bookings': self.booking_filter_past_bookings(request.user), #bookings.filter(departure__lt=today).order_by('-arrival'),
                 'today' : today
              }
-
         return render(request, self.template_name, context)
+
+    def last_booking_update(self, customer):
+        lub = ''
+        today = timezone.now().date()
+        last_updated_booking = Booking.objects.filter(customer=customer, booking_type__in=(0, 1)).values('updated').order_by('-updated')[:1]
+        if last_updated_booking.count() > 0:
+            lub = last_updated_booking[0]['updated'].strftime("%d/%m/%Y %H:%M:%S")
+            lub = lub + "-"+ today.strftime("%d/%m/%Y")
+            return lub
+
+    def booking_filter_upcoming(self, customer):
+        today = timezone.now().date()
+
+        bookings_store = []
+        lub = self.last_booking_update(customer)
+        cached_data = cache.get('booking_filter_upcoming:'+str(customer.id)+":"+str(lub))
+        #cached_data = None
+        if cached_data is None:
+             bookings = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__gte=today).order_by('is_canceled','arrival')
+             for b in bookings:
+                 row = {}
+                 row['id']  = b.id
+                 row['campground']  = {}
+                 row['campground']['name'] = b.campground.name
+                 row['campground']['first_image']  = {}
+                 row['campground']['first_image']['image'] = {}
+                 row['campground']['first_image']['image']['url'] = b.campground.first_image.image.url
+                 row['departure_str'] = b.departure.strftime("%Y-%m-%d")
+                 row['arrival_str'] = b.arrival.strftime("%Y-%m-%d")
+                 row['is_canceled'] = b.is_canceled
+                 row['confirmation_number'] = b.confirmation_number
+                 row['first_campsite'] = {} 
+                 row['first_campsite']['type'] = b.first_campsite.type
+                 row['first_campsite']['name'] = b.first_campsite.name
+                 row['stay_dates'] = b.stay_dates
+                 row['stay_guests'] = b.stay_guests
+                 row['property_cache'] = b.property_cache
+
+                 bookings_store.append(row)
+        
+                 cache.set('booking_filter_upcoming:'+str(customer.id)+":"+str(lub), json.dumps(bookings_store),  86400)
+        else:
+            bookings_store = json.loads(cached_data)
+
+        bs = 0
+        while bs < len(bookings_store):
+            bookings_store[bs]['arrival'] = datetime.strptime(bookings_store[bs]['arrival_str'], "%Y-%m-%d").date()
+            bookings_store[bs]['departure'] = datetime.strptime(bookings_store[bs]['departure_str'], "%Y-%m-%d").date()
+            bs += 1
+
+        return bookings_store
+
+    def booking_filter_past_bookings(self, customer):
+        today = timezone.now().date()
+        bookings_store = []
+        lub = self.last_booking_update(customer)
+        cached_data = cache.get('booking_filter_past_bookings:'+str(customer.id)+":"+str(lub))
+        #bookings = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__lt=today).order_by('-arrival'),
+        
+        if cached_data is None:
+             bookings_past = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__lt=today).order_by('-arrival')[:60]
+             for b in bookings_past:
+                 row = {}
+                 row['id']  = b.id
+                 row['campground']  = {}
+                 row['campground']['name'] = b.campground.name
+                 row['campground']['first_image']  = {}
+                 row['campground']['first_image']['image'] = {}
+                 row['campground']['first_image']['image']['url'] = b.campground.first_image.image.url
+                 row['departure_str'] = b.departure.strftime("%Y-%m-%d")
+                 row['arrival_str'] = b.arrival.strftime("%Y-%m-%d")
+                 row['is_canceled'] = b.is_canceled
+                 row['confirmation_number'] = b.confirmation_number
+                 row['first_campsite'] = {} 
+                 row['first_campsite']['type'] = b.first_campsite.type
+                 row['first_campsite']['name'] = b.first_campsite.name
+                 row['stay_dates'] = b.stay_dates
+                 row['stay_guests'] = b.stay_guests
+
+                 bookings_store.append(row)
+        
+                 cache.set('booking_filter_past_bookings:'+str(customer.id)+":"+str(lub), json.dumps(bookings_store),  86400)
+        else:
+            bookings_store = json.loads(cached_data)
+
+        bs = 0
+        while bs < len(bookings_store):
+            bookings_store[bs]['arrival'] = datetime.strptime(bookings_store[bs]['arrival_str'], "%Y-%m-%d").date()
+            bookings_store[bs]['departure'] = datetime.strptime(bookings_store[bs]['departure_str'], "%Y-%m-%d").date()   
+            bs += 1
+
+        return bookings_store
+
+
 
 
 class ParkstayRoutingView(TemplateView):
@@ -700,7 +795,7 @@ class SearchAvailablity(TemplateView):
     def get(self, request, *args, **kwargs):
         context = {}
         features_obj = []
-        features_query = Feature.objects.all()
+        features_query = Feature.objects.filter(type=0)
         for f in features_query:
             features_obj.append({'id': f.id,'name': f.name, 'symb': 'RF8G', 'description': f.description, 'type': f.type, 'key': 'twowheel','remoteKey': [f.name]})
         # {name: '2WD accessible', symb: 'RV2', key: 'twowheel', 'remoteKey': ['2WD/SUV ACCESS']},
@@ -837,7 +932,7 @@ class SearchAvailablityByCampground(TemplateView):
 
         features_obj = []
         context['cg']['campground_notices'] = campground_notices_array
-        features_query = Feature.objects.all()
+        features_query = Feature.objects.filter(type=1)
         for f in features_query:
             features_obj.append({'id': f.id,'name': f.name, 'symb': 'RF8G', 'description': f.description, 'type': f.type, 'key': 'twowheel','remoteKey': [f.name]})
         # {name: '2WD accessible', symb: 'RV2', key: 'twowheel', 'remoteKey': ['2WD/SUV ACCESS']},
