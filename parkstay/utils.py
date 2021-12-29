@@ -19,10 +19,11 @@ from ledger_api_client.ledger_models import EmailUserRO as EmailUser
 from ledger_api_client.utils import oracle_parser, update_payments
 from ledger_api_client.utils import create_basket_session, create_checkout_session, place_order_submission, use_existing_basket, use_existing_basket_from_invoice
 from parkstay import models as parkstay_models
-from parkstay.models import (Campground, Campsite, CampsiteRate, CampsiteBooking, Booking, BookingInvoice, CampsiteBookingRange, CampgroundBookingRange, CampgroundStayHistory, ParkEntryRate, BookingVehicleRego)
+from parkstay.models import (Campground, Campsite, CampsiteRate, CampsiteBooking, Booking, BookingInvoice, CampsiteBookingRange, CampgroundBookingRange, CampgroundStayHistory, ParkEntryRate, BookingVehicleRego, CampsiteBookingLegacy)
 from parkstay.serialisers import BookingRegoSerializer, ParkEntryRateSerializer, RateSerializer
 from parkstay.emails import send_booking_invoice, send_booking_confirmation
 from parkstay.exceptions import BindBookingException
+from parkstay import booking_availability
 import hashlib
 import json
 #from ledger.basket.models import Basket
@@ -52,17 +53,21 @@ def create_booking_by_class(request,campground_id, campsite_class_id, start_date
             campground=campground,
             campsite_class=campsite_class_id
         )
+        #ground = booking_availability.get_campground(campground_id)
+        #sites_qs = get_campsites_for_campground(ground,gear_type)
+        #sites_array = []
+        #for s in sites_qs:
+        #    sites_array.append({'pk': s['id'], 'data': s})
+
 
         if not sites_qs.exists():
             raise ValidationError('No matching campsites found.')
-
         # get availability for sites, filter out the non-clear runs
         availability = get_campsite_availability(sites_qs, start_date, end_date, None,old_booking)
         excluded_site_ids = set()
         for site_id, dates in availability.items():
             if not all([v[0] == 'open' for k, v in dates.items()]):
                 excluded_site_ids.add(site_id)
-
         # create a list of campsites without bookings for that period
         sites = [x for x in sites_qs if x.pk not in excluded_site_ids]
 
@@ -382,6 +387,13 @@ def get_open_campgrounds(campsites_qs, start_date, end_date):
 
 
 def get_campsite_availability(campsites_qs, start_date, end_date, user = None, old_booking=None):
+
+    sa_qy = []
+    for s in campsites_qs:
+          print (s.id)
+          sa_qy.append(s.id)
+
+
     # Added line to use is_officer from helper methods
     from parkstay.helpers import is_officer
     """Fetch the availability of each campsite in a queryset over a range of visit dates."""
@@ -400,6 +412,12 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None, o
              date__lt=end_date,
              booking__is_canceled=False,
          ).order_by('date', 'campsite__name')
+
+    legacy_bookings = CampsiteBookingLegacy.objects.filter(campsite_id__in=sa_qy,
+                                                            date__gte=start_date,
+                                                            date__lt=end_date,
+                                                            is_cancelled=False
+                                                            )
 
     # prefill all slots as 'open'
     duration = (end_date - start_date).days
@@ -457,11 +475,27 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None, o
                     results[closure.campsite.pk][start + timedelta(days=i)][1] = str(reason)
 
     # strike out black bookings
+
+    for lb in legacy_bookings:
+        if lb.booking_type == 2:
+             results[lb.campsite_id][lb.date][0] = 'closed'
+
     for b in bookings_qs.filter(booking_type=2):
         results[b.campsite.pk][b.date][0] = 'closed'
 
     # add booking status for real bookings
     # for b in bookings_qs.exclude(booking_type=2):
+
+    #legacy bookings
+    for lb in legacy_bookings.exclude(booking_type=2):
+        print (lb.campsite_id)
+        if lb.booking_type != 2:
+           if results[lb.campsite_id][lb.date][0] == 'closed':
+               results[lb.campsite_id][lb.date][0] = 'closed & booked'
+           else:
+               print ("BOOKED")
+               results[lb.campsite_id][lb.date][0] = 'booked'
+
     for b in bookings_qs.exclude(booking_type=2):
         if results[b.campsite.pk][b.date][0] == 'closed':
             results[b.campsite.pk][b.date][0] = 'closed & booked'

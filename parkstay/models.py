@@ -21,6 +21,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_delete, pre_save, post_save, pre_delete
 from django.core.cache import cache
 from ledger_api_client.ledger_models import Invoice, EmailUserRO as EmailUser
+from ledger_api_client import utils as ledger_api_utils
 #from ledger.payments.bpoint.models import BpointTransaction
 #from ledger.payments.cash.models import CashTransaction
 from rest_framework import viewsets, serializers, status, generics, views
@@ -228,6 +229,7 @@ class Campground(models.Model):
         cache.delete('campgrounds')
         cache.delete('campgrounds_dt')
         cache.delete('CampgroundMapViewSet')
+        cache.delete('booking_availability.get_campsites_for_campground:'+str(self.id))
         cache.get('api.get_campground('+str(self.id)+')')
         super(Campground, self).save(*args, **kwargs)
 
@@ -975,12 +977,12 @@ class Feature(models.Model):
         (2, 'Not Linked')
     )
     name = models.CharField(max_length=255, unique=True)
-    description = models.TextField(null=True)
-    image = models.ImageField(null=True)
+    description = models.TextField(null=True, blank=True)
+    image = models.ImageField(null=True, blank=True)
     type = models.SmallIntegerField(choices=TYPE_CHOICES, default=2, help_text="Set the model where the feature is located.")
 
     def __str__(self):
-        return self.name
+        return self.name + " ("+self.get_type_display()+")"
 
 class Places(models.Model):
 
@@ -1111,6 +1113,16 @@ class CampsiteClass(models.Model):
         except Exception as e:
             raise
 
+
+class CampsiteBookingLegacy(models.Model):
+    campsite_booking_id = models.IntegerField(default=None, blank=True, null=True)
+    campsite_id = models.IntegerField(default=None, blank=True, null=True)
+    date = models.DateField(db_index=True)
+    booking_type= models.IntegerField(default=None, blank=True, null=True)
+    legacy_booking_id = models.IntegerField(default=None, blank=True, null=True)
+    is_cancelled = models.BooleanField(default=False)
+    updated = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
 
 class CampsiteBooking(models.Model):
     BOOKING_TYPE_CHOICES = (
@@ -1477,10 +1489,14 @@ class Booking(models.Model):
     def outstanding(self):
         return self.__outstanding_amount()
 
+      
     @property
     def status(self):
         if (self.legacy_id and self.invoices.count() >= 1) or not self.legacy_id:
             payment_status = self.__check_payment_status()
+            print ("P STATUS")
+            print (self.invoices.all())
+            print (payment_status)
             status = ''
             parts = payment_status.split('_')
             for p in parts:
@@ -1549,7 +1565,6 @@ class Booking(models.Model):
             amount = self.active_invoice.payment_amount
         elif self.legacy_id:
             amount = D(self.cost_total)
-
         return amount
 
     def __check_payment_status(self):
@@ -1565,6 +1580,7 @@ class Booking(models.Model):
         for i in invoices:
             if not i.voided:
                 amount += i.payment_amount
+                print (amount)
         if amount == 0:
             if self.override_reason and self.override_price == 0:
                 return 'paid'
@@ -1677,7 +1693,10 @@ class Booking(models.Model):
             total_due = D('0.0')
             lines = []
             if not self.legacy_id:
-                lines = inv.order.lines.filter(oracle_code=self.campground.park.oracle_code)
+                lines = ledger_api_utils.OrderLine.objects.filter(number=inv.order_number, oracle_code=self.campground.park.oracle_code)
+                print (inv.order_number)
+               
+                #lines = inv.order.lines.filter(oracle_code=self.campground.park.oracle_code)
 
             price_dict = {}
             for line in lines:
