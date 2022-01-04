@@ -115,6 +115,30 @@ class CampgroundFeed(ICalFeed):
             x[0] for x in item.campsites.values_list('campsite__name').distinct()
         ] ))
 
+
+class TestView(TemplateView):
+    template_name = 'ps/test.html'
+
+    def get(self, request, *args, **kwargs):
+        context = {}
+        context = {'LEDGER_UI_URL' : settings.LEDGER_UI_URL}
+        response = render(request, self.template_name, context)
+        return response
+
+
+class TestViewAuth(UserPassesTestMixin, TemplateView):
+    template_name = 'ps/test.html'
+
+    def test_func(self):
+        return is_officer(self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        context = {}
+        context = {'LEDGER_UI_URL' : settings.LEDGER_UI_URL}
+        response = render(request, self.template_name, context)
+        return response
+
+
 class DashboardView(UserPassesTestMixin, TemplateView):
     template_name = 'ps/dash/dash_tables_campgrounds.html'
 
