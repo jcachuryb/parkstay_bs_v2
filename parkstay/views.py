@@ -780,6 +780,9 @@ class ParkstayRoutingView(TemplateView):
     template_name = 'ps/index.html'
 
     def get(self, *args, **kwargs):
+        print ("PATH")
+        if self.request.path == "/":
+             return redirect(reverse('search_availablity_information'))
         #if self.request.user.is_authenticated:
         #    if is_officer(self.request.user):
         #        return redirect('dash-campgrounds')
