@@ -10,3 +10,4 @@
 15 9 * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py bpoint_ledger_payment_audit_report >> /app/logs/bpoint_ledger_payment_audit_report.log 2>&1
 
 */5 * * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py build_alerts  >> /app/logs/cron_alerts.log 2>&1
+*/5 * * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 update_legacy_campsite_booking >> /app/logs/cron_update_campsite_booking.log 2>&1
