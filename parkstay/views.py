@@ -818,7 +818,6 @@ class SearchAvailablity(TemplateView):
 
     template_name = 'ps/search_availabilty.html'
 
-
     def get(self, request, *args, **kwargs):
         context = {}
         features_obj = []
@@ -881,7 +880,7 @@ class SearchAvailablityByCampground(TemplateView):
                                                 context["error_message"] = "Sorry,  your booking has already started and cannot be changed."
                                        if 'selecttype' in cb.details:
                                           if cb.details['selecttype'] == 'multiple':
-                                             if context_p['PARKSTAY_PERMISSIONS'][0] is True:
+                                             if context_p['PARKSTAY_PERMISSIONS']['p0'] is True:
                                                  pass
                                              else:
                                                  context["error_message"] = "Sorry, you don't have the ability to manage a booking with mulitple sites"
