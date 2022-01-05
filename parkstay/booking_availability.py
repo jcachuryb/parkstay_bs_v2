@@ -324,7 +324,6 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     """Fetch the availability of each campsite in a queryset over a range of visit dates."""
     sa_qy = []
     for s in sites_array:
-          print (s['pk'])
           sa_qy.append(s['pk'])
     if change_booking_id is not None:
         change_booking_id = int(change_booking_id)
