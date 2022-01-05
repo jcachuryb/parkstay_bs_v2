@@ -1,16 +1,29 @@
 from django.conf import settings
 from parkstay import models
+from django.core.cache import cache
+import json
 
 def parkstay_url(request):
-    parkstay_permissions = {}
-    for pg in models.ParkstayPermission.PERMISSION_GROUP:
-        parkstay_permissions[pg[0]] = False
+    session_id = request.COOKIES.get('sessionid', None)
+    is_authenticated = False
+    if request.user.is_authenticated is True:
+        is_authenticated = request.user.is_authenticated
 
-    if request.user.is_authenticated:
-        parkstay_permissions_obj = models.ParkstayPermission.objects.filter(email=request.user.email)
-        for pp in parkstay_permissions_obj:
-            if pp.active is True:
-               parkstay_permissions[pp.permission_group] = True
+    parkstay_permissions_cache = cache.get('parkstay_url_permissions'+str(is_authenticated)+str(session_id))
+
+    parkstay_permissions = {}
+    if parkstay_permissions_cache is None:
+        for pg in models.ParkstayPermission.PERMISSION_GROUP:
+            parkstay_permissions[pg[0]] = False
+
+        if request.user.is_authenticated:
+            parkstay_permissions_obj = models.ParkstayPermission.objects.filter(email=request.user.email)
+            for pp in parkstay_permissions_obj:
+                if pp.active is True:
+                   parkstay_permissions[pp.permission_group] = True
+        cache.set('parkstay_url_permissions'+str(is_authenticated)+str(session_id), json.dumps(parkstay_permissions),  86400)
+    else:
+        parkstay_permissions = json.loads(parkstay_permissions_cache)
 
 
     return {
