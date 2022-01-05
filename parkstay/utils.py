@@ -166,7 +166,6 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
     #    old_booking_id = old_booking
 
     print ("create_booking_by_site")
-    print (sites_qs)
     campsite_qs = Campsite.objects.filter(pk__in=sites_qs)
     num_adult_pool = num_adult
     num_concession_pool = num_concession
@@ -390,7 +389,6 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None, o
 
     sa_qy = []
     for s in campsites_qs:
-          print (s.id)
           sa_qy.append(s.id)
 
 
@@ -426,7 +424,6 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None, o
     # generate a campground-to-campsite-list map
     campground_map = {cg[0]: [cs.pk for cs in campsites_qs if cs.campground.pk == cg[0]] for cg in campsites_qs.distinct('campground').values_list('campground')}
     print ("CAMPGROUND MAP")
-    print (campground_map)
     # strike out whole campground closures
     cgbr_qs = CampgroundBookingRange.objects.filter(
         Q(campground__in=campground_map.keys()),
@@ -488,7 +485,6 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None, o
 
     #legacy bookings
     for lb in legacy_bookings.exclude(booking_type=2):
-        print (lb.campsite_id)
         if lb.booking_type != 2:
            if results[lb.campsite_id][lb.date][0] == 'closed':
                results[lb.campsite_id][lb.date][0] = 'closed & booked'

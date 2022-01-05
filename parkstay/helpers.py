@@ -25,7 +25,15 @@ def belongs_to(user, group_name):
 
 
 def is_officer(user):
-    return user.is_authenticated and (belongs_to(user, 'Parkstay Officers') or user.is_superuser)
+    is_officer_value = cache.get('User-is_officer'+str(user.id))
+    is_officer_value = None
+    if is_officer_value is None:
+        is_officer_value = user.is_authenticated and (belongs_to(user, 'Parkstay Officers') or user.is_superuser)
+        cache.set('User-is_officer'+str(user.id), is_officer_value, 3600)
+    else:
+        print ("From Cache is_officer")
+    return is_officer_value
+    #return user.is_authenticated and (belongs_to(user, 'Parkstay Officers') or user.is_superuser)
 
 
 def is_customer(user):
@@ -36,7 +44,15 @@ def is_customer(user):
     :param user:
     :return:
     """
-    return user.is_authenticated and not is_officer(user)
+    is_customer_value = cache.get('User-is_customer'+str(user.id))
+    if is_customer_value is None:
+        is_customer_value = user.is_authenticated and not is_officer(user)
+        cache.set('User-is_customer'+str(user.id), is_customer_value, 3600)
+    else:
+        print ("From Cache is_customer")
+
+    return is_customer_value
+    #return user.is_authenticated and not is_officer(user)
 
 
 def get_all_officers():
