@@ -2001,6 +2001,10 @@ def save_booking_policy(request,*args, **kwargs):
 
     return HttpResponse(json.dumps(res), content_type='application/json', status=status)
 
+def test_server_api(request, *args, **kwargs):
+     response = HttpResponse("TESTING API RESPONSE TIMES")
+     return response
+
 def campground_map_view(request, *args, **kwargs):
      from django.core import serializers
      dumped_data = cache.get('CampgroundMapViewSet')
