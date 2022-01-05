@@ -129,3 +129,6 @@ LEDGER_TEMPLATE = 'bootstrap5'
 ALERT_URL=env('ALERT_URL','')
 LEGACY_BOOKING_URL=env('LEGACY_BOOKING_URL','')
 CAMPSITE_BOOKING_API_KEY = env('CAMPSITE_BOOKING_API_KEY','')
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+SESSION_FILE_PATH = '/app/session_store/'
