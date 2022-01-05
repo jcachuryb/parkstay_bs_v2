@@ -981,6 +981,10 @@ class Feature(models.Model):
     image = models.ImageField(null=True, blank=True)
     type = models.SmallIntegerField(choices=TYPE_CHOICES, default=2, help_text="Set the model where the feature is located.")
 
+    def save(self, *args, **kwargs):
+        cache.delete('features_array_type_0:')
+        super(Feature, self).save(*args, **kwargs)
+
     def __str__(self):
         return self.name + " ("+self.get_type_display()+")"
 

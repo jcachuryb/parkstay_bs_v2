@@ -822,10 +822,16 @@ class SearchAvailablity(TemplateView):
     def get(self, request, *args, **kwargs):
         context = {}
         features_obj = []
-        features_query = Feature.objects.filter(type=0)
-        for f in features_query:
-            features_obj.append({'id': f.id,'name': f.name, 'symb': 'RF8G', 'description': f.description, 'type': f.type, 'key': 'twowheel','remoteKey': [f.name]})
-        # {name: '2WD accessible', symb: 'RV2', key: 'twowheel', 'remoteKey': ['2WD/SUV ACCESS']},
+        features_obj_cache = cache.get('features_array_type_0:')
+
+        if features_obj_cache is None:
+            features_query = Feature.objects.filter(type=0)
+            for f in features_query:
+                features_obj.append({'id': f.id,'name': f.name, 'symb': 'RF8G', 'description': f.description, 'type': f.type, 'key': 'twowheel','remoteKey': [f.name]})
+                cache.set('features_array_type_0:', json.dumps(features_obj),  86400)
+        else:
+            features_obj = json.loads(features_obj_cache)
+
         context['features'] = features_obj
         context['features_json'] = json.dumps(features_obj)
         return render(request, self.template_name, context)
