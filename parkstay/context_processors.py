@@ -12,20 +12,23 @@ def parkstay_url(request):
     parkstay_permissions_cache = cache.get('parkstay_url_permissions'+str(is_authenticated)+str(session_id))
 
     parkstay_permissions = {}
+    #parkstay_permissions_cache= None
+    print ("hh1")
     if parkstay_permissions_cache is None:
+        print ('parkstay_permissions_cache')
         for pg in models.ParkstayPermission.PERMISSION_GROUP:
-            parkstay_permissions[pg[0]] = False
+            parkstay_permissions['p'+str(pg[0])] = False
 
         if request.user.is_authenticated:
             parkstay_permissions_obj = models.ParkstayPermission.objects.filter(email=request.user.email)
             for pp in parkstay_permissions_obj:
                 if pp.active is True:
-                   parkstay_permissions[pp.permission_group] = True
+                   parkstay_permissions['p'+str(pp.permission_group)] = True
         cache.set('parkstay_url_permissions'+str(is_authenticated)+str(session_id), json.dumps(parkstay_permissions),  86400)
     else:
         parkstay_permissions = json.loads(parkstay_permissions_cache)
 
-
+    print (parkstay_permissions)
     return {
         'EXPLORE_PARKS_SEARCH': '{}'.format(settings.EXPLORE_PARKS_URL),
         'EXPLORE_PARKS_CONTACT': '{}/contact-us'.format(settings.EXPLORE_PARKS_URL),

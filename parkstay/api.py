@@ -2533,8 +2533,9 @@ def create_booking(request, *args, **kwargs):
     num_motorcycle = serializer.validated_data['num_motorcycle']
     num_trailer = serializer.validated_data['num_trailer']
     old_booking = serializer.validated_data['old_booking']
-
-    if context_p['PARKSTAY_PERMISSIONS'][0] is True:
+    print ("context_p")
+    print (context_p['PARKSTAY_PERMISSIONS']['p0'])
+    if context_p['PARKSTAY_PERMISSIONS']['p0'] is True:
        selecttype = request.POST.get('selecttype',None)
        multiplesites = json.loads(request.POST.get('multiplesites', "[]"))
     else:
