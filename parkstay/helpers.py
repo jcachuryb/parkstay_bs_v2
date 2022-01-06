@@ -56,9 +56,11 @@ def is_customer(user):
 
 
 def get_all_officers():
+    print ("get_all_officers")
     return EmailUser.objects.filter(groups__name='Parkstay Officers')
 
 def can_view_campground(user, campground):
+    print ("can_view_campground")
     # REVIEW FORE CACHING
     allowed_groups = parkstay_models.CampgroundGroupMembers.objects.filter(emailuser_id=user.id)
     for g in campground.campgroundgroup_set.all():
