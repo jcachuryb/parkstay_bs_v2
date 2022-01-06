@@ -25,6 +25,7 @@ from rest_framework.permissions import IsAuthenticated
 from datetime import datetime, timedelta, date
 from collections import OrderedDict
 from django.core.cache import cache
+import os
 ##
 from ledger_api_client.ledger_models import EmailUserRO as EmailUser
 from ledger_api_client.ledger_models import Address
@@ -488,6 +489,20 @@ class CampgroundMapFilterViewSet(viewsets.ReadOnlyModelViewSet):
 
 @require_http_methods(['GET'])
 def search_suggest(request, *args, **kwargs):
+    dumped_data = "[]"
+    if os.path.isfile(settings.DATA_STORE+"/search_suggest.json"):
+        f = open(settings.DATA_STORE+"/search_suggest.json", "r")
+        dumped_data = f.read()
+    else:
+        dumped_data = search_suggest_data() 
+        f = open(settings.DATA_STORE+"/search_suggest.json", "w")
+        f.write(dumped_data)
+        f.close()
+
+    dumped_data = search_suggest_data()
+    return HttpResponse(dumped_data, content_type='application/json')
+
+def search_suggest_data():
     entries = []
     for x in Campground.objects.filter(wkb_geometry__isnull=False).values_list('id', 'name', 'wkb_geometry','zoom_level'):
         entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'Campground', 'id': x[0], 'name': x[1], 'zoom_level': x[3]}))
@@ -495,7 +510,7 @@ def search_suggest(request, *args, **kwargs):
         entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'Park', 'id': x[0], 'name': x[1], 'zoom_level': x[3]}))
     for x in PromoArea.objects.filter(wkb_geometry__isnull=False).values_list('id', 'name', 'wkb_geometry','zoom_level'):
         entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'PromoArea', 'id': x[0], 'name': x[1], 'zoom_level': x[3]}))
-    return HttpResponse(geojson.dumps(geojson.FeatureCollection(entries)), content_type='application/json')
+    return geojson.dumps(geojson.FeatureCollection(entries))
 
 
 class CampgroundViewSet(viewsets.ModelViewSet):
@@ -2006,9 +2021,25 @@ def test_server_api(request, *args, **kwargs):
      return response
 
 def campground_map_view(request, *args, **kwargs):
+    dumped_data = "[]"
+    if os.path.isfile(settings.DATA_STORE+"/campground_map.json"):
+        f = open(settings.DATA_STORE+"/campground_map.json", "r")
+        dumped_data = f.read()
+    else:
+        dumped_data = campground_map_data()
+        f = open(settings.DATA_STORE+"/campground_map.json", "w")
+        f.write(dumped_data)
+        f.close()
+    return HttpResponse(dumped_data, content_type='application/json')
+
+#def campground_map_view(request, *args, **kwargs):
+#    dumped_data = campground_map_data() 
+#    return HttpResponse(dumped_data, content_type='application/json')
+
+def campground_map_data():
      from django.core import serializers
      dumped_data = cache.get('CampgroundMapViewSet')
-     #dumped_data = None
+     dumped_data = None
      if dumped_data is None:
          print ("Recreating Campground Cache")
          campground_array = {"type": "FeatureCollection", "features": []}
@@ -2118,25 +2149,32 @@ def campground_map_view(request, *args, **kwargs):
 
          dumped_data = json.dumps(campground_array)
          cache.set('CampgroundMapViewSet', dumped_data,  3600)
+     return dumped_data
      return HttpResponse(dumped_data, content_type='application/json')
 
 
 def places(request, *args, **kwargs):
-
-    dumped_data = cache.get('Places')
-    if dumped_data is None:
-        places_list = []
-        places_obj = Places.objects.all()
-        for p in places_obj:
-            gps = None
-            if p.wkb_geometry:
-                 gps = [p.wkb_geometry[0], p.wkb_geometry[1]]
-            places_list.append({'id': p.id, 'name': p.name, 'gps': gps, 'zoom_level': p.zoom_level})
-
-        dumped_data = geojson.dumps(places_list) 
-        cache.set('Places', dumped_data,  3600)
-
+    dumped_data = "[]"
+    if os.path.isfile(settings.DATA_STORE+"/places.json"):
+        f = open(settings.DATA_STORE+"/places.json", "r")
+        dumped_data = f.read()
+    else:
+        dumped_data = places_data()
+        f = open(settings.DATA_STORE+"/places.json", "w")
+        f.write(dumped_data)
+        f.close()
     return HttpResponse(dumped_data, content_type='application/json')
+
+def places_data():
+    places_list = []
+    places_obj = Places.objects.all()
+    for p in places_obj:
+        gps = None
+        if p.wkb_geometry:
+             gps = [p.wkb_geometry[0], p.wkb_geometry[1]]
+        places_list.append({'id': p.id, 'name': p.name, 'gps': gps, 'zoom_level': p.zoom_level})
+    dumped_data = geojson.dumps(places_list) 
+    return dumped_data 
 
 def get_booking_vehicle_info(request, *args, **kwargs):
     booking_id = kwargs.get('booking_id')

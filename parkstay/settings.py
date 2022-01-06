@@ -132,3 +132,11 @@ CAMPSITE_BOOKING_API_KEY = env('CAMPSITE_BOOKING_API_KEY','')
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 SESSION_FILE_PATH = env('SESSION_FILE_PATH', '/app/session_store/')
+
+DATA_STORE = env('DATA_STORE', os.path.join(BASE_DIR, 'data_store'))
+if os.path.isdir(DATA_STORE):
+    pass
+else:
+    os.mkdir(DATA_STORE)
+
+
