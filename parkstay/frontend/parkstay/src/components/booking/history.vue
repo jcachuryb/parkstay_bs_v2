@@ -6,7 +6,7 @@
                     <h3>Current Booking Details</h3>
                     <div class="row">
                         <div class="col-sm-3">
-                            <span><strong>Confirmation #</strong> : PS{{booking.id}}</span>
+                            <span><strong>Confirmation #</strong> : PB{{booking.id}}</span>
                         </div>
                         <div class="col-sm-3">
                             <span><strong>Arrival</strong> : {{booking.arrival | formatDate}}</span>

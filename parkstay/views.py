@@ -15,6 +15,7 @@ from django import forms
 #from ledger.basket.models import Basket
 from parkstay.forms import LoginForm, MakeBookingsForm, AnonymousMakeBookingsForm, VehicleInfoFormset
 from parkstay.exceptions import BindBookingException
+from django.core.exceptions import ValidationError
 from parkstay.models import (Campground,
                                 CampgroundNotice,
                                 CampsiteBooking,
@@ -607,8 +608,8 @@ class CancelBookingView(TemplateView):
                    'vouchers': [],
                    'system': settings.PS_PAYMENT_SYSTEM_ID,
                    'custom_basket': True,
-                   'booking_reference': 'PS-'+str(booking.id),
-                   'booking_reference_link': 'PS-'+str(booking.id)
+                   'booking_reference': settings.BOOKING_PREFIX+'-'+str(booking.id),
+                   'booking_reference_link': settings.BOOKING_PREFIX+'-'+str(booking.id)
 
                }
                checkouthash =  hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
@@ -646,11 +647,12 @@ class BookingSuccessView(TemplateView):
             #if self.request.user.is_authenticated:
             #    basket = Basket.objects.filter(status='Submitted', owner=request.user).order_by('-id')[:1]
             #else:
-            basket = Basket.objects.filter(status='Submitted', booking_reference='PS-'+str(booking.id)).order_by('-id')[:1]
+            basket = Basket.objects.filter(status='Submitted', booking_reference=settings.BOOKING_PREFIX+'-'+str(booking.id)).order_by('-id')[:1]
+            if basket.count() > 0:
+                pass
+            else:
+                raise ValidationError('Error unable to find basket') 
 
-
-            #booking = utils.get_session_booking(request.session)
-            #invoice_ref = request.GET.get('invoice')
             try:
                 utils.bind_booking(booking, basket)
                 utils.delete_session_booking(request.session)
@@ -919,6 +921,7 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['campground']['name'] = campground_query.name
         context['cg']['campground']['largest_camper'] = max_people
         context['cg']['campground']['largest_vehicle'] = max_vehicles
+        context['cg']['campground']['campground_type'] = campground_query.campground_type
         context['cg']['campground']['park'] = {}
         context['cg']['campground']['park']['id'] = campground_query.park.id
         context['cg']['campground']['park']['alert_count'] = campground_query.park.alert_count

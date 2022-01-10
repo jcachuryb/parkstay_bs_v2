@@ -312,8 +312,6 @@ export default {
                         'booking_policy': bookingpolicyid
                     };
                     end != null ? vm.price.date_end : '';
-                    console.log("CAMPSITE, PR");
-                    console.log(vm.price);
                     vm.showHistory();
                 }
                 else{

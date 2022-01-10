@@ -36,10 +36,30 @@ from ledger_api_client.utils import Order
 logger = logging.getLogger('booking_checkout')
 
 
-def create_booking_by_class(request,campground_id, campsite_class_id, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, num_vehicle=0,num_motorcycle=0,num_campervan=0,num_trailer=0, num_caravan=0, old_booking=None):
+def create_booking_by_class(request,campground_id, multiplesites_class_totals, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, num_vehicle=0,num_motorcycle=0,num_campervan=0,num_trailer=0, num_caravan=0, old_booking=None):
     """Create a new temporary booking in the system."""
     # get campground
     campground = Campground.objects.get(pk=campground_id)
+
+    num_adult_pool = num_adult
+    num_concession_pool = num_concession
+    num_child_pool = num_child
+    num_infant_pool = num_infant
+
+    min_people = 0
+    max_people = 0
+    for ms in multiplesites_class_totals.keys():
+        msrange = int(multiplesites_class_totals[ms]) + 1
+        campsite_class_id = ms
+        for x in range(1, msrange):
+
+            # fetch all the campsites and applicable rates for the campground
+            sites_qs = Campsite.objects.filter(
+                campground=campground,
+                campsite_class=campsite_class_id
+            )
+            min_people = min_people + sites_qs[0].min_people
+            max_people = max_people + sites_qs[0].max_people 
 
     # TODO: date range check business logic
     # TODO: number of people check? this is modifiable later, don't bother
@@ -48,45 +68,7 @@ def create_booking_by_class(request,campground_id, campsite_class_id, start_date
     # wrap all this behaviour up in a transaction
     with transaction.atomic():
 
-        # fetch all the campsites and applicable rates for the campground
-        sites_qs = Campsite.objects.filter(
-            campground=campground,
-            campsite_class=campsite_class_id
-        )
-        #ground = booking_availability.get_campground(campground_id)
-        #sites_qs = get_campsites_for_campground(ground,gear_type)
-        #sites_array = []
-        #for s in sites_qs:
-        #    sites_array.append({'pk': s['id'], 'data': s})
-
-
-        if not sites_qs.exists():
-            raise ValidationError('No matching campsites found.')
-        # get availability for sites, filter out the non-clear runs
-        availability = get_campsite_availability(sites_qs, start_date, end_date, None,old_booking)
-        excluded_site_ids = set()
-        for site_id, dates in availability.items():
-            if not all([v[0] == 'open' for k, v in dates.items()]):
-                excluded_site_ids.add(site_id)
-        # create a list of campsites without bookings for that period
-        sites = [x for x in sites_qs if x.pk not in excluded_site_ids]
-
-        if not sites:
-            raise ValidationError('Campsite class unavailable for specified time period.')
-
-        # TODO: add campsite sorting logic based on business requirements
-        # for now, pick the first campsite in the list
-        site = sites[0]
-
-        # Prevent booking if max people passed
-        total_people = num_adult + num_concession + num_child + num_infant
-        if total_people > site.max_people:
-            raise ValidationError('Maximum number of people exceeded for the selected campsite')
-        # Prevent booking if less than min people
-        if total_people < site.min_people:
-            raise ValidationError('Number of people is less than the minimum allowed for the selected campsite')
-
-        # Create a new temporary booking with an expiry timestamp (default 20mins)
+        # Create a new temporary booking with an expiry timestamp 
         booking = Booking.objects.create(
             booking_type=3,
             arrival=start_date,
@@ -105,53 +87,175 @@ def create_booking_by_class(request,campground_id, campsite_class_id, start_date
             expiry_time=timezone.now() + timedelta(seconds=settings.BOOKING_TIMEOUT),
             campground=campground,
             old_booking=old_booking,
-            campsite_oracle_code=sites_qs[0].campground.oracle_code
+            campsite_oracle_code=campground.oracle_code
         )
 
+        row_num_adult = 0
+        row_num_concession = 0
+        row_num_child = 0
+        row_num_infant = 0
 
-        daily_rate_hash = {}
-        daily_rates = [get_campsite_current_rate(request, c, booking.arrival.strftime('%Y-%m-%d'), booking.departure.strftime('%Y-%m-%d')) for c in sites_qs]
-        for dr in daily_rates[0]:
-            daily_rate_hash[dr['date']] = dr
+        for ms in multiplesites_class_totals.keys():
+            msrange = int(multiplesites_class_totals[ms]) + 1
+            campsite_class_id = ms
+
+            for x in range(1, msrange):
+
+                # fetch all the campsites and applicable rates for the campground
+                sites_qs = Campsite.objects.filter(
+                    campground=campground,
+                    campsite_class=campsite_class_id
+                )
+
+                row_num_adult = 0
+                row_num_concession = 0
+                row_num_child = 0
+                row_num_infant = 0
+
+                rna = sites_qs[0].max_people
+
+                if rna > 0:
+                    if num_adult_pool >= rna:
+                         row_num_adult = rna
+                         num_adult_pool = num_adult_pool - rna
+                         rna = rna - rna
+                    else:
+                        if num_adult_pool > 0:
+                          row_num_adult = num_adult_pool
+                          rna = rna - row_num_adult
+                          num_adult_pool = num_adult_pool - num_adult_pool
+                if rna > 0:
+                    if num_concession_pool >= rna:
+                          row_num_concession = rna
+                          num_concession_pool = num_concession_pool - rna
+                          rna = rna - rna
+                    else:
+                        if num_concession_pool > 0:
+                            row_num_concession = num_concession_pool
+                            rna = rna - num_concession_pool
+                            num_concession_pool = num_concession_pool - num_concession_pool
+
+                if rna > 0:
+                    if num_child_pool >= rna:
+                        row_num_child = rna
+                        num_child_pool = num_child_pool - rna
+                        rna = rna - rna
+                    else:
+                        if num_child_pool > 0:
+                           row_num_child = num_child_pool
+                           rna = rna - num_child_pool
+                           num_child_pool = num_child_pool - num_child_pool
+
+                if rna > 0:
+                    if num_infant_pool >= rna:
+                        row_num_infant = rna
+                        num_infant_pool = num_infant_pool - rna
+                        rna = rna - rna
+                    else:
+                        if num_infant_pool > 0:
+                           row_num_infant = num_infant_pool
+                           rna = rna - num_child_pool
+                           num_infant_pool = num_infant_pool - num_infant_pool
+
+                #ground = booking_availability.get_campground(campground_id)
+                #sites_qs = get_campsites_for_campground(ground,gear_type)
+                #sites_array = []
+                #for s in sites_qs:
+                #    sites_array.append({'pk': s['id'], 'data': s})
+
+                if not sites_qs.exists():
+                    raise ValidationError('No matching campsites found.')
+                # get availability for sites, filter out the non-clear runs
+                availability = get_campsite_availability(sites_qs, start_date, end_date, None,old_booking)
+                excluded_site_ids = set()
+                for site_id, dates in availability.items():
+                    if not all([v[0] == 'open' for k, v in dates.items()]):
+                        excluded_site_ids.add(site_id)
+                # create a list of campsites without bookings for that period
+                sites = [x for x in sites_qs if x.pk not in excluded_site_ids]
+
+                if not sites:
+                    raise ValidationError('Campsite class unavailable for specified time period.')
+
+                # TODO: add campsite sorting logic based on business requirements
+                # for now, pick the first campsite in the list
+                site = sites[0]
+
+                # Prevent booking if max people passed
+                total_people = num_adult + num_concession + num_child + num_infant
+
+                if total_people > max_people:
+                    raise ValidationError('Maximum number of people exceeded for the selected campsite')
+                # Prevent booking if less than min people
+                if total_people < min_people:
+                    raise ValidationError('Number of people is less than the minimum allowed for the selected campsite')
+
+                ## Create a new temporary booking with an expiry timestamp (default 20mins)
+                #booking = Booking.objects.create(
+                #    booking_type=3,
+                #    arrival=start_date,
+                #    departure=end_date,
+                #    details={
+                #        'num_adult': num_adult,
+                #        'num_concession': num_concession,
+                #        'num_child': num_child,
+                #        'num_infant': num_infant,
+                #        'num_vehicle': num_vehicle,
+                #        'num_campervan' : num_campervan,
+                #        'num_motorcycle' : num_motorcycle,
+                #        'num_trailer' : num_trailer,
+                #        'num_caravan' : num_caravan
+                #    },
+                #    expiry_time=timezone.now() + timedelta(seconds=settings.BOOKING_TIMEOUT),
+                #    campground=campground,
+                #    old_booking=old_booking,
+                #    campsite_oracle_code=sites_qs[0].campground.oracle_code
+                #)
+
+
+                daily_rate_hash = {}
+                daily_rates = [get_campsite_current_rate(request, c, booking.arrival.strftime('%Y-%m-%d'), booking.departure.strftime('%Y-%m-%d')) for c in sites_qs]
+                for dr in daily_rates[0]:
+                    daily_rate_hash[dr['date']] = dr
 
 
 
-        for i in range((end_date - start_date).days):
-            cs=site
-            booking_date = start_date + timedelta(days=i)
+                for i in range((end_date - start_date).days):
+                    cs=site
+                    booking_date = start_date + timedelta(days=i)
 
-            total_amount_adult = Decimal(daily_rate_hash[str(booking_date)]['rate']['adult']) * int(num_adult)
-            total_amount_concession = Decimal(daily_rate_hash[str(booking_date)]['rate']['concession']) * int(num_concession)
-            total_amount_child = Decimal(daily_rate_hash[str(booking_date)]['rate']['child']) * int(num_child)
-            total_amount_infant = Decimal(daily_rate_hash[str(booking_date)]['rate']['infant']) * int(num_infant)
-            total_day_amount = total_amount_adult + total_amount_concession + total_amount_child + total_amount_infant
-            booking_policy_id = daily_rate_hash[str(booking_date)]['booking_policy']
+                    total_amount_adult = Decimal(daily_rate_hash[str(booking_date)]['rate']['adult']) * int(row_num_adult)
+                    total_amount_concession = Decimal(daily_rate_hash[str(booking_date)]['rate']['concession']) * int(row_num_concession)
+                    total_amount_child = Decimal(daily_rate_hash[str(booking_date)]['rate']['child']) * int(row_num_child)
+                    total_amount_infant = Decimal(daily_rate_hash[str(booking_date)]['rate']['infant']) * int(row_num_infant)
+                    total_day_amount = total_amount_adult + total_amount_concession + total_amount_child + total_amount_infant
+                    booking_policy_id = daily_rate_hash[str(booking_date)]['booking_policy']
 
-            BP = None
-            if booking_policy_id:
+                    BP = None
+                    if booking_policy_id:
 
-                BP_obj = parkstay_models.BookingPolicy.objects.filter(id=booking_policy_id, active=True)
-                if BP_obj.count() > 0:
-                    BP = BP_obj[0]
-                else:
-                    raise ValidationError("This campground does not contain an active booking policy")
+                        BP_obj = parkstay_models.BookingPolicy.objects.filter(id=booking_policy_id, active=True)
+                        if BP_obj.count() > 0:
+                            BP = BP_obj[0]
+                        else:
+                            raise ValidationError("This campground does not contain an active booking policy")
 
-            else:
-                raise ValidationError("This campground does not contain a booking policy")
+                    else:
+                        raise ValidationError("This campground does not contain a booking policy")
 
 
 
-            cb = CampsiteBooking.objects.create(
-                campsite=cs,
-                booking_type=3,
-                date=start_date + timedelta(days=i),
-                booking=booking,
-                booking_policy=BP,
-                amount_adult=total_amount_adult,
-                amount_infant=total_amount_infant,
-                amount_child=total_amount_child,
-                amount_concession=total_amount_concession
-            )
+                    cb = CampsiteBooking.objects.create(
+                        campsite=cs,
+                        booking_type=3,
+                        date=start_date + timedelta(days=i),
+                        booking=booking,
+                        booking_policy=BP,
+                        amount_adult=total_amount_adult,
+                        amount_infant=total_amount_infant,
+                        amount_child=total_amount_child,
+                        amount_concession=total_amount_concession
+                    )
 
     # On success, return the temporary booking
     return booking
@@ -165,7 +269,6 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
     #if old_booking:
     #    old_booking_id = old_booking
 
-    print ("create_booking_by_site")
     campsite_qs = Campsite.objects.filter(pk__in=sites_qs)
     num_adult_pool = num_adult
     num_concession_pool = num_concession
@@ -173,8 +276,6 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
     num_infant_pool = num_infant
     selecttype = request.POST.get('selecttype',None)
     multiplesites = json.loads(request.POST.get('multiplesites', "[]"))
-
-
 
     with transaction.atomic():
         # get availability for campsite, error out if booked/closed
@@ -1517,14 +1618,14 @@ def clean_none_to_empty(value):
 def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=False):
     old_booking = '' 
     if booking.old_booking:
-        old_booking = 'PS-'+str(booking.old_booking)
+        old_booking = 'PB-'+str(booking.old_booking)
 
     basket_params = {
         'products': lines,
         'vouchers': vouchers,
         'system': settings.PS_PAYMENT_SYSTEM_ID,
         'custom_basket': True,
-        'booking_reference': 'PS-'+str(booking.id),
+        'booking_reference': 'PB-'+str(booking.id),
         'booking_reference_link': old_booking
     }
     #basket, basket_hash = create_basket_session(request, basket_params)
@@ -1669,7 +1770,6 @@ def bind_booking(booking, basket):
         if inv.system not in [settings.PS_PAYMENT_SYSTEM_ID.replace("S","0")]:
             logger.error(u'{} tried making a booking with an invoice from another system with reference number {}'.format(u'User {} with id {}'.format(booking.customer.get_full_name(), booking.customer.id) if booking.customer else u'An anonymous user', inv.reference))
             raise BindBookingException
-
         #try:
         #    b = BookingInvoice.objects.get(invoice_reference=invoice_ref)
         #    logger.error(u'{} tried making a booking with an already used invoice with reference number {}'.format(u'User {} with id {}'.format(booking.customer.get_full_name(), booking.customer.id) if booking.customer else u'An anonymous user', inv.reference))
@@ -1679,6 +1779,7 @@ def bind_booking(booking, basket):
             # FIXME: replace with server side notify_url callback
             #book_inv, created = BookingInvoice.objects.get_or_create(booking=booking, invoice_reference=invoice_ref)
             # set booking to be permanent fixture
+        
         logger.info(u'preparing to complete booking {}'.format(booking.id))
         booking.booking_type = 1  # internet booking
         booking.expiry_time = None

@@ -166,8 +166,8 @@
                         Changed again to utilize changes in api to further enable forwarding offline sites to availability app
                         -->
                        <a v-if="f.campground_type == 0" class="button formButton1" style="width:100%;" v-bind:href="parkstayUrl+'/search-availablity/campground/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
-                       <a v-else-if="f.campground_type == 1" class="button formButton" style="width:100%;" v-bind:href="f.info_url" target="_blank">More Info</a>
-                       <a v-else class="button formButton2" v-bind:href="f.info_url" style="width:100%;" target="_blank">More info</a>
+                       <a v-else-if="f.campground_type == 1" class="button formButton" style="width:100%;" v-bind:href="parkstayUrl+'/search-availablity/campground/?site_id='+f.id" target="_blank">More Info</a>
+                       <a v-else class="button formButton2" v-bind:href="parkstayUrl+'/search-availablity/campground/?site_id='+f.id" style="width:100%;" target="_blank">More info</a>
                    </div>
                </div>
             </div>
@@ -903,8 +903,8 @@ export default {
                         $("#mapPopupDescription")[0].innerHTML = feature.get('description');
 
                         // Disabled below line,as api is being used to differentiate btw offline and online site
-                        $("#mapPopupInfo").attr('href', feature.get('info_url'));
-
+                        // $("#mapPopupInfo").attr('href', feature.get('info_url'));
+                        $("#mapPopupInfo").attr('href',vm.parkstayUrl+'/search-availablity/campground/?site_id='+feature.getId()));
                         // Made changes to show only one button -->
                         $("#mapPopupBookInfo").attr('href', vm.parkstayUrl+'/search-availablity/campground/?site_id='+feature.getId()+'&'+vm.bookingParam);
 
@@ -974,6 +974,7 @@ export default {
                     $("#mapPopupBook").hide();
                     $("#mapPopupInfo").show();
                     $("#mapPopupInfo").attr('href', feature.get('info_url'));
+                    $("#mapPopupInfo").attr('href', vm.parkstayUrl+'/search-availablity/campground/site_id='+feature.getId());
                 }
             }
         },
@@ -1812,13 +1813,15 @@ export default {
                 } else if (feature.get('campground_type') == 1 ) {
                     $("#mapPopupBook").hide ()
                     $("#mapPopupInfo").show()
-                    $("#mapPopupInfo").attr('href', feature.get('info_url'));
+                    // $("#mapPopupInfo").attr('href', feature.get('info_url'));
+                    $("#mapPopupInfo").attr('href', vm.parkstayUrl+'/search-availablity/campground/?site_id='+feature.getId());
                 }
                 else {
                     // Now,this section is used for the partner accommodation
                     $("#mapPopupBook").hide()
                     $("#mapPopupInfo").show()
-                    $("#mapPopupInfo").attr('href', feature.get('info_url'));
+                    // $("#mapPopupInfo").attr('href', feature.get('info_url'));
+                    $("#mapPopupInfo").attr('href', vm.parkstayUrl+'/search-availablity/campground/?site_id='+feature.getId());
                 }
                 return true;
             }, {
