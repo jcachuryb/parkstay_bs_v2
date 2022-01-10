@@ -139,4 +139,4 @@ if os.path.isdir(DATA_STORE):
 else:
     os.mkdir(DATA_STORE)
 
-
+BOOKING_PREFIX="PB"

@@ -53,7 +53,7 @@
                    </div>
                  </div>
 		 {% endif %}
-
+        {% if cg.campground.campground_type == 0 %}
         <ul class="nav nav-pills ">
           <li class="nav-item">
             <a class="nav-link active" id='campsite-booking-tab' aria-current="page" href="#" onclick="search_avail.change_tabs('campsite-booking');" >BOOKING</a>
@@ -62,6 +62,8 @@
             <a class="nav-link" id='campground-details-tab' href="#" onclick="search_avail.change_tabs('campground-details');" >CAMPGROUND DETAILS</a>
           </li>
         </ul>
+	{% endif %}
+
 
         <div id='campsite-booking'>
         <br>
@@ -577,47 +579,52 @@
 <script>
 window.onload = function() {
    search_avail.var.page = 'campsite-availablity';
+   
+   {% if cg.campground.campground_type == 0 %}
 
-   {% if cg.arrival is not None %}
+       {% if cg.arrival is not None %}
+       {% endif %}
+       {% if cg.departure is not None %}
+       {% endif %}
+       search_avail.var.campground_id = '{{ cg.campground.id }}';
+       search_avail.var.campers.adult = parseInt('{{ cg.num_adult }}');
+       search_avail.var.campers.concession = parseInt('{{ cg.num_concession }}');
+       search_avail.var.campers.children = parseInt('{{ cg.num_children }}');
+       search_avail.var.campers.infant = parseInt('{{ cg.num_infants }}');
+
+       search_avail.var.vehicles.vehicle =  parseInt('{{ cg.num_vehicle }}');
+       search_avail.var.vehicles.campervan = parseInt('{{ cg.num_campervan }}');
+       search_avail.var.vehicles.motorcycle = parseInt('{{ cg.num_motorcycle }}');
+       search_avail.var.vehicles.trailer = parseInt('{{ cg.num_trailer }}');
+       search_avail.var.vehicles.caravan = parseInt('{{ cg.num_caravan }}');
+
+       search_avail.total_campers();
+       search_avail.total_vehicles();
+       search_avail.get_search_locations();
+       search_avail.get_locations();
+       search_avail.get_places();
+       search_avail.init_dateselection({% if cg.arrival %}'{{ cg.arrival }}'{% else %}null{% endif %},{% if cg.departure %}'{{ cg.departure }}'{% else %}null{% endif %});
+       search_avail.init();
+
+       $(".filter-features").click(function() {
+           console.log("Filters Updated (Reloading)");
+           search_avail.load_campsite_availabilty();
+       });
+
+
+       {% if change_booking.id > 0 %}
+       search_avail.var.change_booking_id = parseInt('{{ change_booking.id }}');
+       search_avail.var.selecttype = '{{ change_booking.details.selecttype }}';
+          {% if change_booking.details.selecttype == 'multiple' %}
+             search_avail.var.multiplesites = {{ change_booking.details.multiplesites }};
+             $('#multiple-campsite-selection').click();
+          {% endif %}
+
+       {% endif %}
+   {% else %}
+         search_avail.change_tabs('campground-details');        
+
    {% endif %}
-   {% if cg.departure is not None %}
-   {% endif %}
-   search_avail.var.campground_id = '{{ cg.campground.id }}';
-   search_avail.var.campers.adult = parseInt('{{ cg.num_adult }}');
-   search_avail.var.campers.concession = parseInt('{{ cg.num_concession }}');
-   search_avail.var.campers.children = parseInt('{{ cg.num_children }}');
-   search_avail.var.campers.infant = parseInt('{{ cg.num_infants }}');
-
-   search_avail.var.vehicles.vehicle =  parseInt('{{ cg.num_vehicle }}');
-   search_avail.var.vehicles.campervan = parseInt('{{ cg.num_campervan }}');
-   search_avail.var.vehicles.motorcycle = parseInt('{{ cg.num_motorcycle }}');
-   search_avail.var.vehicles.trailer = parseInt('{{ cg.num_trailer }}');
-   search_avail.var.vehicles.caravan = parseInt('{{ cg.num_caravan }}');
-
-   search_avail.total_campers();
-   search_avail.total_vehicles();
-   search_avail.get_search_locations();
-   search_avail.get_locations();
-   search_avail.get_places();
-   search_avail.init_dateselection({% if cg.arrival %}'{{ cg.arrival }}'{% else %}null{% endif %},{% if cg.departure %}'{{ cg.departure }}'{% else %}null{% endif %});
-   search_avail.init();
-
-   $(".filter-features").click(function() {
-       console.log("Filters Updated (Reloading)");
-       search_avail.load_campsite_availabilty();
-   });
-
-
-   {% if change_booking.id > 0 %}
-   search_avail.var.change_booking_id = parseInt('{{ change_booking.id }}');
-   search_avail.var.selecttype = '{{ change_booking.details.selecttype }}';
-      {% if change_booking.details.selecttype == 'multiple' %}
-         search_avail.var.multiplesites = {{ change_booking.details.multiplesites }};
-         $('#multiple-campsite-selection').click();
-      {% endif %}
-
-   {% endif %}
-
    console.log('loaded');
 }
 </script>

@@ -113,8 +113,7 @@ def send_booking_confirmation(booking_id):
     #with open(settings.BASE_DIR+"/parkstay/static/parkstay/pdf/parkstay-covid.pdf") as opened:
     #     covidfile = opened.read()
 
-    #email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PS{}.pdf'.format(booking.id), att.read(), 'application/pdf'), ('covid-PS{}.pdf'.format(booking.id), covidfile, 'application/pdf')])
-    email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PS{}.pdf'.format(booking.id), pdf_buffer, 'application/pdf'),])
+    email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PB{}.pdf'.format(booking.id), pdf_buffer, 'application/pdf'),])
     email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
     booking.confirmation_sent = True
     booking.save()

@@ -227,10 +227,10 @@ export default {
               return full.status != "Canceled"
                 ? "<a href='/api/get_confirmation/" +
                     full.id +
-                    "' target='_blank' class='text-primary'>PS" +
+                    "' target='_blank' class='text-primary'>PB" +
                     data +
                     "</a><br/>"
-                : "PS" + full.id;
+                : "PB" + full.id;
             }
           },
           {
@@ -573,7 +573,7 @@ export default {
       //        type: "success",
       //        title: "Booking Canceled",
       //        html:
-      //          "Booking PS" + vm.selected_booking.id + " has been cancelled"
+      //          "Booking PB" + vm.selected_booking.id + " has been cancelled"
       //      });
       //    });
       //    //bus.$emit('showAlert', 'cancelBooking');

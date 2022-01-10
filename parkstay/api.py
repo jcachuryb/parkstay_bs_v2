@@ -988,9 +988,6 @@ class DecimalEncoder(json.JSONEncoder):
 
 def campsite_availablity_view(request,  *args, **kwargs):
 
-    #campground_id):
-    print ("CAMPSITE AVAIL 2")
-    
     #import time
     #time.sleep(3)
     """Fetch full campsite availability for a campground."""
@@ -1326,7 +1323,6 @@ class BaseAvailabilityViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CampgroundSerializer
 
     def retrieve(self, request, pk=None, ratis_id=None, format=None, show_all=False):
-        print ("CAMPSITE AVAIL")
         """Fetch full campsite availability for a campground."""
         # convert GET parameters to objects
         ground = self.get_object()
@@ -2571,14 +2567,19 @@ def create_booking(request, *args, **kwargs):
     num_motorcycle = serializer.validated_data['num_motorcycle']
     num_trailer = serializer.validated_data['num_trailer']
     old_booking = serializer.validated_data['old_booking']
-    print ("context_p")
-    print (context_p['PARKSTAY_PERMISSIONS']['p0'])
+
+    multiplesites_class_totals = {}
     if context_p['PARKSTAY_PERMISSIONS']['p0'] is True:
        selecttype = request.POST.get('selecttype',None)
        multiplesites = json.loads(request.POST.get('multiplesites', "[]"))
+       multiplesites_class_totals = json.loads(request.POST.get('multiplesites_class_totals', "{}"))
     else:
        selecttype = 'single'
        multiplesites = []
+       multiplesites_class_totals = {}
+
+    print (multiplesites_class_totals)
+
     if 'ps_booking' in request.session:
         # Delete booking and start again
         booking_id = request.session['ps_booking']
@@ -2599,11 +2600,16 @@ def create_booking(request, *args, **kwargs):
     if campsite:
         campsite_obj = Campsite.objects.prefetch_related('campground').get(pk=campsite)
         if campsite_obj.campground.site_type != 0:
-            return HttpResponse(geojson.dumps({
-                'status': 'error',
-                'msg': 'Campground doesn\'t support per-site bookings.'
-            }), status=400, content_type='application/json')
+            if context_p['PARKSTAY_PERMISSIONS']['p0'] is True:
+                pass
+            else:
+                return HttpResponse(geojson.dumps({
+                    'status': 'error',
+                    'msg': 'Campground doesn\'t support per-site bookings.'
+                }), status=400, content_type='application/json')
     # for the rest, check that both campsite_class and campground are provided
+    elif len(multiplesites_class_totals) > 0:
+        pass
     elif (not campsite_class) or (not campground):
         return HttpResponse(geojson.dumps({
             'status': 'error',
@@ -2615,12 +2621,9 @@ def create_booking(request, *args, **kwargs):
         if campsite:
             booking = None
             if selecttype == 'multiple':
-                print (multiplesites)
                 cs_obj = Campsite.objects.filter(id__in=multiplesites)
-                #cs_obj = multiplesites
             else:
                 cs_obj = Campsite.objects.filter(id=campsite)
-                #cs_obj = campsite
 
             booking = utils.create_booking_by_site(request,
                 cs_obj, start_date, end_date,
@@ -2631,21 +2634,23 @@ def create_booking(request, *args, **kwargs):
             booking.created_by = request.user.id
             booking.save()
         else:
+            if selecttype == 'multiple':
+                 pass 
+            else:
+                 multiplesites_class_totals[campsite_class] = 1
+             
             booking = utils.create_booking_by_class(request,
-                campground, campsite_class,
+                campground, multiplesites_class_totals,
                 start_date, end_date,
                 num_adult, num_concession,
                 num_child, num_infant,
                 num_vehicle, num_campervan, 
-                num_motorcycle, num_trailer,num_caravan, old_booking
+                num_motorcycle, num_trailer,num_caravan, old_booking,
             )
+
             booking.created_by = request.user.id
             booking.save()
 
-        
-
-        #print ("DATA")
-        #print (campsite_obj)
         booking_campsite = booking.campsites.all()[0].campsite if booking else None
         parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
         entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and booking_campsite.campground.park.entry_fee_required) else None
@@ -2836,7 +2841,7 @@ def get_confirmation(request, *args, **kwargs):
         return HttpResponse('Booking unavailable', status=403)
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="confirmation-PS{}.pdf"'.format(booking_id)
+    response['Content-Disposition'] = 'attachment; filename="confirmation-'+settings.BOOKING_PREFIX+'{}.pdf"'.format(booking_id)
 
     #pdf.create_confirmation(response, booking)
     response.content = doctopdf.create_confirmation(booking)
@@ -3134,8 +3139,8 @@ class BookingViewSet(viewsets.ModelViewSet):
                   if refund_status != 'All':
                       booking_query &= Q(property_cache__refund_status=refund_status)
             if search or refund_status:
-                if search[:2] == 'PS':
-                    bid = search.replace("PS","")
+                if search[:2] == settings.BOOKING_PREFIX:
+                    bid = search.replace(settings.BOOKING_PREFIX,"")
                     booking_query &= Q(id=int(bid))
                 else:
                     pass

@@ -379,8 +379,6 @@ class Campground(models.Model):
         try:
             with transaction.atomic():
                 for c in self.campsites.all():
-                    print ("CAMPSITE")
-                    print (data)
                     cr = CampsiteRate(**data)
                     cr.campsite = c
                     cr.save()
@@ -1517,7 +1515,7 @@ class Booking(models.Model):
 
     @property
     def confirmation_number(self):
-        return 'PS{}'.format(self.pk)
+        return settings.BOOKING_PREFIX+'{}'.format(self.pk)
 
     @property
     def active_invoice(self):
