@@ -473,11 +473,11 @@ class CampgroundGroupCampgrounds(models.Model):
 
       class Meta:
           managed = False
-          abstract = True
+          #abstract = True
           db_table = 'parkstay_campgroundgroup_campgrounds'
 
       def __str__(self):
-          return str(campground_id)
+          return str(self.campground_id)
 #class CampgroundGroupMembers(models.Model):
 #      #id = models.IntegerField()
 #      #campgroundgroup_id = models.ForeignKey(CampgroundGroup, related_name='campgroundgroupcampgrounds')
