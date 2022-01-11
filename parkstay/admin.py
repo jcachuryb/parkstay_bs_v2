@@ -163,10 +163,11 @@ class CampgroundGroupAdmin(admin.ModelAdmin):
                            if deleterow is True:
                               models.CampgroundGroupCampgrounds.objects.filter(id=int(rowid)).delete()
                            else:
-                              cgc = models.CampgroundGroupCampgrounds.objects.get(id=int(rowid))
-                              cgc.campground_id = int(campground)
-                              cgc.campgroundgroup_id = int(campgroundgroup)
-                              cgc.save()
+                              if models.CampgroundGroupCampgrounds.objects.filter(id=int(rowid)).count() > 0:
+                                 cgc = models.CampgroundGroupCampgrounds.objects.get(id=int(rowid))
+                                 cgc.campground_id = int(campground)
+                                 cgc.campgroundgroup_id = int(campgroundgroup)
+                                 cgc.save()
                    else:
                        if len(campground) > 0:
                           models.CampgroundGroupCampgrounds.objects.create(campground_id=int(campground),campgroundgroup_id=int(campgroundgroup_prefix))
