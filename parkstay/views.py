@@ -539,16 +539,35 @@ class CancelBookingView(TemplateView):
         #today = timezone.now().date()
         today = datetime.now().date()
 
+        only_cancel_booking = False
+        cancel_past_booking = False
+        cancel_past_booking_override = request.GET.get('override_cancellation','false')
+        cancel_past_booking_override_access = False
+
+        if request.user.is_authenticated:
+            if request.user.is_staff is True:
+                if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=2).count() > 0:
+                       only_cancel_booking = True
+
+        if request.user.is_authenticated:
+            if request.user.is_staff is True:
+                if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=3).count() > 0:
+                       cancel_past_booking = True
+
+        if cancel_past_booking_override == 'true' and cancel_past_booking == True:
+               cancel_past_booking_override_access = True
+
         booking = None
         booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
         if booking_data.count() > 0:
             booking = booking_data[0]
             if booking.customer.id == request.user.id or request.user.is_staff is True:
-                    if booking.arrival > today:
+                    if booking.arrival > today or cancel_past_booking_override_access == True:
                              booking_totals = utils.booking_total_to_refund(booking)
                              totalbooking = booking_totals['refund_total']
                              campsitebooking = booking_totals['campsitebooking']
                              cancellation_data = booking_totals['cancellation_data']
+
                              #campsitebooking = CampsiteBooking.objects.filter(booking_id=booking_id)
                              #totalbooking = Decimal('0.00')
 
@@ -566,12 +585,15 @@ class CancelBookingView(TemplateView):
                                  'booking': booking,
                                  'campsitebooking': campsitebooking,
                                  'cancellation_data' : cancellation_data,
-                                 'totalbooking' : str(totalbooking)
+                                 'totalbooking' : str(totalbooking),
+                                 'only_cancel_booking' : only_cancel_booking,
+                                 'cancel_past_booking_override_access' : cancel_past_booking_override_access
                                  }
 
                              response = render(request, self.template_name, context)
                              return response
-        context = {}
+        context = {'cancel_past_booking': cancel_past_booking, 'booking': booking , 'today': today}
+
         self.template_name = 'ps/search_availabilty_campground_cancel_booking_error.html'
         return render(request, self.template_name, context)
 
@@ -579,53 +601,76 @@ class CancelBookingView(TemplateView):
     def post(self, request, *args, **kwargs):
         booking_id = kwargs['booking_id']
         booking = Booking.objects.get(id=int(booking_id))
+        only_cancel_booking = False 
+
+        if request.user.is_authenticated:
+            if request.user.is_staff is True:
+                if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=2).count() > 0:
+                       ocb = request.POST.get('only_cancel_booking', False)
+                       if ocb == 'true':
+                           only_cancel_booking = True
+
         if booking.customer.id == request.user.id or request.user.is_staff is True:
-               # > remove any sessions
-               if request.session:
-                  if 'ps_booking' in request.session:
-                      booking_session = utils.get_session_booking(request.session)
-                      if booking_session.booking_type == 3:
-                         booking_session.delete()
-                      utils.delete_session_booking(request.session)
-               # < remove any sessions
 
-               # Attemping to refund
-               booking_totals = utils.booking_total_to_refund(booking)
-               totalbooking = booking_totals['refund_total']
-               campsitebooking = booking_totals['campsitebooking']
-               cancellation_data = booking_totals['cancellation_data']
+               if only_cancel_booking is True:
+                    jsondata = {}
+                    booking.is_canceled = True
+                    booking.canceled_by = request.user
+                    booking.cancelation_time = timezone.now()
+                    booking.cancellation_reason = "Booking Cancelled Online"
+                    booking.save()
+                    jsondata['message'] = 'success'
+                    jsondata['status'] = 200
+                    response = HttpResponse(json.dumps(jsondata), content_type='application/json')
+                    return response
+               else:
+                    # > remove any sessions
+                    if request.session:
+                       if 'ps_booking' in request.session:
+                           booking_session = utils.get_session_booking(request.session)
+                           if booking_session.booking_type == 3:
+                              booking_session.delete()
+                           utils.delete_session_booking(request.session)
+                    # < remove any sessions
 
-               ## PLACE IN UTILS
-               lines = []
-               lines = utils.price_or_lineitemsv2old_booking(request,booking, lines)
-               #cancellation_data =  utils.booking_change_fees(booking)
-               cancellation_data = utils.booking_cancellation_fees(booking)
+                    # Attemping to refund
+                    booking_totals = utils.booking_total_to_refund(booking)
+                    totalbooking = booking_totals['refund_total']
+                    campsitebooking = booking_totals['campsitebooking']
+                    cancellation_data = booking_totals['cancellation_data']
 
-               lines.append({'ledger_description':'Booking Cancellation Fee',"quantity":1,"price_incl_tax":str(cancellation_data['cancellation_fee']),"oracle_code":booking.campsite_oracle_code, 'line_status': 1})
+                    ## PLACE IN UTILS
+                    lines = []
+                    lines = utils.price_or_lineitemsv2old_booking(request,booking, lines)
+                    #cancellation_data =  utils.booking_change_fees(booking)
+                    cancellation_data = utils.booking_cancellation_fees(booking)
+                    
+                    
+                    lines.append({'ledger_description':'Booking Cancellation Fee',"quantity":1,"price_incl_tax":str(cancellation_data['cancellation_fee']),"oracle_code":booking.campsite_oracle_code, 'line_status': 1})
            
-               basket_params = {
-                   'products': lines,
-                   'vouchers': [],
-                   'system': settings.PS_PAYMENT_SYSTEM_ID,
-                   'custom_basket': True,
-                   'booking_reference': settings.BOOKING_PREFIX+'-'+str(booking.id),
-                   'booking_reference_link': settings.BOOKING_PREFIX+'-'+str(booking.id)
+                    basket_params = {
+                        'products': lines,
+                        'vouchers': [],
+                        'system': settings.PS_PAYMENT_SYSTEM_ID,
+                        'custom_basket': True,
+                        'booking_reference': settings.BOOKING_PREFIX+'-'+str(booking.id),
+                        'booking_reference_link': settings.BOOKING_PREFIX+'-'+str(booking.id)
 
-               }
-               checkouthash =  hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
-               request.session['checkouthash'] = checkouthash
+                    }
+                    checkouthash =  hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
+                    request.session['checkouthash'] = checkouthash
 
-               return_url = request.build_absolute_uri()+"/booking/cancellation-success/?checkouthash="+checkouthash
-               return_preload_url = request.build_absolute_uri()+"/booking/return-cancelled/"
-               jsondata = process_api_refund(request, basket_params, booking.customer.id, return_url, return_preload_url)
-               if jsondata['message'] == 'success':
-                   booking.is_canceled = True
-                   booking.canceled_by = request.user
-                   booking.cancelation_time = timezone.now()
-                   booking.cancellation_reason = "Booking Cancelled Online"
-                   booking.save()
-               response = HttpResponse(json.dumps(jsondata), content_type='application/json')
-               return response
+                    return_url = request.build_absolute_uri()+"/booking/cancellation-success/?checkouthash="+checkouthash
+                    return_preload_url = request.build_absolute_uri()+"/booking/return-cancelled/"
+                    jsondata = process_api_refund(request, basket_params, booking.customer.id, return_url, return_preload_url)
+                    if jsondata['message'] == 'success':
+                        booking.is_canceled = True
+                        booking.canceled_by = request.user
+                        booking.cancelation_time = timezone.now()
+                        booking.cancellation_reason = "Booking Cancelled Online"
+                        booking.save()
+                    response = HttpResponse(json.dumps(jsondata), content_type='application/json')
+                    return response
 
 class BookingSuccessView(TemplateView):
     template_name = 'ps/booking/success.html'

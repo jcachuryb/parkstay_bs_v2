@@ -857,7 +857,10 @@ class ParkstayPermission(models.Model):
       PERMISSION_GROUP = (
           (0, 'Multiple Campsite Selection'),
           (1, 'Override Price'),
+          (2, 'Cancellation Override (Fees & Refunds)'),
+          (3, 'Cancel a Past Booking')
       )
+
       email = models.CharField(max_length=300)
       permission_group = models.SmallIntegerField(choices=PERMISSION_GROUP, default=0)
       active = models.BooleanField(default=True)

@@ -8,6 +8,13 @@
     <div class="alert alert-danger" role="alert">
 	  There was error attempting to cancel the booking,  unfortunately we can not cancel your booking at this time.
     </div>
+
+{% if cancel_past_booking is True %}
+{% if booking.arrival < today %} 
+<a href='?override_cancellation=true' class="btn btn-danger">Override Cancellation</a>
+{% endif %}
+{% endif %}
+
 </div>
 
 {% endblock %}                  
