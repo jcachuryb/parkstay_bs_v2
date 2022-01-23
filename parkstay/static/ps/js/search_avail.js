@@ -523,10 +523,13 @@ var search_avail = {
 
 	     console.log(search_avail.var.multiplesites);
     },
-    change_multiselect_class_total: function(class_id, value) {
-
-	    search_avail.var.multiplesites_class_totals[class_id] = value;
-	    console.log(search_avail.var.multiplesites_class_totals);
+    change_multiselect_class_total: function(class_id, value, limit) {
+            if (value > limit ) {
+                alert('Entry is more than available');
+	    } else {
+	        search_avail.var.multiplesites_class_totals[class_id] = value;
+  	        console.log(search_avail.var.multiplesites_class_totals);
+	    }
 	    
     },	    
     create_booking: function(button_element) {
@@ -868,7 +871,7 @@ var search_avail = {
       					    }
                                             if (search_avail.var.site_type == 0 ) {
 				            } else {
-                                                 campsitehtml = campsitehtml + "<input type='number' value='"+mulitpleselect_class_count+"' onchange='search_avail.change_multiselect_class_total("+campsites[s].type+",this.value)' style='width:40px' max='9' min='1' id='multipleselect_class_count-"+campsites[s].type+"' >&nbsp;";
+                                                 campsitehtml = campsitehtml + "<input type='number' value='"+mulitpleselect_class_count+"' onchange='search_avail.change_multiselect_class_total("+campsites[s].type+",this.value, "+campsites[s].site_left+")' style='width:40px' max='"+campsites[s].site_left+"' min='1' id='multipleselect_class_count-"+campsites[s].type+"' >&nbsp;";
 					    }
 
 				            campsitehtml = campsitehtml + "<button type='button' class='btn btn-warning' id='bookingcampsite' data-button='"+databuttonmany+"'   onclick='search_avail.delete_multiple_site(this)' +key_id++site_type+ ><i class='bi bi-check-circle-fill'></i> UNSELECT</button>&nbsp;";

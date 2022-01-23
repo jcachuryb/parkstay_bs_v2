@@ -858,7 +858,8 @@ class ParkstayPermission(models.Model):
           (0, 'Multiple Campsite Selection'),
           (1, 'Override Price'),
           (2, 'Cancellation Override (Fees & Refunds)'),
-          (3, 'Cancel a Past Booking')
+          (3, 'Cancel a Past Booking'),
+          (4, 'Make Booking Without Payment')
       )
 
       email = models.CharField(max_length=300)
@@ -1350,12 +1351,15 @@ class Booking(models.Model):
         self.property_cache['first_campsite_list2'] = self.first_campsite_list2
         self.property_cache['customer_phone_number'] = None
         self.property_cache['customer_mobile_number'] = None
+        self.property_cache['customer_email'] = None
         self.property_cache_stale = False
         if self.customer:
             if self.customer.phone_number:
                 self.property_cache['customer_phone_number'] = self.customer.phone_number
             if self.customer.mobile_number:
                self.property_cache['customer_mobile_number'] = self.customer.mobile_number
+            if self.customer.email:
+               self.property_cache['customer_email'] = self.customer.email
         self.property_cache_version = settings.BOOKING_PROPERTY_CACHE_VERSION
 
         if save is True:

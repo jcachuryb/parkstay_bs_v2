@@ -109,7 +109,7 @@ DEPT_DOMAINS = env('DEPT_DOMAINS', ['dpaw.wa.gov.au', 'dbca.wa.gov.au'])
 os.environ['LEDGER_REFUND_EMAIL'] = 'True'
 VERSION_NO = '3.12'
 # Only change if you make changes to Booking Properties
-BOOKING_PROPERTY_CACHE_VERSION='v1.03'
+BOOKING_PROPERTY_CACHE_VERSION='v1.04'
 QUEUE_DOMAIN = env('QUEUE_DOMAIN','')
 QUEUE_URL = env('QUEUE_URL','')
 QUEUE_ACTIVE_HOSTS = env('QUEUE_ACTIVE_HOSTS','')

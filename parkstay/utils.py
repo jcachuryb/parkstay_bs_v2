@@ -1620,13 +1620,22 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
     if booking.old_booking:
         old_booking = 'PB-'+str(booking.old_booking)
 
+    no_payment = False
+    if request.user.is_authenticated:
+        if request.user.is_staff is True:
+            if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=4).count() > 0:
+                    np_post =  request.POST.get('no_payment','false')
+                    if np_post == 'true':
+                         no_payment = True
+
     basket_params = {
         'products': lines,
         'vouchers': vouchers,
         'system': settings.PS_PAYMENT_SYSTEM_ID,
         'custom_basket': True,
         'booking_reference': 'PB-'+str(booking.id),
-        'booking_reference_link': old_booking
+        'booking_reference_link': old_booking,
+        'no_payment': no_payment
     }
     #basket, basket_hash = create_basket_session(request, basket_params)
     basket_user_id = None
@@ -1665,17 +1674,7 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
     if internal:
         response = place_order_submission(request)
     else:
-        #response = HttpResponse("Redirecting please wait: ")
         response = HttpResponse("<script> window.location='"+reverse('ledgergw-payment-details')+"';</script> <a href='"+reverse('ledgergw-payment-details')+"'> Redirecting please wait: "+reverse('ledgergw-payment-details')+"</a>")
-        #response = HttpResponse("<script> window.location='"+reverse('checkout:index')+"';</script> <a href='"+reverse('checkout:index')+"'> Redirecting please wait: "+reverse('checkout:index')+"</a>")
-        #response = HttpResponseRedirect(reverse('checkout:index'))
-        # inject the current basket into the redirect response cookies
-        # or else, anonymous users will be directionless
-        #response.set_cookie(
-        #    settings.OSCAR_BASKET_COOKIE_OPEN, basket_hash,
-        #    max_age=settings.OSCAR_BASKET_COOKIE_LIFETIME,
-        #    secure=settings.OSCAR_BASKET_COOKIE_SECURE, httponly=True,
-        #)
 
     return response
 

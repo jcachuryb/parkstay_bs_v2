@@ -3126,7 +3126,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             booking_query &= Q(cg_query)
 
             ########################################
-
+            print ('aqui')
             if campground:
                 booking_query &= Q(campground__id=campground)
             if region:
@@ -3182,9 +3182,10 @@ class BookingViewSet(viewsets.ModelViewSet):
             jsonresults = cache.get('BookingViewSet'+data_hash)
             #bookings = None
             recordsFiltered = 0 
+            jsonresults =None
             if jsonresults is None:
                 if length == 'all':
-                     bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','customer__email','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale').order_by('campground__name','campground__park__district__region__name','id')
+                     bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','canceled_by_id','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale').order_by('campground__name','campground__park__district__region__name','id')
 
                 else:
                      #bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','customer__email','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale').order_by('campground__name','campground__park__district__region__name','id')[int(start):int(start)+int(length)]
@@ -3244,7 +3245,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                       row['id'] = b['id']
                       row['arrival'] = str(b['arrival'])
                       row['departure'] = str(b['departure'])
-                      row['email'] = "CUSTOMER EMAIL" #b['customer__email']
+                      #row['email'] = "CUSTOMER EMAIL" #b['customer__email']
                       row['created'] = str(b['created'])
                       row['campground_name'] = b['campground__name']
                       row['campground_region'] = b['campground__park__district__region__name']
@@ -3254,7 +3255,9 @@ class BookingViewSet(viewsets.ModelViewSet):
                       row['has_history'] = b['property_cache']['has_history']
                       row['cost_total'] = float(b['cost_total'])
                       row['amount_paid'] = b['property_cache']['amount_paid']
-                      row['vehicle_payment_status'] = "" #b['property_cache']['vehicle_payment_status']
+                      ############### FIX FROM REAL DATA #######################
+                      row['vehicle_payment_status'] =  [{'Fee': False, 'Rego' : "1OT1KH", 'Type': "Vehicle", 'original_type' : "vehicle"}] #"Paid" #b['property_cache']['vehicle_payment_status']
+                      ##########################################################
                       row['refund_status'] = b['property_cache']['refund_status'] 
                       row['is_canceled'] = 'Yes' if b['is_canceled'] else 'No'
                       row['cancelation_reason'] = b['cancellation_reason']
@@ -3279,7 +3282,9 @@ class BookingViewSet(viewsets.ModelViewSet):
                       row['customer_account_phone'] = ''
                       row['customer_account_mobile'] = ''
                       row['customer_booking_phone'] = b['details'].get('phone','') 
-
+                      row['email'] = ''
+                      if b['property_cache']['customer_email'] is not None:
+                           row['email'] = b['property_cache']['customer_email']
                       if b['property_cache']['customer_phone_number'] is not None:
                           row['phone'] = b['property_cache']['customer_phone_number'] 
                           row['customer_account_phone'] = b['property_cache']['customer_phone_number']

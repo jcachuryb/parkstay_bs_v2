@@ -218,10 +218,15 @@ class MakeBookingsView(TemplateView):
         #num_children= request.GET.get('num_children', 0)
         #num_infants= request.GET.get('num_infants', 0)
         context['allow_price_override'] = False
+        context['booking_without_payment'] = False
         if request.user.is_authenticated: 
             if request.user.is_staff is True:
                  if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=1).count() > 0:
                       context['allow_price_override'] = True
+                 if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=4).count() > 0:
+                      context['booking_without_payment'] = True
+
+
 
 
         if booking:
@@ -282,7 +287,6 @@ class MakeBookingsView(TemplateView):
         if context['allow_price_override'] is True: 
              override_reasons = parkstay_models.DiscountReason.objects.all()
        
-
         return render(request, self.template_name, {
             'form': form, 
             'vehicles': vehicles,
@@ -294,6 +298,7 @@ class MakeBookingsView(TemplateView):
             'show_errors': show_errors,
             'cg' : context['cg'],
             'allow_price_override' : context['allow_price_override'],
+            'booking_without_payment' : context['booking_without_payment'],
             'request': request,
             'override_reasons' : override_reasons
         })
@@ -316,6 +321,7 @@ class MakeBookingsView(TemplateView):
             'num_infant': booking.details.get('num_infant', 0) if booking else 0,
             'country': 'AU',
         }
+
         #form = AnonymousMakeBookingsForm(form_context)
         if request.user.is_authenticated:
             if request.user.is_staff:
@@ -350,8 +356,6 @@ class MakeBookingsView(TemplateView):
         else:
             form = MakeBookingsForm(request.POST)
         
-        print ("POST")
-        print (request.POST)
         vehicles = VehicleInfoFormset(request.POST)   
         
         # re-render the page if there's no booking in the session
@@ -376,6 +380,7 @@ class MakeBookingsView(TemplateView):
         # update the booking object with information from the form
         if not booking.details:
             booking.details = {}
+
         booking.details['first_name'] = form.cleaned_data.get('first_name')
         booking.details['last_name'] = form.cleaned_data.get('last_name')
         booking.details['phone'] = form.cleaned_data.get('phone')
@@ -388,6 +393,7 @@ class MakeBookingsView(TemplateView):
         booking.details['toc'] = request.POST.get('toc',False)
         booking.details['outsideregion'] = request.POST.get('outsideregion', False)
         booking.details['trav_res'] = request.POST.get('trav_res', False)
+        booking.details['no_payment'] = request.POST.get('no_payment', False)
 
         # update vehicle registrations from form
         VEHICLE_CHOICES = {'0': 'vehicle', '1': 'concession', '2': 'motorbike', '3': 'campervan', '4': 'trailer', '5': 'caravan'}
@@ -788,6 +794,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  row['stay_dates'] = b.stay_dates
                  row['stay_guests'] = b.stay_guests
                  row['property_cache'] = b.property_cache
+                 row['details'] = b.details
 
                  bookings_store.append(row)
         
@@ -829,6 +836,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  row['first_campsite']['name'] = b.first_campsite.name
                  row['stay_dates'] = b.stay_dates
                  row['stay_guests'] = b.stay_guests
+                 row['details'] = b.details
 
                  bookings_store.append(row)
         
