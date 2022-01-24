@@ -686,9 +686,6 @@ class BookingSuccessView(TemplateView):
         try:
             basket = None
             session_checkouthash = request.session.get('checkouthash')
-            print ("S1")
-            print (checkouthash)
-            print (session_checkouthash)
             if session_checkouthash == checkouthash:
                 pass
             else:
@@ -696,29 +693,20 @@ class BookingSuccessView(TemplateView):
                 self.template_name = 'ps/booking/success-error.html'
                 response = render(request, self.template_name, context)
                 return response
-            print ("S2")
             booking = utils.get_session_booking(request.session)
-            print ("S3")
-            print (booking)
             #if self.request.user.is_authenticated:
             #    basket = Basket.objects.filter(status='Submitted', owner=request.user).order_by('-id')[:1]
             #else:
-            print ("S4")
-            print (settings.BOOKING_PREFIX)
-            print (booking.id)
             basket = Basket.objects.filter(status='Submitted', booking_reference=settings.BOOKING_PREFIX+'-'+str(booking.id)).order_by('-id')[:1]
-            print (basket)
             if basket.count() > 0:
                 pass
             else:
                 raise ValidationError('Error unable to find basket') 
 
             try:
-                print ("PREPARING TO BIND")
                 utils.bind_booking(booking, basket)
                 utils.delete_session_booking(request.session)
                 request.session['ps_last_booking'] = booking.id
-                print ("BIND COMPLETE")
 
             except BindBookingException:
                 return redirect('public_make_booking')
