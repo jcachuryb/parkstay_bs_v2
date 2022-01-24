@@ -45,5 +45,6 @@ def parkstay_url(request):
         'LEDGER_UI_URL' : settings.LEDGER_UI_URL,
         'PARKSTAY_PERMISSIONS' : parkstay_permissions,
         'template_group' : 'parksv2',
-        'LEDGER_SYSTEM_ID' : settings.PS_PAYMENT_SYSTEM_ID.replace("S","0")
+        'LEDGER_SYSTEM_ID' : settings.PS_PAYMENT_SYSTEM_ID.replace("S","0"),
+        'template_title' : ''
     }

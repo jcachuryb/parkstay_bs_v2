@@ -149,18 +149,16 @@
                          </div>
                          <div class="col-12">
                               <div class='row'>
-
                                    <div class="col-sm-12 col-md-6">
                                        <div class="col-sm-12 ">
-
                                            <div class="col-sm-12 ">
                                               <div id="when-date-range" class='form-control' style="">
                                                  <div class='selection-informbox'>
                                                      <i class='bi-people-fill' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
-						     <span > {{ cg.num_adult }} adult, {{ cg.num_concession }} concession, {{ cg.num_children }} child, {{ cg.num_infants }} Infant </span>
+						     <span> {{ cg.num_adult }} adult, {{ cg.num_concession }} concession, {{ cg.num_children }} child, {{ cg.num_infants }} Infant </span>
                                                  </div>
                                             </div>
-                                       </div>
+                                         </div>
                                       </div>
                                    </div> 
                               </div>
@@ -175,10 +173,8 @@
                          </div>
                          <div class="col-12">
                               <div class='row'>
-
                                    <div class="col-sm-12 col-md-6">
                                        <div class="col-sm-12 ">
-
                                            <div class="col-sm-12 ">
                                               <div id="when-date-range" class='form-control' style="">
                                                  <div class='selection-informbox'>
@@ -186,7 +182,7 @@
 						     <span > {{ booking.details.num_vehicle }} cars , {{ booking.details.num_campervan }} campervans, {{ booking.details.num_caravan }} caravan, {{ booking.details.num_motorcycle  }} motor cycles, {{ booking.details.num_trailer }} trailers </span>
                                                  </div>
                                             </div>
-                                       </div>
+                                         </div>
                                       </div>
                                    </div>
                               </div>
@@ -624,9 +620,15 @@
                                     <div class="checkbox">
                                         <label><input type="checkbox" v-bind:value="trav_res"   name='trav_res' v-model="trav_res">I understand that hygiene facilities at Parks and Wildlife Service campgrounds are minimal.</label>
                                     </div>
-                                     <br>
+                                    <br>
 
 				    <button :disabled="!toc||!outsideregion||!trav_res" type="submit" class="btn btn-primary btn-lg">Proceed to payment </button>
+                                    {% if request.user.is_staff is True %}
+                                              {% if booking_without_payment is True %}
+
+                                                    <label>&nbsp;&nbsp;<input type="checkbox" v-bind:value="no_payment"   name='no_payment' v-model="no_payment">&nbsp;&nbsp;Create Booking without Payment</label>
+                                              {% endif %}
+                                    {% endif %}
                                 </div>
                                </div>
                             </div>
@@ -756,6 +758,7 @@
             toc: false,
             outsideregion: false,
             trav_res: false,
+	    no_payment: false,
    	    max_vehicles: {% if campsite.max_vehicles > 0 %}{{ campsite.max_vehicles }}{% else %}0{% endif %},
             booking_id: {{ booking.id }}
         },
@@ -939,7 +942,7 @@
 		$('#override-popup-error').html('');
 
                 var vm = this;
-                var post_data = {'vehicles': vm.vehicles, 'price_override': vm.price_override, 'price_override_admin' : vm.price_override_admin}
+                var post_data = {'vehicles': vm.vehicles, 'price_override': vm.price_override, 'price_override_admin' : vm.price_override_admin, 'no_payment': vm.no_payment}
                 $.ajax({
                     url: vm.update_booking_url,
                     method: 'POST',
@@ -952,7 +955,6 @@
                           vm.get_booking_pricing();
 			  $('#VehicleModal').modal('hide');
 			  $('#OverridePriceModal').modal('hide');
-                          console.log(vm.booking_data);
                     },
                     error: function (error) {
 			var error_message = "There was unknown error.";

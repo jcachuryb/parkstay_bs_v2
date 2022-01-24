@@ -48,7 +48,7 @@
                        <div class="col-12 text-center" style='padding: 20px;'>
 
                            <div class="col-12 text-center">
-                                   <p>Your cancellation for booking PS{{ booking.id }} is complete.</p>
+                                   <p>Your cancellation for booking PB{{ booking.id }} is complete.</p>
                                    <p>Any refunds related to this booking have been completed.  Please allow 2-5 business days for any refunds to appear in your account.</p>
                            </div>
                            <div class="col-12 text-center">
@@ -82,10 +82,27 @@
 	     </div>
 
 	     <div class="row">
+                 <div class="col-6">
+
+
+                 </div>
+                 <div class="col-6 text-end">
+			{% if only_cancel_booking is True %}
+                               <div style=''>
+				   <input type='checkbox' value='' class="form-check-input"  id="only_cancel_booking" {% if cancel_past_booking_override_access is True %}checked{% endif %} > 
+                                   <label class="form-check-label" >
+                                     Only cancel booking. <br><small><i>no refunds or cancel fees</i></small> 
+                                   </label>
+                               </div>
+                               <br>
+			{% endif %}
+
+                 </div>                  
+
 	         <div class="col-6">
 	         </div>
                  <div class="col-6 text-end">
-			 <button type="button" class="btn btn-primary">Cancel</button>
+                        <button type="button" class="btn btn-primary">Cancel</button>
 	         	<button id='cancellation_btn' type="button" class="btn btn-danger" onclick="cancellation.cancel();" >Complete Cancellation</button>
                  </div>
 	     </div>
@@ -106,14 +123,23 @@
 
         $('#cancellation_confirm_btn').click(function() {
 		$('#CancellationConfirm').modal('hide');
+                var only_cancel_booking = false;
+                var ocb = $('#only_cancel_booking');
+                var post_data = {};
+                if (ocb.is( ":checked" )) {
+                       only_cancel_booking = true;
+                }
+                 
+                post_data = {'only_cancel_booking': only_cancel_booking};
+               
 		$('#LoadingPopup').modal('show');
                 $.ajax({
                     url: "?",
                     method: 'POST',
-                    dataType: 'json',
-                    contentType: 'application/json',
-		    headers: {'X-CSRFToken' : '{{ csrf_token }}' },
-                    // data: "{}",
+                    //dataType: 'json',
+                    // contentType: 'application/json',
+		    headers: {'X-CSRFToken' : '{{ csrf_token }}'},
+                    data: post_data,
                     success: function(response) {
 			    //$('#LoadingPopup').modal('hide');
 			    if (response['status']  == 200 && response['message'] == 'success') {
