@@ -704,6 +704,8 @@ class BookingSuccessView(TemplateView):
             #    basket = Basket.objects.filter(status='Submitted', owner=request.user).order_by('-id')[:1]
             #else:
             print ("S4")
+            print (settings.BOOKING_PREFIX)
+            print (booking.id)
             basket = Basket.objects.filter(status='Submitted', booking_reference=settings.BOOKING_PREFIX+'-'+str(booking.id)).order_by('-id')[:1]
             print (basket)
             if basket.count() > 0:
