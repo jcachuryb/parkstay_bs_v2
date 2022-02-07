@@ -108,7 +108,7 @@ class Command(BaseCommand):
                    date_string = lcsb.date.strftime('%Y-%m-%d')
                    print (lcsb.campsite_id)
                    if lcsb.campsite_id in campground_calender['campsites']:
-                         if date_string in campground_calender['campsites'][csb.campsite_id]:
+                         if date_string in campground_calender['campsites'][lcsb.campsite_id]:
                                 campground_calender['campsites'][lcsb.campsite_id][date_string] = status[2]
                     
                f = open(data_file, "w")
