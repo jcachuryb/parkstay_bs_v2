@@ -986,6 +986,49 @@ class DecimalEncoder(json.JSONEncoder):
 #         cg_hash = json.loads(cached_data)
 #     return cg_hash
 
+def campground_availabilty_view(request,  *args, **kwargs):
+    
+    site_obj = {'campground': {}, 'campground_available': []}
+    start_date_string = request.GET.get('start_date','01/03/2022')
+    end_date_string = request.GET.get('end_date','07/03/2022')
+    start_date = datetime.strptime(start_date_string, "%d/%m/%Y").date()
+    end_date = datetime.strptime(end_date_string, "%d/%m/%Y").date()
+
+    date_diff = end_date - start_date
+
+    booking_days = date_diff.days + 1
+   
+    campgrounds = Campground.objects.all()
+    for cg in campgrounds:
+        print (cg.id)
+        with open(settings.BASE_DIR+'/datasets/'+str(cg.id)+'-campground-availablity.json', 'r') as f:
+            data = f.read()
+            campground_calendar = json.loads(data)
+            campsite_ids = campground_calendar['campsite_ids']
+            site_obj['campground'][cg.id] = {}
+            site_obj['campground'][cg.id]['total_sites'] = len(campsite_ids)
+            site_obj['campground'][cg.id]['campsites_available'] = campsite_ids
+            for day in range(0, booking_days):
+                  nextday = start_date + timedelta(days=day)
+                  nextday_string = nextday.strftime('%Y-%m-%d')
+                  for cs in campsite_ids:
+                      if 'campsites' in campground_calendar:
+                           if str(cs) in campground_calendar['campsites']:
+                                 print (nextday_string)
+                                 if nextday_string in campground_calendar['campsites'][str(cs)]:
+                                     print ("CS")
+                                     #site_obj[cg.id]['campsites_available'].remove(cs)
+                                     if campground_calendar['campsites'][str(cs)][nextday_string] != 'available':
+                                           site_obj['campground'][cg.id]['campsites_available'].remove(cs)
+
+            site_obj['campground'][cg.id]['total_available'] = len(site_obj['campground'][cg.id]['campsites_available'])
+            if site_obj['campground'][cg.id]['total_available'] > 0:
+                site_obj['campground_available'].append({'id' :cg.id})
+
+        #print (cg)
+    return HttpResponse(json.dumps(site_obj), content_type='application/json')
+
+
 def campsite_availablity_view(request,  *args, **kwargs):
 
     #import time

@@ -52,6 +52,7 @@ api_patterns = [
     url(r'^api/profile/update_address$', api.UpdateProfileAddress.as_view(), name='update-profile-address'),
     url(r'^api/oracle_job$', api.OracleJob.as_view(), name='get-oracle'),
     url(r'^api/bulkPricing', api.BulkPricingView.as_view(), name='bulkpricing-api'),
+    url(r'^api/campground_availabilty_view/', api.campground_availabilty_view, name='campground_availabilty_view'),
     url(r'^api/campsite_availablity_view/(?P<campground_id>[0-9]+)/', api.campsite_availablity_view, name='campsite_availablity_view'),
     url(r'^api/search_suggest', api.search_suggest, name='search_suggest'),
     url(r'^api/create_booking', api.create_booking, name='create_booking'),
