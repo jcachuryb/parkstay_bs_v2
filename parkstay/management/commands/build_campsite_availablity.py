@@ -30,6 +30,7 @@ class Command(BaseCommand):
            campground_calender = {} 
            cg = models.Campground.objects.all()
            for c in cg:
+               print ("CAMPGROUND ID"+str(c.id))
                data_file = settings.BASE_DIR+"/datasets/"+str(c.id)+"-campground-availablity.json"
                if os.path.isfile(data_file):
                   f = open(data_file, "r")
@@ -93,6 +94,7 @@ class Command(BaseCommand):
                            if nextday_string in campground_calender['campsites'][closure.campsite.id]:
                                 campground_calender['campsites'][closure.campsite.id][nextday_string] = status[3]
 
+               # campsite bookings
                csbooking = models.CampsiteBooking.objects.filter(booking__is_canceled=False, campsite__in=campground_calender['campsite_ids'], date__gt=start_date, date__lt=end_date) 
                for csb in csbooking:
                    date_string = csb.date.strftime('%Y-%m-%d')
@@ -100,6 +102,15 @@ class Command(BaseCommand):
                        if date_string in campground_calender['campsites'][csb.campsite.id]:
                             campground_calender['campsites'][csb.campsite.id][date_string] = status[2]
 
+               lcsbooking = models.CampsiteBookingLegacy.objects.filter(is_cancelled=False, campsite_id__in=campground_calender['campsite_ids'], date__gt=start_date, date__lt=end_date)
+               print ("LEGACY")
+               for lcsb in lcsbooking:
+                   date_string = lcsb.date.strftime('%Y-%m-%d')
+                   print (lcsb.campsite.id)
+                   if lcsb.campsite.id in campground_calender['campsites']:
+                         if date_string in campground_calender['campsites'][csb.campsite.id]:
+                                campground_calender['campsites'][csb.campsite.id][date_string] = status[2]
+                    
                f = open(data_file, "w")
                f.write(json.dumps(campground_calender, indent=4))
                f.close() 
