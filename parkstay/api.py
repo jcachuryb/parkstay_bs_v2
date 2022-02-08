@@ -41,6 +41,7 @@ from parkstay import utils
 from parkstay import property_cache 
 from parkstay import models
 from parkstay.helpers import can_view_campground
+from parkstay import utils_cache
 from parkstay import models as parkstay_models
 from parkstay.models import (Campground,
                              District,
@@ -987,47 +988,123 @@ class DecimalEncoder(json.JSONEncoder):
 #     return cg_hash
 
 def campground_availabilty_view(request,  *args, **kwargs):
+    from pathlib import Path
+    site_obj = {'campground': {}, 'campground_available': {}, 'available_cg': []}
+    start_date_string = request.GET.get('arrival','2022/03/01')
+    end_date_string = request.GET.get('departure','2022/04/07')
+    start_date = datetime.strptime(start_date_string, "%Y/%m/%d").date()
+    end_date = datetime.strptime(end_date_string, "%Y/%m/%d").date()
+
+    date_diff = end_date - start_date
+    booking_days = date_diff.days + 1
+
+    #available_campsites_obj = {}
+    campgrounds = utils_cache.all_campgrounds()
+    for c in campgrounds:
+        site_obj['campground_available'][c['id']] = {}
+        site_obj['campground_available'][c['id']]['sites'] = []
+
+        if c['campground_type'] == 0:
+           campsites = utils_cache.all_campground_campsites(c['id'])
+           #campsite = Campsite.objects.filter(campground_id=c['id'])
+           for cs in campsites:
+               cs_id = cs['id']
+               site_obj['campground_available'][c['id']]['sites'].append(cs_id)
+           site_obj['campground_available'][c['id']]['total_available'] = len(site_obj['campground_available'][c['id']]['sites'])
+           site_obj['campground_available'][c['id']]['total_bookable'] = len(site_obj['campground_available'][c['id']]['sites'])
+
+    daily_calender = {}
     
+    for day in range(0, booking_days+1):
+        nextday = start_date + timedelta(days=day)
+        nextday_string = nextday.strftime('%Y-%m-%d')
+        data_file = settings.BASE_DIR+"/datasets/daily/"+str(nextday_string)+"-availablity.json"
+        fileopened = True
+        if os.path.isfile(data_file):
+             f = open(data_file, "r")
+             datajsonstring = f.read()
+             try:
+                daily_calender = json.loads(datajsonstring)
+             except:
+                fileopened = False
+                daily_calender = {}
+                print ("Error in json file")
+                pass
+        else:
+            fileopened = False
+            daily_calender = {}
+        if fileopened is False:
+           for c in campgrounds:
+               site_obj['campground_available'][c['id']]['sites'] = []
+               site_obj['campground_available'][c['id']]['total_bookable'] = len(site_obj['campground_available'][c['id']]['sites'])
+
+        for dc in daily_calender:
+             campground_ids = list(daily_calender[dc].keys())
+             for cid in campground_ids:
+                 campsite_ids = list(daily_calender[dc][cid].keys())
+                 for csid in campsite_ids:
+                     if daily_calender[dc][cid][csid][nextday_string] == 'available':
+                         pass
+                     else:
+                         if csid in site_obj['campground_available'][int(cid)]['sites']:
+                              site_obj['campground_available'][int(cid)]['sites'].remove(csid)
+                              print ("removing")
+                         print (daily_calender[dc][cid][csid][nextday_string])
+                 site_obj['campground_available'][c['id']]['total_bookable'] = len(site_obj['campground_available'][c['id']]['sites'])
+
+    for c in campgrounds:
+        if c['campground_type'] == 0:
+            if len(site_obj['campground_available'][c['id']]['sites']) > 0:
+                site_obj['available_cg'].append({'id' : int(c['id'])})
+        elif c['campground_type'] == 1:
+            site_obj['available_cg'].append({'id': int(c['id'])})
+        elif c['campground_type'] == 2:
+            site_obj['available_cg'].append({'id' : int(c['id'])})
+
+    return HttpResponse(json.dumps(site_obj), content_type='application/json')
+
+def campground_availabilty_view2(request,  *args, **kwargs):
+    from pathlib import Path
     site_obj = {'campground': {}, 'campground_available': []}
-    start_date_string = request.GET.get('start_date','01/03/2022')
-    end_date_string = request.GET.get('end_date','07/03/2022')
-    start_date = datetime.strptime(start_date_string, "%d/%m/%Y").date()
-    end_date = datetime.strptime(end_date_string, "%d/%m/%Y").date()
+    start_date_string = request.GET.get('arrival','2022/03/01')
+    end_date_string = request.GET.get('departure','2022/03/07')
+    start_date = datetime.strptime(start_date_string, "%Y/%m/%d").date()
+    end_date = datetime.strptime(end_date_string, "%Y/%m/%d").date()
 
     date_diff = end_date - start_date
 
     booking_days = date_diff.days + 1
    
-    campgrounds = Campground.objects.all()
+    #campgrounds = Campground.objects.all_campgrounds()
+    campgrounds = utils_cache.all_campgrounds()
+    #filter(id=139)#[:20]
     for cg in campgrounds:
-        print (cg.id)
-        with open(settings.BASE_DIR+'/datasets/'+str(cg.id)+'-campground-availablity.json', 'r') as f:
-            data = f.read()
+            cg_id = cg['id']
+        #with open(settings.BASE_DIR+'/datasets/'+str(cg.id)+'-campground-availablity.json', 'r') as f:
+            #data = f.read()
+            data = Path(settings.BASE_DIR+'/datasets/'+str(cg_id)+'-campground-availablity.json').read_text()
+
             campground_calendar = json.loads(data)
             campsite_ids = campground_calendar['campsite_ids']
-            site_obj['campground'][cg.id] = {}
-            site_obj['campground'][cg.id]['total_sites'] = len(campsite_ids)
-            site_obj['campground'][cg.id]['campsites_available'] = campsite_ids
+            site_obj['campground'][cg_id] = {}
+            site_obj['campground'][cg_id]['total_sites'] = len(campsite_ids)
+            site_obj['campground'][cg_id]['campsites_available'] = campsite_ids
             for day in range(0, booking_days):
                   nextday = start_date + timedelta(days=day)
                   nextday_string = nextday.strftime('%Y-%m-%d')
                   for cs in campsite_ids:
                       if 'campsites' in campground_calendar:
                            if str(cs) in campground_calendar['campsites']:
-                                 print (nextday_string)
                                  if nextday_string in campground_calendar['campsites'][str(cs)]:
-                                     print ("CS")
-                                     #site_obj[cg.id]['campsites_available'].remove(cs)
                                      if campground_calendar['campsites'][str(cs)][nextday_string] != 'available':
-                                           site_obj['campground'][cg.id]['campsites_available'].remove(cs)
+                                           if cs in site_obj['campground'][cg_id]['campsites_available']:
+                                                site_obj['campground'][cg_id]['campsites_available'].remove(cs)
 
-            site_obj['campground'][cg.id]['total_available'] = len(site_obj['campground'][cg.id]['campsites_available'])
-            if site_obj['campground'][cg.id]['total_available'] > 0:
-                site_obj['campground_available'].append({'id' :cg.id})
-
-        #print (cg)
+            site_obj['campground'][cg_id]['total_available'] = len(site_obj['campground'][cg_id]['campsites_available'])
+            if site_obj['campground'][cg_id]['total_available'] > 0:
+                site_obj['campground_available'].append({'id' :cg_id})
+            del site_obj['campground'][cg_id]['campsites_available']
     return HttpResponse(json.dumps(site_obj), content_type='application/json')
-
 
 def campsite_availablity_view(request,  *args, **kwargs):
 
