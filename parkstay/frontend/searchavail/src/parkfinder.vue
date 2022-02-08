@@ -159,13 +159,16 @@
                        <div>
 
                        <div v-if="f.park_name" v-html="f.park_name.slice(0,55)" class='slick-slide-description'></div>
-                          <div v-if="f.available_campsites > 0" v-show="item=='item'" class="slick-slide-available-sites">Available Sites: {{ f.available_campsites }} </div>
-                          <div v-if="f.available_campsites < 1" v-show="item=='item'" class="slick-slide-noavailable-sites" >No availabilty found</div>
+                          <div v-if="f.campground_type == 0" >
+                             <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Aprox Sites Available ({{ campgroundAvailablity[f.id].total_bookable }})</div>
+                             <div v-else class='slick-slide-card-notavailabile'>No availablity for selected period</div>
+                          </div>
+                          <div v-else ><div>&nbsp;</div></div>
                        <p v-if="f.price_hint && Number(f.price_hint)"><i><small>From ${{ f.price_hint }} per night</small></i></p>
                        <!-- This line has to be changed to use a v-if/else clause
                         Changed again to utilize changes in api to further enable forwarding offline sites to availability app
                         -->
-                       <a v-if="f.campground_type == 0" class="button formButton1" style="width:100%;" v-bind:href="parkstayUrl+'/search-availablity/campground/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
+                       <a v-if="f.campground_type == 0 && campgroundAvailablity[f.id].total_bookable > 0" class="button formButton1" style="width:100%;" v-bind:href="parkstayUrl+'/search-availablity/campground/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
                        <a v-else-if="f.campground_type == 1" class="button formButton" style="width:100%;" v-bind:href="parkstayUrl+'/search-availablity/campground/?site_id='+f.id" target="_blank">More Info</a>
                        <a v-else class="button formButton2" v-bind:href="parkstayUrl+'/search-availablity/campground/?site_id='+f.id" style="width:100%;" target="_blank">More info</a>
                    </div>
@@ -247,6 +250,15 @@ margin: auto;
 .slick-slide-description {
     height: 74px;
     font-size: 12px;
+}
+.slick-slide-card-availabile {
+    font-size:11px;
+    height: 22px;
+}
+.slick-slide-card-notavailabile {
+    font-size:11px;
+    height: 22px;
+    color: red;
 }
 .slick-slide-noavailable-sites {
     color:red;
@@ -673,6 +685,7 @@ export default {
             campground_data: [],
             filterParams: {
             },
+            campgroundAvailablity: null,
             dateSetFirstTime: true,
             sitesOnline: true,
             sitesInPerson: true,
@@ -1608,7 +1621,8 @@ export default {
         });
 
         this.groundsSource.loadSource = function (onSuccess) {
-            var urlBase = vm.parkstayUrl+'/api/campground_map_filter/?';
+            // var urlBase = vm.parkstayUrl+'/api/campground_map_filter/?';
+            var urlBase = vm.parkstayUrl+'/api/campground_availabilty_view/?';
             var params = {format: 'json'};
             var isCustom = false;
             var checkin = $('#checkin');
@@ -1626,19 +1640,24 @@ export default {
                 if (departure) {
                     params.departure = vm.departureDateString;
                 }
-                params.num_adult = vm.numAdults;
-                params.num_concessions = vm.numConcessions;
-                params.num_children = vm.numChildren;
-                params.num_infants = vm.numInfants;
+                // params.num_adult = vm.numAdults;
+                // params.num_concessions = vm.numConcessions;
+                // params.num_children = vm.numChildren;
+                // params.num_infants = vm.numInfants;
                 params.gear_type = vm.gearType;
             }
             $.ajax({
                 url: urlBase+$.param(params),
                 success: function (response, stat, xhr) {
                     vm.groundsIds.clear();
-                    response.forEach(function(el) {
-                        vm.groundsIds.add(el.id);
-                    });
+                    if (response.hasOwnProperty("available_cg") == true) { 
+                       response['available_cg'].forEach(function(el) {
+                           vm.groundsIds.add(el.id);
+                       });
+                    }
+                    if (response.hasOwnProperty("campground_available") == true) {
+                        vm.campgroundAvailablity = response['campground_available']; 
+                    }
                     vm.updateFilter();
                 },
                 dataType: 'json'

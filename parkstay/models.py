@@ -226,6 +226,7 @@ class Campground(models.Model):
 
     def save(self, *args, **kwargs):
         cg = Campground.objects.get(id=self.id)
+        cache.delete('utils_cache.all_campgrounds')
         cache.delete('campgrounds')
         cache.delete('campgrounds_dt')
         cache.delete('CampgroundMapViewSet')
@@ -441,7 +442,6 @@ class CampgroundGroupMembers(models.Model):
           managed = False
           #abstract = True
           db_table = 'parkstay_campgroundgroup_members'
-
 
       def __str__(self):
            return str(self.emailuser_id)
@@ -732,6 +732,8 @@ class Campsite(models.Model):
     def save(self, *args, **kwargs):
         cache.delete('booking_availability.get_campsites_for_campground')
         cache.delete('booking_availability.get_campsites_for_campground:'+str(self.campground.id))
+        cache.delete('utils_cache.all_campground_campsites('+str(self.campground.id)+')')
+
         self.full_clean()
         super(Campsite, self).save(*args, **kwargs)
 

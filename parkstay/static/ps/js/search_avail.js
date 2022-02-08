@@ -23,7 +23,8 @@ var search_avail = {
 	   'selecttype' : 'single',
            'mcs_enabled' : false,
 	   'selected_booking_id': null,
-	   'site_type' : null
+	   'site_type' : null,
+	   'availabity' : null
 
     },
     change_tabs: function(tabname) {
@@ -294,6 +295,7 @@ var search_avail = {
         var whennights = search_avail.calculate_nights(start.format("YYYY-MM-DD"),end.format("YYYY-MM-DD"));
         $('#when-nights').html(whennights);
 	if (search_avail.var.page == 'campground') { 
+	   // search_avail.load_campground_availabilty();
 	   $('#map-reload').click();
 	}
 	if (search_avail.var.page == 'campsite-availablity') {
@@ -331,6 +333,7 @@ var search_avail = {
 	      $('#zoom_level').val(zoom_level);
               $('#search-filters').show();
  	      $('#search-selections').show();
+	      // search_avail.load_campground_availabilty();
 	      // need to open the map first before the campground cards will show
 	      search_avail.select_filter_tab('map');
 	      search_avail.select_filter_tab('campgrounds');
@@ -591,6 +594,22 @@ var search_avail = {
 		   },
            });
     },
+    load_campground_availabilty: function() {
+            $.ajax({
+                  url: "/api/campground_availabilty_view/?arrival="+search_avail.var.camping_period['checkin']+"&departure="+search_avail.var.camping_period['checkout'],
+                  cache: false,
+                  error: function (request, status, error) {
+                         
+                        // $("#campsite-availablity-results").html("<center><span style='color:red; font-weight:bold;'>Sorry, there was an error loading campsite information.</span></center>");
+                  },
+                  success: function(data) {
+			 search_avail.var.availabity = data;
+			 console.log("load_campground_availabilty");
+                         console.log(data);
+
+                  },
+            });
+    },	    
     load_campsite_availabilty: function() { 
             var change_query = '';
 	    if (search_avail.var.change_booking_id != null) {
