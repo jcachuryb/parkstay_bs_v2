@@ -20,7 +20,7 @@ class Command(BaseCommand):
         today = date.today()
         start_date = today 
         #period_days = 90 
-        period_days = 180
+        period_days = 730
         end_date = today + timedelta(days=period_days)
         status={1: 'available', 2: 'booked', 3: 'closed', '4': 'legacy booking'}
         print ("Start Date")
