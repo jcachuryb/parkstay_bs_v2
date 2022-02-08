@@ -1043,14 +1043,13 @@ def campground_availabilty_view(request,  *args, **kwargs):
              for cid in campground_ids:
                  campsite_ids = list(daily_calender[dc][cid].keys())
                  for csid in campsite_ids:
+                     
                      if daily_calender[dc][cid][csid][nextday_string] == 'available':
                          pass
                      else:
-                         if csid in site_obj['campground_available'][int(cid)]['sites']:
-                              site_obj['campground_available'][int(cid)]['sites'].remove(csid)
-                              print ("removing")
-                         print (daily_calender[dc][cid][csid][nextday_string])
-                 site_obj['campground_available'][c['id']]['total_bookable'] = len(site_obj['campground_available'][c['id']]['sites'])
+                         if int(csid) in site_obj['campground_available'][int(cid)]['sites']:
+                              site_obj['campground_available'][int(cid)]['sites'].remove(int(csid))
+                 site_obj['campground_available'][int(cid)]['total_bookable'] = len(site_obj['campground_available'][int(cid)]['sites'])
 
     for c in campgrounds:
         if c['campground_type'] == 0:
