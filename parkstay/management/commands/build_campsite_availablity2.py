@@ -66,12 +66,12 @@ class Command(BaseCommand):
                            if csbr_qs.count() > 0:
                                  cs_closed = True
 
-                           csbooking = models.CampsiteBooking.objects.filter(booking__is_canceled=False, campsite=cs['id'], date__gt=nextday, date__lt=nextday)
+                           csbooking = models.CampsiteBooking.objects.filter(booking__is_canceled=False, campsite=cs['id'], date=nextday)
                            cs_booked = False
                            if csbooking.count() > 0:
                                 cs_booked = True
                                 
-
+                           # dont forget legecy bookings
 
                            if cs_id not in daily_calender['campgrounds'][cg_id]:
                                daily_calender['campgrounds'][cg_id][cs_id] = {}
