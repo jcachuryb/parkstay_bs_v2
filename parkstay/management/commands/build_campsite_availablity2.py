@@ -66,10 +66,16 @@ class Command(BaseCommand):
                            if csbr_qs.count() > 0:
                                  cs_closed = True
 
-                           csbooking = models.CampsiteBooking.objects.filter(booking__is_canceled=False, campsite=cs['id'], date=nextday)
+                           csbooking = models.CampsiteBooking.objects.filter(booking__is_canceled=False, campsite_id=cs['id'], date=nextday)
                            cs_booked = False
                            if csbooking.count() > 0:
                                 cs_booked = True
+
+
+                           lcsbooking = models.CampsiteBookingLegacy.objects.filter(is_cancelled=False, campsite_id=cs['id'], date=nextday)
+                           lcs_booked = False
+                           if lcsbooking.count() > 0:
+                                lcs_booked = True
                                 
                            # dont forget legecy bookings
 
@@ -81,6 +87,8 @@ class Command(BaseCommand):
                                daily_calender['campgrounds'][cg_id][cs_id][nextday_string] = status[3]
                            elif cs_booked is True:
                                daily_calender['campgrounds'][cg_id][cs_id][nextday_string] = status[2]
+                           elif lcs_booked is True:
+                               daily_calender['campgrounds'][cg_id][cs_id][nextday_string] = status[4]
                            else:
                                daily_calender['campgrounds'][cg_id][cs_id][nextday_string] = status[1]
 
