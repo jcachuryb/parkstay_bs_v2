@@ -685,7 +685,7 @@ export default {
             campground_data: [],
             filterParams: {
             },
-            campgroundAvailablity: null,
+            campgroundAvailablity: {},
             dateSetFirstTime: true,
             sitesOnline: true,
             sitesInPerson: true,
@@ -864,10 +864,9 @@ export default {
             this.hideExtraFilters = !this.hideExtraFilters;
         },
         reInitSlides() {
-            console.log("RELOADING SLIDER");
-            console.log(this);
-            console.log(this.$options.components.VueSlickCarousel);
-           
+            //console.log("RELOADING SLIDER");
+            //console.log(this);
+            //console.log(this.$options.components.VueSlickCarousel);
             this.$options.components.VueSlickCarousel.render();
         },
         search: function(place) {
@@ -1010,8 +1009,8 @@ export default {
             // zoom slightly closer in for campgrounds
             var resolution = vm.resolutions[10];
             if (zoom_level > 0) {
-                console.log('zoom_level');
-                console.log(zoom_level);
+                // console.log('zoom_level');
+                // console.log(zoom_level);
 		var resolution = vm.resolutions[zoom_level];
             }
 
@@ -1025,13 +1024,13 @@ export default {
         },
         buildDistanceArray: function() {
             var vm = this;
-            console.log("buildDistanceArray");
-            console.log(this.groundsData);
+            // console.log("buildDistanceArray");
+            // console.log(this.groundsData);
             var coord_1 = $('#coord_1').val();
             var coord_2 = $('#coord_2').val();
             vm.camping_distance_array = [];
-            console.log("CAMPGROUND DATA");
-            console.log(vm.campground_data);
+            // console.log("CAMPGROUND DATA");
+            // console.log(vm.campground_data);
 
             var tents = $('#filter-checkbox-tent').is(':checked');
             var campervan = $('#filter-checkbox-campervan').is(':checked');
@@ -1050,8 +1049,6 @@ export default {
             });
 
             this.campground_data.forEach(function (el) {
-                     console.log("CAMPGROUND DATA LOOP");
-                     console.log(el);
                      var skip_cg = false;  
                      var geo = el.geometry.coordinates;
                      var campground_id = el.id;
@@ -1168,14 +1165,7 @@ export default {
             vm.camping_distance_array.sort(function (a, b) {
                 return a.distance - b.distance;
             });
-            console.log("SLICK");
-            console.log(VueSlickCarousel);
             this.slickcount = this.slickcount + 1;
-            console.log(this.slickcount);
-            console.log("CDA");
-            console.log(vm.camping_distance_array.slice(0,21));
-            //vm.$forceUpdate();
-            // new Splide( '.splide' ).mount();
 	},
         distance_between_gps: function(lat1, lon1, lat2, lon2, unit) {
             if ((lat1 == lat2) && (lon1 == lon2)) {
@@ -1242,7 +1232,7 @@ export default {
                 }
                 vm._updateViewport();
             }
-            console.log('Activating Glider');
+            // console.log('Activating Glider');
             // Glider(document.querySelector('.glider')).refresh();
             //new Glider(document.querySelector('.glider'), {  slidesToShow: 5,
             //  slidesToScroll: 5,
@@ -1605,8 +1595,6 @@ export default {
             url: vm.parkstayUrl+'/api/campground_map/?format=json',
             dataType: 'json',
             success: function (response, stat, xhr) {
-                console.log("/api/campground_map/?format=json");
-                console.log(response.features);
                 var features = vm.geojson.readFeatures(response);
                 vm.campground_data=response.features;
                 vm.groundsData.clear();
@@ -1627,7 +1615,6 @@ export default {
             var isCustom = false;
             var checkin = $('#checkin');
             var checkout = $('#checkout');
-            console.log("DATE CHANGES");
 
             if ((checkin) && (checkout)) {
                 isCustom = true;
@@ -1800,12 +1787,9 @@ export default {
                 $("#mapPopupName")[0].innerHTML = feature.get('name');
                 if (feature.get('images')) {
                     var popup_image = '/static/ps/img/no_image.jpg';
-                     console.log("IMAGES");
-                    console.log(feature.get('images'));
                     var fimages = feature.get('images');
                     if (fimages) { 
                           if (fimages.length > 0) { 
-                             console.log(fimages[0]);
                              if (fimages[0].image != null) {
                                  popup_image = fimages[0].image;
                              }

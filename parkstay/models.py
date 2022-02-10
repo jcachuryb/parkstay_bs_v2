@@ -932,7 +932,6 @@ class PeakPeriod(models.Model):
       def __str__(self):
             return "{} - {}".format(self.start_date.strftime("%d/%m/%Y"), self.end_date.strftime("%d/%m/%Y"))
 
-
 class BookingPolicy(models.Model):
 
       BOOKING_POLICY = (
@@ -973,6 +972,13 @@ class BookingPolicy(models.Model):
           self.full_clean()
           super(BookingPolicy, self).save(*args, **kwargs)
 
+class AvailabilityCache(models.Model):
+      date = models.DateField()
+      campground = models.ForeignKey('Campground', on_delete=models.PROTECT, related_name='availablity_cache') 
+      stale = models.BooleanField(default=True)
+
+      def __str__(self):
+          return str(self.date) + " - ("+self.campground.name+")"
 
 class Feature(models.Model):
     TYPE_CHOICES = (

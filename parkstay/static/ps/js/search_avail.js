@@ -96,7 +96,6 @@ var search_avail = {
 
 	 search_avail.var.vehicles['total_vehicles_occupied_space'] = total_vehicles_occupied_space;
 
-	 console.log(search_avail.var.vehicles['total_vehicles_occupied_space']);
          $('#vehicle-selection-inner-text').html(search_avail.var.vehicles['vehicle']+' car or ute , '+search_avail.var.vehicles['campervan']+' campervans, '+search_avail.var.vehicles['caravan']+' caravans, '+search_avail.var.vehicles['motorcycle']+' motorcycles, '+search_avail.var.vehicles['trailer']+' trailers');
     },
     open_vehicle_updates: function(booking_id) {
@@ -127,7 +126,6 @@ var search_avail = {
 			        }
 				datahtml+= "</tr>";
 		            }
-			    console.log(response);
 			    $('#datatables-BookingVehicleUpdates').html(datahtml);
 			    setTimeout("$('#LoadingPopup').modal('hide');",800);
 
@@ -142,9 +140,6 @@ var search_avail = {
 
 	         var data = {"booking_id": search_avail.var.selected_booking_id};
                  $("#datatables-BookingVehicleUpdates").find("input").each(function() {
-		    console.log(this.value);
-		    console.log(this.name.substring(0,7));
-
                     if (this.name.substring(0,7) == 'bvrego-') {
 			    data[this.name] = this.value;
                     }
@@ -306,15 +301,10 @@ var search_avail = {
 	   var start_dt = Date.parse(start)
 	   var end_dt  = Date.parse(end)
 
-           console.log("calculate_nights");
-	   console.log(start);
-	   console.log(end);
            oneDay = 24 * 60 * 60 * 1000;
-	   console.log(oneDay);
 	  
 
            diffDays = Math.round(Math.abs((moment(start_dt) - moment(end_dt)) / oneDay));
-	   console.log(diffDays);
            // diffDays = diffDays - 1; 
            return diffDays;
     },
@@ -433,7 +423,6 @@ var search_avail = {
 	    if (search_avail.var.locations) { 
                 for (let i = 0; i < search_avail.var.locations.features.length; i++) {
                         if (search_avail.var.locations.features[i].properties.name.toLocaleLowerCase().indexOf(element_value.toLocaleLowerCase())!=-1) {
-                              console.log('found');
                               // search_results.push({'id': search_avail.var.locations.features[i].properties.id , 'name': search_avail.var.locations.features[i].properties.name, 'type' :'locations','coord_1' : search_avail.var.locations.features[i].geometry.coordinates[0], 'coord_2': search_avail.var.locations.features[i].geometry.coordinates[1]});
                         }
                        // console.log(search_avail.var.locations.features[i].properties.name);
@@ -442,7 +431,6 @@ var search_avail = {
 
             for (let i = 0; i < search_avail.var.search_locations.features.length; i++) {
                     if (search_avail.var.search_locations.features[i].properties.name.toLocaleLowerCase().indexOf(element_value.toLocaleLowerCase())!=-1) {
-                          console.log('search found');
                           search_results.push({'id': search_avail.var.search_locations.features[i].properties.id , 'name': search_avail.var.search_locations.features[i].properties.name, 'type' :'locations','coord_1' : search_avail.var.search_locations.features[i].coordinates[0], 'coord_2': search_avail.var.search_locations.features[i].coordinates[1], 'zoom_level':search_avail.var.search_locations.features[i].properties.zoom_level});
                     }
                    // console.log(search_avail.var.locations.features[i].properties.name);
@@ -456,13 +444,11 @@ var search_avail = {
                      // console.log(search_avail.var.places[i].name);
             }
 
-            console.log("KEY");
-            console.log(e.keyCode);
+            // console.log("KEY");
+            // console.log(e.keyCode);
 
             if (e.keyCode === 13) {
                 if (search_results.length > 0) {
-			console.log ("enter");
-			console.log(search_results);
                         search_avail.select_region(search_results[0]['id'],search_results[0]['name'], search_results[0]['coord_1'], search_results[0]['coord_2'], search_results[0]['zoom_level']);
                         // $('#region-park-selection').html(search_results[0]['name']);
                 }
@@ -509,7 +495,6 @@ var search_avail = {
                search_avail.var.multiplesites.splice(index, 1);
                search_avail.load_campsite_availabilty();
              }
-             console.log(search_avail.var.multiplesites);
     },
     select_multiple_site: function(button_element) {
 	     var databutton = $(button_element).attr('data-button');
@@ -524,14 +509,12 @@ var search_avail = {
 		 search_avail.load_campsite_availabilty();
 	     }
 
-	     console.log(search_avail.var.multiplesites);
     },
     change_multiselect_class_total: function(class_id, value, limit) {
             if (value > limit ) {
                 alert('Entry is more than available');
 	    } else {
 	        search_avail.var.multiplesites_class_totals[class_id] = value;
-  	        console.log(search_avail.var.multiplesites_class_totals);
 	    }
 	    
     },	    
@@ -550,8 +533,6 @@ var search_avail = {
 	   var databutton = $(button_element).attr('data-button');
 	   var button_data = $.parseJSON(databutton);
            var post_data = {};
-           console.log(search_avail.var.selecttype);
-           console.log(button_data);
 
 	   if (search_avail.var.selecttype == 'multiple') {
               button_data['campsite_id'] = search_avail.var.multiplesites[0];
@@ -604,8 +585,6 @@ var search_avail = {
                   },
                   success: function(data) {
 			 search_avail.var.availabity = data;
-			 console.log("load_campground_availabilty");
-                         console.log(data);
 
                   },
             });
