@@ -1787,18 +1787,36 @@ def bind_booking(booking, basket):
             if booking.old_booking > 0:
                 logger.info(u'cancelling old booking started {}'.format(booking.old_booking))
                 old_booking = Booking.objects.get(id=int(booking.old_booking))
-                logger.info(u'cancelling old booking started 1')
                 old_booking.is_canceled = True
-                logger.info(u'cancelling old booking started 2')
                 if booking.created_by is not None:
                      logger.info(u'created by {}'.format(booking.created_by))
                      old_booking.canceled_by = EmailUser.objects.get(id=int(booking.created_by))
-                logger.info(u'cancelling old booking started 3')
                 old_booking.cancelation_time = timezone.now()
                 old_booking.cancellation_reason = "Booking Changed Online"
                 old_booking.save()
                 logger.info(u'cancelling old booking completed {}'.format(booking.old_booking))
         logger.info(u'booking completed {}'.format(booking.id))
+
+        cb = parkstay_models.CampsiteBooking.objects.filter(booking=booking)
+        for c in cb:
+            try:
+                ac = parkstay_models.AvailabilityCache.objects.filter(date=c.date, campground=c.campsite.campground)
+                if ac.count() > 0:
+
+                    for a in ac:
+                       a.stale=True
+                       a.save()
+                else:
+                    parkstay_models.AvailabilityCache.objects.create(date=c.date,campground=c.campsite.campground,stale=True)
+            except Exception as e:
+                print (e)
+                logger.info(u'error updating availablity cache {}'.format(booking.id))
+                print ("Error Updating campsite availablity for campsitebooking.id "+str(c.id))
+        logger.info(u'availablity cache flagged for update {}'.format(booking.id))
+
+
+
+
             #delete_session_booking(request.session)
             #request.session['ps_last_booking'] = booking.id
 
