@@ -875,6 +875,7 @@ class SearchAvailablity(TemplateView):
     def get(self, request, *args, **kwargs):
         context = {}
         features_obj = []
+        features_obj_campsites = []
         features_obj_cache = cache.get('features_array_type_0:')
 
         if features_obj_cache is None:
@@ -885,7 +886,19 @@ class SearchAvailablity(TemplateView):
         else:
             features_obj = json.loads(features_obj_cache)
 
-        context['features'] = features_obj
+        features_obj_cache = None 
+        features_obj_cache = cache.get('features_array_type_1:')
+
+        if features_obj_cache is None:
+            features_query = Feature.objects.filter(type=1)
+            for f in features_query:
+                features_obj_campsites.append({'id': f.id,'name': f.name, 'symb': 'RF8G', 'description': f.description, 'type': f.type, 'key': 'twowheel','remoteKey': [f.name]})
+                cache.set('features_array_type_1:', json.dumps(features_obj_campsites),  86400)
+        else:
+            features_obj_campsites = json.loads(features_obj_cache)
+
+        context['features_campgrounds'] = features_obj
+        context['features_campsites'] = features_obj_campsites
         context['features_json'] = json.dumps(features_obj)
         return render(request, self.template_name, context)
 

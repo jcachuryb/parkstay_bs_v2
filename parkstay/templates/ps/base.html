@@ -1,7 +1,6 @@
 {% extends "webtemplate_dbca/base_b5.html" %}
 
 {% block extra_css %}
-
     <link type="text/css" href="/static/ps/css/search_avail.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
     <link type="text/css" href="/static/common/node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
     <link type="text/css" href="/static/ps/css/common.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
@@ -19,12 +18,12 @@
     <script type="text/javascript" src="/static/common/node_modules/bootstrap-datepicker/js/bootstrap-datepicker.js?ver={{ GIT_COMMIT_HASH }}"></script>
     <script type="text/javascript" src="/static/ps/js/management.js?ver={{ GIT_COMMIT_HASH }}"></script>
     <script type="text/javascript" src="/static/ps/js/search_avail.js?ver={{ GIT_COMMIT_HASH }}"></script>
+    <script type="text/javascript" src="/static/ledger_api/js/ledger_management.js?ver={{ GIT_COMMIT_HASH }}"></script>
 {% endblock %}
-
 
 {% block header_top_menu %}
     <style>
-    @font-face { font-family: "Glyphicons Halflings"; src: url('/static/ps/fonts/glyphicons-halflings-regular.ttf'); } 
+       @font-face { font-family: "Glyphicons Halflings"; src: url('/static/ps/fonts/glyphicons-halflings-regular.ttf');} 
     </style>
 {% endblock %}
 
@@ -78,12 +77,6 @@ MENU 2
 {% block menu_spacer %}
  <BR>
 {% endblock %}
-
-
-
-
-
-
 
 
 

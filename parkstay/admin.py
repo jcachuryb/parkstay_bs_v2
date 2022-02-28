@@ -231,7 +231,7 @@ class CampsiteAdmin(admin.ModelAdmin):
 
 @admin.register(models.Feature)
 class FeatureAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')
+    list_display = ('name', 'description','type')
     ordering = ('name',)
     search_fields = ('name',)
 

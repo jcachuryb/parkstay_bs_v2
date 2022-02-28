@@ -135,9 +135,7 @@
         </div>
         <div id='card-preview' style='display:none'>
 
-
-  <div>
-
+<div>
     <VueSlickCarousel :arrows="true" :dots="true" v-bind="slicksettings" @reInit="reInitSlides" :key="slickcount">
 	<div v-for="f in camping_distance_array.slice(0, 21)">
             <div class='slick-slide-card' >
@@ -160,7 +158,7 @@
 
                        <div v-if="f.park_name" v-html="f.park_name.slice(0,55)" class='slick-slide-description'></div>
                           <div v-if="f.campground_type == 0" >
-                             <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Aprox Sites Available ({{ campgroundAvailablity[f.id].total_bookable }})</div>
+                             <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Aprox Sites Available ({{ campgroundSiteTotal[f.id].total_available }})</div>
                              <div v-else class='slick-slide-card-notavailabile'>No availablity for selected period</div>
                           </div>
                           <div v-else ><div>&nbsp;</div></div>
@@ -681,11 +679,14 @@ export default {
             numChildren: 0,
             numInfants: 0,
             gearType: 'all',
+            features: [],
+            featuresCs: [],
             camping_distance_array: [],
             campground_data: [],
             filterParams: {
             },
             campgroundAvailablity: {},
+            campgroundSiteTotal: {},
             dateSetFirstTime: true,
             sitesOnline: true,
             sitesInPerson: true,
@@ -895,7 +896,7 @@ export default {
                 // Open the popup
                 /*
                 let feature = this.groundsData.a.find(f => parseInt(f.a) == parseInt(target.properties.id));
-                if (feature){
+                if (feature) {
                     setTimeout(() => {
                         vm.popup.setPosition(feature.getGeometry().getCoordinates());
                         // really want to make vue.js render this, except reactivity dies
@@ -978,7 +979,7 @@ export default {
                     $("#mapPopupBook").show();
                     $("#mapPopupInfo").hide();
                     $("#mapPopupBook").attr('href', vm.parkstayUrl+'/search-availablity/campground/site_id='+feature.getId()+'&'+vm.bookingParam);
-                } else if( feature.get('campground_type') == 1 ){
+                } else if ( feature.get('campground_type') == 1 ){
                     $("#mapPopupBook").hide();
                     $("#mapPopupInfo").show();
                     $("#mapPopupInfo").attr('href', feature.get('info_url'));
@@ -992,6 +993,13 @@ export default {
         },
         groundFilter: function(feature) {
             return true;
+        },
+        removeCampsiteFromAvailable: function(campground_id, campsite_id) { 
+            var vm = this;
+               if (vm.campgroundSiteTotal[campground_id]['sites'].indexOf(campsite_id)) {
+                     var cst = vm.campgroundSiteTotal[campground_id]['sites'].indexOf(campsite_id);
+                     vm.campgroundSiteTotal[campground_id]['sites'].splice(cst,1);
+               }
         },
         reloadMap: function() {
             console.log('RELOAD MAP');
@@ -1018,7 +1026,7 @@ export default {
             view.animate({
                 center: fromLonLat,
                 resolution: resolution,
-               duration: 1000
+                duration: 1000
             });
             this.buildDistanceArray();
         },
@@ -1029,14 +1037,13 @@ export default {
             var coord_1 = $('#coord_1').val();
             var coord_2 = $('#coord_2').val();
             vm.camping_distance_array = [];
-            // console.log("CAMPGROUND DATA");
-            // console.log(vm.campground_data);
 
             var tents = $('#filter-checkbox-tent').is(':checked');
             var campervan = $('#filter-checkbox-campervan').is(':checked');
             var campertrailer = $('#filter-checkbox-campertrailer').is(':checked');
 
             var legit = new Set();
+            var featurescs = new Set();
             $("#search-filters").find("input").each(function() {
                if (this.id.substring(0,15) == 'filter-feature-') {
                     var filter_element_id = this.id;
@@ -1047,6 +1054,21 @@ export default {
                     }
                }
             });
+
+
+            vm.featuresCs = [];
+            $("#search-filters").find("input").each(function() {
+               if (this.id.substring(0,17) == 'filter-featurecs-') {
+                    var filter_element_id = this.id;
+                    var feature_id = this.id.substring(17);
+                    var is_checked = $("#"+filter_element_id).is(':checked');
+                    if (is_checked == true) {
+                        vm.featuresCs.push(feature_id);
+                        featurescs.add(parseInt(feature_id));
+                    }
+               }
+            });
+
 
             this.campground_data.forEach(function (el) {
                      var skip_cg = false;  
@@ -1062,18 +1084,30 @@ export default {
                      var campsites_total = el.properties.campsites.length;
                      var info_url = el.properties.info_url;
                      var park_name = '';
-                     if (el.properties.park ) {
+                     if (el.properties.park) {
                            park_name = el.properties.park.name
                      }
+                     console.log("CAMP");
+                     // console.log(vm.campgroundSiteTotal);
+                     console.log(vm.campgroundAvailablity);
+                     vm.campgroundSiteTotal[campground_id] = {'sites': {}, 'total_available': 0}
+                     vm.campgroundSiteTotal[campground_id]['sites'] = JSON.parse(JSON.stringify(vm.campgroundAvailablity[campground_id]['sites']));
 
                      // Tier 1 Filter Start
-
                      var cs_tent = false;
                      var cs_campervan = false;
                      var cs_caravan = false;
+                     var cs_features = false;
 
+                     if (campsites.length > 0) { 
+                     } else {
+                           cs_features = true;
+                     }
+
+                     var hascsfeatcount = 0;
                      for (var cs of campsites) {
-
+                             // Start Complete campground site filter
+                             var remove_campsite = false;
                              if (cs.tent == true) {
                                      // because there is more than one site,  if more more than one site supports tents then set true.
                                      cs_tent = true;
@@ -1086,8 +1120,60 @@ export default {
                              if (cs.caravan == true) {
                                    cs_caravan = true;
                              }
-                     }
+                             // End completed campground site filter
 
+                             if (tents == true) { 
+                                  if (cs.tent == true) {
+                                  } else {
+                                       remove_campsite = true;
+                                  }
+                             }
+                             if (campervan == true) {
+                                  if (cs.campervan == true) {
+                                  } else {
+                                       remove_campsite = true;
+                                  }
+                             } 
+
+                             if (campertrailer == true) {
+                                   if (cs.caravan == true) {
+                                   } else {
+                                       remove_campsite = true;
+                                   }
+                             }
+
+                             var hascsfeat = 0;
+                             var feats = new Set(cs['features'].map(function(x) {
+                                  return x.id;
+                             }));
+                             for (var x of featurescs) {
+                                  if (feats.has(x)) {
+                                        hascsfeat = hascsfeat + 1;
+                                   }
+                             }
+
+                             if (hascsfeat == featurescs.size) {
+                                 hascsfeatcount = hascsfeatcount + 1;    
+                             } else {
+                                 remove_campsite = true;
+                                 // vm.removeCampsiteFromAvailable(campground_id,cs.id);
+                             }
+
+                             if (remove_campsite == true) {
+                                  vm.removeCampsiteFromAvailable(campground_id,cs.id);
+                             }
+                     }
+                     
+                     // START Remove CG
+                     if (hascsfeatcount == 0) { 
+                             cs_features = true;
+                     }
+                     if (featurescs.size > 0) {
+                         if (cs_features == true) {
+                             return;
+                         }
+                     }
+                     // END Remove CG
 
                      if (tents == true && cs_tent == false) {
                                 skip_cg = true; 
@@ -1102,13 +1188,6 @@ export default {
                      }
 
                      // Tier 1 Filter End
-
-
-
-
-
-
-
                      var feats = new Set(campsite_features.map(function(x) {
                          return x.id;
                      }));
@@ -1131,7 +1210,6 @@ export default {
                      row['available_campsites'] = campsites_total;
                      row['info_url'] = info_url;
                      row['park_name'] = park_name;
-                     
 
                      row['campground_name'] = campground_name; 
                      if (campground_name) {
@@ -1140,27 +1218,9 @@ export default {
                         }
                      }
 
-                     //var geometry = el.get('geometry');
-                     //var campground_type = el.get('campground_type');
-                     //var description = el.get('description');
-                     //var campground_name =  el.get('name');
-                     //var campsites = el.get('campsites');
+                     vm.campgroundSiteTotal[campground_id]['total_available'] = vm.campgroundSiteTotal[campground_id]['sites'].length;
                      var row = {'campground_name': 'test', 'distance': null};
-                     // row['campground_name'] = campground_name;
-                     //console.log("GPS");
-                     //console.log(coord_1+":"+coord_2);                    
-                     //console.log(coord_2,coord_1,geometry.flatCoordinates[1],geometry.flatCoordinates[0],"K");
-                     //console.log("GPS CONVERT");
-                     // var geom = geometry.transform('EPSG:3857', 'EPSG:4326');
-                     //var c =geom.getCoordinates();
                           
-                     //console.log(c)
-                     //console.log(c[0]);
-                     //console.log(c[1]);
-                     //console.log(geometry);
-                     //console.log(geometry.flatCoordinates);
-                     //console.log("ARRAY CG");
-                     //console.log(vm.camping_distance_array);
             });
             vm.camping_distance_array.sort(function (a, b) {
                 return a.distance - b.distance;
@@ -1270,7 +1330,7 @@ export default {
 
         fetchServerDate: function() {
           let vm = this;
-          vm.$http.get(vm.parkstayUrl+'/api/server-date').then(function(response)  {
+          vm.$http.get(vm.parkstayUrl+'/api/server-date').then(function(response) {
               this.setDate(response.body)
           })
         },
@@ -1280,37 +1340,55 @@ export default {
             var vm = this;
             // make a lookup table of campground features to filter on
             var legit = new Set();
+            var featurescs = new Set();
+
             var filterCb = function (el) {
                 //legit.add(el);
                 if (vm.filterParams[el.key] === true) {
                     el.remoteKey.forEach(function (fl) {
                         // console.log("LEGIT FL");
-                        //console.log(fl);
+                        // console.log(fl);
 
-                        //legit.add(fl);
+                        // legit.add(fl);
                     });
                 }
             };
             // this.filterList.forEach(filterCb);
             // this.extraFilterList.forEach(filterCb);
+            vm.features = [];
             $("#search-filters").find("input").each(function() {
                if (this.id.substring(0,15) == 'filter-feature-') {
                     var filter_element_id = this.id;
                     var feature_id = this.id.substring(15);
                     var is_checked = $("#"+filter_element_id).is(':checked');
-                    if (is_checked == true ) { 
+                    if (is_checked == true) {
+                        vm.features.push(feature_id);
                         legit.add(parseInt(feature_id));
 		    }
+               }
+            });
+            
+            vm.featuresCs = [];
+            $("#search-filters").find("input").each(function() {
+               if (this.id.substring(0,17) == 'filter-featurecs-') {
+                    var filter_element_id = this.id;
+                    var feature_id = this.id.substring(17);
+                    var is_checked = $("#"+filter_element_id).is(':checked');
+                    if (is_checked == true) {
+                        vm.featuresCs.push(feature_id);
+                        featurescs.add(parseInt(feature_id));
+                    }
                }
             });
 
             this.groundsFilter.clear();
             this.groundsData.forEach(function (el) {
                 // first pass filter against the list of IDs returned by search
-                //console.log("GROUND LOOP");
-                //console.log(el);
+                // console.log("GROUND LOOP");
+                // console.log(el);
 
                 var campgroundType = el.get('campground_type');
+                var campground_id = el.getId(); 
                 switch (campgroundType) {
                     case 0:
                     if (!vm.sitesOnline) {
@@ -1341,9 +1419,9 @@ export default {
                 var cs_tent = false;
                 var cs_campervan = false;
                 var cs_caravan = false;
+                var cs_features = false;
 
                 for (var cs of campsites) {
-
                         if (cs.tent == true) {
                                 // because there is more than one site,  if more more than one site supports tents then set true.
 				cs_tent = true;
@@ -1356,7 +1434,41 @@ export default {
                         if (cs.caravan == true) {
                               cs_caravan = true;
                         }
+                        // console.log("LOOP cs");
+                        if (cs['features'].length > 0 ) { 
+                           //console.log(cs);
+                           //console.log(cs['features']);
+                          
+                           for (var x of featurescs) {
+                                 // console.log("CS FET");
+                                 // console.log(x);
+                                 for (var c of cs['features']) { 
+                                     if (c.id == x) {
+                                          // console.log("TRUE");
+                                          // console.log(campground_id); 
+                                          cs_features = true;
+                                     } 
+                                     // console.log(c.id);
+                                 }
+                            }
+                        } 
                 }
+                if (campground_id == 33) { 
+                console.log("CS FEAT");
+                console.log(cs_features);
+                console.log(campground_id);
+                  return 
+                }
+                if (cs_features == false) {
+                        // console.log("NEG");
+                        return;
+
+                }
+                if (campground_id == 33) {
+                    console.log(" NO FALSE");
+
+                }
+
 
                 if (tents == true && cs_tent == false) {
 			return
@@ -1369,7 +1481,7 @@ export default {
                 if (campertrailer == true && cs_caravan == false) {
                         return
                 }
-
+ 
                 if (vm.groundsIds.has(el.getId())) {
                     if (legit.size) { // if we have a feature filter list
                         // check that all parameters are present
@@ -1383,6 +1495,7 @@ export default {
                                  return;     // missing a feature!
                             }
                         }
+
                         vm.groundsFilter.push(el);
 
                     } else {  // no features, return all results
@@ -1457,7 +1570,7 @@ export default {
         // this.arrivalEl = $('#dateArrival');
         // this.arrivalEl = $('#checkin');
         // this.departureEl = $('#checkout');
-        //this.arrivalData = this.arrivalEl.fdatepicker({
+        // this.arrivalData = this.arrivalEl.fdatepicker({
         //    format: 'dd/mm/yyyy',
         //    endDate: moment.utc(this.arrivalEl).add(180, 'days').toDate(),
         //    onRender: function (date) {
@@ -1539,8 +1652,17 @@ export default {
         $(".filter-features").click(function() {
                 console.log("UPDATE FILTERS");
 		vm.updateFilter();
+                // vm.groundsSource.loadSource();
                 vm.buildDistanceArray();
 	});
+
+
+        $(".filter-featurescs").click(function() {
+                console.log("UPDATE FILTERS");
+                vm.updateFilter();
+                // vm.groundsSource.loadSource();
+                vm.buildDistanceArray();
+        });
 
 
         // generate WMTS tile grid
@@ -1600,7 +1722,6 @@ export default {
                 vm.groundsData.clear();
                 vm.groundsData.extend(features);
                 vm.groundsSource.loadSource();
-                   
             }
         });
 
@@ -1623,16 +1744,22 @@ export default {
                 if (arrival) {
                     params.arrival = arrival;
                 }
+
                 var departure = vm.departureDateString;
                 if (departure) {
                     params.departure = vm.departureDateString;
                 }
+
                 // params.num_adult = vm.numAdults;
                 // params.num_concessions = vm.numConcessions;
                 // params.num_children = vm.numChildren;
                 // params.num_infants = vm.numInfants;
+
                 params.gear_type = vm.gearType;
+                params.features = JSON.stringify(vm.features);
+                params.featurescs = JSON.stringify(vm.featuresCs);
             }
+
             $.ajax({
                 url: urlBase+$.param(params),
                 success: function (response, stat, xhr) {
@@ -1685,7 +1812,6 @@ export default {
                 return style;
             }
         });
-
 
         $('#mapPopupClose').on('click', function(ev) {
             vm.popup.setPosition(undefined);
