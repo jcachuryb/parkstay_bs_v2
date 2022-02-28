@@ -939,9 +939,9 @@ var search_avail = {
 				//	   }
 
 				//     }
-				//}
+				// }
                                 if (current_booking_selection == true) {
-                                        campsitehtmlbeforeselected = campsitehtmlbeforeselected + campsitehtml       
+                                        campsitehtmlbeforeselected = campsitehtmlbeforeselected + campsitehtml;       
 			        } else {
 				     if (append_site == true) {
 				     	if (campsite_available == true) {
@@ -1075,4 +1075,3 @@ var search_avail = {
 
     }
 }
-

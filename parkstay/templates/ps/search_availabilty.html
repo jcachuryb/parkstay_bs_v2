@@ -5,7 +5,6 @@
 {% load static %}
 
 {% block extra_css_old %}
-
     <link rel="stylesheet" href="/static/common/node_modules/glider-js/glider.min.css?ver={{ GIT_COMMIT_HASH }}">
     <script src="/static/common/node_modules/glider-js/glider.min.js?ver={{ GIT_COMMIT_HASH }}"></script>
 
@@ -19,7 +18,6 @@
 {% block content %}
 {% include "ps/modal_loader.html" %}
 
-
 <!-- https://cssbuttoncreator.com/ -->
 <script>
 
@@ -31,7 +29,6 @@ window.onload = function() {
    search_avail.init_dateselection();	
    search_avail.init_cg();
    console.log('loaded');
-
 }
 
 </script>
@@ -130,7 +127,7 @@ window.onload = function() {
 				</div>					
 				<div class="col-6">
 					<div class="form-check form-switch">
-					  <input class="form-check-input filter-features" type="checkbox" id="filter-checkbox-tent">
+				        <input class="form-check-input filter-features" type="checkbox" id="filter-checkbox-tent">
 				</div>
 				</div>
 
@@ -143,14 +140,13 @@ window.onload = function() {
                                 </div>
                                 </div>
 
-
                                 <div class="col-6">
                                         Caravan / Camper trailer
                                 </div>                                  
                                 <div class="col-6">
                                         <div class="form-check form-switch">
-                                          <input class="form-check-input filter-features" type="checkbox" id="filter-checkbox-campertrailer">
-                                </div>
+                                            <input class="form-check-input filter-features" type="checkbox" id="filter-checkbox-campertrailer">
+                                        </div>
                                 </div>
 
                                 <div class="col-6">
@@ -160,7 +156,7 @@ window.onload = function() {
                                         &nbsp;
                                 </div>
 
-				{% for f  in features %}
+				{% for f  in features_campgrounds %}
                                      <div class="col-6">
                                           {{ f.name }} 
                                      </div>
@@ -171,9 +167,36 @@ window.onload = function() {
                                      </div>
 				{% endfor %}
 
+                                <div class="col-6">
+                                        &nbsp;
+                                </div>
+
+                                <div class="col-6">
+                                        &nbsp;
+                                </div>
+
+                                {% for f  in features_campsites %}
+                                     <div class="col-6">
+                                          {{ f.name }}
+                                     </div>
+                                     <div class="col-6">
+                                             <div class="form-check form-switch">
+                                                     <input class="form-check-input filter-featurescs" type="checkbox" id="filter-featurecs-{{ f.id }}">
+                                             </div>
+                                     </div>
+                                {% endfor %}
+
+                                <div class="col-6">
+                                        &nbsp;
+                                </div>
+
+                                <div class="col-6">
+                                        &nbsp;
+                                </div>
+
 			      </div>
 			 </div> 
-			 <div class="col-12" style='' >
+			 <div class="col-12" style=''>
 				 <center><button type="button" class="btn btn-primary" id='more-filters' onclick="search_avail.filter_options('open');">More filters</button></center>
 				 <center><button type="button" class="btn btn-primary" style='display:none;' id='hide-filters' onclick="search_avail.filter_options('close');">Hide filters</button></center>
 		         </div>
@@ -216,15 +239,10 @@ window.onload = function() {
           </div>
     </div>
 
-
-
-
 		  <div class="col-12" style='display:none'>
 			<div class="col-12" align='right'>
-			
 				<button type='button' name='search-avail' id='search-avail' class='form-button' style='width:100%'>Search</button>
 			</div>
-
 		  </div>
          </div>
      </div>

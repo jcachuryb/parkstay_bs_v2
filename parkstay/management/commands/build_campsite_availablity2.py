@@ -78,9 +78,6 @@ class Command(BaseCommand):
                    datasets.build_campground_daily_calender(params)
                    a.stale=False
                    a.save()
-
-                    
-
            else:
                print ("Start Date")
                print (params['start_date'])

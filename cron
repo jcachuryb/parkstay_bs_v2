@@ -19,4 +19,5 @@
 
 15 6 * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python /app/manage.py build_campsite_availablity2  -a full >> /app/logs/build_campsite_availablity2.log 2>&1
 
+01 0 * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python /app/manage.py build_campsite_attributes  -a full >> /app/logs/build_campsite_attributes.log 2>&1
 
