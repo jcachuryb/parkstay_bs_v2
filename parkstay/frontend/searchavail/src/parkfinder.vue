@@ -1119,20 +1119,20 @@ export default {
                              if (tents == true) { 
                                   if (cs.tent == true) {
                                   } else {
-                                      // remove_campsite = true;
+                                      remove_campsite = true;
                                   }
                              }
                              if (campervan == true) {
                                   if (cs.campervan == true) {
                                   } else {
-                                       // remove_campsite = true;
+                                       remove_campsite = true;
                                   }
                              } 
 
                              if (campertrailer == true) {
                                    if (cs.caravan == true) {
                                    } else {
-                                       // remove_campsite = true;
+                                       remove_campsite = true;
                                    }
                              }
 
@@ -1150,7 +1150,6 @@ export default {
                                  hascsfeatcount = hascsfeatcount + 1;    
                              } else {
                                  remove_campsite = true;
-                                 // vm.removeCampsiteFromAvailable(campground_id,cs.id);
                              }
                              if (remove_campsite == true) {
                                   vm.removeCampsiteFromAvailable(campground_id,cs.id);
