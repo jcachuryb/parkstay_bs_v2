@@ -995,10 +995,12 @@ export default {
             return true;
         },
         removeCampsiteFromAvailable: function(campground_id, campsite_id) { 
-            var vm = this;
-               if (vm.campgroundSiteTotal[campground_id]['sites'].indexOf(campsite_id)) {
+               var vm = this;
+               if (vm.campgroundSiteTotal[campground_id]['sites'].indexOf(campsite_id) >= 0) {
                      var cst = vm.campgroundSiteTotal[campground_id]['sites'].indexOf(campsite_id);
-                     vm.campgroundSiteTotal[campground_id]['sites'].splice(cst,1);
+                     if (cst >= 0) { 
+                         vm.campgroundSiteTotal[campground_id]['sites'].splice(cst,1);
+                     }
                }
         },
         reloadMap: function() {
@@ -1017,8 +1019,6 @@ export default {
             // zoom slightly closer in for campgrounds
             var resolution = vm.resolutions[10];
             if (zoom_level > 0) {
-                // console.log('zoom_level');
-                // console.log(zoom_level);
 		var resolution = vm.resolutions[zoom_level];
             }
 
@@ -1032,8 +1032,6 @@ export default {
         },
         buildDistanceArray: function() {
             var vm = this;
-            // console.log("buildDistanceArray");
-            // console.log(this.groundsData);
             var coord_1 = $('#coord_1').val();
             var coord_2 = $('#coord_2').val();
             vm.camping_distance_array = [];
@@ -1069,7 +1067,6 @@ export default {
                }
             });
 
-
             this.campground_data.forEach(function (el) {
                      var skip_cg = false;  
                      var geo = el.geometry.coordinates;
@@ -1087,9 +1084,6 @@ export default {
                      if (el.properties.park) {
                            park_name = el.properties.park.name
                      }
-                     console.log("CAMP");
-                     // console.log(vm.campgroundSiteTotal);
-                     console.log(vm.campgroundAvailablity);
                      vm.campgroundSiteTotal[campground_id] = {'sites': {}, 'total_available': 0}
                      vm.campgroundSiteTotal[campground_id]['sites'] = JSON.parse(JSON.stringify(vm.campgroundAvailablity[campground_id]['sites']));
 
@@ -1120,25 +1114,25 @@ export default {
                              if (cs.caravan == true) {
                                    cs_caravan = true;
                              }
-                             // End completed campground site filter
 
+                             // End completed campground site filter
                              if (tents == true) { 
                                   if (cs.tent == true) {
                                   } else {
-                                       remove_campsite = true;
+                                      // remove_campsite = true;
                                   }
                              }
                              if (campervan == true) {
                                   if (cs.campervan == true) {
                                   } else {
-                                       remove_campsite = true;
+                                       // remove_campsite = true;
                                   }
                              } 
 
                              if (campertrailer == true) {
                                    if (cs.caravan == true) {
                                    } else {
-                                       remove_campsite = true;
+                                       // remove_campsite = true;
                                    }
                              }
 
@@ -1149,21 +1143,20 @@ export default {
                              for (var x of featurescs) {
                                   if (feats.has(x)) {
                                         hascsfeat = hascsfeat + 1;
-                                   }
+                                  }
                              }
-
+                             
                              if (hascsfeat == featurescs.size) {
                                  hascsfeatcount = hascsfeatcount + 1;    
                              } else {
                                  remove_campsite = true;
                                  // vm.removeCampsiteFromAvailable(campground_id,cs.id);
                              }
-
                              if (remove_campsite == true) {
                                   vm.removeCampsiteFromAvailable(campground_id,cs.id);
                              }
                      }
-                     
+
                      // START Remove CG
                      if (hascsfeatcount == 0) { 
                              cs_features = true;
@@ -1440,8 +1433,6 @@ export default {
                            //console.log(cs['features']);
                           
                            for (var x of featurescs) {
-                                 // console.log("CS FET");
-                                 // console.log(x);
                                  for (var c of cs['features']) { 
                                      if (c.id == x) {
                                           // console.log("TRUE");
@@ -1453,12 +1444,12 @@ export default {
                             }
                         } 
                 }
-                if (campground_id == 33) { 
-                console.log("CS FEAT");
-                console.log(cs_features);
-                console.log(campground_id);
-                  return 
-                }
+                //if (campground_id == 33) { 
+                //console.log("CS FEAT");
+                //console.log(cs_features);
+                //console.log(campground_id);
+                //  return 
+                //}
                 if (cs_features == false) {
                         // console.log("NEG");
                         return;
