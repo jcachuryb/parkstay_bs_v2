@@ -998,6 +998,19 @@ def campground_availabilty_view(request,  *args, **kwargs):
     date_diff = end_date - start_date
     booking_days = date_diff.days + 1
 
+    #attributes_data_file = settings.BASE_DIR+"/datasets/campground-attributes.json"
+
+    #try:
+    #   f = open(attributes_data_file, "r")
+    #   datajsonstring = f.read()
+    #   attributes_obj = json.loads(datajsonstring)
+    #except:
+    #   fileopened = False
+    #   attributes_obj = {}
+    #   print ("Error in attributes json file")
+    #
+    #print (attributes_obj)
+
     #available_campsites_obj = {}
     campgrounds = utils_cache.all_campgrounds()
     for c in campgrounds:
@@ -1043,7 +1056,14 @@ def campground_availabilty_view(request,  *args, **kwargs):
              for cid in campground_ids:
                  campsite_ids = list(daily_calender[dc][cid].keys())
                  for csid in campsite_ids:
-                     
+                     ## add feature properties check here: ##
+                     #if cid in attributes_obj['campgrounds']:
+                     #     if csid in attributes_obj['campgrounds'][cid]['campsites']:
+                     #           pass
+
+                     #
+
+                     ########################################
                      if daily_calender[dc][cid][csid][nextday_string] == 'available':
                          pass
                      else:
@@ -2265,7 +2285,7 @@ def campground_map_data():
          dumped_data = json.dumps(campground_array)
          cache.set('CampgroundMapViewSet', dumped_data,  3600)
      return dumped_data
-     return HttpResponse(dumped_data, content_type='application/json')
+     #return HttpResponse(dumped_data, content_type='application/json')
 
 
 def places(request, *args, **kwargs):
