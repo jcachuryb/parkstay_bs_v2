@@ -9,13 +9,16 @@ from ledger_api_client.ledger_models import Invoice
 #from ledger.emails.emails import EmailBase2 as EmailBase
 from ledger_api_client.emails import EmailBase2 as EmailBase
 from django.template.loader import render_to_string, get_template
+from django.core.exceptions import ValidationError
 #from django.template import Context
 from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.core.files.base import ContentFile
 from parkstay import doctopdf
 from confy import env
 import hashlib
 import datetime
 import socket
+import requests
 default_campground_email = settings.EMAIL_FROM
 
 
@@ -42,13 +45,19 @@ def send_booking_invoice(booking):
     references = [b.invoice_reference for b in booking.invoices.all()]
     invoice = Invoice.objects.filter(reference__in=references).order_by('-created')[0]
 
-    invoice_pdf = create_invoice_pdf_bytes(filename, invoice)
-
+    #invoice_pdf = create_invoice_pdf_bytes(filename, invoice)
+    api_key = settings.LEDGER_API_KEY
+    url = settings.LEDGER_API_URL+'/ledgergw/invoice-pdf/'+api_key+'/'+invoice.reference
+    invoice_pdf = requests.get(url=url)
+    #cfile = ContentFile(invoice_pdf.content, name=filename)
     campground_email = booking.campground.email if booking.campground.email else default_campground_email
-    email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, attachments=[(filename, invoice_pdf, 'application/pdf')])
-    email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
-    booking.send_invoice = True
-    booking.save()
+    if invoice_pdf.status_code == 200:
+       email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, attachments=[(filename, invoice_pdf.content, 'application/pdf')])
+       email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
+       booking.send_invoice = True
+       booking.save()
+    else:
+       raise ValidationError('Error exporting invoice from ledger')
 
 
 
