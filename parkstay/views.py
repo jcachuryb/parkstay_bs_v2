@@ -384,8 +384,8 @@ class MakeBookingsView(TemplateView):
         booking.details['first_name'] = form.cleaned_data.get('first_name')
         booking.details['last_name'] = form.cleaned_data.get('last_name')
         booking.details['phone'] = form.cleaned_data.get('phone')
-        booking.details['country'] = form.cleaned_data.get('country').iso_3166_1_a2
-        booking.details['postcode'] = form.cleaned_data.get('postcode')
+        #booking.details['country'] = form.cleaned_data.get('country').iso_3166_1_a2
+        #booking.details['postcode'] = form.cleaned_data.get('postcode')
         booking.details['num_adult'] = form.cleaned_data.get('num_adult')
         booking.details['num_concession'] = form.cleaned_data.get('num_concession')
         booking.details['num_child'] = form.cleaned_data.get('num_child')

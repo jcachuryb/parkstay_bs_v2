@@ -17,12 +17,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            unconfirmed = models.Booking.objects.filter(confirmation_sent=False, property_cache__paid=True,error_sending_confirmation=False).exclude(booking_type=3).order_by('id')[:10]
+            next_check = timezone.now() + timedelta(hours=1)
+            unconfirmed = models.Booking.objects.filter(confirmation_sent=False, property_cache__paid=True,error_sending_confirmation=False, next_check_for_payment__lt=timezone.now()).exclude(booking_type=3).order_by('id')[:10]
             if unconfirmed:
                 for b in unconfirmed:
-                    if b.paid:
+                    print ("PAID")
+                    print (b.paid)
+                    if b.paid is True:
                         try:
-                            
                             #emails.send_booking_invoice(b)
                             emails.send_booking_confirmation(b.id)
                         except Exception as e:
@@ -30,6 +32,9 @@ class Command(BaseCommand):
                             print (e)
                             b.error_sending_confirmation = True
                             b.save()
+                    if b.paid is False:
+                        b.next_check_for_payment=next_check
+                        b.save()
 
             bookings = models.Booking.objects.filter(send_invoice=False,do_not_send_invoice=False,error_sending_invoice=False).exclude(booking_type=3).order_by('id')[:10]
             for b in bookings:
