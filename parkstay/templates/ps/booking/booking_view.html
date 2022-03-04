@@ -30,7 +30,7 @@
   </div>
   <div class="card-body"> 
             <div class="row">
-                  <div class="col-sm-12" style="margin-top: 1em">
+                <div class="col-sm-12" style="margin-top: 1em">
                 {% if booking.property_cache.status == 'Paid' or booking.property_cache.status == 'Over Paid' or booking.property_cache.status == 'Canceled - Payment (Paid)' %}
 		              {% if booking.is_canceled is not True %}
                               <p><i class="bi bi-file-pdf-fill" style='color:red'></i> <a href="{% url 'get_confirmation' booking.id %}" style='color:red; text-decoration:none'>Booking Confirmation</a>
