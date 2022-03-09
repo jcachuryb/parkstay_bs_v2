@@ -139,4 +139,12 @@ if os.path.isdir(DATA_STORE):
 else:
     os.mkdir(DATA_STORE)
 
+LEDGER_UI_ACCOUNTS_MANAGEMENT = [
+            {'first_name': {'options' : {'view': True, 'edit': True}}},
+            {'last_name': {'options' : {'view': True, 'edit': True}}},
+            {'residential_address': {'options' : {'view': True, 'edit': True}}},
+            {'phone_number' : {'options' : {'view': True, 'edit': True}}},
+            {'mobile_number' : {'options' : {'view': True, 'edit': True}}},
+]
+
 BOOKING_PREFIX="PB"
