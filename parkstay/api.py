@@ -2414,11 +2414,17 @@ def booking_updates(request, *args, **kwargs):
 
              vehicle_entry_fee = '0.00'
              for v in vehicles:
+                 concession = False
+                 if v[5] == True:
+                     concession = True
+
                  #if v[2] is True:
                  vehicle_type=''
                  if v[0] == 0:
                      if entry_fee_required:
                          vehicle_entry_fee = entry_fees.vehicle
+                         if concession is True:
+                              vehicle_entry_fee = entry_fees.concession 
                      vehicle_type='vehicle'
                  if v[0] == 2:
                      if entry_fee_required:
@@ -2450,9 +2456,8 @@ def booking_updates(request, *args, **kwargs):
                  bvr.type=vehicle_type
                  bvr.entry_fee=entry_fee
                  bvr.hire_car=hire_care
+                 bvr.concession=concession
                  bvr.save()
-                 print ("P ENTRY")
-                 print (entry_fee_required)
                  if bvr.additional_booking_id:
                        if entry_fee is False or entry_fee_required is False:
                           parkstay_models.AdditionalBooking.objects.filter(id=bvr.additional_booking_id).delete()
@@ -2462,12 +2467,15 @@ def booking_updates(request, *args, **kwargs):
                           ab_obj = parkstay_models.AdditionalBooking.objects.filter(id=bvr.additional_booking_id)
                           if ab_obj.count() > 0:
                                  ab = ab_obj[0]
+                                 concession_text = ""
+                                 if concession is True:
+                                         concession_text = " (Concession) "
+
                                  if hire_care is True and len(v[1]) == 0:
-                                      ab.fee_description = "Park Entry Fee for 'HIRE CAR'"
+                                      ab.fee_description = "Park Entry Fee for 'HIRE CAR'"+concession_text
                                  else:
-                                      ab.fee_description = "Park Entry Fee for "+v[1]
-
-
+                                      ab.fee_description = "Park Entry Fee for "+v[1]+concession_text
+                                 ab.amount = vehicle_entry_fee
                                  ab.save() 
                  else:
                          print (entry_fee)
@@ -2601,6 +2609,7 @@ def get_booking_pricing(request, *args, **kwargs):
              row['entry_fee'] = bv.entry_fee
              row['hire_car'] = bv.hire_car
              row['park_entry_fee'] = bv.park_entry_fee
+             row['concession'] = bv.concession
              booking_information['old_booking_vehicle'].append(row)
 
 
@@ -2643,6 +2652,7 @@ def get_booking_pricing(request, *args, **kwargs):
              row['type'] = bv.type
              row['entry_fee'] = bv.entry_fee
              row['hire_car'] = bv.hire_car
+             row['concession'] = bv.concession
              row['park_entry_fee'] = bv.park_entry_fee
              booking_information['booking_vehicle'].append(row)
 

@@ -1831,6 +1831,7 @@ class BookingVehicleRego(models.Model):
     rego = models.CharField(max_length=50,blank=True)
     type = models.CharField(max_length=10, choices=VEHICLE_CHOICES)
     hire_car = models.BooleanField(default=False)
+    concession = models.BooleanField(default=False)
     entry_fee = models.BooleanField(default=False)
     park_entry_fee = models.BooleanField(default=False)
     additional_booking_id = models.IntegerField(null=True, blank=True, default=None)
