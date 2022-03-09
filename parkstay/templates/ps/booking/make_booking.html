@@ -305,11 +305,10 @@
                                        </div>
                                        <div class="row form-group" v-for="(vehicle, index) in vehicles">
                                           <div class="col-md-2">
-                                                  <div >
+                                                  <div>
                                                   <span v-if="vehicle[0] == 0">Vehicle<span>
                                                   </div>
                                                   <div >
-
                                                   <span v-if="vehicle[0] == 2">Motorcycle<span>
                                                   </div>
                                                    <div >
@@ -390,8 +389,8 @@
 
 						  <span v-if="vehicle[0] == 3">Campervan<span>
                                                   </div>
-                                                   <div >
 
+                                                  <div>
 						  <span v-if="vehicle[0] == 4">Trailer<span>
 						  </div>
                                                   <div>
@@ -405,18 +404,27 @@
                                               <input class="form-control" v-bind:name="'form-'+Number(index).toString()+'-vehicle_rego'" type="text" placeholder="Registration" v-model="vehicle[1]"  v-on:change="updateLocalStorage" autocomplete="off" v-on-keyup="updateVehiclesFees"/>
                                           </div>
 
-                                          <div class="col-md-3">
+                                          <div class="col-md-2">
                                               <div class="form-check form-switch" v-if="pricing.vehicle">
                                                    <label class="form-check-label">
                                                    <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-entry_fee'" type="checkbox" v-model="vehicle[4]" v-on-click="updateVehiclesFees" checked/> Hire car</label>
                                               </div>
                                           </div>
 
+                                          <div class="col-md-2">
+						   {{ campers.concession }}
+						  <div class="form-check form-switch" v-if="campers.concession > 0 && vehicle[0] == 0">  
+                                                       <label class="form-check-label">
+						       <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-concession'" type="checkbox" v-model="vehicle[5]" v-on-click="updateVehiclesFees" checked/> Concession</label>
 
-                                          <div class="col-md-3">
+					         </div>
+				          </div>
+
+                                          <div class="col-md-2">
                                               <div class="form-check form-switch" v-if="pricing.vehicle">
                                                    <label class="form-check-label">
                                                    <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-entry_fee'" type="checkbox" v-model="vehicle[2]" v-on-click="updateVehiclesFees" checked/> Pre-pay park entrance fee</label>
+
                                               </div>
                                           </div>
                                       </div>
@@ -721,6 +729,12 @@
 		campervan: {{ pricing.campervan }},
 		trailer: {{ pricing.trailer }}
             },
+	    campers: { adult: {{ cg.num_adult }},
+		       concession: {{ cg.num_concession }},
+		       child: {{ cg.num_children }},
+		       infant: {{ cg.num_infants }}
+	             
+	    },
             vehicles: [
             //    [0, '', true]
             ],
@@ -894,6 +908,7 @@
 			        row[2] = vm.booking_data.booking_vehicle[c].entry_fee;
 	                        row[3] = vm.booking_data.booking_vehicle[c].id
 	                        row[4] = vm.booking_data.booking_vehicle[c].hire_car;
+	                        row[5] = vm.booking_data.booking_vehicle[c].concession;
                                 vehicles.push(row);
                      }
 		     vm.vehicles = vehicles;
