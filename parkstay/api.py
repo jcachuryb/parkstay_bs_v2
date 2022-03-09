@@ -2811,19 +2811,19 @@ def create_booking(request, *args, **kwargs):
              old_bvr = parkstay_models.BookingVehicleRego.objects.filter(booking_id=booking.old_booking)
              for t in old_bvr:
                  if t.type == 'vehicle':
-                     old_bvr_array[0][old_bvr_count['vehicle']] = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee}
+                     old_bvr_array[0][old_bvr_count['vehicle']] = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee, 'concession': t.concession}
                      old_bvr_count['vehicle'] = old_bvr_count['vehicle'] + 1
                  if t.type == 'motorbike': 
-                     old_bvr_array[2][old_bvr_count['motorcycle']]  = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee}
+                     old_bvr_array[2][old_bvr_count['motorcycle']]  = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee, 'concession': t.concession}
                      old_bvr_count['motorcycle'] = old_bvr_count['motorcycle'] + 1
                  if t.type == 'campervan':
-                     old_bvr_array[3][old_bvr_count['campervan']] = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee}
+                     old_bvr_array[3][old_bvr_count['campervan']] = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee, 'concession': t.concession}
                      old_bvr_count['campervan'] = old_bvr_count['campervan'] + 1
                  if t.type == 'trailer': 
-                     old_bvr_array[4][old_bvr_count['trailer']] = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee}
+                     old_bvr_array[4][old_bvr_count['trailer']] = {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee, 'concession': t.concession}
                      old_bvr_count['trailer'] = old_bvr_count['trailer'] + 1
                  if t.type == 'caravan':
-                     old_bvr_array[5][old_bvr_count['caravan']] =  {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee}
+                     old_bvr_array[5][old_bvr_count['caravan']] =  {'rego': t.rego, 'park_entry_fee': t.park_entry_fee,'entry_fee': t.entry_fee, 'concession': t.concession}
                      old_bvr_count['caravan'] = old_bvr_count['caravan'] + 1
         entry_fee_required = booking_campsite.campground.park.entry_fee_required
 
@@ -2834,12 +2834,19 @@ def create_booking(request, *args, **kwargs):
             if i in  old_bvr_array[0]:
                 rego_text = old_bvr_array[0][i]['rego']
                 entry_fee = old_bvr_array[0][i]['entry_fee'] 
+                concession = old_bvr_array[0][i]['concession']
             entry_fee_amount = '0.00'
+            concession = False
             if entry_fee_required:
                    entry_fee_amount = entry_fees.vehicle
-            bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='vehicle',entry_fee=entry_fee)
+                   concession_text = ""
+                   if concession is True:
+                        entry_fee_amount = entry_fees.concession
+                        concession_text = " (Concession)"
+
+            bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='vehicle',entry_fee=entry_fee, concession=concession)
             ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
-                                                        fee_description="Park Entry Fee for Vehicle",
+                                                        fee_description="Park Entry Fee for Vehicle"+ concession_text,
                                                         amount=entry_fee_amount,
                                                         identifier="vehicles",
                                                         oracle_code=booking.campground.park.oracle_code
