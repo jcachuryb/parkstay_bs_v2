@@ -1846,6 +1846,23 @@ def oracle_integration(date, override):
     system = settings.PS_PAYMENT_SYSTEM_ID.replace("S","0") 
     oracle_codes = oracle_parser(date, system, 'Parkstay', override=override)
 
+def get_ledger_totals():
+    ledger_totals = {"total_failed": 0}
+    try: 
+       data_file = settings.BASE_DIR+"/datasets/ledger-totals.json"
+       f = open(settings.BASE_DIR+"/datasets/ledger-totals.json", "r")
+       dumped_data = f.read()
+       f.close()
+       ledger_import_totals = json.loads(dumped_data)
+       ledger_totals["total_failed"] = ledger_import_totals['refund_total']
+    except:
+       print ("error opening ledger totals")
+
+    return ledger_totals
+
+    #f = open(data_file, "w")
+    #f.write(json.dumps(ledger_totals, indent=4))
+    #f.close()
 
 
 

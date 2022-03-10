@@ -1,5 +1,6 @@
 from django.conf import settings
 from parkstay import models
+from parkstay import utils
 from django.core.cache import cache
 import json
 
@@ -25,6 +26,8 @@ def parkstay_url(request):
     else:
         parkstay_permissions = json.loads(parkstay_permissions_cache)
 
+    lt = utils.get_ledger_totals()
+
     return {
         'EXPLORE_PARKS_SEARCH': '{}'.format(settings.EXPLORE_PARKS_URL),
         'EXPLORE_PARKS_CONTACT': '{}/contact-us'.format(settings.EXPLORE_PARKS_URL),
@@ -46,5 +49,6 @@ def parkstay_url(request):
         'PARKSTAY_PERMISSIONS' : parkstay_permissions,
         'template_group' : 'parksv2',
         'LEDGER_SYSTEM_ID' : settings.PS_PAYMENT_SYSTEM_ID.replace("S","0"),
-        'template_title' : ''
+        'template_title' : '',
+        'ledger_totals': lt
     }
