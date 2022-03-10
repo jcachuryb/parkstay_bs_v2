@@ -1,15 +1,19 @@
 0 1 * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py runcrons >> /app/logs/cronjob.log 2>&1
+
+
 */20 * * * * root  eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py clear_temporary_bookings >> /app/logs/cronjob.log 2>&1
 */2 * * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py  rebuild_parkstay_changed_booking  >> /app/logs/cronjob_pcb.log 2>&1
-*/1 * * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py send_booking_confirmations  >> /app/logs/cronjob_send_booking_confirmation.log 2>&1
+*/2 * * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py send_booking_confirmations  >> /app/logs/cronjob_send_booking_confirmation.log 2>&1
 
 30 9 * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py check_for_missing_bpoint_payments >> /app/logs/check_for_missing_bpoint_payments.log 2>&1
 
-*/1 * * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py check_for_payments_not_linked_to_booking  >> /app/logs/check_for_payments_not_linked_to_booking.log 2>&1
+*/2 * * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py check_for_payments_not_linked_to_booking  >> /app/logs/check_for_payments_not_linked_to_booking.log 2>&1
 
 15 9 * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py bpoint_ledger_payment_audit_report >> /app/logs/bpoint_ledger_payment_audit_report.log 2>&1
 
 */5 * * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py build_alerts  >> /app/logs/cron_alerts.log 2>&1
+*/5 * * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py build_ledger_totals  >> /app/logs/cron_ledger_totals.log 2>&1
+
 */5 * * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 update_legacy_campsite_booking >> /app/logs/cron_update_campsite_booking.log 2>&1
 
 
