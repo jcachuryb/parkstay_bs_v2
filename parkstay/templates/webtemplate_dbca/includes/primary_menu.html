@@ -3,7 +3,6 @@
 {% else %}
       <li class="nav-item"><a class="nav-link active" href="/ssologin">My Bookings</a></li>
 {% endif %}
-{{ settings }}
 {% if request.user.is_staff %}
 <li class="nav-item"><a class="nav-link active" href="{% url 'dash-campgrounds'%}">Campgrounds</a></li>
 <li class="nav-item"><a class="nav-link active" href="{% url 'dash-campsite-types'%}">Camp Site Types</a></li>
