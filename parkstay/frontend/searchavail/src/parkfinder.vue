@@ -136,7 +136,8 @@
         <div id='card-preview' style='display:none'>
 
 <div>
-    <VueSlickCarousel :arrows="true" :dots="true" v-bind="slicksettings" @reInit="reInitSlides" :key="slickcount">
+ <!-- vif="$slots.default && $slots.default.length" -->
+    <VueSlickCarousel v-if="camping_distance_array.length > 0" :arrows="true" :dots="true" v-bind="slicksettings" @reInit="reInitSlides" :key="slickcount">
 	<div v-for="f in camping_distance_array.slice(0, 21)">
             <div class='slick-slide-card' >
                 <div class='row'>
@@ -172,7 +173,7 @@
                    </div>
                </div>
             </div>
-	</div>
+         </div>
     </VueSlickCarousel>
 
 <div style='display:none'>
@@ -868,7 +869,12 @@ export default {
             //console.log("RELOADING SLIDER");
             //console.log(this);
             //console.log(this.$options.components.VueSlickCarousel);
-            this.$options.components.VueSlickCarousel.render();
+            // this.$slots.default = [];
+            // var vsc = this.$options.components.VueSlickCarousel;
+            // vsc = this.$slots.default = [];
+            // vsc.render();
+
+            // this.$options.components.VueSlickCarousel.render();
         },
         search: function(place) {
             if (!place) {
