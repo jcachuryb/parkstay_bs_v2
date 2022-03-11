@@ -8,7 +8,6 @@
 <li class="nav-item"><a class="nav-link active" href="{% url 'dash-campsite-types'%}">Camp Site Types</a></li>
 <li class="nav-item"><a class="nav-link active" href="{% url 'dash-bulkpricing'%}">Bulk Pricing</a></li>
 <li class="nav-item"><a class="nav-link active" href="{% url 'dash-bookings'%}">Existing Bookings</a></li>
-<li class="nav-item"><a class="nav-link active" href="{{ LEDGER_UI_URL }}/ledger/payments/oracle/failed-transactions?system_id={{ LEDGER_SYSTEM_ID }}">Failed Refunds {% if ledger_totals.total_failed > 0 %}<span class="badge bg-danger">{{ ledger_totals.total_failed }}</span>{% endif %}</li>
 
 {% else %}
   
