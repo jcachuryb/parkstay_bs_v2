@@ -187,7 +187,7 @@ class Campground(models.Model):
     promo_area = models.ForeignKey('PromoArea', on_delete=models.PROTECT, blank=True, null=True)
     site_type = models.SmallIntegerField(choices=SITE_TYPE_CHOICES, default=0)
     address = JSONField(null=True, blank=True)
-    features = models.ManyToManyField('Feature')
+    features = models.ManyToManyField('Feature', null=True, blank=True)
     description = models.TextField(blank=True, null=True)
     about = models.TextField(blank=True, null=True)
     booking_information = models.TextField(blank=True, null=True)
