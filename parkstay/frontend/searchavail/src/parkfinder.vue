@@ -1037,6 +1037,7 @@ export default {
             this.buildDistanceArray();
         },
         buildDistanceArray: function() {
+            console.log("running buildDistanceArray");
             var vm = this;
             var coord_1 = $('#coord_1').val();
             var coord_2 = $('#coord_2').val();
@@ -1213,6 +1214,7 @@ export default {
                      if (campground_name) {
                         if (skip_cg == false ) {
                             vm.camping_distance_array.push(row);
+                            // vm.groundsFilter.push(el);
                         }
                      }
 
@@ -1335,6 +1337,7 @@ export default {
 
         // End of change
         updateFilter: function() {
+            console.log("Running updateFilter");
             var vm = this;
             // make a lookup table of campground features to filter on
             var legit = new Set();
@@ -1379,12 +1382,16 @@ export default {
                }
             });
 
+            console.log("LEGIT");
+            console.log(legit);
+
             this.groundsFilter.clear();
             this.groundsData.forEach(function (el) {
                 // first pass filter against the list of IDs returned by search
                 // console.log("GROUND LOOP");
                 // console.log(el);
-
+                console.log("GROUND IDS");
+                console.log(vm.groundsIds);
                 var campgroundType = el.get('campground_type');
                 var campground_id = el.getId(); 
                 switch (campgroundType) {
@@ -1449,19 +1456,9 @@ export default {
                             }
                         } 
                 }
-                //if (campground_id == 33) { 
-                //console.log("CS FEAT");
-                //console.log(cs_features);
-                //console.log(campground_id);
-                //  return 
-                //}
-                if (cs_features == false) {
-                        // console.log("NEG");
+                
+                if (cs_features == false && featurescs.size > 0 ) {
                         return;
-
-                }
-                if (campground_id == 33) {
-                    console.log(" NO FALSE");
 
                 }
 
@@ -1477,7 +1474,7 @@ export default {
                 if (campertrailer == true && cs_caravan == false) {
                         return
                 }
- 
+               
                 if (vm.groundsIds.has(el.getId())) {
                     if (legit.size) { // if we have a feature filter list
                         // check that all parameters are present
@@ -1498,6 +1495,8 @@ export default {
                         vm.groundsFilter.push(el);
                     }
                 }
+                console.log("GROUNDS");
+                console.log(vm.groundsFilter);
             });
             //console.log("GROUND DATA");
             //console.log(this.groundsData);
