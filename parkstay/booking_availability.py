@@ -238,12 +238,12 @@ def get_visit_rates(campground_id, campsites_array, start_date, end_date):
     for site_pk, rate in early_rates.items():
         if start_date < rate_date_start:
             start = start_date
-            end = rate.date_start
+            end = datetime.strptime(rate['date_start'], "%Y-%m-%d").date()
             for i in range((end - start).days):
-                results[site_pk][start + timedelta(days=i)]['adult'] = rate.rate.adult
-                results[site_pk][start + timedelta(days=i)]['concession'] = rate.rate.concession
-                results[site_pk][start + timedelta(days=i)]['child'] = rate.rate.child
-                results[site_pk][start + timedelta(days=i)]['infant'] = rate.rate.infant
+                results[site_pk][start + timedelta(days=i)]['adult'] = rate['rate__adult']
+                results[site_pk][start + timedelta(days=i)]['concession'] = rate['rate__concession']
+                results[site_pk][start + timedelta(days=i)]['child'] = rate['rate.child']
+                results[site_pk][start + timedelta(days=i)]['infant'] = rate['rate__infant']
     return results
 
 def get_campground_booking_range_is_open(campground_id, start_date):
