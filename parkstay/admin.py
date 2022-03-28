@@ -227,7 +227,7 @@ class CampsiteAdmin(admin.ModelAdmin):
     list_display = ('name', 'campground',)
     ordering = ('name',)
     list_filter = ('campground',)
-    search_fields = ('name',)
+    search_fields = ('name','campground__name',)
 
 @admin.register(models.Feature)
 class FeatureAdmin(admin.ModelAdmin):

@@ -23,7 +23,7 @@ def get_campsites_for_campground(ground, gear_type):
     sites_array = []
     cached_data = cache.get('booking_availability.get_campsites_for_campground:'+str(ground['id']))
     features_array = get_features() 
-    #cached_data = None
+    cached_data = None
     if cached_data is None:
         sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name','short_description','vehicle','motorcycle','trailer').order_by('name')
         for cs in sites_qs:
@@ -34,7 +34,11 @@ def get_campsites_for_campground(ground, gear_type):
             row['name'] = cs['name']
             row['campsite_class_id'] = cs['campsite_class_id']
             row['campsite_class__name'] = cs['campsite_class__name']
-            row['wkb_geometry'] = cs['wkb_geometry']
+            wkb_geometry_array = None
+            if cs['wkb_geometry']: 
+                  wkb_geometry_array = [cs['wkb_geometry'][0],cs['wkb_geometry'][1]]
+            row['wkb_geometry'] = wkb_geometry_array
+            
             row['tent'] = cs['tent']
             row['vehicle'] = cs['vehicle']
             row['motorcycle'] = cs['motorcycle']
