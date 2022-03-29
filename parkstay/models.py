@@ -861,7 +861,8 @@ class ParkstayPermission(models.Model):
           (1, 'Override Price'),
           (2, 'Cancellation Override (Fees & Refunds)'),
           (3, 'Cancel a Past Booking'),
-          (4, 'Make Booking Without Payment')
+          (4, 'Make Booking Without Payment'),
+          (5, 'Can make advanced booking',)
       )
 
       email = models.CharField(max_length=300)

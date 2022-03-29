@@ -1213,7 +1213,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     }
 
     # fetch availability map
-    availability = booking_availability.get_campsite_availability(ground['id'],sites_array, start_date, end_date,None, change_booking_id)
+    availability = booking_availability.get_campsite_availability(ground['id'],sites_array, start_date, end_date,request.user, change_booking_id)
 
     # create our result object, which will be returned as JSON
     result = {

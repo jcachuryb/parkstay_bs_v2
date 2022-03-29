@@ -323,6 +323,11 @@ def get_campground_booking_range(campground_id, status):
 
 def get_campsite_availability(ground_id, sites_array, start_date, end_date, user = None, change_booking_id=None):
     is_officer_boolean = False
+    can_make_advanced_booking = False
+    if user:
+        if models.ParkstayPermission.objects.filter(email=user.email,permission_group=5).count() > 0:
+             can_make_advanced_booking = True
+
     if user:
        is_officer_boolean = is_officer(user) 
     """Fetch the availability of each campsite in a queryset over a range of visit dates."""
@@ -466,15 +471,15 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
                 val[start_date + timedelta(days=i)][0] = 'tooearly'
 
     # strike out days after the max_advance_booking
-    if user == None or (not is_officer_boolean):
+    if user == None or (not can_make_advanced_booking):
         for site in sites_array:
             stop = today + timedelta(days=site['data']['campground__max_advance_booking'])
             stop_mark = min(max(stop, start_date), end_date)
             if start_date > stop:
                 for i in range((end_date - stop_mark).days):
-                    results[site.pk][stop_mark + timedelta(days=i)][0] = 'toofar'
+                    results[site['pk']][stop_mark + timedelta(days=i)][0] = 'toofar'
     # Added this section to allow officers to book camp dated after the max_advance_booking
-    elif user != None and is_officer_boolean:
+    elif user != None and can_make_advanced_booking:
         pass
 
     # Get the current stay history
@@ -487,16 +492,15 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
         max_days = min([x.max_days for x in stay_history])
     else:
         max_days = settings.PS_MAX_BOOKING_LENGTH
-
     # strike out days after the max_stay period
-    if user == None or (not is_officer_boolean):
+    if user == None or (not can_make_advanced_booking):
         for site in sites_array:
             stop = start_date + timedelta(days=max_days)
             stop_mark = min(max(stop, start_date), end_date)
             for i in range((end_date - stop_mark).days):
                 results[site['pk']][stop_mark + timedelta(days=i)][0] = 'toofar'
     # Added this section to allow officers to book camp dated after the max_advance_booking
-    elif user != None and is_officer_boolean:
+    elif user != None and can_make_advanced_booking:
         pass
 
     return results
