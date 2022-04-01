@@ -318,29 +318,29 @@ export default {
               
               if (full.invoices.length > 0) {
                 column += "<a href='"+ledger_ui_url+"/ledger/payments/oracle/payments?invoice_no="+full.invoices[0]+"'>Ledger Payments</a><br>";
-                var invoice_string = "/ledger/payments/invoice/payment?";
-                $.each(full.invoices, function(i, n) {
-                  invoice_string += "invoice=" + n + "&";
-                });
-                invoice_string = invoice_string.slice(0, -1);
-                var location_port = window.location.port
-                  ? ":" + window.location.port
-                  : "";
-                var location_url = `${window.location.protocol}//${
-                  window.location.hostname
-                }${location_port}`;
-                invoice_string += full.payment_callback_url
-                  ? "&callback_url=" + location_url + full.payment_callback_url
-                  : "";
-                var payment =
-                  full.paid || full.status == "Canceled" ? "View" : "Record";
-                var record_payment =
-                  "<a href='" +
-                  invoice_string +
-                  "' target='_blank' class='text-primary' data-rec-payment='' > " +
-                  payment +
-                  " Payment</a><br/>";
-                column += record_payment;
+                //var invoice_string = "/ledger/payments/invoice/payment?";
+                //$.each(full.invoices, function(i, n) {
+                //  invoice_string += "invoice=" + n + "&";
+                //});
+                //invoice_string = invoice_string.slice(0, -1);
+                //var location_port = window.location.port
+                //  ? ":" + window.location.port
+                //  : "";
+                //var location_url = `${window.location.protocol}//${
+                //  window.location.hostname
+                //}${location_port}`;
+                //invoice_string += full.payment_callback_url
+                //  ? "&callback_url=" + location_url + full.payment_callback_url
+                //  : "";
+                //var payment =
+                //  full.paid || full.status == "Canceled" ? "View" : "Record";
+                //var record_payment =
+                //  "<a href='" +
+                //  invoice_string +
+                //  "' target='_blank' class='text-primary' data-rec-payment='' > " +
+                //  payment +
+                //  " Payment</a><br/>";
+                //column += record_payment;
               }
               if (full.editable) {
                 var change_booking =
