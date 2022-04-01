@@ -14,7 +14,7 @@ def belongs_to(user, group_name):
     :return:
     """
     belongs_to_value = cache.get('User-belongs_to'+str(user.id)+'group_name:'+group_name)
-    belongs_to_value = None
+    #belongs_to_value = None
     if belongs_to_value:
         print ('From Cache - User-belongs_to'+str(user.id)+'group_name:'+group_name)
     if belongs_to_value is None:
@@ -33,7 +33,6 @@ def belongs_to(user, group_name):
 
 def is_officer(user):
     is_officer_value = cache.get('User-is_officer'+str(user.id))
-    is_officer_value = None
     if is_officer_value is None:
         is_officer_value = user.is_authenticated and (belongs_to(user, 'Parkstay Officers') or user.is_superuser)
         cache.set('User-is_officer'+str(user.id), is_officer_value, 3600)
@@ -67,7 +66,6 @@ def get_all_officers():
     return EmailUser.objects.filter(groups__name='Parkstay Officers')
 
 def can_view_campground(user, campground):
-    print ("can_view_campground")
     # REVIEW FORE CACHING
     allowed_groups = parkstay_models.CampgroundGroupMembers.objects.filter(emailuser_id=user.id)
     for g in campground.campgroundgroup_set.all():

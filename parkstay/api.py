@@ -3282,7 +3282,6 @@ class BookingViewSet(viewsets.ModelViewSet):
             booking_query &= Q(cg_query)
 
             ########################################
-            print ('aqui')
             if campground:
                 booking_query &= Q(campground__id=campground)
             if region:
@@ -3373,7 +3372,6 @@ class BookingViewSet(viewsets.ModelViewSet):
                       try:
                             print (b['property_cache']['cache_version'])
                       except:
-                            print ("NOT")
                             property_cache.update_property_cache(b['id'])
                             bk = Booking.objects.get(id=b['id'])
                             pc = bk.property_cache
