@@ -38,6 +38,12 @@ logger = logging.getLogger('booking_checkout')
 
 def create_booking_by_class(request,campground_id, multiplesites_class_totals, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0, num_vehicle=0,num_motorcycle=0,num_campervan=0,num_trailer=0, num_caravan=0, old_booking=None):
     """Create a new temporary booking in the system."""
+
+    user_logged_in = None
+    if request.user.is_authenticated:
+           user_logged_in = request.user
+
+
     # get campground
     campground = Campground.objects.get(pk=campground_id)
 
@@ -166,7 +172,7 @@ def create_booking_by_class(request,campground_id, multiplesites_class_totals, s
                 if not sites_qs.exists():
                     raise ValidationError('No matching campsites found.')
                 # get availability for sites, filter out the non-clear runs
-                availability = get_campsite_availability(sites_qs, start_date, end_date, request.user ,old_booking)
+                availability = get_campsite_availability(sites_qs, start_date, end_date, user_logged_in,old_booking)
                 excluded_site_ids = set()
                 for site_id, dates in availability.items():
                     if not all([v[0] == 'open' for k, v in dates.items()]):
@@ -263,6 +269,11 @@ def create_booking_by_class(request,campground_id, multiplesites_class_totals, s
 def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, num_concession=0, num_child=0, num_infant=0,num_vehicle=0,num_campervan=0,num_motorcycle=0,num_trailer=0, num_caravan=0, cost_total=0, override_price=None, override_reason=None, override_reason_info=None, send_invoice=False, overridden_by=None, customer=None, updating_booking=False, override_checks=False,  do_not_send_invoice=False,old_booking=None):
     """Create a new temporary booking in the system for a set of specific campsites."""
 
+
+    user_logged_in = None
+    if request.user.is_authenticated:
+           user_logged_in = request.user
+
     # the CampsiteBooking table runs the risk of a race condition,
     # wrap all this behaviour up in a transaction 
     #old_booking_id = None
@@ -280,7 +291,7 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
     with transaction.atomic():
         # get availability for campsite, error out if booked/closed
         user = overridden_by
-        availability = get_campsite_availability(campsite_qs, start_date, end_date,request.user, old_booking)
+        availability = get_campsite_availability(campsite_qs, start_date, end_date,user_logged_in, old_booking)
         for site_id, dates in availability.items():
             if not override_checks:
                 if updating_booking:

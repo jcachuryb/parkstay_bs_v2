@@ -1131,6 +1131,11 @@ def campsite_availablity_view(request,  *args, **kwargs):
     #time.sleep(3)
     """Fetch full campsite availability for a campground."""
     # check if the user has an ongoing booking
+    user_logged_in = None
+    if request.user.is_authenticated:
+           user_logged_in = request.user
+
+
     ongoing_booking = None
     if 'ps_booking' in request.session:
         if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
@@ -1213,7 +1218,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     }
 
     # fetch availability map
-    availability = booking_availability.get_campsite_availability(ground['id'],sites_array, start_date, end_date,request.user, change_booking_id)
+    availability = booking_availability.get_campsite_availability(ground['id'],sites_array, start_date, end_date, user_logged_in, change_booking_id)
 
     # create our result object, which will be returned as JSON
     result = {
