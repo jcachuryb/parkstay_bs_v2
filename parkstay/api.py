@@ -2842,6 +2842,7 @@ def create_booking(request, *args, **kwargs):
                 concession = old_bvr_array[0][i]['concession']
             entry_fee_amount = '0.00'
             concession = False
+            concession_text = ""
             if entry_fee_required:
                    entry_fee_amount = entry_fees.vehicle
                    concession_text = ""
