@@ -914,7 +914,7 @@ class SearchAvailablityByCampground(TemplateView):
         context = {'cg': {'campground': {},'campground_notices': []}}
         context_p = context_processors.parkstay_url(request)
         campground_id = request.GET.get('site_id', None)
-        num_adult = request.GET.get('num_adult', 0)
+        num_adult = request.GET.get('num_adult', 2)
         num_concession= request.GET.get('num_concession', 0)
         num_children= request.GET.get('num_children', 0)
         num_infants= request.GET.get('num_infants', 0)

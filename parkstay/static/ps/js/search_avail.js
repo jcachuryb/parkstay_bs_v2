@@ -17,7 +17,7 @@ var search_avail = {
            'locations' : [],
            'places': [],
 	   'search_locations': [],
-	   'campers': {'adult': 0, 'concession':0, 'children':0, 'infant':0, 'total_people': 0},
+	   'campers': {'adult': 2, 'concession':0, 'children':0, 'infant':0, 'total_people': 0},
 	   'vehicles': {'vehicle': 0,'campervan': 0, 'motorcycle': 0, 'trailer': 0, 'caravan': 0, 'total_vehicles': 0},
 	   'loaded': {'locations': false,'search_locations': false, 'places': false},
 	   'selecttype' : 'single',
