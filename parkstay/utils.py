@@ -1071,7 +1071,7 @@ def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
         total_amount_adult = total_amount_adult + cb.amount_adult
         total_amount_child = total_amount_child + cb.amount_child
         total_amount_infant = total_amount_infant + cb.amount_infant
-        total_amount_concession = total_amount_concession = cb.amount_concession
+        total_amount_concession = total_amount_concession + cb.amount_concession
 
 
     if booking.details['num_adult'] > 0:
