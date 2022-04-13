@@ -604,14 +604,11 @@ window.onload = function() {
        search_avail.get_search_locations();
        search_avail.get_locations();
        search_avail.get_places();
-       search_avail.init_dateselection({% if cg.arrival %}'{{ cg.arrival }}'{% else %}null{% endif %},{% if cg.departure %}'{{ cg.departure }}'{% else %}null{% endif %});
-       search_avail.init();
 
        $(".filter-features").click(function() {
            console.log("Filters Updated (Reloading)");
            search_avail.load_campsite_availabilty();
        });
-
 
        {% if change_booking.id > 0 %}
        search_avail.var.change_booking_id = parseInt('{{ change_booking.id }}');
@@ -622,6 +619,9 @@ window.onload = function() {
           {% endif %}
 
        {% endif %}
+       search_avail.init_dateselection({% if cg.arrival %}'{{ cg.arrival }}'{% else %}null{% endif %},{% if cg.departure %}'{{ cg.departure }}'{% else %}null{% endif %});
+       search_avail.init();
+
    {% else %}
          search_avail.change_tabs('campground-details');        
 
