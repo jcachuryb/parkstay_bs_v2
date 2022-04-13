@@ -1068,7 +1068,7 @@ var search_avail = {
 		   $('#proceed-booking').hide();
 		   search_avail.var.selecttype = 'single';
 	       }
-               search_avail.load_campsite_availabilty(); 
+               search_avail.load_campsite_availabilty();
          });
 
 
