@@ -1606,7 +1606,7 @@ class Booking(models.Model):
             if self.override_reason and self.override_price == 0:
                 return 'paid'
             else:
-                if self.cost_total < 0:
+                if self.cost_total < 0 or self.cost_total == 0:
                     return 'paid'
                 else:
                    return 'unpaid'
