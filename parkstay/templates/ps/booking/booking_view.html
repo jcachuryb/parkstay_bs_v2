@@ -125,8 +125,15 @@
 				 <button type="button" class="btn btn-primary" onclick="search_avail.open_vehicle_updates('{{ booking.id }}');">Change vehicle details</button>
 			    {% endif %}
 			{% endif %}
-                        {% if booking.arrival <= today %}
-                            <a class="btn btn-primary" href='/booking/change/{{ booking.id }}/' >Change Booking</a>
+			{% if booking.arrival <= today and booking.departure >= today %}
+			    {% if booking.is_canceled is not True %}
+			       {% if booking.details.no_payment == 'true' %}
+   			          <b>Please contact staff for booking changes</b>&nbsp;&nbsp;
+                               {% else %}
+                                   <a class="btn btn-primary" href='/booking/change/{{ booking.id }}/' >Change Booking</a>
+			       {% endif %}
+			    {% endif %}
+
 			{% endif %}
 
 		  </div>
