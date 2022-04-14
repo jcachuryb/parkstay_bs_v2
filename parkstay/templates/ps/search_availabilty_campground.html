@@ -45,26 +45,25 @@
 
                  {% if change_booking %}
                  <div class="alert alert-info d-flex align-items-center" role="alert">
-                   <div>
+                      <div>
 			   <p><i class="bi bi-calendar2-x-fill"></i>&nbsp;&nbsp; You are preparing to change booking PB{{ change_booking.id }} with arrival {{ change_booking.arrival|date:"j M Y" }} and departure {{ change_booking.departure|date:"j M Y" }}<p>
 
 			  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please use the options below to change your booking,  we have prefilled information from your current booking and will recalculate your booking fees on the next step.</p>
 		    
-                   </div>
+                      </div>
                  </div>
 		 {% endif %}
 
         {% if cg.campground.campground_type == 0 %}
-        <ul class="nav nav-pills ">
-          <li class="nav-item">
-            <a class="nav-link active" id='campsite-booking-tab' aria-current="page" href="#" onclick="search_avail.change_tabs('campsite-booking');" >BOOKING</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id='campground-details-tab' href="#" onclick="search_avail.change_tabs('campground-details');" >CAMPGROUND DETAILS</a>
-          </li>
-        </ul>
+            <ul class="nav nav-pills ">
+              <li class="nav-item">
+                <a class="nav-link active" id='campsite-booking-tab' aria-current="page" href="#" onclick="search_avail.change_tabs('campsite-booking');" >BOOKING</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id='campground-details-tab' href="#" onclick="search_avail.change_tabs('campground-details');" >CAMPGROUND DETAILS</a>
+              </li>
+            </ul>
 	{% endif %}
-
 
         <div id='campsite-booking'>
         <br>
@@ -85,7 +84,7 @@
 		  </div>
                   {% endif %}
 
-		  {% if cg.campground_notices_orange > 0 %}
+		 {% if cg.campground_notices_orange > 0 %}
                  <div class="round-box col-12 px-3 " style='background-color: #fff4e0; border: 1px solid #ff89358a;'>
                          {% for notice in cg.campground_notices %}
 			     {% if notice.notice_type == 1 %}
@@ -112,7 +111,6 @@
                          {% endfor %}
                   </div>
 		  {% endif %}
-
 
             </div>
             {% endif %}
@@ -164,13 +162,36 @@
                               <div class='row'>
 
 
-<!--- STARTING -->
+        <!--- STARTING -->
 	<div class="col-sm-12 col-md-6">
             <div class="col-sm-12 ">
+               <input id='change_booking_after_arrival_before_departure' value='{{ change_booking_after_arrival_before_departure }}' type='hidden'>
+               {% if change_booking_after_arrival_before_departure is True %}
+               <div class="col-sm-12 ">
+                      <div id="when-date-range" class='form-control'>
+                         <div class='selection-informbox'>
+                             <i class='bi-calendar3' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
+			     <span id='when-dates'></span>
+			     <span> (<span id='when-nights'></span> nights)</span>
+                             &nbsp;&nbsp;
+                         </div>
+		       </div>
+                       <div class="col-sm-12 ">
+				 Change Departure Date:
+				 <input type='text' value='{{ cg.friendly_departure }}' id='departure-date' class='form-control'>
+                       </div>
+
+                        <div id='form-vars' style='display:none'>
+                            <input id='checkin' > <input id='checkout' >
+                        </div>
+                </div>
+                {% else %}
+
+
           	<div class="col-sm-12 ">
 
-	        <div class='row' style='padding-bottom:5px;'>
-		    <div class="col-xs-6 col-lg-6 text-start">
+	           <div class='row' style='padding-bottom:5px;'>
+		     <div class="col-xs-6 col-lg-6 text-start">
 			<div class="d-grid gap-2 d-block d-sm-none">
                                 <button type="button" class="btn btn-success btn-sm" onclick="search_avail.select_days_earlier(1)">One day earlier</button>
 			</div>
@@ -185,25 +206,26 @@
 			<div class="d-none d-sm-block">
 			     <button type="button" onclick="search_avail.select_days_later(1)" class="btn btn-success btn-sm">One day later</button>
 			</div>
-		     </div> 
-	        </div>
-	</div>
+		    </div> 
+	          </div>
+	      </div>
 
-	<div class="col-sm-12 ">
-             <div id="when-date-range" class='form-control' style="cursor: pointer; ">
-                <div class='selection-informbox'>
-                    <i class='bi-calendar3' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
-                    <span id='when-dates'></span> 
-                    <span> (<span id='when-nights'></span> nights)</span>
-                    &nbsp;&nbsp;<i class='bi-caret-down-fill' ddclass="glyphicon glyphicon-triangle-bottom"></i>
-                </div>
-		
-                <div id='form-vars' style='display:none'>
-                    <input id='checkin' > <input id='checkout' >
-                </div>
-        </div>
+       	      <div class="col-sm-12 ">
+                     <div id="when-date-range" class='form-control' style="cursor: pointer; ">
+                        <div class='selection-informbox'>
+                            <i class='bi-calendar3' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
+                            <span id='when-dates'></span> 
+                            <span> (<span id='when-nights'></span> nights)</span>
+                            &nbsp;&nbsp;<i class='bi-caret-down-fill' ddclass="glyphicon glyphicon-triangle-bottom"></i>
+                        </div>
+        		
+                        <div id='form-vars' style='display:none'>
+                            <input id='checkin' > <input id='checkout' >
+                        </div>
+                    </div>
+               </div>
+               {% endif %}
     <!-- http://www.daterangepicker.com/#example4 -->
-</div>
 </div>
 
 
@@ -290,10 +312,10 @@
                                 <div class='row'>
                                      <div class="col-sm-12 col-md-6">
                                         <div class="col-sm-12 col-md-12">
-                                                <div id='region-park-avail-selection-outer' class='form-control selection-dropdown' style="cursor: pointer; " onclick="search_avail.campers_toggle();">
+						<div id='region-park-avail-selection-outer' class='form-control selection-dropdown' {% if change_booking_after_arrival_before_departure is True %} {% else %}style="cursor: pointer; " onclick="search_avail.campers_toggle();" {% endif %}>
                                                          <div class='selection-informbox'>
                                                                   <span >
-                                                                          <i class='bi-people-fill'></i></span> <span id='camper-selection-inner-text'>0 adult, 0 concession, 0 child, 0 Infant </span>  <span><i class="bi-caret-down-fill" ddclass="glyphicon glyphicon-triangle-bottom"></i></span>
+									  <i class='bi-people-fill'></i></span> <span id='camper-selection-inner-text'>0 adult, 0 concession, 0 child, 0 Infant </span>  <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ddclass="glyphicon glyphicon-triangle-bottom"></i>{% endif %}</span>
                                                          </div>
                                                 </div>
 						<div id='camper-dropdown' class='camper-dropdown selection-dropdown'>
@@ -376,10 +398,10 @@
                                 <div class='row'>
                                      <div class="col-sm-12 col-md-6">
                                         <div class="col-sm-12 col-md-12">
-                                                <div id='region-park-avail-selection-outer' class='form-control selection-dropdown' style="cursor: pointer; " onclick="search_avail.vehicle_toggle();">
+						<div id='region-park-avail-selection-outer' class='form-control selection-dropdown' {% if change_booking_after_arrival_before_departure is True %} {% else %}style="cursor: pointer; " onclick="search_avail.vehicle_toggle();" {% endif %}>
                                                          <div class='selection-informbox'>
                                                                   <span>
-									  <i class='bi-speedometer'></i></span> <span id='vehicle-selection-inner-text'> &nbsp;0 cars , 0 campervans, 0 motor cycles, 0 trailers </span> <span><i class="bi-caret-down-fill" ></i></span>
+									  <i class='bi-speedometer'></i></span> <span id='vehicle-selection-inner-text'> &nbsp;0 cars , 0 campervans, 0 motor cycles, 0 trailers </span> <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ></i>{% endif %}</span>
                                                          </div>
                                                 </div>
 
@@ -461,7 +483,8 @@
                                 </div>
                          </div>
                  </div>
-
+                 {% if change_booking_after_arrival_before_departure is True %} 
+		 {% else %}
                  <div id='search-filters-campsites' class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
@@ -523,6 +546,7 @@
 				 <center><button type="button" class="btn btn-primary" style='display:none;' id='hide-filters' onclick="search_avail.filter_options('close');">Hide filters</button></center>
 		         </div>
                   </div>
+		  {% endif %}
 
 		  <textarea id='feature_json' style='display:none'>{{ features_json }}</textarea>
 		  </form>
