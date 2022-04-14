@@ -398,21 +398,40 @@ var search_avail = {
             var end_date = Date.parse(end);
 	    end = moment(end_date);
 	}
+        var change_booking_after_arrival_before_departure = $('#change_booking_after_arrival_before_departure').val();
+        if (change_booking_after_arrival_before_departure == 'True') { 
+             $('#departure-date').datepicker({
+                 format: 'dd/mm/yyyy',
+                 startDate : '+1d',
+             });
 
-        $('#when-date-range').daterangepicker({
-            minDate: new Date(),
-            startDate: start,
-            endDate: end,
-            //ranges: {
-            //   'Today': [moment(), moment()],
-            //   'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-            //   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-            //   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-            //   'This Month': [moment().startOf('month'), moment().endOf('month')],
-            //   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-            //}
-        }, search_avail.select_dates);
-        search_avail.select_dates(start,end); 
+             $('#departure-date').change(function(){
+                    console.log("input's current value: " + this.value);
+                    var date_split = this.value.split("/");
+                    var start_date = Date.parse($('#checkin').val());
+                    var end_date = Date.parse(date_split[2]+"/"+date_split[1]+"/"+date_split[0]);
+                    start = moment(start_date);
+                    end = moment(end_date);
+                    search_avail.select_dates(start,end);
+                    //search_avail.init_dateselection($('#checkin').val(), date_split[2]+"/"+date_split[1]+"/"+date_split[0])
+             });
+        } else {
+             $('#when-date-range').daterangepicker({
+                 minDate: new Date(),
+                 startDate: start,
+                 endDate: end,
+                 //ranges: {
+                 //   'Today': [moment(), moment()],
+                 //   'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                 //   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                 //   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                 //   'This Month': [moment().startOf('month'), moment().endOf('month')],
+                 //   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                 //}
+             }, search_avail.select_dates);
+         }
+             search_avail.select_dates(start,end); 
+        
     }, 
     search_pl: function(e, element_id, element_value) {
             if (element_value.length < 2) {
@@ -625,8 +644,6 @@ var search_avail = {
                              }
                           });
 
-
-
 			  var campsitehtml = "";
 			  var campsitehtmlbeforeselected = "";
 			  var campsitehtmlbefore = "";
@@ -643,6 +660,8 @@ var search_avail = {
 			  var current_booking_selection = false;
 			  var campground_id = data.id;
                           var campsites=data.sites;
+			  var change_booking_after_arrival_before_departure = $('#change_booking_after_arrival_before_departure').val();
+
 			  search_avail.var.multiplesites_options.min_people = 0;
 			  search_avail.var.multiplesites_options.max_people = 0;
 
@@ -749,7 +768,6 @@ var search_avail = {
 					} else {
 						product_box_header_class = 'product-box-header-avail-nomatch';
 						priceavail = 'product-available-price-avail-nomatch';
-
 					}
 			        }
 
@@ -771,7 +789,6 @@ var search_avail = {
 				    } else {
 					campsitehtml = campsitehtml + "<div class='product-not-selected-site' >&nbsp;</div>";
 				    }
-
 				} else {
                                     if (current_booking_campsite_id == campsites[s].id ) { 
 					current_booking_selection = true;
@@ -881,7 +898,13 @@ var search_avail = {
 					     campsitehtml = campsitehtml + "<button type='button' class='btn btn-primary' id='bookingcampsite' data-button='"+databuttonmany+"'   onclick='search_avail.select_multiple_site(this)' +key_id++site_type+ >Select</button>&nbsp;";
 					 }
                                          } else {
-                                             campsitehtml = campsitehtml + "<button type='button' class='btn btn-success' id='bookingcampsite' data-button='"+databutton+"'   onclick='search_avail.create_booking(this)' +key_id++site_type+ >Book Now</button>";
+                                             campsitehtml = campsitehtml + "<button type='button' class='btn btn-success' id='bookingcampsite' data-button='"+databutton+"'   onclick='search_avail.create_booking(this)' +key_id++site_type+ >";
+				             if (change_booking_after_arrival_before_departure == 'True') { 
+					         campsitehtml = campsitehtml + "Change Now";
+					     } else {
+                                                 campsitehtml = campsitehtml + "Book Now";
+					     }
+					     campsitehtml = campsitehtml + "</button>";
 				             cs_status = 'free';
 					     
                                          }
@@ -943,27 +966,32 @@ var search_avail = {
                                 if (current_booking_selection == true) {
                                         campsitehtmlbeforeselected = campsitehtmlbeforeselected + campsitehtml;       
 			        } else {
-				     if (append_site == true) {
-				     	if (campsite_available == true) {
-   				     	      campsitehtmlbefore= campsitehtmlbefore + campsitehtml;
-				     	} else {
-					      campsitehtmlmiddlestart= campsitehtmlmiddlestart + campsitehtml;
-                                             //     campsitehtmlafter= campsitehtmlafter + campsitehtml;
-				     	}
-				     } else {
-				     	 if (campsite_available == true) {
-						campsitehtmlafter= campsitehtmlafter + campsitehtml;
-				     	        // campsitehtmlmiddlestart= campsitehtmlmiddlestart + campsitehtml;
-				              } else {
-                                                      campsitehtmlmiddleend= campsitehtmlmiddleend + campsitehtml;
-				              }
+                                     if (change_booking_after_arrival_before_departure == 'True') {
 
-				     	 ////campsitehtmlmiddle= campsitehtmlmiddle + campsitehtml;
-				       }
-				}
+			             } else {
+
+				          if (append_site == true) {
+				          	if (campsite_available == true) {
+   				          	      campsitehtmlbefore= campsitehtmlbefore + campsitehtml;
+				          	} else {
+				                   campsitehtmlmiddlestart= campsitehtmlmiddlestart + campsitehtml;
+                                                  //     campsitehtmlafter= campsitehtmlafter + campsitehtml;
+				          	}
+				          } else {
+				          	 if (campsite_available == true) {
+				             	campsitehtmlafter= campsitehtmlafter + campsitehtml;
+				          	        // campsitehtmlmiddlestart= campsitehtmlmiddlestart + campsitehtml;
+				                   } else {
+                                                           campsitehtmlmiddleend= campsitehtmlmiddleend + campsitehtml;
+				                   }
+
+				          	 ////campsitehtmlmiddle= campsitehtmlmiddle + campsitehtml;
+				            }
+				      }
+				   }
 		            }
 			    var campsiteresultserror = "";
-			    if (campsitehtmlbefore == '' && campsitehtmlafter == '' && campsitehtmlmiddlestart == '' && campsitehtmlmiddleend == '') {
+			    if (campsitehtmlbeforeselected == '' && campsitehtmlbefore == '' && campsitehtmlafter == '' && campsitehtmlmiddlestart == '' && campsitehtmlmiddleend == '') {
 				    campsiteresultserror = "<center><span style='color:red; font-weight:bold;'>Sorry, there was no results matching your filter selection.</span></center>";
 		            }
 
@@ -1022,12 +1050,22 @@ var search_avail = {
 	      } else {
                  $('#LoadingPopup').modal('hide');
 	      }
-              
-             
     },	    
     init: function() {
 	 var enodes = [];
          search_avail.bellflash();
+
+	 //$('#departure-date').datepicker({
+         //    format: 'dd/mm/yyyy',
+         //    startDate : '+1d',
+	 //});
+
+         //$('#departure-date').change(function(){
+         //       console.log("input's current value: " + this.value);
+         //       var date_split = this.value.split("/");
+	 //       search_avail.init_dateselection($('#checkin').val(), date_split[2]+"/"+date_split[1]+"/"+date_split[0])
+         //});
+
          $(document).click(function(event) {
 		  var closedropdowns = true;
          	  var $target = $(event.target);
@@ -1057,7 +1095,6 @@ var search_avail = {
                       search_avail.close_dropdowns();        
 		  }
          });
-
 
          $( "#multiple-campsite-selection" ).click(function() {
                search_avail.var.mcs_enabled = $(this).is(':checked');

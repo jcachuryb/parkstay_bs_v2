@@ -614,12 +614,26 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None, o
             results[b.campsite.pk][b.date][0] = 'closed & booked'
         else:
             results[b.campsite.pk][b.date][0] = 'booked'
+
     # strike out days before today
     today = date.today()
     if start_date < today:
         for i in range((min(today, end_date) - start_date).days):
             for key, val in results.items():
-                val[start_date + timedelta(days=i)][0] = 'tooearly'
+                #important to add back in checks
+                pass
+                #val[start_date + timedelta(days=i)][0] = 'tooearly'
+                if old_booking is not None:
+                    if old_booking > 0 and start_date > today:
+                       print ("changing booking after arriving")
+                       pass
+                    else:
+                         val[start_date + timedelta(days=i)][0] = 'tooearly'
+                else:
+                    val[start_date + timedelta(days=i)][0] = 'tooearly'
+
+
+
 
     # strike out days after the max_advance_booking
     if user == None or (not can_make_advanced_booking):

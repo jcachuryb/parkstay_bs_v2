@@ -931,6 +931,9 @@ class SearchAvailablityByCampground(TemplateView):
 
         today = timezone.now().date()
         context['change_booking'] = None
+        context['change_booking_after_arrival_before_departure'] = False
+        friendly_arrival = ''
+        friendly_departure = ''
         if self.request.user.is_authenticated:
               if change_booking_id is not None:
                     if int(change_booking_id) > 0:
@@ -940,11 +943,20 @@ class SearchAvailablityByCampground(TemplateView):
                                        if cb.arrival > today:
                                             context['change_booking'] = cb
                                        else:
-                                           pass
                                            if request.user.is_staff is True:
-                                                context['change_booking'] = cb
+                                                context['change_booking'] = cb 
+
+                                           if cb.arrival <= today:
+                                               if cb.departure >= today:
+                                                   context['change_booking_after_arrival_before_departure'] = True
+                                                   context['change_booking'] = cb
+                                                   arrival = cb.arrival.strftime("%Y/%m/%d")
+                                                   friendly_arrival = cb.arrival.strftime("%d/%m/%Y")
+                                                   friendly_departure = cb.departure.strftime("%d/%m/%Y")
+
                                            else:
                                                 context["error_message"] = "Sorry,  your booking has already started and cannot be changed."
+
                                        if 'selecttype' in cb.details:
                                           if cb.details['selecttype'] == 'multiple':
                                              if context_p['PARKSTAY_PERMISSIONS']['p0'] is True:
@@ -976,7 +988,9 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['num_caravan'] = num_caravan
 
         context['cg']['arrival'] = arrival
+        context['cg']['friendly_arrival'] = friendly_arrival
         context['cg']['departure'] = departure
+        context['cg']['friendly_departure'] = friendly_departure
 
         campground_query = Campground.objects.get(id=campground_id)
         max_people = Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_people'))["max_people__max"]
