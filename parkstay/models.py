@@ -225,13 +225,14 @@ class Campground(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        cg = Campground.objects.get(id=self.id)
-        cache.delete('utils_cache.all_campgrounds')
-        cache.delete('campgrounds')
-        cache.delete('campgrounds_dt')
-        cache.delete('CampgroundMapViewSet')
-        cache.delete('booking_availability.get_campsites_for_campground:'+str(self.id))
-        cache.get('api.get_campground('+str(self.id)+')')
+        if self.id is not None:
+           cg = Campground.objects.get(id=self.id)
+           cache.delete('utils_cache.all_campgrounds')
+           cache.delete('campgrounds')
+           cache.delete('campgrounds_dt')
+           cache.delete('CampgroundMapViewSet')
+           cache.delete('booking_availability.get_campsites_for_campground:'+str(self.id))
+           cache.get('api.get_campground('+str(self.id)+')')
         super(Campground, self).save(*args, **kwargs)
 
     class Meta:
