@@ -2957,7 +2957,7 @@ def create_booking(request, *args, **kwargs):
             if entry_fee_required:
                 entry_fee_amount = entry_fees.caravan
 
-            bvr = arkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='caravan',entry_fee=entry_fee)
+            bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='caravan',entry_fee=entry_fee)
 
             if entry_fee is False and entry_fee_required is False:
                 pass

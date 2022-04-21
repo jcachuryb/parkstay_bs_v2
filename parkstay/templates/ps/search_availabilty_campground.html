@@ -323,7 +323,9 @@
 
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">Adults <br>(non concession)</div>
+								<div class="col-8 col-sm-8"><span class='fw-bold'>Adults <br>(non concession)</span><br>
+                                                                 <span id='adult-message' class='fw-bold' style='font-size:14px; color:red'></span>
+							</div>
                                                           <div class="col-4 col-sm-4">
 
                                                                         <span>
@@ -350,7 +352,7 @@
 
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">Children </div>
+								<div class="col-8 col-sm-8"><span class='fw-bold'>Children</span><br><span style='font-size:14px'>(ages 6-15)</span></div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
                                                                        <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_camper_counters('children','down');" ></i>
@@ -362,7 +364,8 @@
                                                         </div>
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">Infants </div>
+								<div class="col-8 col-sm-8"><span class='fw-bold'>Infants</span>
+									<br><span style='font-size:14px'>(ages 0-5)</span></div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
                                                                        <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_camper_counters('infant','down');"></i>
@@ -571,7 +574,9 @@
 			   <div class="col-6">
 			   </div> 
 			   <div class="col-6 text-end">
+				   {% if cg.campground.campground_map %}
 				   <i class="bi bi-map-fill" style='color:#B8591F'></i> <A href='/media/{{ cg.campground.campground_map }}' target='campground_map_{{ cg.campground.id }}' style='text-decoration: none;'>View Map</a>
+				   {% endif %}
 			   </div>
 		   </div>
 
@@ -604,7 +609,7 @@
 <script>
 window.onload = function() {
    search_avail.var.page = 'campsite-availablity';
-   
+  
    {% if cg.campground.campground_type == 0 %}
 
        {% if cg.arrival is not None %}
@@ -650,7 +655,20 @@ window.onload = function() {
          search_avail.change_tabs('campground-details');        
 
    {% endif %}
+
+window.addEventListener( "pageshow", function ( event ) {
+  var historyTraversal = event.persisted || ( typeof window.performance != "undefined" && window.performance.navigation.type === 2 );
+  if ( historyTraversal ) {
+    // Handle page restore.
+    //alert('refresh');
+    window.location.reload();
+  }
+});
+
    console.log('loaded');
+
+
+
 }
 </script>
 
