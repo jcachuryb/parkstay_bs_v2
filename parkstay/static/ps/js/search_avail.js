@@ -53,7 +53,12 @@ var search_avail = {
 	   // search_avail.var.campers['total_people']  = search_avail.var.campers['adult'] + search_avail.var.campers['concession'] + search_avail.var.campers['children'];
            //$('#camper-selection-inner-text').html(search_avail.var.campers['adult']+' adult, '+search_avail.var.campers['concession']+' concession, '+search_avail.var.campers['children']+' child, '+search_avail.var.campers['infant']+' Infant');
 	   search_avail.total_campers();
-
+           if (search_avail.var.campers['adult'] > 0) {
+                   $('#adult-message').html("");
+           } else {
+		   $('#adult-message').html("Minimum 1 adult required");
+		   // search_avail.change_camper_counters('adult','up');
+           }
            if (search_avail.var.page == 'campsite-availablity') {
             ///   search_avail.load_campsite_availabilty();
            }
@@ -682,6 +687,11 @@ var search_avail = {
 				     search_avail.var.multiplesites_options.max_people = search_avail.var.multiplesites_options.max_people + campsites[s].max_people;
 			        } else {
                                     if (search_avail.var.campers['total_people'] >= campsites[s].min_people && search_avail.var.campers['total_people']  <= campsites[s].max_people) {
+                                       if (search_avail.var.campers['adult']  == 0) {
+                                                append_site = false;
+				       }
+
+
                                     } else {
                                             append_site = false;
                                     }
@@ -730,9 +740,9 @@ var search_avail = {
 				   if (search_avail.var.vehicles['total_vehicles_occupied_space'] > campsites[s].max_vehicles) { 
                                             append_site = false;
 			           }
-                                   if (search_avail.var.vehicles['total_vehicles_occupied_space'] == 0) {
-                                            append_site = false;
-                                   }
+                                   //if (search_avail.var.vehicles['total_vehicles_occupied_space'] == 0) {
+                                   //         append_site = false;
+                                   //}
 			         }
 
 				  
