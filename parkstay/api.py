@@ -2722,6 +2722,7 @@ def create_booking(request, *args, **kwargs):
     old_booking = serializer.validated_data['old_booking']
 
     multiplesites_class_totals = {}
+    selecttype = None
     if context_p['PARKSTAY_PERMISSIONS']['p0'] is True:
        selecttype = request.POST.get('selecttype',None)
        multiplesites = json.loads(request.POST.get('multiplesites', "[]"))
@@ -2803,6 +2804,9 @@ def create_booking(request, *args, **kwargs):
             booking.created_by = request.user.id
             booking.save()
 
+        booking.details['selecttype'] = selecttype 
+        booking.details['multiplesites_class_totals'] = multiplesites_class_totals
+        booking.save()
         booking_campsite = booking.campsites.all()[0].campsite if booking else None
         parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
         entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and booking_campsite.campground.park.entry_fee_required) else None

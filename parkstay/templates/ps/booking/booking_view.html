@@ -31,7 +31,7 @@
   <div class="card-body"> 
             <div class="row">
                 <div class="col-sm-12" style="margin-top: 1em">
-                {% if booking.property_cache.status == 'Paid' or booking.property_cache.status == 'Over Paid' or booking.property_cache.status == 'Canceled - Payment (Paid)' %}
+                {% if booking.property_cache.status == 'Paid' or booking.property_cache.status == 'Over Paid' or booking.property_cache.status == 'Canceled - Payment (Paid)' or booking.property_cache.status == 'Canceled' %}
 		              {% if booking.is_canceled is not True %}
                               <p><i class="bi bi-file-pdf-fill" style='color:red'></i> <a href="{% url 'get_confirmation' booking.id %}" style='color:red; text-decoration:none'>Booking Confirmation</a>
 			      {% endif %}
@@ -64,10 +64,14 @@
                                <b>Camp Site</b>
                            </div>
                            <div class="col-sm-8">
-                           {% if booking.campground.site_type == 2 %}
-                               {{ booking.first_campsite.type }}
+                           {% if booking.details.selecttype == 'multiple' %}
+                               Multiple Sites Selected
                            {% else %}
-                               {{ booking.first_campsite.name }} ({{ booking.first_campsite.type }})
+                                {% if booking.campground.site_type == 2 %}
+                                    {{ booking.first_campsite.type }}
+                                {% else %}
+				{{ booking.first_campsite.name }} {% if booking.first_campsite.type %}({{ booking.first_campsite.type }}){% endif %}
+                                {% endif %}
                            {% endif %}
                            </div>
 	               </div>
@@ -96,6 +100,16 @@
                     {{ booking.confirmation_number }}
                 </div>
             </div>
+	    {% if booking.old_booking > 0 %}
+            <div class="row">
+                <div class="col-sm-4">
+                    <b>Previous Booking</b>
+                </div>
+                <div class="col-sm-8">
+                    PB{{ booking.old_booking }}
+                </div>
+            </div>
+	    {% endif %}
             <div class="row">
                 <div class="col-sm-4">
                     <b>Payment status</b>
@@ -116,8 +130,8 @@
                   <div class="col-sm-12" style="margin-top: 1em">
 			{% if booking.arrival > today %}
 			    {% if booking.is_canceled is not True %}
-			         {% if booking.details.no_payment == 'true' %}
-                                 <b>Please contact staff for booking changes</b>&nbsp;&nbsp;
+			         {% if booking.details.no_payment == 'true' or booking.details.selecttype == 'multiple' %}
+				 <div class='my-account-msg-box'>Please contact {{ booking.contact_name }} on {{ booking.contact_phone_number }} to change or cancel. </b>&nbsp;&nbsp;</div>
 				 {% else %}
                                  <a class="btn btn-primary" href='{% url "cancel_booking" booking.id %}'>Cancel Booking</a>
                                  <a class="btn btn-primary" href='/booking/change/{{ booking.id }}/' >Change Booking</a>
@@ -127,9 +141,11 @@
 			{% endif %}
 			{% if booking.arrival <= today and booking.departure >= today %}
 			    {% if booking.is_canceled is not True %}
-			       {% if booking.details.no_payment == 'true' %}
-   			          <b>Please contact staff for booking changes</b>&nbsp;&nbsp;
+			       {% if booking.details.no_payment == 'true' or booking.details.selecttype == 'multiple' %}
+			       <div class='my-account-msg-box'>Please contact {{ booking.contact_name }} on {{ booking.contact_phone_number }} to change or cancel. </b>&nbsp;&nbsp;</div>
+
                                {% else %}
+			            <div class='my-account-msg-box'>The only change that can be made here is to the departure date. Check your booking confirmation email for more.</div>
                                    <a class="btn btn-primary" href='/booking/change/{{ booking.id }}/' >Change Booking</a>
 			       {% endif %}
 			    {% endif %}
