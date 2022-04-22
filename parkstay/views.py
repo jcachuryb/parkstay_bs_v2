@@ -683,6 +683,8 @@ class BookingSuccessView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         checkouthash = request.GET.get('checkouthash','')
+        today = timezone.now().date()
+
         try:
             basket = None
             session_checkouthash = request.session.get('checkouthash')
@@ -718,9 +720,10 @@ class BookingSuccessView(TemplateView):
                 booking = Booking.objects.get(id=request.session['ps_last_booking'])
             else:
                 return redirect('home')
-
+        
         context = {
-            'booking': booking
+            'booking': booking,
+            'today' : today
         }
         print("BookingSuccessView - get 6.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
@@ -772,9 +775,9 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
         bookings_store = []
         lub = self.last_booking_update(customer)
         cached_data = cache.get('booking_filter_upcoming:'+str(customer.id)+":"+str(lub))
-        #cached_data = None
+        cached_data = None
         if cached_data is None:
-             bookings = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__gte=today).order_by('is_canceled','arrival')
+             bookings = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__gt=today).order_by('is_canceled','arrival')
              for b in bookings:
                  row = {}
                  row['id']  = b.id
@@ -783,6 +786,9 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  row['campground']['first_image']  = {}
                  row['campground']['first_image']['image'] = {}
                  row['campground']['first_image']['image']['url'] = b.campground.first_image.image.url
+                 if b.campground.contact:
+                      row['contact_name'] = b.campground.contact.name
+                      row['contact_phone_number'] = b.campground.contact.phone_number
                  row['departure_str'] = b.departure.strftime("%Y-%m-%d")
                  row['arrival_str'] = b.arrival.strftime("%Y-%m-%d")
                  row['is_canceled'] = b.is_canceled
@@ -793,6 +799,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  row['stay_dates'] = b.stay_dates
                  row['stay_guests'] = b.stay_guests
                  row['property_cache'] = b.property_cache
+                 row['old_booking'] = b.old_booking
                  row['details'] = b.details
 
                  bookings_store.append(row)
@@ -815,9 +822,8 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
         lub = self.last_booking_update(customer)
         cached_data = cache.get('booking_filter_past_bookings:'+str(customer.id)+":"+str(lub))
         #bookings = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__lt=today).order_by('-arrival'),
-        
         if cached_data is None:
-             bookings_past = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__lt=today).order_by('-arrival')[:60]
+             bookings_past = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__lte=today).order_by('-arrival')[:60]
              for b in bookings_past:
                  row = {}
                  row['id']  = b.id
@@ -826,6 +832,11 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  row['campground']['first_image']  = {}
                  row['campground']['first_image']['image'] = {}
                  row['campground']['first_image']['image']['url'] = b.campground.first_image.image.url
+                 row['contact_name'] = ''
+                 row['contact_phone_number'] = ''
+                 if b.campground.contact:
+                      row['contact_name'] = b.campground.contact.name
+                      row['contact_phone_number'] = b.campground.contact.phone_number
                  row['departure_str'] = b.departure.strftime("%Y-%m-%d")
                  row['arrival_str'] = b.arrival.strftime("%Y-%m-%d")
                  row['is_canceled'] = b.is_canceled
@@ -835,6 +846,8 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  row['first_campsite']['name'] = b.first_campsite.name
                  row['stay_dates'] = b.stay_dates
                  row['stay_guests'] = b.stay_guests
+                 row['old_booking'] = b.old_booking
+                 row['property_cache'] = b.property_cache
                  row['details'] = b.details
 
                  bookings_store.append(row)
@@ -928,6 +941,31 @@ class SearchAvailablityByCampground(TemplateView):
         arrival=request.GET.get('arrival', None)
         departure=request.GET.get('departure', None)
         change_booking_id = request.GET.get('change_booking_id', None)
+      
+
+        # Start Check for temp booking and if payment exists otherwise clean up temporary booking.
+        booking = None
+        basket = None
+        try:
+            booking = utils.get_session_booking(request.session)
+        except:
+            pass
+        print ("TEMP BOOKING")
+        print (booking)
+
+        if booking is None:
+            pass
+        else:
+            basket = Basket.objects.filter(status='Submitted', booking_reference=settings.BOOKING_PREFIX+'-'+str(booking.id)).order_by('-id')
+            if basket.count() > 0:
+                print ("Booking Has a completed Basket")
+            else:
+                booking.delete()
+
+        #print ("BASKET")
+        #print (basket)
+        # End Check for temp booking and if payment exists otherwise clean up temporary booking.
+
 
         today = timezone.now().date()
         context['change_booking'] = None
