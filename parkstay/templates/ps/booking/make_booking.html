@@ -328,13 +328,15 @@
 						<div v-if="vehicle[1].length > 0" v-html="vehicle[1]">
 						</div>
                                                 <div v-else>
-							<b style='color:red'>Please Add Rego Number</b>
+							<b style='color:red'><span v-if="vehicle[4] == true">To be confirmed</span><span v-else>Please Add Rego Number</span></b>
 						</div>
                                           </div>
                                           <div class="col-md-6">
                                               <div class="form-check form-switch" v-if="pricing.vehicle" vhtml="vehicle[2]">
-						      <i v-if="vehicle[2]==true" style="color: #00f300" class="bi bi-check-circle-fill"></i>
-						      <i v-if="vehicle[2]==false"  style="color: #f30000" class="bi bi-x-circle-fill"></i>
+						      <div v-show="vehicle[0] == 0 || vehicle[0] == 2 ||vehicle[0] == 3">
+						         <i v-if="vehicle[2]==true" style="color: #00f300" class="bi bi-check-circle-fill"></i>
+   						         <i v-if="vehicle[2]==false"  style="color: #f30000" class="bi bi-x-circle-fill"></i>
+						      </div>
                                               </div>
                                           </div>
                                       </div>
@@ -405,7 +407,7 @@
                                           </div>
 
                                           <div class="col-md-2">
-                                              <div class="form-check form-switch" v-if="pricing.vehicle">
+                                              <div class="form-check form-switch" vif="pricing.vehicle">
                                                    <label class="form-check-label">
                                                    <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-entry_fee'" type="checkbox" v-model="vehicle[4]" v-on-click="updateVehiclesFees" checked/> Hire car</label>
                                               </div>
@@ -422,10 +424,11 @@
 
                                           <div class="col-md-2">
                                               <div class="form-check form-switch" v-if="pricing.vehicle">
-                                                   <label class="form-check-label">
+                                                   <label class="form-check-label" v-show="vehicle[0] == 0 || vehicle[0] == 2 ||vehicle[0] == 3" >
                                                    <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-entry_fee'" type="checkbox" v-model="vehicle[2]" v-on-click="updateVehiclesFees" checked/> Pre-pay park entrance fee</label>
 
                                               </div>
+					      
                                           </div>
                                       </div>
 
@@ -620,7 +623,9 @@
                                     {% if request.user.is_staff is True %}
                                               {% if booking_without_payment is True %}
 
-                                                    <label>&nbsp;&nbsp;<input type="checkbox" v-bind:value="no_payment"   name='no_payment' v-model="no_payment">&nbsp;&nbsp;Create Booking without Payment</label>
+					      <label>&nbsp;&nbsp;<input type="checkbox" v-bind:value="no_payment"   name='no_payment' v-model="no_payment">&nbsp;&nbsp;Create Booking without Payment</label>
+						    <div style='color:red; font-size: 12px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(no confirmation or invoice email sent.)</div>
+
                                               {% endif %}
                                     {% endif %}
                                 </div>

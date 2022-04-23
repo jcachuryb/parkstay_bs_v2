@@ -339,6 +339,7 @@ class MakeBookingsView(TemplateView):
     def post(self, request, *args, **kwargs):
 
         booking = None
+        no_payment = request.POST.get('no_payment', 'false')
         if 'ps_booking' in request.session:
             if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
                 booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
@@ -486,6 +487,10 @@ class MakeBookingsView(TemplateView):
         # finalise the booking object
         booking.customer = customer
         booking.cost_total = total
+
+        if no_payment == 'true':
+            booking.do_not_send_confirmation = True
+            booking.do_not_send_invoice = True
         booking.save()
 
         # generate invoice
@@ -720,10 +725,15 @@ class BookingSuccessView(TemplateView):
                 booking = Booking.objects.get(id=request.session['ps_last_booking'])
             else:
                 return redirect('home')
-        
+        invoices_obj = BookingInvoice.objects.filter(booking=booking)
+        invoices_array = []
+        for i in invoices_obj:
+            invoices_array.append(i.invoice_reference)
+
         context = {
             'booking': booking,
-            'today' : today
+            'today' : today,
+            'invoices':invoices_array
         }
         print("BookingSuccessView - get 6.0.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
