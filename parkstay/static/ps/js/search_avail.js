@@ -691,7 +691,7 @@ var search_avail = {
 				     search_avail.var.multiplesites_options.max_people = search_avail.var.multiplesites_options.max_people + campsites[s].max_people;
 			        } else {
                                     if (search_avail.var.campers['total_people'] >= campsites[s].min_people && search_avail.var.campers['total_people']  <= campsites[s].max_people) {
-                                       if (search_avail.var.campers['adult']  == 0) {
+                                       if (search_avail.var.campers['adult']  == 0 || search_avail.var.campers['concession'] > 0) {
                                                 append_site = false;
 				       }
 
