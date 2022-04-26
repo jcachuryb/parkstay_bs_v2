@@ -53,7 +53,7 @@ var search_avail = {
 	   // search_avail.var.campers['total_people']  = search_avail.var.campers['adult'] + search_avail.var.campers['concession'] + search_avail.var.campers['children'];
            //$('#camper-selection-inner-text').html(search_avail.var.campers['adult']+' adult, '+search_avail.var.campers['concession']+' concession, '+search_avail.var.campers['children']+' child, '+search_avail.var.campers['infant']+' Infant');
 	   search_avail.total_campers();
-           if (search_avail.var.campers['adult'] > 0) {
+           if (search_avail.var.campers['adult'] > 0 || search_avail.var.campers['concession'] > 0) {
                    $('#adult-message').html("");
            } else {
 		   $('#adult-message').html("Minimum 1 adult required");
