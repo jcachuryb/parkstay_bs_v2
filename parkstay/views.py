@@ -325,6 +325,16 @@ class MakeBookingsView(TemplateView):
         #form = AnonymousMakeBookingsForm(form_context)
         if request.user.is_authenticated:
             if request.user.is_staff:
+                if booking:
+                    if booking.old_booking:
+                        if booking.old_booking > 0:
+                            old_booking_obj = Booking.objects.get(id=booking.old_booking)
+                            form_context['email'] = old_booking_obj.customer.email
+                            form_context['confirm_email'] = old_booking_obj.customer.email
+                            form_context['first_name'] = old_booking_obj.details['first_name']
+                            form_context['last_name'] = old_booking_obj.details['last_name']
+                            form_context['phone'] = old_booking_obj.details['phone']
+
                 form = AnonymousMakeBookingsForm(form_context)
             else:
                 form_context['first_name'] = request.user.first_name
