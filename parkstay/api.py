@@ -2862,18 +2862,19 @@ def create_booking(request, *args, **kwargs):
 
             bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='vehicle',entry_fee=entry_fee, concession=concession, hire_car=hire_car)
 
-            if entry_fee is False and entry_fee_required is False:
-                pass
-            else:
-                ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
-                                                        fee_description=fee_description,
-                                                        amount=entry_fee_amount,
-                                                        identifier="vehicles",
-                                                        oracle_code=booking.campground.park.oracle_code
-                                                     )
+            if entry_fee_required is True:
+                if entry_fee is False: #and entry_fee_required is False:
+                    pass
+                else:
+                    ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                            fee_description=fee_description,
+                                                            amount=entry_fee_amount,
+                                                            identifier="vehicles",
+                                                            oracle_code=booking.campground.park.oracle_code
+                                                         )
 
-                bvr.additional_booking_id =ab.id
-                bvr.save()
+                    bvr.additional_booking_id =ab.id
+                    bvr.save()
 
         for i in range(0, num_campervan):
             rego_text = ''
@@ -2887,21 +2888,22 @@ def create_booking(request, *args, **kwargs):
                 entry_fee_amount = entry_fees.campervan
 
             bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='campervan',entry_fee=entry_fee)
-            if entry_fee is False and entry_fee_required is False:
-                pass
-            else:
-                ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
-                                                             fee_description="Park Entry Fee for "+rego_text,
-                                                             amount=entry_fee_amount,
-                                                             identifier="vehicles",
-                                                             oracle_code=booking.campground.park.oracle_code
-                                                            )
-                bvr.additional_booking_id =ab.id
-                bvr.save()
+            if entry_fee_required is True:
+                if entry_fee is False: #and entry_fee_required is False:
+                    pass
+                else:
+                    ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                                 fee_description="Park Entry Fee for "+rego_text,
+                                                                 amount=entry_fee_amount,
+                                                                 identifier="vehicles",
+                                                                 oracle_code=booking.campground.park.oracle_code
+                                                                )
+                    bvr.additional_booking_id =ab.id
+                    bvr.save()
 
         for i in range(0, num_motorcycle):
             rego_text = ''
-            entry_fee = True
+            entry_fee = True 
             if i in  old_bvr_array[2]:
                  rego_text = old_bvr_array[2][i]['rego']
                  entry_fee = old_bvr_array[2][i]['entry_fee']
@@ -2911,22 +2913,22 @@ def create_booking(request, *args, **kwargs):
                 entry_fee_amount = entry_fees.motorbike
 
             bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='motorbike',entry_fee=entry_fee)
-
-            if entry_fee is False and entry_fee_required is False:
-                pass
-            else:
-                ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
-                                                             fee_description="Park Entry Fee for "+rego_text,
-                                                             amount=entry_fee_amount,
-                                                             identifier="vehicles",
-                                                             oracle_code=booking.campground.park.oracle_code
-                                                            )
-                bvr.additional_booking_id =ab.id
-                bvr.save()
+            if entry_fee_required is True:
+                if entry_fee is False: #and entry_fee_required is False:
+                    pass
+                else:
+                    ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                                 fee_description="Park Entry Fee for "+rego_text,
+                                                                 amount=entry_fee_amount,
+                                                                 identifier="vehicles",
+                                                                 oracle_code=booking.campground.park.oracle_code
+                                                                )
+                    bvr.additional_booking_id =ab.id
+                    bvr.save()
 
         for i in range(0, num_trailer):
             rego_text = ''
-            entry_fee = True
+            entry_fee = False
             if i in  old_bvr_array[4]:
                 rego_text = old_bvr_array[4][i]['rego']
                 entry_fee = old_bvr_array[4][i]['entry_fee']
@@ -2937,43 +2939,45 @@ def create_booking(request, *args, **kwargs):
 
             # prepopulate entry_fee and park fee@#@@@@@@@@@@@@@@@@@@@@
             bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='trailer',entry_fee=entry_fee)
-            if entry_fee is False and entry_fee_required is False:
-                pass
-            else:
-
-                ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
-                                                                 fee_description="Park Entry Fee for "+rego_text,
-                                                                 amount=entry_fee_amount,
-                                                                 identifier="vehicles",
-                                                                 oracle_code=booking.campground.park.oracle_code
-                                                                )
-                bvr.additional_booking_id = ab.id
-                bvr.save()
+            if entry_fee_required is True:
+                if entry_fee is False: #and entry_fee_required is False:
+                    pass
+                else:
+                    ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                                     fee_description="Park Entry Fee for "+rego_text,
+                                                                     amount=entry_fee_amount,
+                                                                     identifier="vehicles",
+                                                                     oracle_code=booking.campground.park.oracle_code
+                                                                    )
+                    bvr.additional_booking_id = ab.id
+                    bvr.save()
 
         for i in range(0, num_caravan):
             rego_text = ''
-            entry_fee = True
+            entry_fee = False
             if i in  old_bvr_array[5]:
                 rego_text = old_bvr_array[5][i]['rego']
                 entry_fee = old_bvr_array[5][i]['entry_fee']
+                print ("OLD CARA")
+                print (entry_fee)
 
             entry_fee_amount = '0.00'
             if entry_fee_required:
                 entry_fee_amount = entry_fees.caravan
 
             bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='caravan',entry_fee=entry_fee)
-
-            if entry_fee is False and entry_fee_required is False:
-                pass
-            else:
-                ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
-                                                                 fee_description="Park Entry Fee for Caravan",
-                                                                 amount=entry_fee_amount,
-                                                                 identifier="vehicles",
-                                                                 oracle_code=booking.campground.park.oracle_code
-                                                                )
-                bvr.additional_booking_id =ab.id
-                bvr.save()
+            if entry_fee_required is True:
+                if entry_fee is False: #and entry_fee_required is False:
+                    pass
+                else:
+                    ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
+                                                                     fee_description="Park Entry Fee for Caravan",
+                                                                     amount=entry_fee_amount,
+                                                                     identifier="vehicles",
+                                                                     oracle_code=booking.campground.park.oracle_code
+                                                                    )
+                    bvr.additional_booking_id =ab.id
+                    bvr.save()
 
 
 

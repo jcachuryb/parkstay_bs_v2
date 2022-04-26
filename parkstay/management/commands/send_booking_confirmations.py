@@ -18,7 +18,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             next_check = timezone.now() + timedelta(hours=1)
-            unconfirmed = models.Booking.objects.filter(confirmation_sent=False, property_cache__paid=True,error_sending_confirmation=False, next_check_for_payment__lt=timezone.now()).exclude(booking_type=3).order_by('id')[:10]
+            unconfirmed = models.Booking.objects.filter(confirmation_sent=False, do_not_send_confirmation=False, property_cache__paid=True,error_sending_confirmation=False, next_check_for_payment__lt=timezone.now()).exclude(booking_type=3).order_by('id')[:10]
             if unconfirmed:
                 for b in unconfirmed:
                     print ("PAID")

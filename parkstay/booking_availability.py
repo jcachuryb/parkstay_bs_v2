@@ -324,6 +324,7 @@ def get_campground_booking_range(campground_id, status):
 def get_campsite_availability(ground_id, sites_array, start_date, end_date, user = None, change_booking_id=None):
     is_officer_boolean = False
     can_make_advanced_booking = False
+    nowtime = datetime.now()
     if user:
         if models.ParkstayPermission.objects.filter(email=user.email,permission_group=5).count() > 0:
              can_make_advanced_booking = True
@@ -346,14 +347,14 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
             date__gte=start_date,
             date__lt=end_date,
             booking__is_canceled=False,
-        ).order_by('date', 'campsite__name')
+        ).exclude(booking_type=3,booking__expiry_time__lt=nowtime).order_by('date', 'campsite__name')
     else:
         bookings_qs = models.CampsiteBooking.objects.filter(
             campsite_id__in=sa_qy,
             date__gte=start_date,
             date__lt=end_date,
             booking__is_canceled=False,
-        ).exclude(booking_id=change_booking_id).order_by('date', 'campsite__name')
+            ).exclude(booking_id=change_booking_id).exclude(booking_type=3,booking__expiry_time__lt=nowtime).order_by('date', 'campsite__name')
       
     legacy_bookings = models.CampsiteBookingLegacy.objects.filter(campsite_id__in=sa_qy,
                                                             date__gte=start_date,

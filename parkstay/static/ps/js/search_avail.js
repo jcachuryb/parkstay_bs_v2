@@ -519,6 +519,11 @@ var search_avail = {
                search_avail.var.multiplesites.splice(index, 1);
                search_avail.load_campsite_availabilty();
              }
+	     if (button_data.hasOwnProperty('campsite_class_id') == true) {
+                 if (search_avail.var.multiplesites_class_totals.hasOwnProperty(button_data['campsite_class_id']) == true ) {
+   	              delete search_avail.var.multiplesites_class_totals[button_data['campsite_class_id']];
+	         }
+	     }
     },
     select_multiple_site: function(button_element) {
 	     var databutton = $(button_element).attr('data-button');
@@ -532,7 +537,6 @@ var search_avail = {
 	         search_avail.change_multiselect_class_total(button_data['campsite_class_id'], 1);
 		 search_avail.load_campsite_availabilty();
 	     }
-
     },
     change_multiselect_class_total: function(class_id, value, limit) {
             if (value > limit ) {

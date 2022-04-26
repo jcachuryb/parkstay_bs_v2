@@ -498,7 +498,7 @@ def get_open_campgrounds(campsites_qs, start_date, end_date):
 
 
 def get_campsite_availability(campsites_qs, start_date, end_date, user = None, old_booking=None):
-
+    nowtime = datetime.now()
     can_make_advanced_booking = False
     if user:
         if parkstay_models.ParkstayPermission.objects.filter(email=user.email,permission_group=5).count() > 0:
@@ -519,14 +519,14 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None, o
              date__gte=start_date,
              date__lt=end_date,
              booking__is_canceled=False,
-         ).exclude(booking_id=old_booking).order_by('date', 'campsite__name')
+         ).exclude(booking_id=old_booking).exclude(booking_type=3,booking__expiry_time__lt=nowtime).order_by('date', 'campsite__name')
     else:
          bookings_qs = CampsiteBooking.objects.filter(
              campsite__in=campsites_qs,
              date__gte=start_date,
              date__lt=end_date,
              booking__is_canceled=False,
-         ).order_by('date', 'campsite__name')
+         ).exclude(booking_type=3,booking__expiry_time__lt=nowtime).order_by('date', 'campsite__name')
 
     legacy_bookings = CampsiteBookingLegacy.objects.filter(campsite_id__in=sa_qy,
                                                             date__gte=start_date,
@@ -927,6 +927,7 @@ def booking_cancellation_fees(booking):
         else:
             cancellation_data['old_booking'][cb_date]['booking_policy_id'] = None
 
+
     for cb in campsite_booking:
         cb_date = cb.date.strftime('%Y-%m-%d')
         cancellation_data = booking_policy_cancellation_rules(cancellation_data,cb_date,cb,old_arrival,booking)
@@ -979,8 +980,11 @@ def booking_change_fees(booking):
         cb_date = cb.date.strftime('%Y-%m-%d')
         if cb_date in cancellation_data['old_booking']:
             cancellation_data['old_booking'][cb_date]['exists'] = True
+
+    print ("CHANGE FEES")
     for cb in old_campsite_booking:
         cb_date = cb.date.strftime('%Y-%m-%d')
+        print (cb_date)
         cancellation_data = booking_policy_cancellation_rules(cancellation_data,cb_date,cb,old_arrival, old_booking)
         #if cancellation_data['old_booking'][cb_date]['exists'] is False:
         #     number_of_cancellation_fees = number_of_cancellation_fees + 1
@@ -1022,7 +1026,8 @@ def booking_change_fees(booking):
     #     "line_status" : 1 
     #     })
     #cancellation_data['cancellation_fee'] = cancellation_fee
- 
+    print ("CANCEL DATA")
+    print (cancellation_data)
     return cancellation_data 
 
 def booking_policy_cancellation_rules(cancellation_data,cb_date,cb, old_arrival, old_booking):
@@ -1030,7 +1035,11 @@ def booking_policy_cancellation_rules(cancellation_data,cb_date,cb, old_arrival,
     today_datetime = datetime.now(timezone_dt.utc) 
     total_seconds = (today_datetime - old_booking.created).total_seconds()
     booking_grace_time = total_seconds/60
+
     cancellation_fee = Decimal('0.00')
+    if 'cancellation_fee' in cancellation_data:
+        cancellation_fee = cancellation_data['cancellation_fee']
+
     number_of_cancellation_fees = 0
     if cancellation_data['old_booking'][cb_date]['exists'] is False:
          number_of_cancellation_fees = number_of_cancellation_fees + 1

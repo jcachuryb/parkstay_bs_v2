@@ -13,7 +13,10 @@
 		              {% if booking.is_canceled is not True %}
                               <p><i class="bi bi-file-pdf-fill" style='color:red'></i> <a href="{% url 'get_confirmation' booking.id %}" style='color:red; text-decoration:none'>Booking Confirmation</a>
 			      {% endif %}
-                              <i class="bi bi-file-pdf-fill" style='color:red'></i> <a href="" style='color:red; text-decoration: none;'>Invoice</a></p>
+                              {% for inv in invoices %}
+                              <i class="bi bi-file-pdf-fill" style='color:red'></i> <a href="/ledger-toolkit-api/invoice-pdf/{{ inv }}" target="invoice-pdf-{{ inv }}" style='color:red; text-decoration: none;'>Invoice #{{ inv }}</a></p>
+                              {% endfor %}
+
                 {% else %}
 		              
                 {% endif %}

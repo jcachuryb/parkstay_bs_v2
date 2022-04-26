@@ -1169,8 +1169,9 @@ class CampsiteBooking(models.Model):
         #csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date, booking__is_canceled=False)).count()
         print (self.booking.id)
         print (self.booking.old_booking)
+        nowtime = datetime.now()
         #if self.booking.is_canceled is False:
-        csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date,booking__is_canceled=False)).exclude(booking__id=self.booking.id).exclude(booking__old_booking=self.booking.id).exclude(booking__id=self.booking.old_booking).count() 
+        csb = CampsiteBooking.objects.filter(Q(campsite=self.campsite, date=self.date,booking__is_canceled=False)).exclude(booking__id=self.booking.id).exclude(booking__old_booking=self.booking.id).exclude(booking__id=self.booking.old_booking).exclude(booking_type=3,booking__expiry_time__lt=nowtime).count() 
         if csb > 0: 
             raise ValidationError('Duplicate booking date for this campsite.')
         super(CampsiteBooking, self).save(*args, **kwargs)
@@ -1316,6 +1317,7 @@ class Booking(models.Model):
     property_cache_version = models.CharField(max_length=10, blank=True, null=True)
     property_cache_stale = models.BooleanField(default=True)
     do_not_send_invoice = models.BooleanField(default=False)
+    do_not_send_confirmation = models.BooleanField(default=False)
     error_sending_confirmation = models.BooleanField(default=False)
     error_sending_invoice = models.BooleanField(default=False)
     campsite_oracle_code = models.CharField(max_length=50, null=True, blank=True)
