@@ -54,6 +54,7 @@ def create_booking_by_class(request,campground_id, multiplesites_class_totals, s
 
     min_people = 0
     max_people = 0
+    max_vehicles = 0
     for ms in multiplesites_class_totals.keys():
         msrange = int(multiplesites_class_totals[ms]) + 1
         campsite_class_id = ms
@@ -66,9 +67,12 @@ def create_booking_by_class(request,campground_id, multiplesites_class_totals, s
             )
             min_people = min_people + sites_qs[0].min_people
             max_people = max_people + sites_qs[0].max_people 
-
+            max_vehicles = max_vehicles  + sites_qs[0].max_vehicles
     # TODO: date range check business logic
     # TODO: number of people check? this is modifiable later, don't bother
+    if num_vehicle > max_vehicles:
+        raise ValidationError('Number of vehicle is more than allowed for total campsite selected.')
+
 
     # the CampsiteBooking table runs the risk of a race condition,
     # wrap all this behaviour up in a transaction
@@ -189,13 +193,13 @@ def create_booking_by_class(request,campground_id, multiplesites_class_totals, s
 
                 # Prevent booking if max people passed
                 total_people = num_adult + num_concession + num_child + num_infant
-
+                
                 if total_people > max_people:
                     raise ValidationError('Maximum number of people exceeded for the selected campsite')
                 # Prevent booking if less than min people
                 if total_people < min_people:
                     raise ValidationError('Number of people is less than the minimum allowed for the selected campsite')
-
+ 
                 ## Create a new temporary booking with an expiry timestamp (default 20mins)
                 #booking = Booking.objects.create(
                 #    booking_type=3,
@@ -287,6 +291,8 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
     num_infant_pool = num_infant
     selecttype = request.POST.get('selecttype',None)
     multiplesites = json.loads(request.POST.get('multiplesites', "[]"))
+    total_vehicle = num_vehicle + num_campervan + num_trailer + num_caravan 
+    total_vehicle = total_vehicle + (num_motorcycle / 2)
 
     with transaction.atomic():
         # get availability for campsite, error out if booked/closed
@@ -309,6 +315,10 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
             total_people = num_adult + num_concession + num_child + num_infant
             min_people = sum([cs.min_people for cs in campsite_qs])
             max_people = sum([cs.max_people for cs in campsite_qs])
+            max_vehicles = sum([cs.max_vehicles for cs in campsite_qs])
+                
+            if total_vehicle > max_vehicles:
+                raise ValidationError('Number of vehicle is more than allowed for total campsite selected.')
 
             if total_people > max_people:
                 raise ValidationError('Maximum number of people exceeded for the selected campsite(s)')
@@ -624,7 +634,7 @@ def get_campsite_availability(campsites_qs, start_date, end_date, user = None, o
                 pass
                 #val[start_date + timedelta(days=i)][0] = 'tooearly'
                 if old_booking is not None:
-                    if old_booking > 0 and start_date > today:
+                    if old_booking > 0 and start_date <= today:
                        print ("changing booking after arriving")
                        pass
                     else:

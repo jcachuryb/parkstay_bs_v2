@@ -471,12 +471,14 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
             for key, val in results.items():
             #    pass
                  if change_booking_id is not None:
-                     if change_booking_id > 0 and  start_date > today:
+                     if change_booking_id > 0 and  start_date <= today:
                         print ("changing booking after arriving")
                         pass
                      else:
+                          pass
                           val[start_date + timedelta(days=i)][0] = 'tooearly'
-                 else:             
+                 else:   
+                     pass
                      val[start_date + timedelta(days=i)][0] = 'tooearly'
                  #val[start_date + timedelta(days=i)][0] = 'tooearly'
 

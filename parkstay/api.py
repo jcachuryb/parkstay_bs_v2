@@ -505,7 +505,7 @@ def search_suggest(request, *args, **kwargs):
 
 def search_suggest_data():
     entries = []
-    for x in Campground.objects.filter(wkb_geometry__isnull=False).values_list('id', 'name', 'wkb_geometry','zoom_level'):
+    for x in Campground.objects.filter(wkb_geometry__isnull=False).exclude(campground_type=3).values_list('id', 'name', 'wkb_geometry','zoom_level'):
         entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'Campground', 'id': x[0], 'name': x[1], 'zoom_level': x[3]}))
     for x in Park.objects.filter(wkb_geometry__isnull=False).values_list('id', 'name', 'wkb_geometry','zoom_level'):
         entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'Park', 'id': x[0], 'name': x[1], 'zoom_level': x[3]}))
