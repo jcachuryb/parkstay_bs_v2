@@ -586,6 +586,7 @@ class CancelBookingView(TemplateView):
                     if booking.arrival > today or cancel_past_booking_override_access == True:
                              booking_totals = utils.booking_total_to_refund(booking)
                              totalbooking = booking_totals['refund_total']
+                             refund_total_no_fees = booking_totals['refund_total_no_fees']
                              campsitebooking = booking_totals['campsitebooking']
                              cancellation_data = booking_totals['cancellation_data']
 
@@ -607,6 +608,7 @@ class CancelBookingView(TemplateView):
                                  'campsitebooking': campsitebooking,
                                  'cancellation_data' : cancellation_data,
                                  'totalbooking' : str(totalbooking),
+                                 'totalbooking_no_fees' : str(refund_total_no_fees),
                                  'only_cancel_booking' : only_cancel_booking,
                                  'cancel_past_booking_override_access' : cancel_past_booking_override_access
                                  }
@@ -623,13 +625,18 @@ class CancelBookingView(TemplateView):
         booking_id = kwargs['booking_id']
         booking = Booking.objects.get(id=int(booking_id))
         only_cancel_booking = False 
+        cancel_booking_with_full_refund  = False
 
         if request.user.is_authenticated:
             if request.user.is_staff is True:
                 if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=2).count() > 0:
                        ocb = request.POST.get('only_cancel_booking', False)
+                       cbfr = request.POST.get('cancel_booking_with_full_refund', False)
                        if ocb == 'true':
                            only_cancel_booking = True
+                       if cbfr == 'true':
+                           cancel_booking_with_full_refund = True
+                      
 
         if booking.customer.id == request.user.id or request.user.is_staff is True:
 
@@ -666,8 +673,12 @@ class CancelBookingView(TemplateView):
                     #cancellation_data =  utils.booking_change_fees(booking)
                     cancellation_data = utils.booking_cancellation_fees(booking)
                     
-                    
-                    lines.append({'ledger_description':'Booking Cancellation Fee',"quantity":1,"price_incl_tax":str(cancellation_data['cancellation_fee']),"oracle_code":booking.campsite_oracle_code, 'line_status': 1})
+                    if cancel_booking_with_full_refund is True:
+                        pass
+                        # no cancellation fees
+                    else:
+                        lines.append({'ledger_description':'Booking Cancellation Fee',"quantity":1,"price_incl_tax":str(cancellation_data['cancellation_fee']),"oracle_code":booking.campsite_oracle_code, 'line_status': 1})
+
            
                     basket_params = {
                         'products': lines,
@@ -690,6 +701,8 @@ class CancelBookingView(TemplateView):
                         booking.cancelation_time = timezone.now()
                         booking.cancellation_reason = "Booking Cancelled Online"
                         booking.save()
+                        BookingInvoice.objects.get_or_create(booking=booking, invoice_reference=jsondata['data']['invoice_reference'])
+
                     response = HttpResponse(json.dumps(jsondata), content_type='application/json')
                     return response
 

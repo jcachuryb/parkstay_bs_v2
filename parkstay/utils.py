@@ -907,14 +907,19 @@ def booking_total_to_refund(booking):
      totalbooking = Decimal('0.00')
 
      cancellation_data = booking_cancellation_fees(booking)
-     totalbooking = totalbooking - cancellation_data['cancellation_fee']
      for cb in campsitebooking:
           totalbooking = totalbooking + cb.amount_adult + cb.amount_infant + cb.amount_child + cb.amount_concession
 
      additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier='vehicles')
      for ab in additional_booking:
           totalbooking = totalbooking + ab.amount
+ 
+     # Before cancellation fees
+     totalbooking_no_fees = totalbooking
+     # After cancellation fees
+     totalbooking = totalbooking - cancellation_data['cancellation_fee']
      booking_totals['refund_total'] = totalbooking
+     booking_totals['refund_total_no_fees'] = totalbooking_no_fees
      booking_totals['campsitebooking'] = campsitebooking
      booking_totals['cancellation_data'] = cancellation_data
      return booking_totals
