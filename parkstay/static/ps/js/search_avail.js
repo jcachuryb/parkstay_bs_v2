@@ -3,7 +3,7 @@ var search_avail = {
 	   'csrf_token' : '',
 	   'selected_site': null,
 	   'multiplesites': [],
-	   'multiplesites_options' : {'min_people': 0, 'max_people': 0},
+	   'multiplesites_options' : {'min_people': 0, 'max_people': 0, 'max_vehicle': 0},
 	   'multiplesites_class_totals' : {},
            'change_booking_id': null,       
 	   'page': '',
@@ -741,9 +741,13 @@ var search_avail = {
 			         }
 
                                  if (append_site == true) {
-				   if (search_avail.var.vehicles['total_vehicles_occupied_space'] > campsites[s].max_vehicles) { 
+			           if (search_avail.var.selecttype == 'multiple') {
+				       // Check max vehicle after clicking proceed (total selected campsite after)
+                                   } else {
+   				       if (search_avail.var.vehicles['total_vehicles_occupied_space'] > campsites[s].max_vehicles) { 
                                             append_site = false;
-			           }
+			               }
+				   }
                                    //if (search_avail.var.vehicles['total_vehicles_occupied_space'] == 0) {
                                    //         append_site = false;
                                    //}

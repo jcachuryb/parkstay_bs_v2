@@ -179,8 +179,8 @@ module.exports = {
                             var column = "<td ><a href='#' class='detailRoute' data-campground=\"__ID__\" >Edit </a><br/><a href='#' class='statusCG' data-status='open' data-campground=\"__ID__\" data-current_closure=\"__Current_Closure__\" data-current_closure_id=\"__Current_Closure_ID__\">Open</a>";
                         }
 
-                        column += full.campground_type == '0' ? addBooking : "";
-                        column += full.campground_type == '0' ? availability_admin:"";
+                        // column += full.campground_type == '0' ? addBooking : "";
+                        // column += full.campground_type == '0' ? availability_admin:"";
                         column += "</td>";
                         column = column.replace(/__Current_Closure__/,full.current_closure);
                         column = column.replace(/__Current_Closure_ID__/,full.current_closure_id);
