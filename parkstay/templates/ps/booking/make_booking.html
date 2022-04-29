@@ -28,7 +28,7 @@
         <div class="row">
             <div class="col-lg-12"><div class="well">
                 <h3>Your session has expired, or you have not yet selected a campsite to book.</h3>
-                <p>Please visit the <a href="{{EXPLORE_PARKS_SEARCH}}">Explore Parks website</a> to start a new campground booking session.</p>
+                <p>Start a new search <a href="{{EXPLORE_PARKS_SEARCH}}">Explore Parks website</a>.</p>
             </div></div>
         </div>
     </div>
@@ -54,8 +54,8 @@
                             {% verbatim %}
                                 <b>Time left to complete booking {{ timeleft }}.</b>
                             {% endverbatim %}
-                                <a class="btn btn-info" href="{% url 'public_abort_booking' %}?change=true">Change in-progress booking</a>
-                                <a class="btn btn-warning" href="{% url 'public_abort_booking' %}">Cancel in-progress booking</a>
+                                <a class="btn btn-primary" href="{% url 'public_abort_booking' %}?change=true">Change booking (same campground</a>
+                                <a class="btn btn-warning" href="{% url 'public_abort_booking' %}">Cancel and search for another campground</a>
                             </p>
                             {% if show_errors %}
                             <div class="alert alert-danger">
@@ -100,7 +100,7 @@
                                                                       <i class='bi-geo-alt'></i>
                                                                   </span>
                                                                   <span id='region-park-selection-inner'>
-									  {{ booking.campground.name }}, {{ booking.campground.park.name }} - {% if booking.campground.site_type == 2 %}{{ booking.first_campsite.type }}{% else %}{{ booking.first_campsite.name }} ({{ booking.first_campsite.type }}){% endif %}
+									  {{ booking.campground.name }}, {{ booking.campground.park.name }} - Campsite {% if booking.campground.site_type == 2 %}{{ booking.first_campsite.type }}{% else %}{{ booking.first_campsite.name }} {% if booking.first_campsite.type %}({{ booking.first_campsite.type }}){% endif %}{% endif %}
 
                                                                   </span>
                                                          </div>
@@ -144,7 +144,7 @@
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                 <h5>Camper(s)</h5>
+                                 <h5>Campers</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -165,6 +165,39 @@
                          </div>
                  </div>
 
+                        <div class="col-md-12" v-cloak v-if="concessionWarning">
+
+                                    <div class="round-box col-12 px-3">
+                                            <div class="col-12">
+                                                   <div class="col-sm-12 col-md-12">
+                                                      <h5>Concessions</h5>
+                                                   </div>
+                                            </div>
+                                            <div class="col-12">
+
+
+                                                              Only holders of the following Australian-issued cards are entitled to concessions:
+                                                              <ul>
+                                                                  <li>Seniors Card</li>
+                                                                  <li>Age Pension</li>
+                                                                  <li>Disability Support</li>
+                                                                  <li>Carer Payment</li>
+                                                                  <li>Carer Allowance</li>
+                                                                  <li>Companion Card</li>
+                                                                  <li>Department of Veterans' Affairs</li>
+                                                              </ul>
+                                             </div>
+                                             <div class='col-12 fst-italic'>
+                                                        We may ask for evidence of entitlement to pay concession fees.
+                                             </div>
+                                    </div>
+
+
+                        </div>
+
+
+
+
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
@@ -179,7 +212,7 @@
                                               <div id="when-date-range" class='form-control' style="">
                                                  <div class='selection-informbox'>
                                                      <i class='bi-people-fill' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
-						     <span > {{ booking.details.num_vehicle }} cars , {{ booking.details.num_campervan }} campervans, {{ booking.details.num_caravan }} caravan, {{ booking.details.num_motorcycle  }} motor cycles, {{ booking.details.num_trailer }} trailers </span>
+						     <span > {{ booking.details.num_vehicle }} car/ute , {{ booking.details.num_campervan }} campervan, {{ booking.details.num_caravan }} caravan/camper trailer, {{ booking.details.num_motorcycle  }} motorcycle, {{ booking.details.num_trailer }} other trailers </span>
                                                  </div>
                                             </div>
                                          </div>
@@ -191,106 +224,65 @@
 
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
-                                <div class="col-sm-12 col-md-12">
-                                   <h5>Personal Details</h5>
-                                </div>
-                         </div>
-                         <div class="col-12">
-                              <div class="row">
-                                  <div class="col-lg-6">
-                                      <div class="well">
-					  {% if request.user.is_staff %}
-                                          <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-						  {{ form.email.label_tag }}
-						  {{ form.email|class:'form-control' }}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6" >
-                                                <div class="form-group">
-						    {{ form.confirm_email.label_tag }}
-						    {{ form.confirm_email|class:'form-control' }}
-                                                </div>
-                                            </div>
-                                          </div>
-                                          <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                  {{form.first_name.label_tag}}
-                                                  {{ form.first_name|class:'form-control'}}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    {{form.last_name.label_tag}}
-                                                    {{ form.last_name|class:'form-control'}}
-                                                </div>
-                                            </div>
-                                          </div>
-                                          <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    {{form.phone.label_tag}}
-                                                    {{ form.phone|class:'form-control'}}
-                                                </div>
-                                            </div>
-                                          </div>
-                                          {% else %}
-                                            <div class="col-md-12">
-                                                <p>Logged in as user <b>{{ request.user.email }}</b>.</p>
-                                            </div>
-                                          <div class="row" style='display:none'>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                  {{form.first_name.label_tag}}
-                                                  {{ form.first_name|class:'form-control-hidden'}}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    {{form.last_name.label_tag}}
-                                                    {{ form.last_name|class:'form-control'}}
-                                                </div>
-                                            </div>
-                                          </div>
-                                          <div class="row"  istyle='display:none'>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    {{form.phone.label_tag}}
-                                                    {{ form.phone|class:'form-control'}}
-                                                </div>
-                                            </div>
-                                          </div>
-
-
-
-                                          {% endif %}
-
-
-
-                                      </div>
-
-
-                                  </div>
-                             </div>
-                         </div>
-                 </div>
-
-                 <div class="round-box col-12 px-3">
-                         <div class="col-12">
                                 <div class='row'>
                                 <div class="col-sm-6 col-md-6">
                                    <h5>Vehicle Details</h5>
                                 </div>
                                 <div class="col-sm-6 col-md-6 text-end">
-                                        <a href="javascript:void(0);" class='btn btn-primary' v-on:click="open_vehicle_popup" >Update Vehicle</a>
+                                        <a href="javascript:void(0);" class='btn btn-primary' v-on:click="open_vehicle_popup" >Update vehicle details</a>
                                 </div>
                                 </div>
                          </div>
+                         <div class="col-12 d-block d-md-none pt-4" >
+                               <div class="row form-group border mb-2 bg-white" v-for="(vehicle, index) in vehicles">
+                                  <div class="fw-bold d-flex justify-content-center">
+                                                Vehicle Type
+                                  </div>
+                                  <div class="d-flex justify-content-center">
+                                          <div>
+						  <span v-if="vehicle[0] == 0">Car/Ute <span v-if="vehicle[5]">- concession</span><span>
+                                          </div>
+                                          <div >
+                                          <span v-if="vehicle[0] == 2">Motorcycle<span>
+                                          </div>
+                                           <div >
 
+                                          <span v-if="vehicle[0] == 3">Campervan<span>
+                                          </div>
+                                           <div >
 
-                         <div class="col-12">
+                                          <span v-if="vehicle[0] == 4">Other Trailer<span>
+                                          </div>
+                                          <div>
+                                          <span v-if="vehicle[0] == 5">Caravan/Camper Trailer<span>
+                                          </div>
+                                  </div>
+
+                                  <div class="fw-bold d-flex justify-content-center">
+                                                 Vehicle Rego 
+                                  </div>
+                                  <div class="d-flex justify-content-center" >
+                                        <div v-if="vehicle[1].length > 0" v-html="vehicle[1]">
+                                        </div>
+                                        <div v-else>
+                                                <b style='color:red'><span v-if="vehicle[4] == true">To be confirmed</span><span v-else>Registration number</span></b>
+                                        </div>
+                                  </div>
+                                  <div class="fw-bold d-flex justify-content-center" v-if="pricing.vehicle">
+					  <div v-show="vehicle[0] == 0 || vehicle[0] == 2 ||vehicle[0] == 3" > Pre-pay park entrance fee</div>
+                                  </div>
+                                  <div class="d-flex justify-content-center">
+                                      <div class="form-check form-switch" v-if="pricing.vehicle" vhtml="vehicle[2]">
+                                              <div v-show="vehicle[0] == 0 || vehicle[0] == 2 ||vehicle[0] == 3">
+                                                 <i v-if="vehicle[2]==true" style="color: #00f300" class="bi bi-check-circle-fill"></i>
+                                                 <i v-if="vehicle[2]==false"  style="color: #f30000" class="bi bi-x-circle-fill"></i>
+                                              </div>
+                                      </div>
+                                  </div>
+                              </div>
+                         </div>
+
+                         <div class="col-12 d-none d-md-block" >
                                       <div class="row" style='font-weight:bold'> 
                                           <div class="col-md-2">
 						Vehicle Type
@@ -298,15 +290,15 @@
                                           <div class="col-md-4">
 						Vehicle Rego
 					  </div>
-                                          <div class="col-md-6">
-						Pre-Pay Park Pass
+                                          <div class="col-md-6" v-if="pricing.vehicle">
+                                                Pre-pay park entrance fee
 					  </div>
 
                                        </div>
                                        <div class="row form-group" v-for="(vehicle, index) in vehicles">
                                           <div class="col-md-2">
                                                   <div>
-                                                  <span v-if="vehicle[0] == 0">Vehicle<span>
+							  <span v-if="vehicle[0] == 0">Car/ute <span v-if="vehicle[5]">- concession</span><span>
                                                   </div>
                                                   <div >
                                                   <span v-if="vehicle[0] == 2">Motorcycle<span>
@@ -317,10 +309,10 @@
                                                   </div>
                                                    <div >
 
-                                                  <span v-if="vehicle[0] == 4">Trailer<span>
+                                                  <span v-if="vehicle[0] == 4">Other trailer<span>
                                                   </div>
                                                   <div>
-					          <span v-if="vehicle[0] == 5">Caravan<span>
+					          <span v-if="vehicle[0] == 5">Caravan/Camper Trailer<span>
 						  </div>
 
                                           </div>
@@ -328,7 +320,7 @@
 						<div v-if="vehicle[1].length > 0" v-html="vehicle[1]">
 						</div>
                                                 <div v-else>
-							<b style='color:red'><span v-if="vehicle[4] == true">To be confirmed</span><span v-else>Please Add Rego Number</span></b>
+							<b style='color:red'><span v-if="vehicle[4] == true">To be confirmed</span><span v-else>Registration number</span></b>
 						</div>
                                           </div>
                                           <div class="col-md-6">
@@ -361,6 +353,17 @@
                                    <h5>Vehicle Details</h5>
                                 </div>
                          </div>
+
+                         <div class='pb-2 fst-italic' v-if="pricing.vehicle" >
+				 <p>No park entry fee applies for {{ booking.campground.park.name }}.</p>
+				 <p>Update your vehicle details at any time up to and including the day before the arrival date by logging in to your account</p>
+                         </div>
+                         <div class='pb-2 fst-italic' v-else="pricing.vehicle" >
+                                 <p>A park entry fee applies for each motor vehicle. Pay now, on arrival at the park or by purchasing a park pass separately.</p>
+				 <p>Vehicle details may be used to check entry fee payment anywhere in the park.</p>
+				 <p>Update your vehicle details or change your booking to pay the entry fee or be refunded the fee previously paid if you have or will purchase a park pass or pay entry on arrival, at any time up to and including the day before the arrival date by logging in to your account</p>
+		         </div>
+
                          <div class="col-12">
                               <div class="row">
                                       <div class="row" v-cloak style='display:none'>
@@ -377,11 +380,10 @@
                                       </div>
 
 
-
-                                      <div class="row form-group" v-for="(vehicle, index) in vehicles">
+                                      <div class="row form-group pb-3" v-for="(vehicle, index) in vehicles" >
                                           <div class="col-md-2">
 						  <div >
-						  <span v-if="vehicle[0] == 0">Vehicle<span> 
+						  <span v-if="vehicle[0] == 0">Car/Ute<span> 
 						  </div>
 						  <div >
 
@@ -407,9 +409,9 @@
                                           </div>
 
                                           <div class="col-md-2">
-                                              <div class="form-check form-switch" vif="pricing.vehicle">
+                                              <div class="form-check form-switch" >
                                                    <label class="form-check-label">
-                                                   <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-entry_fee'" type="checkbox" v-model="vehicle[4]" v-on-click="updateVehiclesFees" checked/> Hire car</label>
+                                                   <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-entry_fee'" type="checkbox" v-model="vehicle[4]" v-on-click="updateVehiclesFees" checked/> To be confirmed</label>
                                               </div>
                                           </div>
 
@@ -417,7 +419,7 @@
 						  
 						  <div class="form-check form-switch" v-if="campers.concession > 0 && vehicle[0] == 0 && vehicle[2] == true" >  
                                                        <label class="form-check-label">
-						       <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-concession'" type="checkbox" v-model="vehicle[5]" v-on-click="updateVehiclesFees" checked/> Concession</label>
+						       <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-concession'" type="checkbox" v-model="vehicle[5]" v-on-click="updateVehiclesFees" checked/> Concession driver</label>
 
 					         </div>
 				          </div>
@@ -425,13 +427,11 @@
                                           <div class="col-md-2">
                                               <div class="form-check form-switch" v-if="pricing.vehicle">
                                                    <label class="form-check-label" v-show="vehicle[0] == 0 || vehicle[0] == 2 ||vehicle[0] == 3" >
-                                                   <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-entry_fee'" type="checkbox" v-model="vehicle[2]" v-on-click="updateVehiclesFees" checked/> Pre-pay park entrance fee</label>
+                                                   <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-entry_fee'" type="checkbox" v-model="vehicle[2]" v-on-click="updateVehiclesFees" checked/> Pay park entry fee</label>
 
                                               </div>
-					      
                                           </div>
                                       </div>
-
 			      </div>
                          </div>
                  </div>
@@ -449,7 +449,6 @@
     </div>
     {% if request.user.is_staff is True %}
               {% if allow_price_override is True %} 
-
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
 				<div class='row'>
@@ -493,7 +492,7 @@
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                   <h5>Pricing</h5>
+                                   <h5>Fee payable now (inc GST)</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -502,10 +501,12 @@
                                    <div class="col-sm-12 col-md-6">
                                        <div class="col-sm-12 ">
                                           <div class="form-group">
-                                            <label for="Total Price">Total Price <span class="text-muted">(GST inclusive.)</span></label>
                                             <div class="input-group">
                                               <span class="input-group-addon">AUD $</span>
                                               <input type="text" class="form-control" :value="total|formatMoney(2)" readonly="true">
+                                              <span v-if="total<0" class='pl-3 fw-bold btn btn-success'>
+                                                &nbsp;&nbsp;REFUND
+                                              </span>
                                               </div>
                                           </div>
                                       </div>
@@ -514,6 +515,116 @@
                          </div>
                  </div>
 
+
+		 <!-- personal details start -->
+                 <div class="round-box col-12 px-3">
+                         <div class="col-12 pb-2">
+                                <div class="col-sm-12 col-md-12">
+                                   <h5>Your Details</h5>
+                                </div>
+                         </div>
+                         <div class="col-12">
+                              <div class="row">
+                                  <div class="col-lg-6">
+                                      <div class="well">
+                                          {% if request.user.is_staff %}
+                                          <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                  {{ form.email.label_tag }}
+                                                  {{ form.email|class:'form-control' }}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6" >
+                                                <div class="form-group">
+                                                    {{ form.confirm_email.label_tag }}
+                                                    {{ form.confirm_email|class:'form-control' }}
+                                                </div>
+                                            </div>
+                                          </div>
+                                          <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                  {{form.first_name.label_tag}}
+                                                  {{ form.first_name|class:'form-control'}}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    {{form.last_name.label_tag}}
+                                                    {{ form.last_name|class:'form-control'}}
+                                                </div>
+                                            </div>
+                                          </div>
+                                          <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    {{form.phone.label_tag}}
+                                                    {{ form.phone|class:'form-control'}}
+                                                </div>
+                                            </div>
+                                          </div>
+                                          {% else %}
+                                          <div class="row" >
+                                             <div class="col-md-12">
+                                                   <div class="form-group">
+                                                         <b>Name:</b>
+                                                         {{ request.user.first_name }}
+                                                         {{ request.user.last_name }}
+                                                         <p><i>
+We may ask for proof of identity. Bookings are not transferable and you cannot book a campsite that you will not camp on yourself. Others travelling with you who are not included in this booking must make their own separate booking</i>
+
+
+                                                         </p>
+                                                   </div>
+ 
+                                             </div>
+
+                                          </div>
+                                          <div class="row" style='display:none'>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                  {{form.first_name.label_tag}}
+                                                  {{ form.first_name|class:'form-control-hidden'}}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    {{form.last_name.label_tag}}
+                                                    {{ form.last_name|class:'form-control'}}
+                                                </div>
+                                            </div>
+                                          </div>
+                                          <div class="row"  istyle='display:none'>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <b>{{form.phone.label_tag}}</b>
+                                                    {{ form.phone|class:'form-control'}}
+                                                </div>
+                                            </div>
+                                          </div>
+
+                                            <div class="col-md-12 pt-3">
+                                                <p>Logged in as user <b>{{ request.user.email }}</b>.</p>
+                                            </div>
+                                            <div class="col-md-12 pt-1">
+<p><i>We will use these details to contact you about your booking, including in case of emergency. You can update the phone number at any time up to and including the day before the arrival date by logging in to your account.’ </i></p>
+                                            </div>
+
+                                          {% endif %}
+
+
+                                      </div>
+                                  </div>
+                             </div>
+                         </div>
+                 </div>
+
+
+
+
+
+		 <!-- personal details end -->
 
 
 
@@ -552,32 +663,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-12" v-cloak v-if="concessionWarning">
-
-                         <div class="round-box col-12 px-3">
-                                 <div class="col-12">
-                                        <div class="col-sm-12 col-md-12">
-                                           <h5>Concession Holders</h5>
-                                        </div>
-                                 </div>
-                                 <div class="col-12">
-
-
-                                                   Please note, only holders of the following Australian-issued cards are entitled to concessions:
-                                                   <ul>
-                                                       <li>Seniors Card</li>
-                                                       <li>Age Pension</li>
-                                                       <li>Disability Support</li>
-                                                       <li>Carer Payment</li>
-                                                       <li>Carer Allowance</li>
-                                                       <li>Companion Card</li>
-                                                       <li>Department of Veterans' Affairs</li>
-                                                   </ul>
-                                  </div>
-                         </div>
-
-
-                        </div>
                     </div>
                 </div>
             </div>
@@ -595,7 +680,7 @@
                       <div class="col-md-6">
                          <div class="alert alert-danger" style='min-height: 250px'>
                             <div class="form-group">
-                              <p style="">Changes not permitted. Cancel up to 29 days before arrival for 50% refund.  No exceptions for <a href='https://www.wa.gov.au/organisation/covid-communications/covid-19-coronavirus-controlled-interstate-border'>interstate and international travel restrictions</a>.  If you are planning to travel to Western Australia you are advised not to book before you have completed all entry and quarantine requirements.</p>
+				    <p style="">If you cancel or remove dates from a confirmed booking, once concession camper fee may be charged for each date removed.
                             </div>
                           </div>
                       </div>
@@ -606,24 +691,19 @@
                                   <div class="alert alert-info" style='min-height: 250px'>
 
                                     <div class="checkbox">
-                                        <label><input type="checkbox" v-bind:value="toc"   name='toc' v-model="toc">I agree to the <a target="_blank" href="https://exploreparks.dbca.wa.gov.au/know/online-camp-site-booking-terms-and-conditions">terms and conditions</a></label>
+                                        <label><input type="checkbox" v-bind:value="toc"   name='toc' v-model="toc">I agree to the <a target="_blank" href="http://exploreparks.dbca.wa.gov.au/online-campsite-booking-terms-and-conditions">terms and conditions</a></label>
                                     </div>
 
                                     <div class="checkbox">
-                                        <label><input type="checkbox" v-bind:value="outsideregion"  name='outsideregion' v-model="outsideregion">I understand that no exemption from standard refund conditions will apply for <a href='https://www.wa.gov.au/organisation/covid-communications/covid-19-coronavirus-controlled-interstate-border'>interstate and international travel restrictions</a>, and that those restrictions are subject to change.</label>
-
-                                    </div>
-
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" v-bind:value="trav_res"   name='trav_res' v-model="trav_res">I understand that hygiene facilities at Parks and Wildlife Service campgrounds are minimal.</label>
+                                        <label><input type="checkbox" v-bind:value="trav_res"   name='trav_res' v-model="trav_res">I understand the facilities provided at, and the rules and safety and health advice for this campground.</label>
                                     </div>
                                     <br>
 
-				    <button :disabled="!toc||!outsideregion||!trav_res" type="submit" class="btn btn-primary btn-lg">Proceed to payment </button>
+				    <button :disabled="!toc||!trav_res" type="submit" class="btn btn-primary btn-lg"><span v-if="total<0" >Refund Payment</span><span v-else-if="total==0">Complete Booking</span><span v-else >Proceed to payment</span></button>
                                     {% if request.user.is_staff is True %}
                                               {% if booking_without_payment is True %}
 
-					      <label>&nbsp;&nbsp;<input type="checkbox" v-bind:value="no_payment"   name='no_payment' v-model="no_payment">&nbsp;&nbsp;Create Booking without Payment</label>
+					      <label>&nbsp;&nbsp;<input type="checkbox" v-bind:value="no_payment"   name='no_payment' v-model="no_payment">&nbsp;&nbsp;Contiune Booking without Payment.  Do not send invoice.</label>
 						    <div style='color:red; font-size: 12px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(no confirmation or invoice email sent.)</div>
 
                                               {% endif %}
@@ -1055,7 +1135,6 @@
                         vm.total -= parseFloat(vm.booking_data.old_additional_booking[c].amount);
                       }
                    }
-
 
 		}
                 // add per-person fees

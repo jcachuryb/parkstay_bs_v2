@@ -2474,7 +2474,7 @@ def booking_updates(request, *args, **kwargs):
                                  ab = ab_obj[0]
                                  concession_text = ""
                                  if concession is True:
-                                         concession_text = " (Concession) "
+                                         concession_text = " (Concession driver) "
 
                                  if hire_care is True and len(v[1]) == 0:
                                       ab.fee_description = "Park Entry Fee for 'HIRE CAR'"+concession_text
@@ -2852,7 +2852,7 @@ def create_booking(request, *args, **kwargs):
                    concession_text = ""
                    if concession is True:
                         entry_fee_amount = entry_fees.concession
-                        concession_text = " (Concession)"
+                        concession_text = " (Concession driver)"
 
             fee_description = ''
             if hire_car is True and len(rego_text) == 0:

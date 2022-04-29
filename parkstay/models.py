@@ -1855,7 +1855,7 @@ class BookingVehicleRego(models.Model):
         print ("SAVING INVOICE")
         if len(self.rego) > 0:
              if BookingVehicleRego.objects.filter(booking=self.booking,rego=self.rego).exclude(id=self.id).count() > 0:
-                  raise ValidationError("Rego number must be unique per each vehicle on a booking.");
+                  raise ValidationError("‘Vehicle registration numbers are unique. If you don’t know the vehicle registration select ‘To be confirmed’ now and update on or before the booking arrival date.");
 
         super(BookingVehicleRego,self).save(*args,**kwargs)
 
