@@ -983,8 +983,6 @@ class SearchAvailablityByCampground(TemplateView):
             booking = utils.get_session_booking(request.session)
         except:
             pass
-        print ("TEMP BOOKING")
-        print (booking)
 
         if booking is None:
             pass
@@ -1074,6 +1072,7 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['campground']['campground_type'] = campground_query.campground_type
         context['cg']['campground']['park'] = {}
         context['cg']['campground']['park']['id'] = campground_query.park.id
+        context['cg']['campground']['park']['name'] = campground_query.park.name
         context['cg']['campground']['park']['alert_count'] = campground_query.park.alert_count
         context['cg']['campground']['park']['alert_url'] = settings.ALERT_URL
         context['cg']['campground']['description'] = campground_query.description

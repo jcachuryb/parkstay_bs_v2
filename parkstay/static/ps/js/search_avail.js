@@ -101,7 +101,7 @@ var search_avail = {
 
 	 search_avail.var.vehicles['total_vehicles_occupied_space'] = total_vehicles_occupied_space;
 
-         $('#vehicle-selection-inner-text').html(search_avail.var.vehicles['vehicle']+' car or ute , '+search_avail.var.vehicles['campervan']+' campervans, '+search_avail.var.vehicles['caravan']+' caravans, '+search_avail.var.vehicles['motorcycle']+' motorcycles, '+search_avail.var.vehicles['trailer']+' trailers');
+         $('#vehicle-selection-inner-text').html(search_avail.var.vehicles['vehicle']+' car/ute , '+search_avail.var.vehicles['campervan']+' campervan, '+search_avail.var.vehicles['caravan']+' caravan/camper trailer, '+search_avail.var.vehicles['motorcycle']+' motorcycle, '+search_avail.var.vehicles['trailer']+' other trailer');
     },
     open_vehicle_updates: function(booking_id) {
 	 $('#vehicle-update-error').hide();
@@ -286,7 +286,7 @@ var search_avail = {
        search_avail.init_dateselection(checkin_date_moment.format('YYYY/MM/DD'),checkout_date_moment.format('YYYY/MM/DD'));
     },
     select_dates: function(start, end) {
-        $('#when-date-range #when-dates').html("<b>Arrive:</b> "+start.format('(ddd) D MMM YY') + ' <b>Depart:</b> ' + end.format('(ddd) D MMM YY'));
+        $('#when-date-range #when-dates').html("<b>Arrive:</b> "+start.format('ddd D MMM YY') + ' <b>Depart:</b> ' + end.format('ddd D MMM YY'));
         $('#checkin').val(start.format('YYYY/MM/DD'));
         $('#checkout').val(end.format('YYYY/MM/DD'));
         search_avail.var.camping_period['checkin'] = start.format('YYYY/MM/DD')
@@ -877,7 +877,14 @@ var search_avail = {
 				campsitehtml = campsitehtml + "</div>";
 
                                 campsitehtml = campsitehtml + "<div class='col-9 product-available-price-box'>";
-                                campsitehtml = campsitehtml + "<div class='"+priceavail+"'>AUD: $"+campsite_price.toFixed(2)+"</div>";
+                                campsitehtml = campsitehtml + "<div class='"+priceavail+"'>";
+				if (campsite_available == true && append_site == true) {
+   				    campsitehtml = campsitehtml + "  AUD: $"+campsite_price.toFixed(2);
+				} else {
+                                    campsitehtml = campsitehtml + "&nbsp;&nbsp;";
+				}
+			        campsitehtml = campsitehtml + "</div>";
+					 
 
 				if (campsite_available == true) {
 				    var key_id= 0;

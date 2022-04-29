@@ -152,14 +152,14 @@
 		            {{ f.campground_name.slice(0, 20) }}<span v-if="f.campground_name.length > 20">...</span>
                        </div>
                        <div class="slick-slide-card-distance" title="Distance from selected location" alt="Distance from selected location">
-	                    ({{ f.distance }}km)
+	                    {{ f.distance }}km
 		       </div>
                        </div>
                        <div>
 
                        <div v-if="f.park_name" v-html="f.park_name.slice(0,55)" class='slick-slide-description'></div>
                           <div v-if="f.campground_type == 0" >
-                             <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Aprox Sites Available ({{ campgroundSiteTotal[f.id].total_available }})</div>
+                             <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Approximate Sites Available: {{ campgroundSiteTotal[f.id].total_available }}</div>
                              <div v-else class='slick-slide-card-notavailabile'>No availablity for selected period</div>
                           </div>
                           <div v-else ><div>&nbsp;</div></div>
@@ -1205,7 +1205,7 @@ export default {
                      row['price_hint'] = price_hint;
                      row['campground_type'] = campground_type;
                      row['id'] = campground_id;
-                     row['distance'] = vm.distance_between_gps(coord_1,coord_2,geo[0],geo[1],"K").toFixed(2);
+                     row['distance'] = vm.distance_between_gps(coord_1,coord_2,geo[0],geo[1],"K").toFixed(0);
                      row['available_campsites'] = campsites_total;
                      row['info_url'] = info_url;
                      row['park_name'] = park_name;

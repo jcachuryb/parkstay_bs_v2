@@ -60,7 +60,7 @@
                 <a class="nav-link active" id='campsite-booking-tab' aria-current="page" href="#" onclick="search_avail.change_tabs('campsite-booking');" >BOOKING</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" id='campground-details-tab' href="#" onclick="search_avail.change_tabs('campground-details');" >CAMPGROUND DETAILS</a>
+                <a class="nav-link" id='campground-details-tab' href="#" onclick="search_avail.change_tabs('campground-details');" >MORE DETAILS</a>
               </li>
             </ul>
 	{% endif %}
@@ -137,14 +137,11 @@
 								      <i class='bi-geo-alt'></i>
 								  </span> 
 								  <span id='region-park-selection-inner'>
-									  {{ cg.campground.name }} 
+									  {{ cg.campground.name }}, {{ cg.campground.park.name }} 
 								  </span>
 							 </div>
 					         </div>
 						 <div>
-							 <div style='padding-left:12px; padding-top:5px; color: #4199d8'>
-								 <i class='bi-info-circle-fill'></i>&nbsp;&nbsp;Largest campsites at {{ cg.campground.name }} allow for {{  cg.campground.largest_camper }} camper(s) and {{  cg.campground.largest_vehicle }} vehicle(s).
-							 </div>
 						</div>
 					</div>
 				    </div>
@@ -305,7 +302,7 @@
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                    <h5>Camper(s)</h5>
+                                    <h5>Campers</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -339,7 +336,7 @@
 
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">Concession</div>
+							<div class="col-8 col-sm-8 fw-bold">Adults <br>(concession)</div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
                                                                        <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_camper_counters('concession','down');"></i>
@@ -394,7 +391,7 @@
                   <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                    <h5>Vehicle(s)</h5>
+                                    <h5>Vehicles</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -404,7 +401,7 @@
 						<div id='region-park-avail-selection-outer' class='form-control selection-dropdown' {% if change_booking_after_arrival_before_departure is True %} {% else %}style="cursor: pointer; " onclick="search_avail.vehicle_toggle();" {% endif %}>
                                                          <div class='selection-informbox'>
                                                                   <span>
-									  <i class='bi-speedometer'></i></span> <span id='vehicle-selection-inner-text'> &nbsp;0 cars , 0 campervans, 0 motor cycles, 0 trailers </span> <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ></i>{% endif %}</span>
+									  <i class='bi-speedometer'></i></span> <span id='vehicle-selection-inner-text'> &nbsp;0 cars/ute , 0 campervan, 0 motor cycles, 0 trailers </span> <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ></i>{% endif %}</span>
                                                          </div>
                                                 </div>
 
@@ -413,7 +410,7 @@
 
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">Vehicle(s)</div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Car/Ute</div>
                                                           <div class="col-4 col-sm-4">
 
                                                                         <span>
@@ -427,7 +424,7 @@
 
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">Campervans</div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Campervan</div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
                                                                        <i class='bi-dash-square plus-minus-counter'  onclick="search_avail.change_vehicle_counters('campervan','down')"></i>
@@ -439,7 +436,7 @@
                                                         </div>
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">Caravan</div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Caravan/Camper Trailer</div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
                                                                        <i class='bi-dash-square plus-minus-counter'  onclick="search_avail.change_vehicle_counters('caravan','down')"></i>
@@ -451,7 +448,7 @@
                                                         </div>
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">Motor cycles </div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Motorcycle </div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
                                                                        <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_vehicle_counters('motorcycle','down')" ></i>
@@ -463,7 +460,7 @@
                                                         </div>
 
                                                         <div class="row p-3" style='border-bottom: 1px solid #eaeaea'>
-                                                          <div class="col-8 col-sm-8 fw-bold">Trailers </div>
+                                                          <div class="col-8 col-sm-8 fw-bold">Other trailer </div>
                                                           <div class="col-4 col-sm-4">
                                                                         <span>
                                                                        <i class='bi-dash-square plus-minus-counter' onclick="search_avail.change_vehicle_counters('trailer','down')"></i>
@@ -575,7 +572,7 @@
 			   </div> 
 			   <div class="col-6 text-end">
 				   {% if cg.campground.campground_map %}
-				   <i class="bi bi-map-fill" style='color:#B8591F'></i> <A href='/media/{{ cg.campground.campground_map }}' target='campground_map_{{ cg.campground.id }}' style='text-decoration: none;'>View Map</a>
+				   <i class="bi bi-map-fill" style='color:#B8591F'></i> <A href='/media/{{ cg.campground.campground_map }}' target='campground_map_{{ cg.campground.id }}' style='text-decoration: none;'>Campground map</a>
 				   {% endif %}
 			   </div>
 		   </div>

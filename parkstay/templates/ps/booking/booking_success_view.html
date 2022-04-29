@@ -24,11 +24,7 @@
               </div>
               <div class="row">
 
-		<div class="col-sm-3">
- 			    <img class="img-thumbnail img-responsive" alt="" src="/campground-image/140/243/?mediafile={{ booking.campground.first_image.image.url }}"/>
-		</div>
-
-		<div class="col-sm-9">
+		<div class="col-sm-12">
                        <div class="row">
                            <div class="col-sm-4">
                                <b>Campground</b>
@@ -40,7 +36,7 @@
 
                        <div class="row">
                            <div class="col-sm-4">
-                               <b>Camp Site</b>
+                               <b>Campsite</b>
                            </div>
                            <div class="col-sm-8">
 		           {% if booking.details.selecttype == 'multiple' %}
@@ -49,7 +45,7 @@
                                {% if booking.campground.site_type == 2 %}
                                    {{ booking.first_campsite.type }}
                                {% else %}
-   			           {{ booking.first_campsite.name }} {% if booking.first_campsite.type %}({{ booking.first_campsite.type }}){% endif %}
+   			           {{ booking.first_campsite.name }} {% if booking.first_campsite.type %}{{ booking.first_campsite.type }}{% endif %}
                                {% endif %}
 			   {% endif %}
                            </div>
@@ -65,18 +61,10 @@
 
             <div class="row">
                 <div class="col-sm-4">
-                    <b>Number of guests</b>
+                    <b>Number of campers</b>
                 </div>
                 <div class="col-sm-8">
                     {{ booking.stay_guests }}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-4">
-                    <b>Booking confirmation number</b>
-                </div>
-                <div class="col-sm-8">
-                    {{ booking.confirmation_number }}
                 </div>
             </div>
             <div class="row">
@@ -99,10 +87,10 @@
                                  {% if booking.details.no_payment == 'true' %}
                                  <b>Please contact staff for booking changes</b>&nbsp;&nbsp;
                                  {% else %}
-                                 <a class="btn btn-primary" href='{% url "cancel_booking" booking.id %}'>Cancel Booking</a>
-                                 <a class="btn btn-primary" href='/booking/change/{{ booking.id }}/' >Change Booking</a>
+                                 <a class="btn btn-primary" href='{% url "cancel_booking" booking.id %}'>Cancel booking</a>
+                                 <a class="btn btn-primary" href='/booking/change/{{ booking.id }}/' >Change booking</a>
                                  {% endif %}
-                                 <button type="button" class="btn btn-primary" onclick="search_avail.open_vehicle_updates('{{ booking.id }}');">Change vehicle details</button>
+                                 <button type="button" class="btn btn-primary" onclick="search_avail.open_vehicle_updates('{{ booking.id }}');">Change vehicle registration number(s)</button>
                             {% endif %}
                         {% endif %}
                         {% if booking.arrival <= today and booking.departure >= today %}
