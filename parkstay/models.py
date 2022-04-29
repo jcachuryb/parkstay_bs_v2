@@ -232,7 +232,12 @@ class Campground(models.Model):
            cache.delete('campgrounds_dt')
            cache.delete('CampgroundMapViewSet')
            cache.delete('booking_availability.get_campsites_for_campground:'+str(self.id))
-           cache.get('api.get_campground('+str(self.id)+')')
+           cache.delete('api.get_campground('+str(self.id)+')')
+           # campsite level cache clearance
+           cache.delete('booking_availability.get_campsites_for_campground')
+           cache.delete('booking_availability.get_campsites_for_campground:'+str(self.id))
+           cache.delete('utils_cache.all_campground_campsites('+str(self.id)+')')
+
         super(Campground, self).save(*args, **kwargs)
 
     class Meta:
