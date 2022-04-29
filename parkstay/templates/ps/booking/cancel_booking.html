@@ -76,7 +76,10 @@
 	         <div class="col-12">
 			 <p>You are requesting to cancel your booking PB{{ booking.id }} at campground with arrival {{ booking.arrival|date:"d M Y" }} and departure {{ booking.departure|date:"d M Y" }}  <b>{{ booking.campground.name }}</b>.</p>
 
-			 <p>If you continue with the cancellation of your booking you will be refunded <span style='color: green; font-weight:bold;'>${{ totalbooking }}</span> which is including any cancellation fees.
+			 <p id='totalbooking_refund'>If you continue with the cancellation of this booking you will be refunded <span style='color: green; font-weight:bold;'>${{ totalbooking }}</span> which is including any cancellation fees.</p>
+			 <p style='display:none' id='totalbooking_refund_no_fees'>If you continue with the cancellation of this booking you will be refunded <span style='color: green; font-weight:bold;'>${{ totalbooking_no_fees }}</span>.</p>
+			 <p style='display:none' id='totalbooking_refund_no_refund'>If you continue with the cancellation of this booking you will be refunded <span style='color: green; font-weight:bold;'>$0.00</span>.</p>
+
 			 <p>To complete this booking cancellation please click the "Complete Cancellation" button below.</p>
  	         </div>
 	     </div>
@@ -89,9 +92,15 @@
                  <div class="col-6 text-end">
 			{% if only_cancel_booking is True %}
                                <div style=''>
-				   <input type='checkbox' value='' class="form-check-input"  id="only_cancel_booking" {% if cancel_past_booking_override_access is True %}checked{% endif %} > 
+				   <input type='checkbox' value='' class="form-check-input"  id="cancel_booking_with_full_refund"  >
+                                   <label class="form-check-label">
+					   Full Refund <br><small><i>no cancel fees</i></small>
+                                   </label>
+				 </div>
+				<div>
+                                   <input type='checkbox' value='' class="form-check-input"  id="only_cancel_booking" {% if cancel_past_booking_override_access is True %}checked{% endif %}
                                    <label class="form-check-label" >
-                                     Only cancel booking. <br><small><i>no refunds or cancel fees</i></small> 
+                                     Only cancel booking. <br><small><i>no refund or cancel fees</i></small> 
                                    </label>
                                </div>
                                <br>
@@ -117,6 +126,34 @@
 		}
 	}
 
+        $('#cancel_booking_with_full_refund').click(function() {
+               $('#only_cancel_booking').prop( "checked", false );
+	       $('#totalbooking_refund').show();
+		$('#totalbooking_refund_no_refund').hide();
+	       if ($(this).is(":checked")) { 
+		  $('#totalbooking_refund_no_fees').show();
+                  $('#totalbooking_refund').hide();
+	       } else {
+                  $('#totalbooking_refund').show();
+		   $('#totalbooking_refund_no_fees').hide();
+
+	       }
+
+	});
+
+        $('#only_cancel_booking').click(function() {
+               $('#cancel_booking_with_full_refund').prop( "checked", false );
+	       $('#totalbooking_refund_no_fees').hide();
+	       $('#totalbooking_refund').hide();
+	       $('#totalbooking_refund_no_refund').hide();
+               if ($(this).is(":checked")) {
+		   $('#totalbooking_refund_no_refund').show();
+
+	       } else {
+                   $('#totalbooking_refund').show();
+	       }
+        });
+
         $('#cancellation_btn').click(function() {
                 $('#CancellationConfirm').modal('show'); 
         });
@@ -124,13 +161,19 @@
         $('#cancellation_confirm_btn').click(function() {
 		$('#CancellationConfirm').modal('hide');
                 var only_cancel_booking = false;
+		var cancel_booking_with_full_refund = false;
                 var ocb = $('#only_cancel_booking');
+		var cbfr = $('#cancel_booking_with_full_refund');
                 var post_data = {};
                 if (ocb.is( ":checked" )) {
                        only_cancel_booking = true;
                 }
+		if (cbfr.is(":checked")) {
+		       cancel_booking_with_full_refund = true;
+
+		}
                  
-                post_data = {'only_cancel_booking': only_cancel_booking};
+                post_data = {'only_cancel_booking': only_cancel_booking, 'cancel_booking_with_full_refund': cancel_booking_with_full_refund};
                
 		$('#LoadingPopup').modal('show');
                 $.ajax({
