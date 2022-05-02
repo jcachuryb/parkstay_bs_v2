@@ -1368,6 +1368,8 @@ def campsite_availablity_view(request,  *args, **kwargs):
         for klass in classes_map.values():
             klass['breakdown'] = [{'name': k, 'availability': v} for k, v in klass['breakdown'].items()]
 
+        print ("CLASS MAP")
+        print (class_sites_map)
         # any campsites remaining in the class sites map have zero bookings!
         # check if there's any left for each class, and if so return that as the target
         for k, v in class_sites_map.items():
@@ -1380,15 +1382,16 @@ def campsite_availablity_view(request,  *args, **kwargs):
                     })
 
                 classes_map[k].update({
+                    'site_left': str(len(v))
+                })
+
+
+
+                classes_map[k].update({
                     'id': v.pop(),
                     'price': '${}'.format(sum(rate.values())),
                     'availability': [[True, '${}'.format(rate[start_date + timedelta(days=i)]), rate[start_date + timedelta(days=i)], [0, 0],None,(start_date + timedelta(days=i)).strftime('%Y-%m-%d')] for i in range(length)],
                     'breakdown': []
-                })
-
-
-                classes_map[k].update({
-                    'site_left': str(len(v))
                 })
 
 
