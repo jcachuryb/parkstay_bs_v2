@@ -78,6 +78,8 @@ def create_confirmation(booking):
     docx_replace_regex(doc, re.compile(r''+key) , booking.stay_dates, key,False)
     key = "{{numberofguests}}"
     docx_replace_regex(doc, re.compile(r''+key) , booking.stay_guests, key, False)
+    key = "{{name}}"
+    docx_replace_regex(doc, re.compile(r''+key) , '{} {} '.format(booking.details.get('first_name', ''), booking.details.get('last_name', '') if booking.customer else None), key,False)
     key = "{{nameandemail}}"
     docx_replace_regex(doc, re.compile(r''+key) , '{} {} ({})'.format(booking.details.get('first_name', ''), booking.details.get('last_name', ''), booking.customer.email if booking.customer else None), key,False)
     key = "{{bookingno}}"
@@ -86,6 +88,35 @@ def create_confirmation(booking):
     docx_replace_regex(doc, re.compile(r''+key) , vehicle_data, key,False)
     key = "{{additionalinfo}}"
     docx_replace_regex(doc, re.compile(r''+key) , booking.campground.additional_info, key, False)
+    #key = "{{checkin}}"
+    #docx_replace_regex(doc, re.compile(r''+key) , '{}'.format(booking.campground.check_in.strftime('%H %m')), key, False)
+    #key = "{{checkout}}"
+    #docx_replace_regex(doc, re.compile(r''+key) , '{}'.format(booking.campground.check_out.strftime('%H %m')), key, False)
+    key = "{{checkintimedate}}"
+    print ("ARRICA")
+    
+    arrival_date = booking.arrival.strftime('%a %d %b %Y')
+    check_in = booking.campground.check_in.strftime('%I:%M %p')
+    if booking.campground.check_in.strftime('%I:%M %p') == '12:00 AM':
+            check_in = "12 midnight"
+    if booking.campground.check_in.strftime('%I:%M %p') == '12:00 PM':
+            check_in = "12 noon"
+
+
+    print (arrival_date)
+    docx_replace_regex(doc, re.compile(r''+key) , '{} on {}'.format(check_in, arrival_date), key, False)
+    key = "{{checkouttimedate}}"
+    departure_date = booking.departure.strftime('%a %d %b %Y')
+
+    check_out = booking.campground.check_out.strftime('%I:%M %p')
+    if booking.campground.check_out.strftime('%I:%M %p') == '12:00 AM':
+        check_out = "12 midnight"
+    if booking.campground.check_out.strftime('%I:%M %p')  == '12:00 PM':
+        check_out = "12 noon"
+
+    docx_replace_regex(doc, re.compile(r''+key) , '{} on {}'.format(check_out, departure_date), key, False)
+
+
     
     try:
         os.stat(temp_directory)
