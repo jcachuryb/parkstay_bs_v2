@@ -55,12 +55,20 @@ def create_confirmation(booking):
         campsite = ', '.join(campsites)
         result = {x: campsites.count(x) for x in campsites}
         for key, value in result.items():
-            campsite = ', '.join(['%sx %s' % (value, key) for (key, value) in result.items()])
+            print ("KEY")
+            print (value)
+            if value > 1:
+                campsite = ', '.join(['%sx %s' % (value, key) for (key, value) in result.items()])
+            else:
+                campsite = ', '.join(['%s' % (key) for (key, value) in result.items()])
 
     vehicle_data = ""
     if booking.vehicle_payment_status:
         for r in booking.vehicle_payment_status:
-            data = r['Type']+"\t"+r['Rego']
+            rego = "To be confirmed"
+            if len(r['Rego']) > 0:
+                rego = r['Rego']
+            data = r['Type']+"\t"+rego
             if r.get('Paid') is not None:
                 if r['Paid'] == 'Yes':
                    data = data+'\tEntry fee paid'
