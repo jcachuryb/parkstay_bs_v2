@@ -75,7 +75,7 @@
                                 {% if booking.campground.site_type == 2 %}
                                     {{ booking.first_campsite.type }}
                                 {% else %}
-				{{ booking.first_campsite.name }} {% if booking.first_campsite.type %}({{ booking.first_campsite.type }}){% endif %}
+				    {{ booking.first_campsite.type }}
                                 {% endif %}
                            {% endif %}
                            </div>
