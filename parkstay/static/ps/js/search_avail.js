@@ -313,6 +313,19 @@ var search_avail = {
            // diffDays = diffDays - 1; 
            return diffDays;
     },
+    select_campground_id: function(campground_id) {
+	    var found = false;
+            for (let i = 0; i < search_avail.var.search_locations.features.length; i++) {
+                    if (search_avail.var.search_locations.features[i].properties.id == campground_id && search_avail.var.search_locations.features[i].properties.type =='Campground') {
+			   found = true;
+                           search_avail.select_region(search_avail.var.search_locations.features[i].properties.id,search_avail.var.search_locations.features[i].properties.name,search_avail.var.search_locations.features[i].coordinates[0],search_avail.var.search_locations.features[i].coordinates[1],search_avail.var.search_locations.features[i].properties.zoom_level); 
+                    }
+            }
+	    if (found == false) {
+		 $("#loading-error").html('<div class="alert alert-danger" role="alert">Sorry, unable to find campground with id '+campground_id+'.</div>');
+//		 alert('results not found');
+	    }
+    },
     select_remove: function() {
 	      $('#search-filters').hide();
               $('#search-selections').hide();
@@ -1073,7 +1086,15 @@ var search_avail = {
                       $('#LoadingPopup').modal('show');
 		      setTimeout("search_avail.init_cg()",1000);
 	      } else {
+                 var queryString = window.location.search;
+                 var urlParams = new URLSearchParams(queryString);
+                 var campground_id = urlParams.get('campground_id');
+                 if (campground_id != null) {
+                    search_avail.select_campground_id(parseInt(campground_id));
+                 }
+
                  $('#LoadingPopup').modal('hide');
+                 
 	      }
     },	    
     init: function() {

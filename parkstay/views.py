@@ -1129,6 +1129,9 @@ class SearchAvailablityByCampground(TemplateView):
 class MapView(TemplateView):
     template_name = 'ps/map.html'
 
+    def get(self, request, *args, **kwargs):
+        return redirect("/")
+
 
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'ps/profile.html'
