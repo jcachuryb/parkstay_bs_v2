@@ -72,13 +72,11 @@
                            {% if booking.details.selecttype == 'multiple' %}
                                Multiple Sites Selected
                            {% else %}
-                                {% if booking.campground.site_type == 2 %}
-                                    {{ booking.first_campsite.type }}
-				{% elif booking.campground.site_type == 0 %}
-                                   {{ booking.first_campsite.name }}
-                                {% else %}
-				    {{ booking.first_campsite.type }}
-                                {% endif %}
+                               {% if booking.campground.site_type == 2 %}
+                                   {{ booking.first_campsite.type }}
+                               {% else %}
+                                   {{ booking.first_campsite.name }} {% if booking.first_campsite.type %}{{ booking.first_campsite.type }}{% endif %}
+                               {% endif %}
                            {% endif %}
                            </div>
 	               </div>
