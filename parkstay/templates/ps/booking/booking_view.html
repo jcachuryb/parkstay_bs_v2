@@ -72,6 +72,7 @@
                            {% if booking.details.selecttype == 'multiple' %}
                                Multiple Sites Selected
                            {% else %}
+			      
                                {% if booking.campground.site_type == 2 %}
                                    {{ booking.first_campsite.type }}
                                {% else %}
