@@ -819,6 +819,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  row['campground']['first_image']  = {}
                  row['campground']['first_image']['image'] = {}
                  row['campground']['first_image']['image']['url'] = b.campground.first_image.image.url
+                 row['campground']['site_type'] = b.campground.site_type
                  if b.campground.contact:
                       row['contact_name'] = b.campground.contact.name
                       row['contact_phone_number'] = b.campground.contact.phone_number
