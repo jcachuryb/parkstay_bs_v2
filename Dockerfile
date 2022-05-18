@@ -10,8 +10,9 @@ RUN apt-get update
 RUN apt-get upgrade -y
 RUN apt-get install --no-install-recommends -y wget git libmagic-dev gcc binutils libproj-dev gdal-bin python3 python3-setuptools python3-dev python3-pip tzdata libreoffice cron rsyslog 
 RUN apt-get install --no-install-recommends -y libpq-dev patch
-RUN apt-get install --no-install-recommends -y postgresql-client mtr
-RUN apt-get install --no-install-recommends -y sqlite3 vim postgresql-client ssh htop
+RUN apt-get install --no-install-recommends -y mtr
+RUN apt-get install --no-install-recommends -y sqlite3 vim ssh htop
+RUN apt-get install --no-install-recommends -y postgresql-client-12=12.9-0ubuntu0.20.04.1
 RUN ln -s /usr/bin/python3 /usr/bin/python 
 #RUN ln -s /usr/bin/pip3 /usr/bin/pip
 RUN pip install --upgrade pip
