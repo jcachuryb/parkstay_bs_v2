@@ -1,0 +1,134 @@
+<p><strong>Your booking details:</strong></p>
+<table width="601" cellspacing="0" cellpadding="7">
+<tbody>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span><span>Name</span></span></p>
+</td>
+<td width="417">
+<p lang="en-GB" align="left"><span><span>{{ booking.details.first_name }} {{ booking.details.last_name }}</span></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span style=""><span style="">Email address</span></span></p>
+</td>
+<td width="417">
+<p lang="en-GB" align="left"><span style="">{{ booking.customer.email }}</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span style=""><span style="">Phone number</span></span></p>
+</td>
+<td width="417">
+<p lang="en-GB" align="left"><span style=""><span style="">{{ booking.details.phone }}</span></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span style=""><span style="">Booking confirmation number</span></span></p>
+</td>
+<td width="417">
+	<p lang="en-GB" align="left"><span style=""><span style="">PB{{booking.id }}</span></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span style=""><span style="">Campground</span></span></p>
+</td>
+<td width="417">
+	<p lang="en-GB" align="left"><span style=""><span style="">{{ booking.campground.name }}, {{ booking.campground.park.name }}</span></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span style=""><span style="">Arriving</span></span></p>
+</td>
+<td width="417">
+	<p lang="en-GB" align="left"><span style=""><span style="">{{booking.arrival|date:"d/m/Y"}} from {{ check_in_time }}</span></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span style=""><span style="">Departing</span></span></p>
+</td>
+<td width="417">
+<p lang="en-GB" align="left"><span style=""><span style="">{{booking.departure|date:"d/m/Y"}} before {{ check_out_time }}</span></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span style=""><span style="">Campsite</span></span></p>
+</td>
+<td width="417">
+{% if booking.details.selecttype == 'multiple' %}
+    Multiple Sites Selected
+{% else %}
+    {% if booking.campground.site_type == 2 %}
+        {{ booking.first_campsite.type }}
+    {% else %}
+        {{ booking.first_campsite.name }} {% if booking.first_campsite.type %}{{ booking.first_campsite.type }}{% endif %}
+    {% endif %}
+{% endif %}
+<br>
+{{ booking.first_campsite.short_description }}
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span style=""><span style="">Campers</span></span></p>
+</td>
+<td width="417">
+	<p lang="en-GB" align="left"><span style=""><span style="">{{ booking.stay_guests }}</span></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span style=""><span style="">Vehicles</span></span></p>
+</td>
+<td width="417">
+<p lang="en-GB" align="left"><span style=""><span style="">
+{% for v in booking.vehicle_payment_status %}
+{% if not v.Paid %}
+    <p>{{v.Rego}}, {{v.Type}}</p>
+{% else %}
+    <p>{{v.Rego}}, {{v.Type}}, {% if v.Paid == 'Yes' %} Entry fee paid {% elif v.Paid == 'No' %} Unpaid {% elif v.Paid == 'pass_required' %} Park Pass Required {% endif %}</p>
+{% endif %}
+{% endfor %}
+
+</span></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left">&nbsp;</p>
+</td>
+<td width="417">
+<p lang="en-GB" align="left">&nbsp;</p>
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span style=""><span style="">Booking made on</span></span></p>
+</td>
+<td width="417">
+<p lang="en-GB" align="left"><span style=""><span style="">{{booking.created|date:"d/m/Y h:i A"}} AWST</span></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="250">
+<p lang="en-GB" align="left"><span style=""><span style="">Grace period expires at</span></span></p>
+</td>
+<td width="417">
+	<p align="left">
+				{% if booking.created.date == booking.arrival %}
+                                   No grace period for same-day bookings
+				{% else %}
+				   {{ grace_period_expire|date:"d/m/Y h:i A" }} AWST 
+				{% endif %}
+       </p>
+</td>
+</tr>
+</tbody>
+</table>

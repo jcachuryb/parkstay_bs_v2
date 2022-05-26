@@ -34,6 +34,7 @@ from parkstay.models import (Campground,
                                 ParkEntryRate
                                 )
 from parkstay import models as parkstay_models
+from parkstay import emails
 from ledger_api_client.ledger_models import EmailUserRO as EmailUser
 from ledger_api_client.ledger_models import Address
 from ledger_api_client.ledger_models import EmailIdentity
@@ -666,18 +667,20 @@ class CancelBookingView(TemplateView):
                     totalbooking = booking_totals['refund_total']
                     campsitebooking = booking_totals['campsitebooking']
                     cancellation_data = booking_totals['cancellation_data']
-
+                   
                     ## PLACE IN UTILS
                     lines = []
                     lines = utils.price_or_lineitemsv2old_booking(request,booking, lines)
                     #cancellation_data =  utils.booking_change_fees(booking)
                     cancellation_data = utils.booking_cancellation_fees(booking)
                     
+                    fees_for_cancellation = float('0.00')
                     if cancel_booking_with_full_refund is True:
                         pass
                         # no cancellation fees
                     else:
                         lines.append({'ledger_description':'Booking Cancellation Fee',"quantity":1,"price_incl_tax":str(cancellation_data['cancellation_fee']),"oracle_code":booking.campsite_oracle_code, 'line_status': 1})
+                        fees_for_cancellation = float(cancellation_data['cancellation_fee'])
 
            
                     basket_params = {
@@ -702,6 +705,10 @@ class CancelBookingView(TemplateView):
                         booking.cancellation_reason = "Booking Cancelled Online"
                         booking.save()
                         BookingInvoice.objects.get_or_create(booking=booking, invoice_reference=jsondata['data']['invoice_reference'])
+                        extra_data = {}
+                        extra_data['totalbooking'] = round(Decimal(totalbooking),2)
+                        extra_data['fees_for_cancellation'] = round(Decimal(fees_for_cancellation),2)
+                        emails.send_booking_cancelation(booking, extra_data)
 
                     response = HttpResponse(json.dumps(jsondata), content_type='application/json')
                     return response

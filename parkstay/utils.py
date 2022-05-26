@@ -982,6 +982,7 @@ def booking_change_fees(booking):
     old_campsite_booking = parkstay_models.CampsiteBooking.objects.filter(booking_id=booking.old_booking)
     old_booking = parkstay_models.Booking.objects.get(id=booking.old_booking)
     old_arrival = old_booking.arrival
+
     for cb in old_campsite_booking:
         cb_date = cb.date.strftime('%Y-%m-%d')
         cancellation_data['old_booking'][cb_date] = {}
@@ -1046,12 +1047,13 @@ def booking_change_fees(booking):
     return cancellation_data 
 
 def booking_policy_cancellation_rules(cancellation_data,cb_date,cb, old_arrival, old_booking):
-    today_dt= datetime.now().date()
+    today_dt = datetime.now().date()
     today_datetime = datetime.now(timezone_dt.utc) 
     total_seconds = (today_datetime - old_booking.created).total_seconds()
     booking_grace_time = total_seconds/60
 
     cancellation_fee = Decimal('0.00')
+    grace_period = 0
     if 'cancellation_fee' in cancellation_data:
         cancellation_fee = cancellation_data['cancellation_fee']
 
@@ -1064,7 +1066,9 @@ def booking_policy_cancellation_rules(cancellation_data,cb_date,cb, old_arrival,
                 pp = parkstay_models.PeakPeriod.objects.filter(peak_group=pg.peak_group, start_date__lte=cb.date, end_date__gte=cb.date, active=True)
                 if pp.count():
                     policy_type='peak'
+
          if policy_type == 'peak':
+               grace_period = pg.peak_grace_time
                if booking_grace_time > pg.peak_grace_time:
                    if pg.peak_policy_type == 0:
                        if pg.peak_arrival_limit_enabled is True:
@@ -1077,17 +1081,19 @@ def booking_policy_cancellation_rules(cancellation_data,cb_date,cb, old_arrival,
                        else:
                             cancellation_fee = cancellation_fee + pg.peak_amount
          else:
+               grace_period = pg.peak_grace_time
                if booking_grace_time > pg.grace_time:
                    if pg.policy_type == 0:
                        
                        if pg.arrival_limit_enabled is True:
                            arrival_time_calc = old_arrival - timedelta(days=pg.arrival_time)
-                           if today_dt >  arrival_time_calc :
+                           if today_dt > arrival_time_calc:
                                cancellation_fee = cancellation_fee + pg.amount
                            else:
                                pass
                        else:
                             cancellation_fee = cancellation_fee + pg.amount
+    cancellation_data['grace_period'] = grace_period
     cancellation_data['cancellation_fee'] = cancellation_fee
     return cancellation_data
 
@@ -1898,7 +1904,7 @@ def daterange(start_date, end_date):
 
 def oracle_integration(date, override):
     system = settings.PS_PAYMENT_SYSTEM_ID.replace("S","0") 
-    oracle_codes = oracle_parser(date, system, 'Parkstay', override=override)
+    oracle_codes = oracle_parser(date, system, 'Parkstay', override)
 
 def get_ledger_totals():
     ledger_totals = {"total_failed": 0}

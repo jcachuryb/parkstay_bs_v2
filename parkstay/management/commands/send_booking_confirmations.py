@@ -5,6 +5,7 @@ import threading
 
 #from mooring.models import RegisteredVessels
 from parkstay import models
+from parkstay import utils
 from datetime import datetime
 import json
 import time
@@ -25,8 +26,9 @@ class Command(BaseCommand):
                     print (b.paid)
                     if b.paid is True:
                         try:
-                            #emails.send_booking_invoice(b)
-                            emails.send_booking_confirmation(b.id)
+                            bc = utils.booking_cancellation_fees(b)
+
+                            emails.send_booking_confirmation(b.id, bc)
                         except Exception as e:
                             print ("Error Sending Confirmation")
                             print (e)
