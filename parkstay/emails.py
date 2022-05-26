@@ -187,6 +187,91 @@ def send_booking_cancelation(booking,extra_data):
     #email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, cc=[campground_email], bcc=bcc, context=context)
     #email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
 
+
+def send_booking_reminder(booking_id, extra_data):
+    print ("Sending Booking Confirmation for: "+str(booking_id))
+    booking = models.Booking.objects.get(id=booking_id)    
+    #PARKSTAY_EXTERNAL_URL
+    email_obj = TemplateEmailBase()
+    email_obj.subject = 'One week to your Park Stay WA campsite booking {} at {}, {}'.format(booking.confirmation_number, booking.campground.name, booking.campground.park.name)
+    email_obj.html_template = 'ps/email/confirmation-reminder.html'
+    email_obj.txt_template = 'ps/email/confirmation.txt'
+
+    email = booking.customer.email
+
+    cc = None
+    bcc = [default_campground_email]
+
+    campground_email = booking.campground.email if booking.campground.email else default_campground_email
+    if campground_email != default_campground_email:
+        cc = [campground_email]
+
+    #my_bookings_url = request.build_absolute_uri('/mybookings/')
+    my_bookings_url = settings.PARKS_EXTERNAL_BOOKING_URL+str('/mybookings/')
+    booking_availability = settings.PARKS_EXTERNAL_BOOKING_URL+str('/availability/?site_id={}'.format(booking.campground.id))
+    #booking_availability = request.build_absolute_uri('/availability/?site_id={}'.format(booking.campground.id))
+    unpaid_vehicle = False
+    mobile_number = booking.customer.mobile_number
+    booking_number = booking.details.get('phone', None)
+    phone_number = booking.customer.phone_number
+    tel = None
+    if booking_number:
+        tel = booking_number
+    elif mobile_number:
+        tel = mobile_number
+    else:
+        tel = phone_number
+    tel = tel if tel else ''
+
+    for v in booking.vehicle_payment_status:
+        if v.get('Paid') == 'No':
+            unpaid_vehicle = True
+            break
+
+    check_in_time = booking.campground.check_in.strftime('%I:%M %p')
+    if booking.campground.check_in.strftime('%I:%M %p') == '12:00 AM':
+            check_in_time = "12 midnight"
+    if booking.campground.check_in.strftime('%I:%M %p') == '12:00 PM':
+            check_in_time = "12 noon"
+
+    check_out = booking.campground.check_out.strftime('%I:%M %p')
+    if booking.campground.check_out.strftime('%I:%M %p') == '12:00 AM':
+        check_out_time = "12 midnight"
+    if booking.campground.check_out.strftime('%I:%M %p')  == '12:00 PM':
+        check_out_time = "12 noon"
+
+    grace_period_expire = booking.created + datetime.timedelta(minutes=extra_data['grace_period'])
+    additional_info = booking.campground.additional_info if booking.campground.additional_info else ''
+
+    #booking_cancellation_fees(booking)
+    booking_invoices = models.BookingInvoice.objects.filter(booking=booking)
+
+    invoice_reference = ''
+    if booking_invoices.count() > 0:
+        invoice_reference = booking_invoices[0].invoice_reference
+
+    context = {
+        'booking': booking,
+        'phone_number': tel,
+        'campground_email': campground_email,
+        'my_bookings': my_bookings_url,
+        'availability': booking_availability,
+        'unpaid_vehicle': unpaid_vehicle,
+        'additional_info': additional_info,
+        'check_in_time' : check_in_time,
+        'check_out_time' : check_out_time,
+        'extra_data' : extra_data,
+        'grace_period_expire' : grace_period_expire,
+        'PARKSTAY_EXTERNAL_URL' : settings.PARKSTAY_EXTERNAL_URL,
+        'invoice_reference' : invoice_reference
+    }
+
+    print ("SENDING EMAIL")
+    sendHtmlEmail(tuple(email),email_obj.subject,context,email_obj.html_template,None,bcc,default_campground_email,'parkstayv2',attachments=[])
+
+    booking.reminder_email_sent = True
+    booking.save()
+
 def send_booking_lapse(booking):
     log_hash = int(hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest(), 16) % (10 ** 8)
     email_obj = TemplateEmailBase()

@@ -1,0 +1,37 @@
+<p>{{ booking.details.first_name }},</p>
+
+<p>It&rsquo;s just one week until your Park Stay WA campsite booking {{ booking.confirmation_number }} at {{ booking.campground.name }}, {{ booking.campground.park.name }}. <strong>Check your booking details carefully and change them if they are incorrect.</strong></p>
+
+{% include "ps/email/confirmation-booking-details.html" %}
+
+<p>We may ask for proof of identity (bookings are not transferable) and, for any concession fees paid, evidence of qualification for concession.</p>
+<p>Ensure you have access to the phone number and email address when travelling to the campground and that the vehicle registrations are correct. We may need these details in case of emergency.</p>
+<p>If you will arrive after the arrival date or leave before the departure date, change the dates to make the campsite available to others and ensure we don&rsquo;t cancel your booking as a &lsquo;no show&rsquo;.</p>
+<p><strong>If you need to cancel or change your booking (including updating vehicle details and phone number)<br /></strong>You can cancel or make any change to your booking (except to move to a different campground) at any time up to and including the day before the arrival date only.</p>
+<p>When you cancel or change your booking, we will refund any reduction in camping and vehicle entry fees, but if you remove dates (including by cancelling) after the grace period expires and less than six days before the removed date, or 15 days for peak periods, a fee equivalent to one concession camping fee will be applied for each removed date.</p>
+<p>Note:</p>
+<ul>
+<li>To make any change other than to vehicle registration details only, you will need to reselect (or choose a different) campsite. If you need to change your phone number, you can do so on the next screen.</li>
+<li>If you need to change your vehicle registration or phone number for more than one booking, you will have to change each booking separately.</li>
+<li>If you change your booking, your booking will have a new booking reference number and invoice. The details of the booking before the change will be retained with the original booking reference number and invoice and will be listed in &lsquo;My bookings&rsquo; as a cancelled booking.</li>
+</ul>
+<p>From the arrival date to the day before your departure date you can change only your departure date. Extending your stay is subject to the availability of your booked campsite.</p>
+<p>To cancel or change your booking go to <a href='{{ PARKSTAY_EXTERNAL_URL }}/mybookings/'>My bookings</a> at parkstay.dbca.wa.gov.au</p>
+<p>If you are unable to cancel or change your booking online, please contact {{ booking.campground.contact.name }} by replying to the confirmation email sent to {{ booking.customer.email }} on ({{ booking.customer.created.date }} or on {{ booking.campground.contact.phone_number }} as soon as possible. Any delay in contacting us may affect your right to refund.</p>
+
+<p>{{ booking.campground.contact.opening_hours }}</p>
+<p>For more details on cancellation and booking changes got to &lt;link to Explore Parks, URL shown (TBC)&gt;</p>
+<p><strong>If you change your name or email address<br /></strong>Contact us by email at: <span style="color: #0563c1;"><u><a href="mailto:parkstaybookings@dbca.wa.gov.au">parkstaybookings@dbca.wa.gov.au</a></u></span></p>
+<p><span style="color: #0563c1;"><u><a href="https://exploreparks.dbca.wa.gov.au/online-campsite-booking-terms-and-conditions">Terms and conditions of booking</a></u></span></p>
+<p><strong>Essential information for camping at {{ booking.campground.name }}, {{ booking.campground.park.name }}</strong></p>
+<p><strong>Facilities</strong></p>
+<p>{{ booking.campground.facilities_information|safe }}</p>
+<p><strong>Campground rules</strong></p>
+<p>{{ booking.campground.campground_rules|safe }}</p>
+<p><strong>Your safety and health</strong></p>
+<p>{{ booking.campground.health_and_safety_information|safe }}</p>
+<p><strong>Location</strong></p>
+<p>{{ booking.campground.location_information|safe }} </p>
+<p>&nbsp;</p>
+
+
