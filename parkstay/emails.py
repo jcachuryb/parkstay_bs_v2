@@ -61,15 +61,21 @@ def send_booking_invoice(booking):
 
 
 
-def send_booking_confirmation(booking_id):
+def send_booking_confirmation(booking_id, extra_data):
     print ("Sending Booking Confirmation for: "+str(booking_id))
     log_hash = int(hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest(), 16) % (10 ** 8)
     booking = models.Booking.objects.get(id=booking_id)    
     #PARKSTAY_EXTERNAL_URL
     email_obj = TemplateEmailBase()
-    email_obj.subject = 'Your booking {} at {} is confirmed'.format(booking.confirmation_number, booking.campground.name)
-    email_obj.html_template = 'ps/email/confirmation.html'
+    email_obj.subject = 'Your Park Stay WA campsite booking {} at {}, {} is confirmed'.format(booking.confirmation_number, booking.campground.name, booking.campground.park.name)
+    email_obj.html_template = 'ps/email/confirmation-booking.html'
     email_obj.txt_template = 'ps/email/confirmation.txt'
+
+    if booking.old_booking:
+        if booking.old_booking > 0:
+            email_obj.subject = 'Your change to Park Stay WA campsite booking {} at {}, {} is confirmed'.format(booking.confirmation_number, booking.campground.name, booking.campground.park.name)
+    #       email_obj.html_template = 'ps/email/confirmation-change-booking.html'
+    #       email_obj.txt_template = 'ps/email/confirmation.txt'
 
     email = booking.customer.email
 
@@ -102,8 +108,27 @@ def send_booking_confirmation(booking_id):
             unpaid_vehicle = True
             break
 
+    check_in_time = booking.campground.check_in.strftime('%I:%M %p')
+    if booking.campground.check_in.strftime('%I:%M %p') == '12:00 AM':
+            check_in_time = "12 midnight"
+    if booking.campground.check_in.strftime('%I:%M %p') == '12:00 PM':
+            check_in_time = "12 noon"
+
+    check_out = booking.campground.check_out.strftime('%I:%M %p')
+    if booking.campground.check_out.strftime('%I:%M %p') == '12:00 AM':
+        check_out_time = "12 midnight"
+    if booking.campground.check_out.strftime('%I:%M %p')  == '12:00 PM':
+        check_out_time = "12 noon"
+
+    grace_period_expire = booking.created + datetime.timedelta(minutes=extra_data['grace_period'])
     additional_info = booking.campground.additional_info if booking.campground.additional_info else ''
 
+    #booking_cancellation_fees(booking)
+    booking_invoices = models.BookingInvoice.objects.filter(booking=booking)
+
+    invoice_reference = ''
+    if booking_invoices.count() > 0:
+        invoice_reference = booking_invoices[0].invoice_reference
     context = {
         'booking': booking,
         'phone_number': tel,
@@ -111,7 +136,13 @@ def send_booking_confirmation(booking_id):
         'my_bookings': my_bookings_url,
         'availability': booking_availability,
         'unpaid_vehicle': unpaid_vehicle,
-        'additional_info': additional_info
+        'additional_info': additional_info,
+        'check_in_time' : check_in_time,
+        'check_out_time' : check_out_time,
+        'extra_data' : extra_data,
+        'grace_period_expire' : grace_period_expire,
+        'PARKSTAY_EXTERNAL_URL' : settings.PARKSTAY_EXTERNAL_URL,
+        'invoice_reference' : invoice_reference
     }
 
     pdf_buffer = doctopdf.create_confirmation(booking)
@@ -122,17 +153,20 @@ def send_booking_confirmation(booking_id):
     #with open(settings.BASE_DIR+"/parkstay/static/parkstay/pdf/parkstay-covid.pdf") as opened:
     #     covidfile = opened.read()
 
-    email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PB{}.pdf'.format(booking.id), pdf_buffer, 'application/pdf'),])
-    email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
+    #email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PB{}.pdf'.format(booking.id), pdf_buffer, 'application/pdf'),])
+    #email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
+    print ("SENDING EMAIL")
+    sendHtmlEmail(tuple(email),email_obj.subject,context,email_obj.html_template,None,bcc,default_campground_email,'parkstayv2',attachments=[('confirmation-PB{}.pdf'.format(str(booking.id)), pdf_buffer, 'application/pdf')])
+
     booking.confirmation_sent = True
     booking.save()
 
 
-def send_booking_cancelation(booking, request):
+def send_booking_cancelation(booking,extra_data):
     log_hash = int(hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest(), 16) % (10 ** 8)
     email_obj = TemplateEmailBase()
-    email_obj.subject = 'Cancelled: your booking {} at {}'.format(booking.confirmation_number, booking.campground.name)
-    email_obj.html_template = 'ps/email/cancel.html'
+    email_obj.subject = 'Your Park Stay WA campsite booking {} at {}, {} is cancelled'.format(booking.confirmation_number, booking.campground.name, booking.campground.park.name)
+    email_obj.html_template = 'ps/email/confirmation-cancelled.html'
     email_obj.txt_template = 'ps/email/cancel.txt'
 
     email = booking.customer.email
@@ -144,11 +178,14 @@ def send_booking_cancelation(booking, request):
     context = {
         'booking': booking,
         'my_bookings': my_bookings_url,
-        'campground_email': campground_email
+        'campground_email': campground_email,
+        'settings' : settings,
+        'extra_data': extra_data
     }
-
-    email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, cc=[campground_email], bcc=bcc, context=context)
-    email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
+    
+    sendHtmlEmail(tuple(email),email_obj.subject,context,email_obj.html_template,None,bcc,default_campground_email,'parkstayv2',attachments=[]) 
+    #email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, cc=[campground_email], bcc=bcc, context=context)
+    #email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
 
 def send_booking_lapse(booking):
     log_hash = int(hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest(), 16) % (10 ** 8)
@@ -206,6 +243,8 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,template_group,a
     # Main Email Template Style ( body template is populated in the center
     if template_group == 'system-oim':
         main_template = get_template('ps/email/base_email-oim.html').render(context)
+    elif template_group == 'parkstayv2': 
+        main_template = get_template('ps/email/base_email-parkstay.html').render(context)
     else:
         main_template = get_template('ps/email/base_email2.html').render(context)
 
@@ -216,12 +255,12 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,template_group,a
     # Convert Documents to (filename, content, mime) attachment
     _attachments = []
     for attachment in attachments:
-        if isinstance(attachment, Document):
-             filename = str(attachment)
-             content = attachment.file.read()
-             mime = mimetypes.guess_type(attachment.filename)[0]
-             _attachments.append((filename, content, mime))
-        else:
+        #if isinstance(attachment, Document):
+        #     filename = str(attachment)
+        #     content = attachment.file.read()
+        #     mime = mimetypes.guess_type(attachment.filename)[0]
+        #     _attachments.append((filename, content, mime))
+        #else:
              _attachments.append(attachment)
 
 

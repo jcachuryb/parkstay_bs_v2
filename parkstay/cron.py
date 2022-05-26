@@ -16,34 +16,34 @@ class UnpaidBookingsReportCronJob(CronJobBase):
         outstanding_bookings()
 
 
-class OracleIntegrationCronJob(CronJobBase):
-    RUN_AT_TIMES = ['01:00']
+#class OracleIntegrationCronJob(CronJobBase):
+#    RUN_AT_TIMES = ['01:00']
+#
+#    schedule = Schedule(run_at_times=RUN_AT_TIMES)
+#    code = 'parkstay.oracle_integration'
+#
+#    def do(self):
+#        oracle_integration(str(date.today() - timedelta(days=1)), False)
 
-    schedule = Schedule(run_at_times=RUN_AT_TIMES)
-    code = 'parkstay.oracle_integration'
 
-    def do(self):
-        oracle_integration(str(date.today() - timedelta(days=1)), False)
-
-
-class SendBookingsConfirmationCronJob(CronJobBase):
-    RUN_EVERY_MINS = 5
-
-    schedule = Schedule(run_at_times=RUN_EVERY_MINS)
-    code = 'parkstay.send_booking_confirmations'
-
-    def do(self):
-        try:
-            # Update confirmation_status
-            for b in Booking.objects.all():
-                if not b.paid and b.confirmation_sent:
-                    b.confirmation_sent = False
-                    b.save()
-
-            unconfirmed = Booking.objects.filter(confirmation_sent=False)
-            if unconfirmed:
-                for b in unconfirmed:
-                    if b.paid:
-                        send_booking_confirmation(b.id)
-        except:
-            raise
+#class SendBookingsConfirmationCronJob(CronJobBase):
+#    RUN_EVERY_MINS = 5
+#
+#    schedule = Schedule(run_at_times=RUN_EVERY_MINS)
+#    code = 'parkstay.send_booking_confirmations'
+#
+#    def do(self):
+#        try:
+#            # Update confirmation_status
+#            for b in Booking.objects.all():
+#                if not b.paid and b.confirmation_sent:
+#                    b.confirmation_sent = False
+#                    b.save()
+#
+#            unconfirmed = Booking.objects.filter(confirmation_sent=False)
+#            if unconfirmed:
+#                for b in unconfirmed:
+#                    if b.paid:
+#                        send_booking_confirmation(b.id)
+#        except:
+#            raise

@@ -1,0 +1,12 @@
+<p>{{ booking.details.first_name }},</p>
+
+<p>Your Park Stay WA campsite booking {{ settings.BOOKING_PREFIX }}{{ booking.id }} at {{ booking.campground.name }}, {{ booking.campground.park.name }} has been cancelled.<p>
+
+{% if extra_data.totalbooking > 0 %}
+<p>${{ extra_data.totalbooking }} has been refunded to the account used to make payment. Please allow up to five business days for this to appear in your account. If you have been issued with a new card for that account (if your previous card expired or was cancelled due to fraudulent activity), your refund will not be affected.</p>
+{% endif %}
+
+{% if extra_data.fees_for_cancellation > 0 %}
+<p>A cancellation fee of ${{ extra_data.fees_for_cancellation }} has been applied. If you cancelled due to exceptional circumstances beyond your control, you can apply for refund of this fee by reply to this email. We must receive your application within 28 days and you must include evidence of the exceptional circumstance beyond your control.</p>
+<p>&nbsp;</p>
+{% endif %}
