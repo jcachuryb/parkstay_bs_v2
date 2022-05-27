@@ -114,7 +114,7 @@ def send_booking_confirmation(booking_id, extra_data):
     if booking.campground.check_in.strftime('%I:%M %p') == '12:00 PM':
             check_in_time = "12 noon"
 
-    check_out = booking.campground.check_out.strftime('%I:%M %p')
+    check_out_time = booking.campground.check_out.strftime('%I:%M %p')
     if booking.campground.check_out.strftime('%I:%M %p') == '12:00 AM':
         check_out_time = "12 midnight"
     if booking.campground.check_out.strftime('%I:%M %p')  == '12:00 PM':
@@ -234,7 +234,7 @@ def send_booking_reminder(booking_id, extra_data):
     if booking.campground.check_in.strftime('%I:%M %p') == '12:00 PM':
             check_in_time = "12 noon"
 
-    check_out = booking.campground.check_out.strftime('%I:%M %p')
+    check_out_time = booking.campground.check_out.strftime('%I:%M %p')
     if booking.campground.check_out.strftime('%I:%M %p') == '12:00 AM':
         check_out_time = "12 midnight"
     if booking.campground.check_out.strftime('%I:%M %p')  == '12:00 PM':
