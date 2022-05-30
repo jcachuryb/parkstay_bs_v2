@@ -12,6 +12,7 @@ from django.template.loader import render_to_string, get_template
 from django.core.exceptions import ValidationError
 #from django.template import Context
 from django.core.mail import EmailMessage, EmailMultiAlternatives
+from email.mime.base import MIMEBase
 from django.core.files.base import ContentFile
 from parkstay import doctopdf
 from confy import env
@@ -19,6 +20,7 @@ import hashlib
 import datetime
 import socket
 import requests
+from email import encoders
 default_campground_email = settings.EMAIL_FROM
 
 
@@ -329,6 +331,15 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,template_group,a
     if template_group == 'system-oim':
         main_template = get_template('ps/email/base_email-oim.html').render(context)
     elif template_group == 'parkstayv2': 
+        with open(settings.BASE_DIR+'/parkstay/static/ps/img/parkstay_bookings_logo.png','rb') as f:
+            logomime = MIMEBase('image','png', filename='Parkstay Logo')
+            logomime.add_header('Content-Disposition', 'attachment', filename='parkstaybooking.png')
+            logomime.add_header('X-Attachment-Id', 'parkstay_logo')
+            logomime.add_header('Content-ID', '<parkstay_logo>')
+            logomime.set_payload(f.read())
+            encoders.encode_base64(logomime)
+            #parkstay/static/ps/img/parkstay_bookings_logo.png
+
         main_template = get_template('ps/email/base_email-parkstay.html').render(context)
     else:
         main_template = get_template('ps/email/base_email2.html').render(context)
@@ -348,7 +359,6 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,template_group,a
         #else:
              _attachments.append(attachment)
 
-
     if override_email is not None:
         to = override_email.split(",")
         if cc:
@@ -358,6 +368,9 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,template_group,a
 
     if len(to) > 1:
         msg = EmailMultiAlternatives(subject, "Please open with a compatible html email client.", from_email=from_email, to=to, attachments=_attachments, cc=cc, bcc=bcc, reply_to=reply_to, headers={'System-Environment': email_instance})
+        if logomime:
+           msg.attach(logomime)
+
         msg.attach_alternative(main_template, 'text/html')
 
         #msg = EmailMessage(subject, main_template, to=[to_email],cc=cc, from_email=from_email)
@@ -374,6 +387,9 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,template_group,a
 
     else:
           msg = EmailMultiAlternatives(subject, "Please open with a compatible html email client.", from_email=from_email, to=to, attachments=_attachments, cc=cc, bcc=bcc, reply_to=reply_to, headers={'System-Environment': email_instance})
+          if logomime:
+              msg.attach(logomime)
+
           msg.attach_alternative(main_template, 'text/html')
 
           #msg = EmailMessage(subject, main_template, to=to,cc=cc, from_email=from_email)
