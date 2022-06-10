@@ -875,9 +875,6 @@ class ParkstayPermission(models.Model):
       permission_group = models.SmallIntegerField(choices=PERMISSION_GROUP, default=0)
       active = models.BooleanField(default=True)
 
-
-
-
 class CampsiteBookingRange(BookingRange):
     campsite = models.ForeignKey('Campsite', on_delete=models.PROTECT, related_name='booking_ranges')
 

@@ -10,6 +10,7 @@ def parkstay_url(request):
     if request.user.is_authenticated is True:
         is_authenticated = request.user.is_authenticated
 
+    # staff need to login and logout for permissions to refresh
     parkstay_permissions_cache = cache.get('parkstay_url_permissions'+str(is_authenticated)+str(session_id))
 
     parkstay_permissions = {}

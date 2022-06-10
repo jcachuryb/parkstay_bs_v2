@@ -160,8 +160,17 @@
                        <div v-if="f.park_name" v-html="f.park_name.slice(0,55)" class='slick-slide-description'></div>
                           <div v-if="f.campground_type == 0" >
                              <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Approximate Sites Available: {{ campgroundSiteTotal[f.id].total_available }}</div>
-                             <div v-else class='slick-slide-card-notavailabile'>No availablity for selected period</div>
+                             <div v-else class='slick-slide-card-notavailabile'>
+                                 No availablity for selected period
+                             </div>
                           </div>
+                          <div class='slick-slide-card-notavailabile' v-else-if="f.campground_type == 1" >
+                                   Bookings not required. Pay on arrival
+                          </div>
+                          <div class='slick-slide-card-notavailabile' v-else-if="f.campground_type == 2" >
+                                   Operated by Parks and Wildlife partner
+                          </div>
+                          
                           <div v-else ><div>&nbsp;</div></div>
                        <p v-if="f.price_hint && Number(f.price_hint)"><i><small>From ${{ f.price_hint }} per night</small></i></p>
                        <!-- This line has to be changed to use a v-if/else clause
@@ -255,7 +264,7 @@ margin: auto;
     height: 22px;
 }
 .slick-slide-card-notavailabile {
-    font-size:11px;
+    font-size:10.5px;
     height: 22px;
     color: red;
 }

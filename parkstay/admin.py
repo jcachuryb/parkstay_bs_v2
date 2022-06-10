@@ -12,6 +12,7 @@ from ledger_api_client.ledger_models import EmailUserRO as EmailUser
 from django.http import HttpResponse
 from django_summernote.admin import SummernoteModelAdmin
 from copy import deepcopy
+from django.contrib import messages
 
 admin.site.index_template = 'admin-index.html'
 admin.autodiscover()
@@ -353,10 +354,15 @@ class CampgroundImage(admin.ModelAdmin):
       list_display = ('campground','image_preview',)
       search_fields = ('campground__name',)
       list_filter = ('campground',)
+
 @admin.register(models.ParkstayPermission)
 class ParkstayPermissionAdmin(admin.ModelAdmin):
       list_display = ('email','permission_group','active')
       list_filter = ('permission_group',)
+
+      def save_model(self, request, obj, form, change):
+          messages.add_message(request, messages.WARNING, 'Permission changes will not update until the user logout and login again.')
+
 
 @admin.register(models.CampsiteBookingLegacy)
 class CampsiteBookingLegacyAdmin(admin.ModelAdmin):
