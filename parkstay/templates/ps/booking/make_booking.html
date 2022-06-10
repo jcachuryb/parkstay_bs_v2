@@ -28,7 +28,7 @@
         <div class="row">
             <div class="col-lg-12"><div class="well">
                 <h3>Your session has expired, or you have not yet selected a campsite to book.</h3>
-                <p>Start a new search <a href="{{EXPLORE_PARKS_SEARCH}}">Explore Parks website</a>.</p>
+                <p><a href="{{EXPLORE_PARKS_SEARCH}}">Start a new search</a></p>
             </div></div>
         </div>
     </div>
@@ -54,7 +54,7 @@
                             {% verbatim %}
                                 <b>Time left to complete booking {{ timeleft }}.</b>
                             {% endverbatim %}
-                                <a class="btn btn-primary" href="{% url 'public_abort_booking' %}?change=true">Change booking (same campground</a>
+                                <a class="btn btn-primary" href="{% url 'public_abort_booking' %}?change=true">Change details (same campground)</a>
                                 <a class="btn btn-warning" href="{% url 'public_abort_booking' %}">Cancel and search for another campground</a>
                             </p>
                             {% if show_errors %}
@@ -100,7 +100,7 @@
                                                                       <i class='bi-geo-alt'></i>
                                                                   </span>
                                                                   <span id='region-park-selection-inner'>
-									  {{ booking.campground.name }}, {{ booking.campground.park.name }} - Campsite {% if booking.campground.site_type == 2 %}{{ booking.first_campsite.type }}{% else %}{{ booking.first_campsite.name }} {% if booking.first_campsite.type %}({{ booking.first_campsite.type }}){% endif %}{% endif %}
+									  {{ booking.campground.name }}, {{ booking.campground.park.name }} - {% if booking.campground.site_type == 2 %}{{ booking.first_campsite.type }}{% else %}{{ booking.first_campsite.name }} {% if booking.first_campsite.type %}({{ booking.first_campsite.type }}){% endif %}{% endif %}
 
                                                                   </span>
                                                          </div>
@@ -201,7 +201,7 @@
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                   <h5>Vehcile(s)</h5>
+                                   <h5>Vehicles</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -355,13 +355,13 @@
                          </div>
 
                          <div class='pb-2 fst-italic' v-if="pricing.vehicle" >
-				 <p>No park entry fee applies for {{ booking.campground.park.name }}.</p>
-				 <p>Update your vehicle details at any time up to and including the day before the arrival date by logging in to your account</p>
+                                 <p>A park entry fee applies for each motor vehicle. Pay now, on arrival at the park or by purchasing a park pass separately.</p>                               
+                                 <p>Vehicle details may be used to check entry fee payment anywhere in the park.</p>
+                                 <p>Update your vehicle details or change your booking to pay the entry fee or be refunded the fee previously paid if you have or will purchase a park pass or pay entry on arrival, at any time up to and including the day before the arrival date by logging in to your account</p>           
                          </div>
                          <div class='pb-2 fst-italic' v-else="pricing.vehicle" >
-                                 <p>A park entry fee applies for each motor vehicle. Pay now, on arrival at the park or by purchasing a park pass separately.</p>
-				 <p>Vehicle details may be used to check entry fee payment anywhere in the park.</p>
-				 <p>Update your vehicle details or change your booking to pay the entry fee or be refunded the fee previously paid if you have or will purchase a park pass or pay entry on arrival, at any time up to and including the day before the arrival date by logging in to your account</p>
+                                 <p>No park entry fee applies for {{ booking.campground.park.name }}.</p>
+                                 <p>Update your vehicle details at any time up to and including the day before the arrival date by logging in to your account</p>                  
 		         </div>
 
                          <div class="col-12">
@@ -680,7 +680,8 @@ We may ask for proof of identity. Bookings are not transferable and you cannot b
                       <div class="col-md-6">
                          <div class="alert alert-danger" style='min-height: 250px'>
                             <div class="form-group">
-				    <p style="">If you cancel or remove dates from a confirmed booking, once concession camper fee may be charged for each date removed.
+				    <p style="">If you cancel or remove dates from a confirmed booking one concession camper fee may be charged for each date removed.
+
                             </div>
                           </div>
                       </div>

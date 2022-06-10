@@ -112,6 +112,13 @@ var search_avail = {
     get_booking_vehicle_info: function(booking_id) {
 	        $('#datatables-BookingVehicleUpdates').html('<tr><td colspan=3 align="center"><div class="spinner-border text-primary" role="status"> <span class="visually-hidden">Loading...</span></div></td></tr>');
                 var datahtml = "";
+	        var vehicle_map = {};
+	        vehicle_map['vehicle'] = 'Car/Ute';
+	        vehicle_map['motorbike'] ='Motorcycle';
+	        vehicle_map['campervan'] ='Campervan';
+	        vehicle_map['trailer'] ='Trailer';
+	        vehicle_map['caravan'] ='Caravan/Camper trailer';
+
                 $.ajax({
                     url: search_avail.var.get_booking_vehicle_info+booking_id+"/",
                     method: 'GET',
@@ -121,7 +128,7 @@ var search_avail = {
                     success: function(response) {
 			    for (let i = 0; i < response.length; i++) {
 			        datahtml+= "<tr>";
-				datahtml+= "<td style='text-transform:capitalize;'>"+response[i].type+"</td>";
+				datahtml+= "<td>"+vehicle_map[response[i].type]+"</td>";
 				datahtml+= "<td><input type='text' class='form-control' name='bvrego-"+response[i].id+"' value='"+response[i].rego+"'></td>";
 				datahtml+= "<td align='center'>";
 				if (response[i].hire_car == true) {

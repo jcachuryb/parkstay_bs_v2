@@ -2480,7 +2480,7 @@ def booking_updates(request, *args, **kwargs):
                                          concession_text = " (Concession driver) "
 
                                  if hire_care is True and len(v[1]) == 0:
-                                      ab.fee_description = "Park Entry Fee for 'HIRE CAR'"+concession_text
+                                      ab.fee_description = "Park Entry Fee for 'Registration to be confirmed before arrival'"+concession_text
                                  else:
                                       ab.fee_description = "Park Entry Fee for "+v[1]+concession_text
                                  ab.amount = vehicle_entry_fee
@@ -2489,7 +2489,7 @@ def booking_updates(request, *args, **kwargs):
                          if entry_fee is True and entry_fee_required is True:
                              vh = v[1]
                              if hire_care is True and len(vh) == 0:
-                                  vh = "'HIRE CAR'"
+                                  vh = "'Registration to be confirmed before arrival'"
 
                              ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                                           fee_description="Park Entry Fee for "+vh,
@@ -2859,7 +2859,7 @@ def create_booking(request, *args, **kwargs):
 
             fee_description = ''
             if hire_car is True and len(rego_text) == 0:
-                  fee_description = "Park Entry Fee for 'HIRE CAR'"+concession_text
+                  fee_description = "Park Entry Fee for 'Registration to be confirmed before arrival'"+concession_text
             else:
                   fee_description = "Park Entry Fee for "+rego_text+concession_text
 

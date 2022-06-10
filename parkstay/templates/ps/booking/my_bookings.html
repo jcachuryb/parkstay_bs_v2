@@ -42,7 +42,7 @@
 {% if not current_bookings  and action == 'upcoming' %}
             <div class="well">
                 <h3>You do not have any upcoming bookings!</h3>
-                <p>Start a new search <a href="{{EXPLORE_PARKS_SEARCH}}">Explore Parks website</a>.</p>
+                <p><a href="{{EXPLORE_PARKS_SEARCH}}">Start a new search</a></p>
             </div>
 {% else %}
     {% for booking in current_bookings %}
