@@ -111,7 +111,7 @@ def create_confirmation(confirmation_buffer, booking):
     if booking.vehicle_payment_status:
         vehicle_data = []
         for r in booking.vehicle_payment_status:
-            data = [Paragraph(r['Type'], styles['Left']), Paragraph(r['Rego'], styles['Left'])]
+            data = [Paragraph(r['vehicle_type_name'], styles['Left']), Paragraph(r['Rego'], styles['Left'])]
             if r.get('Paid') is not None:
                 if r['Paid'] == 'Yes':
                     data.append(Paragraph('Entry fee paid', styles['Left']))

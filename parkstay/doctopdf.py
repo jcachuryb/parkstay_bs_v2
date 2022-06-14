@@ -68,14 +68,18 @@ def create_confirmation(booking):
             rego = "To be confirmed"
             if len(r['Rego']) > 0:
                 rego = r['Rego']
-            data = r['Type']+"\t"+rego
-            if r.get('Paid') is not None:
-                if r['Paid'] == 'Yes':
-                   data = data+'\tEntry fee paid'
-                elif r['Paid'] == 'No':
-                   data = data+'\tUnpaid'
-                elif r['Paid'] == 'pass_required':
-                   data = data+'\tPark Pass Required'
+
+            data = r['vehicle_type_name']+"\t"+rego
+            if r['original_type'] == 'trailer' or r['original_type'] == 'caravan':
+                pass
+            else:
+                if r.get('Paid') is not None:
+                    if r['Paid'] == 'Yes':
+                       data = data+'\tEntry fee paid'
+                    elif r['Paid'] == 'No':
+                       data = data+'\tUnpaid'
+                    elif r['Paid'] == 'pass_required':
+                       data = data+'\tPark Pass Required'
             vehicle_data = vehicle_data + data+"\n"
 
     key = "{{campname}}"
