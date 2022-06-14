@@ -1,15 +1,10 @@
 <p>{{ booking.details.first_name }},</p>
-<br>
 {% if booking.old_booking > 0 %}
    <p><strong>Your change to your Park Stay WA campsite booking is confirmed!</strong></p>
 {% else %}
    <p><strong>Your Park Stay WA campsite booking is confirmed!</strong></p>
 {% endif %}
-
-<br>
 <p>Keep this email safe, it is your proof of booking and has important information about how to make changes or cancel.</p>
-<br>
-
 {% include "ps/email/confirmation-booking-details.html" %}
 <br>
 <p>
@@ -26,7 +21,7 @@
 
 <p><strong>If you need to cancel or change your booking (including updating vehicle details and phone number)</strong></p>
 <p>You can cancel or make any change to your booking (except to move to a different campground) at any time up to and including the day before the arrival date only.</p>
-<p>When you cancel or change your booking, we will refund any reduction in camping and vehicle entry fees, but if you remove dates (including by cancelling) after the grace period expires and less than six days before the removed date, or 15 days for peak periods, {concession camper rate} will be applied for each removed date.</p>
+<p>When you cancel or change your booking, we will refund any reduction in camping and vehicle entry fees, but if you remove dates (including by cancelling) after the grace period expires and less than six days before the removed date, or 15 days for peak periods, a fee equivalent to one concession camping fee will be applied for each removed date.</p>
 <p>Note:</p>
 <ul style="list-style-type: disc;">
 <li>To make any change other than to vehicle registration details only, you will need to reselect (or choose a different) campsite. If you need to change your phone number, you can do so on the next screen.</li>
@@ -34,38 +29,23 @@
 <li>If you change your booking, your booking will have a new booking reference number and invoice. The details of the booking before the change will be retained with the original booking reference number and invoice and will be listed in &lsquo;My bookings&rsquo; as a cancelled booking.</li>
 </ul>
 <p>From the arrival date to the day before your departure date you can change only your departure date. Extending your stay is subject to the availability of your booked campsite.</p>
-<p>To cancel or change your booking, or to download a copy of your booking confirmation, go to &lsquo;My bookings&rsquo;</p>
-<table border="0" cellpadding="0" cellspacing="0" style="background-color: #003e52; border: 1px solid #01222c; border-radius: 5px">
-  <tbody><tr>
-    <td align="center" valign="middle" style="color: #FFFFFF; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; letter-spacing: -.5px; line-height: 150%; padding-top: 15px; padding-right: 30px; padding-bottom: 15px; padding-left: 30px">
-      <a href="{{ PARKSTAY_EXTERNAL_URL }}/mybookings/" style="color: #FFFFFF; text-decoration: none" target="_blank" rel="noreferrer">My Bookings</a>
-    </td>
-  </tr>
-</tbody></table>
-<br>
+<p>To cancel or change your booking, or to download a copy of your booking confirmation, go to &lsquo;My bookings&rsquo; at parkstay.dbca.wa.gov.au.</p>
+<p>      <a href="{{ PARKSTAY_EXTERNAL_URL }}/mybookings/" target="_blank" rel="noreferrer">My Bookings</a></p>
 <p>If you are unable to cancel or change your booking online, please contact {{ booking.campground.contact.name }} by replying to this email or on {{ booking.campground.contact.phone_number }} as soon as possible. Any delay in contacting us may affect your right to refund.</p>
-<p>{{ booking.campground.contact.opening_hours }}</p>
-<p>If you change your name or email address 
-<table border="0" cellpadding="0" cellspacing="0" style="background-color: #003e52; border: 1px solid #01222c; border-radius: 5px">
-  <tbody><tr>
-    <td align="center" valign="middle" style="color: #FFFFFF; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bold; letter-spacing: -.5px; line-height: 150%; padding-top: 15px; padding-right: 30px; padding-bottom: 15px; padding-left: 30px">
-      <a href="mailto:parkstaybookings@dbca.wa.gov.au?subject=Park Stay WA, change name or email address" style="color: #FFFFFF; text-decoration: none" target="_blank" rel="noreferrer">Contact us by email</a>
-    </td>
-  </tr> 
-</tbody></table>
-
-</p>
-<br>
 {% endif %}
 
 <!-- END: IF BOOKING CREATED DATE &lt; BOOKING ARRIVAL DATE -->
 
 {% if booking.created.date == booking.arrival %}
 <!-- IF BOOKING CREATED DATE = BOOKING ARRIVAL DATE -->
-<p>Booking that are not made in advance (not made before the arrival date) cannot be changed or cancelled online. If you need to change or cancel, please contact {{ booking.campground.contact.name }}  by replying to this email or on {{ booking.campground.contact.phone_number }} as soon as possible. Any delay in contacting us may affect your right to refund.</p>
-<p>{{ booking.campground.contact.opening_hours }}</p>
+<p>To change your departure date only go to ‘My bookings at parkstay.dbca.wa.gov.au.</p>
+<p>If you need to change or cancel, please contact {{ booking.campground.contact.name }}  by replying to this email or on {{ booking.campground.contact.phone_number }} as soon as possible. Any delay in contacting us may affect your right to refund.</p>
+<p>      <a href="{{ PARKSTAY_EXTERNAL_URL }}/mybookings/" target="_blank" rel="noreferrer">My Bookings</a></p>
+
 <!-- END: IF BOOKING CREATED DATE &lt; BOOKING ARRIVAL DATE -->
 {% endif %}
+<p><strong>Operating hours</strong></p>
+<p>{{ booking.campground.contact.opening_hours }}</p>
 
 <p><span style="color: #0563c1;"><u><a href="https://exploreparks.dbca.wa.gov.au/online-campsite-booking-terms-and-conditions">Terms and conditions of booking</a></u></span></p>
 <p><strong>Your tax invoice</strong></p>

@@ -1745,9 +1745,9 @@ class Booking(models.Model):
                 show_paid = True
                 if self.legacy_id:
                     paid = False
-                elif not r.park_entry_fee:
-                    show_paid = False
-                    paid = True
+                #elif not r.park_entry_fee:
+                #    show_paid = False
+                #    paid = True
                 elif remainder_amount == 0:
                     paid = True
                 elif total_paid == 0:
@@ -1770,11 +1770,22 @@ class Booking(models.Model):
                     if required_total <= total_paid:
                         total_paid -= required_total
                         paid = True
+                vehicle_map = {'vehicle' : 'Car/Ute',
+                               'motorbike' :'Motorcycle',
+                               'campervan' : 'Campervan',
+                               'caravan' : 'Caravan/Camper Trailer',
+                               'trailer' : 'Other trailer'
+                              }
+ 
+                rego_number = "To be confirmed"
+                if len(r.rego) > 0 :
+                    rego_number = r.rego.upper()
                 data = {
-                    'Rego': r.rego.upper(),
+                    'Rego': rego_number,
                     'Type': r.get_type_display(),
                     'original_type': r.type,
                     'Fee': r.entry_fee,
+                    'vehicle_type_name': vehicle_map[r.type]
                 }
                 if show_paid:
                     data['Paid'] = 'pass_required' if not r.entry_fee and not self.legacy_id else 'Yes' if paid else 'No'
