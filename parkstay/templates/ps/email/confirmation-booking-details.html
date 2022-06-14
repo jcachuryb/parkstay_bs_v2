@@ -46,7 +46,7 @@
 <p lang="en-GB" align="left"><span style=""><span style="">Arriving</span></span></p>
 </td>
 <td width="417">
-	<p lang="en-GB" align="left"><span style=""><span style="">{{booking.arrival|date:"d/m/Y"}} from {{ check_in_time }}</span></span></p>
+	<p lang="en-GB" align="left"><span style=""><span style="">{{ check_in_time }} on {{booking.arrival|date:"D d M Y"}}</span></span></p>
 </td>
 </tr>
 <tr valign="top">
@@ -54,7 +54,7 @@
 <p lang="en-GB" align="left"><span style=""><span style="">Departing</span></span></p>
 </td>
 <td width="417">
-<p lang="en-GB" align="left"><span style=""><span style="">{{booking.departure|date:"d/m/Y"}} before {{ check_out_time }}</span></span></p>
+	<p lang="en-GB" align="left"><span style=""><span style="">{{ check_out_time }} on {{booking.departure|date:"D d M Y"}}</span></span></p>
 </td>
 </tr>
 <tr valign="top">
@@ -72,7 +72,7 @@
     {% endif %}
 {% endif %}
 <br>
-{{ booking.first_campsite.short_description }}
+{{ booking.first_campsite.short_description|safe }}
 </td>
 </tr>
 <tr valign="top">
@@ -91,9 +91,9 @@
 <p lang="en-GB" align="left"><span style=""><span style="">
 {% for v in booking.vehicle_payment_status %}
 {% if not v.Paid %}
-    <p>{{v.Rego}}, {{v.Type}}</p>
+    <p>{{v.Rego}}, {{v.vehicle_type_name}}</p>
 {% else %}
-    <p>{{v.Rego}}, {{v.Type}}, {% if v.Paid == 'Yes' %} Entry fee paid {% elif v.Paid == 'No' %} Unpaid {% elif v.Paid == 'pass_required' %} Park Pass Required {% endif %}</p>
+    <p>{{v.Rego}}, {{v.vehicle_type_name}}, {% if v.Paid == 'Yes' %} Entry fee paid {% elif v.Paid == 'No' %} Unpaid {% elif v.Paid == 'pass_required' %} Park Pass Required {% endif %}</p>
 {% endif %}
 {% endfor %}
 
@@ -116,19 +116,22 @@
 <p lang="en-GB" align="left"><span style=""><span style="">{{booking.created|date:"d/m/Y h:i A"}} AWST</span></span></p>
 </td>
 </tr>
+{% if notification_type == 'reminder' %}
+{% else %}
 <tr valign="top">
 <td width="250">
 <p lang="en-GB" align="left"><span style=""><span style="">Grace period expires at</span></span></p>
 </td>
 <td width="417">
 	<p align="left">
-				{% if booking.created.date == booking.arrival %}
+				{% if grace_period_valid is False %}
                                    No grace period for same-day bookings
 				{% else %}
 				   {{ grace_period_expire|date:"d/m/Y h:i A" }} AWST 
 				{% endif %}
-       </p>
+        </p>
 </td>
 </tr>
+{% endif %}
 </tbody>
 </table>

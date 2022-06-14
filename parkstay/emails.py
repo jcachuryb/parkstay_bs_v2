@@ -122,11 +122,17 @@ def send_booking_confirmation(booking_id, extra_data):
     if booking.campground.check_out.strftime('%I:%M %p')  == '12:00 PM':
         check_out_time = "12 noon"
 
+    check_in_date_time = datetime.datetime.strptime(booking.arrival.strftime("%Y-%m-%d")+' '+booking.arrival.strftime('%I:%M %p'), '%Y-%m-%d %I:%M %p')
     grace_period_expire = booking.created + datetime.timedelta(minutes=extra_data['grace_period'])
+    grace_period_expire_formatted = datetime.datetime.strptime(grace_period_expire.strftime('%Y-%m-%d %I:%M %p'),'%Y-%m-%d %I:%M %p')
     additional_info = booking.campground.additional_info if booking.campground.additional_info else ''
 
     #booking_cancellation_fees(booking)
     booking_invoices = models.BookingInvoice.objects.filter(booking=booking)
+
+    grace_period_valid = True
+    if grace_period_expire_formatted > check_in_date_time:
+        grace_period_valid = False
 
     invoice_reference = ''
     if booking_invoices.count() > 0:
@@ -139,10 +145,12 @@ def send_booking_confirmation(booking_id, extra_data):
         'availability': booking_availability,
         'unpaid_vehicle': unpaid_vehicle,
         'additional_info': additional_info,
+        'check_in_date_time': check_in_date_time,
         'check_in_time' : check_in_time,
         'check_out_time' : check_out_time,
         'extra_data' : extra_data,
         'grace_period_expire' : grace_period_expire,
+        'grace_period_valid' : grace_period_valid,
         'PARKSTAY_EXTERNAL_URL' : settings.PARKSTAY_EXTERNAL_URL,
         'invoice_reference' : invoice_reference
     }
@@ -265,7 +273,8 @@ def send_booking_reminder(booking_id, extra_data):
         'extra_data' : extra_data,
         'grace_period_expire' : grace_period_expire,
         'PARKSTAY_EXTERNAL_URL' : settings.PARKSTAY_EXTERNAL_URL,
-        'invoice_reference' : invoice_reference
+        'invoice_reference' : invoice_reference,
+        'notification_type' : 'reminder'
     }
 
     print ("SENDING EMAIL")
