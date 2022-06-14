@@ -93,10 +93,9 @@
 {% if not v.Paid %}
     <p>{{v.Rego}}, {{v.vehicle_type_name}}</p>
 {% else %}
-    <p>{{v.Rego}}, {{v.vehicle_type_name}}, {% if v.Paid == 'Yes' %} Entry fee paid {% elif v.Paid == 'No' %} Unpaid {% elif v.Paid == 'pass_required' %} Park Pass Required {% endif %}</p>
+<p>{{v.Rego}}, {{v.vehicle_type_name}}, {% if v.original_type == 'trailer' or v.original_type == 'caravan' %}{% else %}{% if v.Paid == 'Yes' %} Entry fee paid {% elif v.Paid == 'No' %} Unpaid {% elif v.Paid == 'pass_required' %} Park Pass Required {% endif %}{% endif %}</p>
 {% endif %}
 {% endfor %}
-
 </span></span></p>
 </td>
 </tr>
@@ -124,11 +123,11 @@
 </td>
 <td width="417">
 	<p align="left">
-				{% if grace_period_valid is False %}
-                                   No grace period for same-day bookings
-				{% else %}
-				   {{ grace_period_expire|date:"d/m/Y h:i A" }} AWST 
-				{% endif %}
+		{% if grace_period_valid is False %}
+                   No grace period for same-day bookings
+		{% else %}
+		   {{ grace_period_expire|date:"d/m/Y h:i A" }} AWST 
+		{% endif %}
         </p>
 </td>
 </tr>
