@@ -4,9 +4,15 @@
       <div class="col-sm-6">
       {% if booking.departure > today %}
            {% if booking.is_canceled is True %}
-              <h4><span class="badge bg-danger ">CANCELLED</span> {{ booking.confirmation_number }}</h4>
+
+	      {% if booking.property_cache_stale is True %}
+                  <h4><span class="badge bg-danger ">CANCEL PENDING</span> {{ booking.confirmation_number }}</h4>
+	      {% else %}
+                  <h4><span class="badge bg-danger ">CANCELLED</span> {{ booking.confirmation_number }}</h4>
+	      {% endif %}
+
            {% else %}
-	      {% if booking.property_cache.status|length == 0 %}
+	      {% if booking.property_cache.status|length == 0 or booking.property_cache_stale is True %}
                   <h4><span class="badge bg-secondary ">PENDING</span> {{ booking.confirmation_number }}</h4>
 	      {% else %}
                   {% if booking.departure >= today and booking.arrival <= today %}
@@ -22,7 +28,11 @@
            {% endif %}
       {% else %}
            {% if booking.is_canceled is True %}
-           	<h4><span class="badge bg-danger ">CANCELLED</span> {{ booking.confirmation_number }}</h4>
+	        {% if booking.property_cache_stale is True %}
+		    <h4><span class="badge bg-danger ">CANCEL PENDING</span> {{ booking.confirmation_number }}</h4>
+		{% else %}
+           	    <h4><span class="badge bg-danger ">CANCELLED</span> {{ booking.confirmation_number }}</h4>
+		{% endif %}
            {% else %}
              	{% if booking.departure >= today and booking.arrival <= today %} 
                        <h4><span class="badge bg-warning ">CAMPING NOW</span> {{ booking.confirmation_number }}</h4>

@@ -841,6 +841,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  row['stay_guests'] = b.stay_guests
                  row['property_cache'] = b.property_cache
                  row['old_booking'] = b.old_booking
+                 row['property_cache_stale'] = b.property_cache_stale
                  row['details'] = b.details
 
                  bookings_store.append(row)
