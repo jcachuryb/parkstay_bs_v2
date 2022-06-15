@@ -735,7 +735,7 @@ export default {
                   "settings": {
                     "slidesToShow": 2,
                     "slidesToScroll": 1,
-                    "infinite": true,
+                    "infinite": false,
                     "dots": false 
                   }
                 },
@@ -745,7 +745,7 @@ export default {
                   "settings": {
                     "slidesToShow": 2,
                     "slidesToScroll": 1,
-                    "infinite": true,
+                    "infinite": false,
                     "dots": false
                   }
                 },
@@ -1974,6 +1974,11 @@ export default {
         this.olmap.getView().on('propertychange', function(ev) {
             vm.updateViewport();
         });
+
+        $( window ).resize(function() {
+                 vm.reloadMap();
+        });
+
 
 //new Glider(document.querySelector('.glider'), {  slidesToShow: 5,
 //  slidesToScroll: 5,
