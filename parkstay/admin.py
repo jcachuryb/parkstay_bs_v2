@@ -362,7 +362,7 @@ class ParkstayPermissionAdmin(admin.ModelAdmin):
 
       def save_model(self, request, obj, form, change):
           messages.add_message(request, messages.WARNING, 'Permission changes will not update until the user logout and login again.')
-
+          super().save_model(request, obj, form, change)
 
 @admin.register(models.CampsiteBookingLegacy)
 class CampsiteBookingLegacyAdmin(admin.ModelAdmin):
