@@ -1103,6 +1103,8 @@ var search_avail = {
                  $('#LoadingPopup').modal('hide');
                  
 	      }
+
+
     },	    
     init: function() {
 	 var enodes = [];
