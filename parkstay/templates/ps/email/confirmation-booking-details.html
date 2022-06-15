@@ -115,6 +115,8 @@
 <p lang="en-GB" align="left"><span style=""><span style="">{{booking.created|date:"d/m/Y h:i A"}} AWST</span></span></p>
 </td>
 </tr>
+{% if show_grace is True %}
+<!-- Omitted may add back again in future -->
 {% if notification_type == 'reminder' %}
 {% else %}
 <tr valign="top">
@@ -131,6 +133,7 @@
         </p>
 </td>
 </tr>
+{% endif %}
 {% endif %}
 </tbody>
 </table>
