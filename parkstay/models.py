@@ -1350,7 +1350,7 @@ class Booking(models.Model):
         print ("updating property_cache for "+str(self.id))
         self.property_cache['cache_version'] = settings.BOOKING_PROPERTY_CACHE_VERSION 
         self.property_cache['amount_paid'] = str(self.amount_paid)
-        self.property_cache['refund_status'] = self.refund_status
+        #self.property_cache['refund_status'] = self.refund_status
         self.property_cache['outstanding'] = str(self.outstanding)
         self.property_cache['status'] = self.status
         #self.property_cache['invoice_status'] = self.invoice_status
