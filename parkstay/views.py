@@ -193,7 +193,7 @@ def abort_booking_view(request, *args, **kwargs):
             if booking.old_booking is not None:
                 if int(booking.old_booking) > 0:
                     old_booking_data_url = "&change_booking_id="+str(booking.old_booking)
-            return redirect(reverse('search_availablity_campground') + booking_data_url + old_booking_data_url)
+            return redirect(reverse('search_availability_campground') + booking_data_url + old_booking_data_url)
             #return redirect(reverse('search_availablity_campground') + '?site_id={}&arrival={}&departure={}'.format(c_id, arrival.strftime('%Y/%m/%d'), departure.strftime('%Y/%m/%d')))
         else:
             # Redirect to explore parks
@@ -544,7 +544,7 @@ class ChangeBookingView(TemplateView):
                   arrival_date = booking.arrival.strftime("%Y/%m/%d")
                   departure_date = booking.departure.strftime("%Y/%m/%d")
                      
-                  response = HttpResponse("<script>window.location='/search-availablity/campground/?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details.get('num_adult',0))+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&num_vehicle="+str(booking.details['num_vehicle'])+"&num_campervan="+str(booking.details['num_campervan'])+"&num_motorcycle="+str(booking.details['num_motorcycle'])+"&num_trailer="+str(booking.details['num_trailer'])+"&num_caravan="+str(booking.details.get('num_caravan',0))+"&gear_type=all&change_booking_id="+str(booking.id)+"';</script>", content_type='text/html')
+                  response = HttpResponse("<script>window.location='/search-availability/campground/?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details.get('num_adult',0))+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&num_vehicle="+str(booking.details['num_vehicle'])+"&num_campervan="+str(booking.details['num_campervan'])+"&num_motorcycle="+str(booking.details['num_motorcycle'])+"&num_trailer="+str(booking.details['num_trailer'])+"&num_caravan="+str(booking.details.get('num_caravan',0))+"&gear_type=all&change_booking_id="+str(booking.id)+"';</script>", content_type='text/html')
                   return response
          context = {}
          self.template_name = 'ps/search_availabilty_campground_cancel_booking_error.html'
@@ -915,7 +915,7 @@ class ParkstayRoutingView(TemplateView):
     def get(self, *args, **kwargs):
         print ("PATH")
         if self.request.path == "/":
-             return redirect(reverse('search_availablity_information'))
+             return redirect(reverse('search_availability_information'))
         #if self.request.user.is_authenticated:
         #    if is_officer(self.request.user):
         #        return redirect('dash-campgrounds')
