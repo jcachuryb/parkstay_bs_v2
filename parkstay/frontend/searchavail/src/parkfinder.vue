@@ -1235,6 +1235,7 @@ export default {
                 return a.distance - b.distance;
             });
             this.slickcount = this.slickcount + 1;
+            setTimeout("$('.slick-prev').click();",500);
 	},
         distance_between_gps: function(lat1, lon1, lat2, lon2, unit) {
             if ((lat1 == lat2) && (lon1 == lon2)) {
