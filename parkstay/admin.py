@@ -366,8 +366,9 @@ class ParkstayPermissionAdmin(admin.ModelAdmin):
 
 @admin.register(models.CampsiteBookingLegacy)
 class CampsiteBookingLegacyAdmin(admin.ModelAdmin):
-      list_display = ('campsite_booking_id','campsite_id','date','booking_type','legacy_booking_id','is_cancelled','updated','created')
-      list_filter = ('campsite_id',)
+      list_display = ('legacy_booking_id','campsite_id','date','booking_type','is_cancelled','updated','created','campsite_booking_id')
+      list_filter = ('campsite_id','date',)
+      search_fields = ('legacy_booking_id',)
 
 @admin.register(models.AvailabilityCache)
 class AvailablityCacheAdmin(admin.ModelAdmin):
