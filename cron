@@ -15,6 +15,7 @@
 */5 * * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py build_ledger_totals  >> /app/logs/cron_ledger_totals.log 2>&1
 
 */5 * * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py update_legacy_campsite_booking >> /app/logs/cron_update_campsite_booking.log 2>&1
+*/5 * * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py  delete_legacy_campsite_booking.py >> /app/logs/cron_delete_campsite_booking.log 2>&1
 
 
 30 * * * * root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py build_parkstay_datasets >> /app/logs/build_parkstay_datasets.log 2>&1
