@@ -2208,7 +2208,7 @@ def campground_map_data():
                  cgimages_obj[im.campground.id] = []
                  cgimages_obj[im.campground.id].append({'image' : im.image.url})
 
-         queryset = Campground.objects.exclude(campground_type=3).values('id','campground_type','description','info_url','name','wkb_geometry','park_id')
+         queryset = Campground.objects.exclude(campground_type=3).values('id','campground_type','description','info_url','name','wkb_geometry','park_id','max_advance_booking')
          queryset_features = Campground.objects.exclude(campground_type=3).values('id','features')
 
          queryset_regions = Region.objects.all().values('id','name','abbreviation','ratis_id')
@@ -2264,6 +2264,7 @@ def campground_map_data():
                  row['geometry'] = {"type": "Point", "coordinates": [c['wkb_geometry'][0],c['wkb_geometry'][1]]} 
              row['properties'] = {}
              row['properties']['campground_type'] = c['campground_type']
+             row['properties']['max_advance_booking'] = c['max_advance_booking']
              row['properties']['description'] = c['description']
              # Features start
              row['properties']['features'] = []

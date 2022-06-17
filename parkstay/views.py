@@ -227,9 +227,6 @@ class MakeBookingsView(TemplateView):
                  if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=4).count() > 0:
                       context['booking_without_payment'] = True
 
-
-
-
         if booking:
             context['cg']['campground_id'] = booking.campground.id
             context['cg']['num_adult'] = booking.details['num_adult']
@@ -1094,6 +1091,7 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['campground']['health_and_safety_information'] = campground_query.health_and_safety_information
         context['cg']['campground']['location_information'] = campground_query.location_information
         context['cg']['campground']['campground_map'] = campground_query.campground_map
+        context['cg']['campground']['max_advance_booking'] = campground_query.max_advance_booking
 
         if campground_query.campground_image:
             context['cg']['campground']['campground_image'] = campground_query.campground_image.image_size(1200,800)

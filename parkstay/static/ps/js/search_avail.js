@@ -24,8 +24,10 @@ var search_avail = {
            'mcs_enabled' : false,
 	   'selected_booking_id': null,
 	   'site_type' : null,
-	   'availabity' : null
-
+	   'availabity' : null,
+	   'max_advance_booking': 60,
+	   'arrival_days': 0,
+	   'permission_to_make_advanced_booking' : false
     },
     change_tabs: function(tabname) {
           $("#campsite-booking").hide();
@@ -300,6 +302,9 @@ var search_avail = {
 	search_avail.var.camping_period['checkout'] = end.format('YYYY/MM/DD')
 
         var whennights = search_avail.calculate_nights(start.format("YYYY-MM-DD"),end.format("YYYY-MM-DD"));
+	var arrival_days = search_avail.calculate_arrival_days(start.format("YYYY-MM-DD"));
+	console.log("ARRIVAL DAYS");
+	console.log(arrival_days);
         $('#when-nights').html(whennights);
 	if (search_avail.var.page == 'campground') { 
 	   // search_avail.load_campground_availabilty();
@@ -319,6 +324,14 @@ var search_avail = {
            diffDays = Math.round(Math.abs((moment(start_dt) - moment(end_dt)) / oneDay));
            // diffDays = diffDays - 1; 
            return diffDays;
+    },
+    calculate_arrival_days: function(start) {
+           var date_now = Date.now();
+	   var date_arrival = Date.parse(start)
+	   oneDay = 24 * 60 * 60 * 1000;
+           diffDays = Math.round(Math.abs((moment(date_now) - moment(date_arrival)) / oneDay));
+           search_avail.var.arrival_days = diffDays;
+	   return diffDays;
     },
     select_campground_id: function(campground_id) {
 	    var found = false;
@@ -644,6 +657,16 @@ var search_avail = {
             }
 
 	    $("#campsite-availablity-results").html("<center><img style='padding-top: 20px;' height='70' src='/static/ps/img/parkstay_loader_bar_white_500.gif'></center>");
+
+            if (search_avail.var.arrival_days > search_avail.var.max_advance_booking) {
+		   if (search_avail.var.permission_to_make_advanced_booking == true ) {
+                          // permission granted 
+		   } else {
+		          $("#campsite-availablity-results").html("<center style='color:red'>Please choose a shorter arrival date.</center>");
+		          return;
+	           }
+	    }
+
             $.ajax({
             	  url: "/api/campsite_availablity_view/"+search_avail.var.campground_id+"/?arrival="+search_avail.var.camping_period['checkin']+"&departure="+search_avail.var.camping_period['checkout']+"&num_adult="+search_avail.var.campers['adult']+"&num_child="+search_avail.var.campers['children']+"&num_concession="+search_avail.var.campers['concession']+"&num_infant="+search_avail.var.campers['infant']+"&gear_type=all"+change_query,
             	  cache: false,

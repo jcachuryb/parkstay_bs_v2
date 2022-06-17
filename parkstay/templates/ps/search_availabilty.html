@@ -23,6 +23,10 @@
 
 window.onload = function() { 
    search_avail.var.page = 'campground';
+   {% if PARKSTAY_PERMISSIONS.p5 is True %}
+        search_avail.var.permission_to_make_advanced_booking = true;
+   {% endif %}      
+
    search_avail.get_search_locations();
    search_avail.get_locations();
    search_avail.get_places(); 

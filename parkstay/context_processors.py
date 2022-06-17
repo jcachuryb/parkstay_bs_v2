@@ -51,5 +51,5 @@ def parkstay_url(request):
         'template_group' : 'parksv2',
         'LEDGER_SYSTEM_ID' : settings.PS_PAYMENT_SYSTEM_ID.replace("S","0"),
         'template_title' : '',
-        'ledger_totals': lt
+        'ledger_totals': lt,
     }

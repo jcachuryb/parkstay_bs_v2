@@ -11,7 +11,6 @@
 
         <div id='map-preview' style='display:none'>
 
-
         <div class="row">
             <div class="small-12 medium-12 large-12 columns search-params" style='display:none'>
                 <div class="row">
@@ -159,9 +158,14 @@
 
                        <div v-if="f.park_name" v-html="f.park_name.slice(0,55)" class='slick-slide-description'></div>
                           <div v-if="f.campground_type == 0" >
-                             <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Approximate Sites Available: {{ campgroundSiteTotal[f.id].total_available }}</div>
-                             <div v-else class='slick-slide-card-notavailabile'>
-                                 No availablity for selected period
+                             <div v-if="booking_arrival_days > f.max_advance_booking && permission_to_make_advanced_booking == false" class='slick-slide-card-notavailabile'>
+                                    Book up to {{ f.max_advance_booking }} days
+                             </div>
+                             <div v-else>
+                                 <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Approximate Sites Available: {{ campgroundSiteTotal[f.id].total_available }}</div>
+                                 <div v-else class='slick-slide-card-notavailabile'>
+                                     No availablity for selected period
+                                 </div>
                              </div>
                           </div>
                           <div class='slick-slide-card-notavailabile' v-else-if="f.campground_type == 1" >
@@ -176,7 +180,7 @@
                        <!-- This line has to be changed to use a v-if/else clause
                         Changed again to utilize changes in api to further enable forwarding offline sites to availability app
                         -->
-                       <a v-if="f.campground_type == 0 && campgroundAvailablity[f.id].total_bookable > 0" class="button formButton1" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
+                       <a v-if="(f.campground_type == 0 && campgroundAvailablity[f.id].total_bookable) > 0 && (booking_arrival_days < f.max_advance_booking || permission_to_make_advanced_booking == true)" class="button formButton1" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
                        <a v-else-if="f.campground_type == 1" class="button formButton" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id" target="_blank">More Info</a>
                        <a v-else class="button formButton2" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id" style="width:100%;" target="_blank">More info</a>
                    </div>
@@ -707,6 +711,7 @@ export default {
             locationIcon: require('./assets/location.svg'),
             paginate: ['filterResults'],
             selectedFeature: null,
+            booking_arrival_days: 0,
             slickcount: 0,
             slicksettings0: {
               "dots": true,
@@ -1020,6 +1025,9 @@ export default {
         },
         reloadMap: function() {
             console.log('RELOAD MAP');
+            this.booking_arrival_days = search_avail.var.arrival_days;
+            this.permission_to_make_advanced_booking = search_avail.var.permission_to_make_advanced_booking;
+
             var vm = this;
             this.updateDates();
             this.olmap.updateSize();
@@ -1089,6 +1097,7 @@ export default {
                      var campground_id = el.id;
                      var campground_name = el.properties.name;
                      var campground_type = el.properties.campground_type;
+                     var max_advance_booking = el.properties.max_advance_booking;
                      var campsite_features = el.properties.features; 
                      var description = el.properties.description;
                      var images  = el.properties.images;
@@ -1213,6 +1222,7 @@ export default {
                      row['images'] = images;
                      row['price_hint'] = price_hint;
                      row['campground_type'] = campground_type;
+                     row['max_advance_booking'] = max_advance_booking;
                      row['id'] = campground_id;
                      row['distance'] = vm.distance_between_gps(coord_1,coord_2,geo[0],geo[1],"K").toFixed(0);
                      row['available_campsites'] = campsites_total;
@@ -1357,9 +1367,6 @@ export default {
                 //legit.add(el);
                 if (vm.filterParams[el.key] === true) {
                     el.remoteKey.forEach(function (fl) {
-                        // console.log("LEGIT FL");
-                        // console.log(fl);
-
                         // legit.add(fl);
                     });
                 }
@@ -1392,16 +1399,13 @@ export default {
                }
             });
 
-            console.log("LEGIT");
-            console.log(legit);
-
             this.groundsFilter.clear();
             this.groundsData.forEach(function (el) {
                 // first pass filter against the list of IDs returned by search
                 // console.log("GROUND LOOP");
                 // console.log(el);
-                console.log("GROUND IDS");
-                console.log(vm.groundsIds);
+                // console.log("GROUND IDS");
+                // console.log(vm.groundsIds);
                 var campgroundType = el.get('campground_type');
                 var campground_id = el.getId(); 
                 switch (campgroundType) {
@@ -1505,8 +1509,8 @@ export default {
                         vm.groundsFilter.push(el);
                     }
                 }
-                console.log("GROUNDS");
-                console.log(vm.groundsFilter);
+                // console.log("GROUNDS");
+                // console.log(vm.groundsFilter);
             });
             //console.log("GROUND DATA");
             //console.log(this.groundsData);
@@ -1546,7 +1550,7 @@ export default {
         init_mounted: function () {
         // $("#pathfinder").html('');
         $("#map").html("");
-        console.log(this.el); 
+        //this.booking_arrival_days = search_avail.var.arrival_days;
  
         var features = $('#feature_json').val();
         this.filterList = JSON.parse(features);
@@ -1978,7 +1982,7 @@ export default {
         $( window ).resize(function() {
                  vm.reloadMap();
         });
-
+         
 
 //new Glider(document.querySelector('.glider'), {  slidesToShow: 5,
 //  slidesToScroll: 5,
