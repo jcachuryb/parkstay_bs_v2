@@ -348,6 +348,8 @@ class MakeBookingsView(TemplateView):
 
         booking = None
         no_payment = request.POST.get('no_payment', 'false')
+        customer_managed_booking_disabled = request.POST.get('customer_managed_booking_disabled', 'false')
+
         if 'ps_booking' in request.session:
             if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
                 booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
@@ -403,7 +405,10 @@ class MakeBookingsView(TemplateView):
         booking.details['outsideregion'] = request.POST.get('outsideregion', False)
         booking.details['trav_res'] = request.POST.get('trav_res', False)
         booking.details['no_payment'] = request.POST.get('no_payment', False)
-
+        if customer_managed_booking_disabled == 'true':
+            booking.customer_managed_booking_disabled = True
+        else:
+            booking.customer_managed_booking_disabled = False
         # update vehicle registrations from form
         VEHICLE_CHOICES = {'0': 'vehicle', '1': 'concession', '2': 'motorbike', '3': 'campervan', '4': 'trailer', '5': 'caravan'}
 
@@ -537,7 +542,7 @@ class ChangeBookingView(TemplateView):
          booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
          if booking_data.count() > 0:
              booking = booking_data[0]
-             if booking.customer.id == request.user.id or request.user.is_staff is True:
+             if (booking.customer.id == request.user.id and booking.customer_managed_booking_disabled is False) or (request.user.is_staff is True):
                   arrival_date = booking.arrival.strftime("%Y/%m/%d")
                   departure_date = booking.departure.strftime("%Y/%m/%d")
                      
@@ -580,7 +585,8 @@ class CancelBookingView(TemplateView):
         booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
         if booking_data.count() > 0:
             booking = booking_data[0]
-            if booking.customer.id == request.user.id or request.user.is_staff is True:
+            if (booking.customer.id == request.user.id and booking.customer_managed_booking_disabled is False) or (request.user.is_staff is True):
+            #if booking.customer.id == request.user.id or request.user.is_staff is True:
                     if booking.arrival > today or cancel_past_booking_override_access == True:
                              booking_totals = utils.booking_total_to_refund(booking)
                              totalbooking = booking_totals['refund_total']
@@ -840,7 +846,8 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  row['old_booking'] = b.old_booking
                  row['property_cache_stale'] = b.property_cache_stale
                  row['details'] = b.details
-
+                 row['customer_managed_booking_disabled'] = b.customer_managed_booking_disabled 
+                 print ("YES")
                  bookings_store.append(row)
         
                  cache.set('booking_filter_upcoming:'+str(customer.id)+":"+str(lub), json.dumps(bookings_store),  86400)
@@ -888,6 +895,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  row['old_booking'] = b.old_booking
                  row['property_cache'] = b.property_cache
                  row['details'] = b.details
+                 row['customer_managed_booking_disabled'] = b.customer_managed_booking_disabled
 
                  bookings_store.append(row)
         

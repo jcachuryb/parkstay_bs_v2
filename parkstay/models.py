@@ -1327,6 +1327,7 @@ class Booking(models.Model):
     campsite_oracle_code = models.CharField(max_length=50, null=True, blank=True)
     old_booking = models.IntegerField(blank=True, null=True) 
     next_check_for_payment=models.DateTimeField(null=True, blank=True, default=timezone.now)
+    customer_managed_booking_disabled = models.BooleanField(default=False)
 
     # Properties
     # =================================

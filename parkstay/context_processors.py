@@ -13,7 +13,7 @@ def parkstay_url(request):
     # staff need to login and logout for permissions to refresh
     parkstay_permissions_cache = cache.get('parkstay_url_permissions'+str(is_authenticated)+str(session_id))
 
-    parkstay_permissions = {}
+    parkstay_permissions = {'special_permissions': False}
     if parkstay_permissions_cache is None:
         for pg in models.ParkstayPermission.PERMISSION_GROUP:
             parkstay_permissions['p'+str(pg[0])] = False
@@ -23,6 +23,7 @@ def parkstay_url(request):
             for pp in parkstay_permissions_obj:
                 if pp.active is True:
                    parkstay_permissions['p'+str(pp.permission_group)] = True
+                   parkstay_permissions['special_permissions'] = True
         cache.set('parkstay_url_permissions'+str(is_authenticated)+str(session_id), json.dumps(parkstay_permissions),  86400)
     else:
         parkstay_permissions = json.loads(parkstay_permissions_cache)

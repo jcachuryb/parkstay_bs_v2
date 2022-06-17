@@ -138,7 +138,7 @@
                   <div class="col-sm-12" style="margin-top: 1em">
 			{% if booking.arrival > today %}
 			    {% if booking.is_canceled is not True %}
-			         {% if booking.details.no_payment == 'true' or booking.details.selecttype == 'multiple' %}
+			         {% if booking.details.no_payment == 'true' or booking.customer_managed_booking_disabled is True %}
 				 <div class='my-account-msg-box'>Please contact {{ booking.contact_name }} on {{ booking.contact_phone_number }} to change or cancel. </b>&nbsp;&nbsp;</div>
 				 {% else %}
                                  <a class="btn btn-primary" href='{% url "cancel_booking" booking.id %}'>Cancel booking</a>
@@ -149,7 +149,7 @@
 			{% endif %}
 			{% if booking.arrival <= today and booking.departure >= today %}
 			    {% if booking.is_canceled is not True %}
-			       {% if booking.details.no_payment == 'true' or booking.details.selecttype == 'multiple' %}
+			       {% if booking.details.no_payment == 'true' or booking.customer_managed_booking_disabled is True %}
 			       <div class='my-account-msg-box'>Please contact {{ booking.contact_name }} on {{ booking.contact_phone_number }} to change or cancel. </b>&nbsp;&nbsp;</div>
 
                                {% else %}
