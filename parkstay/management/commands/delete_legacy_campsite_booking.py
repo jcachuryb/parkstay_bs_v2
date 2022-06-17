@@ -10,7 +10,7 @@ import requests
 from datetime import timedelta, datetime
 
 class Command(BaseCommand):
-    help = 'Rebuild mooring booking property cache.'
+    help = 'Delete campsite booking days that have been removed in legacy.'
 
     def add_arguments(self, parser):
         parser.add_argument('-d' '--days', type=str, help='Enter days please')
