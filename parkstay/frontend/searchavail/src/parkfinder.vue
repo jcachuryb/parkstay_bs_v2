@@ -151,7 +151,7 @@
 		            {{ f.campground_name.slice(0, 20) }}<span v-if="f.campground_name.length > 20">...</span>
                        </div>
                        <div class="slick-slide-card-distance" title="Distance from selected location" alt="Distance from selected location">
-	                    {{ f.distance }}km
+	                    {{ f.distance_short }}km
 		       </div>
                        </div>
                        <div>
@@ -1224,7 +1224,11 @@ export default {
                      row['campground_type'] = campground_type;
                      row['max_advance_booking'] = max_advance_booking;
                      row['id'] = campground_id;
-                     row['distance'] = vm.distance_between_gps(coord_1,coord_2,geo[0],geo[1],"K").toFixed(0);
+                     var distance_km = vm.distance_between_gps(coord_1,coord_2,geo[0],geo[1],"K");
+
+                     row['distance'] = distance_km.toFixed(2);
+                     row['distance_short'] = distance_km.toFixed(0);
+                    
                      row['available_campsites'] = campsites_total;
                      row['info_url'] = info_url;
                      row['park_name'] = park_name;
