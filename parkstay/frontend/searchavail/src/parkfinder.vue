@@ -180,7 +180,7 @@
                        <!-- This line has to be changed to use a v-if/else clause
                         Changed again to utilize changes in api to further enable forwarding offline sites to availability app
                         -->
-                       <a v-if="(f.campground_type == 0 && campgroundAvailablity[f.id].total_bookable) > 0 && (booking_arrival_days < f.max_advance_booking || permission_to_make_advanced_booking == true)" class="button formButton1" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
+                       <a v-if="(f.campground_type == 0 && campgroundAvailablity[f.id].total_bookable) > 0 && (booking_arrival_days <= f.max_advance_booking || permission_to_make_advanced_booking == true)" class="button formButton1" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
                        <a v-else-if="f.campground_type == 1" class="button formButton" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id" target="_blank">More Info</a>
                        <a v-else class="button formButton2" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id" style="width:100%;" target="_blank">More info</a>
                    </div>
