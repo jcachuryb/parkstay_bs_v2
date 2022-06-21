@@ -19,7 +19,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             next_check = timezone.now() + timedelta(days=7)
-            booking_reminder = models.Booking.objects.filter(is_canceled=False,reminder_email_sent=False, do_not_send_confirmation=False, property_cache__paid=True,error_sending_confirmation=False, arrival__lt=next_check, next_check_for_payment__lt=timezone.now(), error_sending_reminder=False).exclude(booking_type=3).order_by('id')[:30]
+            booking_reminder = models.Booking.objects.filter(confirmation_sent=True, is_canceled=False,reminder_email_sent=False, do_not_send_confirmation=False, property_cache__paid=True,error_sending_confirmation=False, arrival__lt=next_check, next_check_for_payment__lt=timezone.now(), error_sending_reminder=False).exclude(booking_type=3).order_by('id')[:30]
 
             if booking_reminder:
                 for b in booking_reminder:
