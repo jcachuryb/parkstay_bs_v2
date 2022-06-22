@@ -1796,6 +1796,13 @@ class Booking(models.Model):
 
         return payment_dict
 
+class BookingLog(models.Model):
+     booking = models.ForeignKey(Booking, related_name='booking_log', on_delete=models.CASCADE)
+     message = models.TextField(null=True, blank=True)
+     created = models.DateTimeField(auto_now_add=True)
+
+     def __str__(self):
+        return '' #self.message (removed so it doesn't show in django admin inline)
 
 class BookingHistory(models.Model):
     booking = models.ForeignKey(Booking, related_name='history', on_delete=models.CASCADE)
