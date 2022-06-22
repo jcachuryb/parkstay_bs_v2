@@ -117,5 +117,5 @@ urlpatterns = [
     url(r'^campground-image-cropped-square/(?P<height>[0-9]+)/(?P<width>[0-9]+)/', view_file.getFileCroppedResized, name='campground_image_resize_cropped_square'),
 ] + ledger_patterns
 
-if settings.DEBUG:  # Serve media locally in development.
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#if settings.DEBUG:  # Serve media locally in development.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
