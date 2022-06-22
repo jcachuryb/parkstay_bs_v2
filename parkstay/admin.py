@@ -236,6 +236,16 @@ class FeatureAdmin(admin.ModelAdmin):
     ordering = ('name',)
     search_fields = ('name',)
 
+class BookingLogInline(admin.TabularInline):
+     model = models.BookingLog
+     readonly_fields = ('message','created')
+     ordering = ("-created",)
+     extra = 0
+
+     def has_add_permission(self, request, obj=None):
+         return False
+     def has_delete_permission(self, request, obj=None):
+         return False
 
 class BookingInvoiceInline(admin.TabularInline):
     model = models.BookingInvoice
@@ -261,7 +271,7 @@ class BookingAdmin(admin.ModelAdmin):
     #search_fields = ('id','arrival', 'departure')
     search_fields = ('id',)
     list_filter = ('booking_type','arrival', 'departure', 'campground', )
-    inlines = [BookingVehicleRegoInline, BookingInvoiceInline, CampsiteBookingInline, BookingAdditionalInline]
+    inlines = [BookingVehicleRegoInline, BookingInvoiceInline, CampsiteBookingInline, BookingAdditionalInline, BookingLogInline]
     readonly_fields=('created','property_cache','customer','overridden_by','canceled_by')
 
     def has_add_permission(self, request, obj=None):

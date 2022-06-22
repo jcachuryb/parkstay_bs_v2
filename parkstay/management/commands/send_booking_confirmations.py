@@ -23,30 +23,35 @@ class Command(BaseCommand):
             if unconfirmed:
                 for b in unconfirmed:
                     print ("PAID")
-                    print (b.paid)
                     if b.paid is True:
+                        print ("PAID")
                         try:
                             bc = utils.booking_cancellation_fees(b)
-
                             emails.send_booking_confirmation(b.id, bc)
+                            models.BookingLog.objects.create(booking=b,message="Confirmation email sent")
                         except Exception as e:
                             print ("Error Sending Confirmation")
                             print (e)
                             b.error_sending_confirmation = True
                             b.save()
+                            models.BookingLog.objects.create(booking=b,message="ERROR sending confirmation email")
+
                     if b.paid is False:
+                        print ("NOT PAID")
                         b.next_check_for_payment=next_check
                         b.save()
 
             bookings = models.Booking.objects.filter(send_invoice=False,do_not_send_invoice=False,error_sending_invoice=False).exclude(booking_type=3).order_by('id')[:10]
             for b in bookings:
                 try:
-                    emails.send_booking_invoice(b)  
+                    emails.send_booking_invoice(b)
+                    models.BookingLog.objects.create(booking=b,message="Invoice email sent")
                 except Exception as e:
                     print ("Error Sending Invoice")
                     print (e)
                     b.error_sending_invoice = True
                     b.save()
+                    models.BookingLog.objects.create(booking=b,message="ERROR sending invoice email")
 
         except Exception as e:
             print (e)
