@@ -1357,6 +1357,7 @@ class Booking(models.Model):
         #self.property_cache['invoice_status'] = self.invoice_status
         self.property_cache['has_history'] = self.has_history
         #self.property_cache['vehicle_payment_status'] = self.vehicle_payment_status
+        self.property_cache['vehicles'] = self.vehicles
         self.property_cache['vehicle_payment_status'] = ""
         self.property_cache['cancellation_reason'] = self.cancellation_reason
         self.property_cache['paid'] = self.paid
@@ -1712,6 +1713,33 @@ class Booking(models.Model):
             vehicles=vehicles,
             invoice=self.active_invoice
         )
+
+    @property
+    def vehicles(self):
+        booking_vehicles = []
+        vehicles = BookingVehicleRego.objects.filter(booking=self)
+        for v in vehicles:
+            vehicle_map = {'vehicle' : 'Car/Ute',
+                           'motorbike' :'Motorcycle',
+                           'campervan' : 'Campervan',
+                           'caravan' : 'Caravan/Camper Trailer',
+                           'trailer' : 'Other trailer'
+                          }
+
+            rego_number = "To be confirmed"
+            if len(v.rego) > 0:
+                rego_number = v.rego.upper()
+            #data = {
+            #    'Rego': rego_number,
+            #    'Type': r.get_type_display(),
+            #    'original_type': r.type,
+            #    'Fee': r.entry_fee,
+            #    'vehicle_type_name': vehicle_map[r.type]
+            #}
+            booking_vehicles.append({'Rego': rego_number, 'Type': vehicle_map[v.type]})
+            return booking_vehicles
+
+
 
     @property
     def vehicle_payment_status(self):

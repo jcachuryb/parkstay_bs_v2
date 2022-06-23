@@ -3454,7 +3454,11 @@ class BookingViewSet(viewsets.ModelViewSet):
                       row['cost_total'] = float(b['cost_total'])
                       row['amount_paid'] = b['property_cache']['amount_paid']
                       ############### FIX FROM REAL DATA #######################
-                      row['vehicle_payment_status'] =  [{'Fee': False, 'Rego' : "1OT1KH", 'Type': "Vehicle", 'original_type' : "vehicle"}] #"Paid" #b['property_cache']['vehicle_payment_status']
+                      row['vehicle_payment_status'] =  []
+                      if "vehicles" in b['property_cache']:
+                          row['vehicle_payment_status'] = b['property_cache']['vehicles']
+
+                      #row['vehicle_payment_status'] =  [{'Fee': False, 'Rego' : "1OT1KH", 'Type': "Vehicle", 'original_type' : "vehicle"}] #"Paid" #b['property_cache']['vehicle_payment_status']
                       ##########################################################
                       row['refund_status'] = b['property_cache']['refund_status'] 
                       row['is_canceled'] = 'Yes' if b['is_canceled'] else 'No'
