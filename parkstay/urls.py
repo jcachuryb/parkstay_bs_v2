@@ -9,6 +9,7 @@ from django.contrib.auth.views import LogoutView, LoginView
 
 #from ledger.urls import urlpatterns as ledger_patterns
 from ledger_api_client.urls import urlpatterns as ledger_patterns
+from django_media_serv.urls import urlpatterns as media_serv_patterns
 from django.urls import path
 
 #from django_site_queue import urls as site_queue_urls
@@ -115,7 +116,7 @@ urlpatterns = [
     url(r'^map/', views.MapView.as_view(), name='map'),
     url(r'^campground-image/(?P<height>[0-9]+)/(?P<width>[0-9]+)/', view_file.getFile, name='campground_image_resize'), 
     url(r'^campground-image-cropped-square/(?P<height>[0-9]+)/(?P<width>[0-9]+)/', view_file.getFileCroppedResized, name='campground_image_resize_cropped_square'),
-] + ledger_patterns
+] + ledger_patterns + media_serv_patterns
 
 #if settings.DEBUG:  # Serve media locally in development.
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
