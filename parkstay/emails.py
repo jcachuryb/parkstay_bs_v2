@@ -166,7 +166,7 @@ def send_booking_confirmation(booking_id, extra_data):
     #email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PB{}.pdf'.format(booking.id), pdf_buffer, 'application/pdf'),])
     #email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
     print ("SENDING EMAIL")
-    sendHtmlEmail([email],email_obj.subject,context,email_obj.html_template,None,bcc,default_campground_email,'parkstayv2',attachments=[('confirmation-PB{}.pdf'.format(str(booking.id)), pdf_buffer, 'application/pdf')])
+    sendHtmlEmail([email],email_obj.subject,context,email_obj.html_template,cc,bcc,default_campground_email,'parkstayv2',attachments=[('confirmation-PB{}.pdf'.format(str(booking.id)), pdf_buffer, 'application/pdf')])
 
     booking.confirmation_sent = True
     booking.save()
@@ -183,6 +183,12 @@ def send_booking_cancelation(booking,extra_data):
 
     bcc = [default_campground_email]
 
+    cc=None
+    campground_email = booking.campground.email if booking.campground.email else default_campground_email
+    if campground_email != default_campground_email:
+        cc = [campground_email]
+
+
     campground_email = booking.campground.email if booking.campground.email else default_campground_email
     my_bookings_url = '{}/mybookings/'.format(settings.PARKSTAY_EXTERNAL_URL)
     context = {
@@ -193,7 +199,7 @@ def send_booking_cancelation(booking,extra_data):
         'extra_data': extra_data
     }
     
-    sendHtmlEmail([email],email_obj.subject,context,email_obj.html_template,None,bcc,default_campground_email,'parkstayv2',attachments=[]) 
+    sendHtmlEmail([email],email_obj.subject,context,email_obj.html_template,cc,bcc,default_campground_email,'parkstayv2',attachments=[]) 
     #email_obj.send([email], from_address=default_campground_email, reply_to=campground_email, cc=[campground_email], bcc=bcc, context=context)
     #email_log(str(log_hash)+' : '+str(email) + ' - '+ email_obj.subject)
 
