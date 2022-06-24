@@ -1737,7 +1737,7 @@ class Booking(models.Model):
             #    'vehicle_type_name': vehicle_map[r.type]
             #}
             booking_vehicles.append({'Rego': rego_number, 'Type': vehicle_map[v.type]})
-            return booking_vehicles
+        return booking_vehicles
 
 
 
