@@ -29,7 +29,7 @@ class Command(BaseCommand):
                     print (b.id)
                     if b.paid is True:
                         try:
-                            booking_date_from_arrival = (dont_send.date() - b.arrival).days
+                            booking_date_from_arrival = (b.created.date() - b.arrival).days
                             if booking_date_from_arrival > 7:
                                bc = utils.booking_cancellation_fees(b)
                                emails.send_booking_reminder(b.id, bc)
