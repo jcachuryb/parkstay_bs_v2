@@ -21,7 +21,7 @@ class Command(BaseCommand):
             next_check = timezone.now() + timedelta(days=7)
             dont_send = timezone.now() + timedelta(days=8)
 
-            booking_reminder = models.Booking.objects.filter(confirmation_sent=True, is_canceled=False,reminder_email_sent=False, do_not_send_confirmation=False, property_cache__paid=True,error_sending_confirmation=False, arrival__lt=next_check, next_check_for_payment__lt=timezone.now(), error_sending_reminder=False).exclude(booking_type=3).order_by('id')[:30]
+            booking_reminder = models.Booking.objects.filter(confirmation_sent=True, is_canceled=False,reminder_email_sent=False, do_not_send_confirmation=False, property_cache__paid=True,error_sending_confirmation=False, arrival__lte=next_check, next_check_for_payment__lt=timezone.now(), error_sending_reminder=False).exclude(booking_type=3).order_by('id')[:30]
 
             if booking_reminder:
                 for b in booking_reminder:
@@ -29,7 +29,7 @@ class Command(BaseCommand):
                     print (b.id)
                     if b.paid is True:
                         try:
-                            booking_date_from_arrival = (b.created.date() - b.arrival).days
+                            booking_date_from_arrival = (b.arrival - b.created.date()).days
                             if booking_date_from_arrival > 7:
                                bc = utils.booking_cancellation_fees(b)
                                emails.send_booking_reminder(b.id, bc)
