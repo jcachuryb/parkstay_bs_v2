@@ -2516,7 +2516,7 @@ def booking_updates(request, *args, **kwargs):
                                                              fee_description=booking.override_reason.text+" - "+booking.override_reason_info,
                                                              amount='0.00',
                                                              identifier="priceoverride",
-                                                             oracle_code=booking.campground.park.oracle_code
+                                                             oracle_code=booking.campground.oracle_code
                                                             )
 
 
