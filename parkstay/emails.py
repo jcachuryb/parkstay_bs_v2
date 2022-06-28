@@ -209,7 +209,7 @@ def send_booking_reminder(booking_id, extra_data):
     booking = models.Booking.objects.get(id=booking_id)    
     #PARKSTAY_EXTERNAL_URL
     email_obj = TemplateEmailBase()
-    email_obj.subject = 'One week to your Park Stay WA campsite booking {} at {}, {}'.format(booking.confirmation_number, booking.campground.name, booking.campground.park.name)
+    email_obj.subject = 'Reminder: it’s nearly time for your camping trip to {}, {}'.format(booking.campground.name, booking.campground.park.name)
     email_obj.html_template = 'ps/email/confirmation-reminder.html'
     email_obj.txt_template = 'ps/email/confirmation.txt'
 
