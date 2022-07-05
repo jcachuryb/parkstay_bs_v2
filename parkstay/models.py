@@ -1791,6 +1791,7 @@ class Booking(models.Model):
                         paid = True
                     else:
                         paid = False
+
                 else:
                     required_total = D('0.0')
                     for k, v in price_dict.items():
@@ -1798,13 +1799,17 @@ class Booking(models.Model):
                     if required_total <= total_paid:
                         total_paid -= required_total
                         paid = True
+
                 vehicle_map = {'vehicle' : 'Car/Ute',
                                'motorbike' :'Motorcycle',
                                'campervan' : 'Campervan',
                                'caravan' : 'Caravan/Camper Trailer',
                                'trailer' : 'Other trailer'
                               }
- 
+
+                if r.type=='trailer' or r.type=='caravan':
+                    show_paid = False
+                
                 rego_number = "To be confirmed"
                 if len(r.rego) > 0 :
                     rego_number = r.rego.upper()
