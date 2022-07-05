@@ -1774,8 +1774,8 @@ class Booking(models.Model):
                 show_paid = True
                 if self.legacy_id:
                     paid = False
-                #elif not r.park_entry_fee:
-                #    show_paid = False
+                elif not r.entry_fee:
+                    show_paid = False
                 #    paid = True
                 elif remainder_amount == 0:
                     paid = True
@@ -1791,7 +1791,6 @@ class Booking(models.Model):
                         paid = True
                     else:
                         paid = False
-
                 else:
                     required_total = D('0.0')
                     for k, v in price_dict.items():
@@ -1818,6 +1817,8 @@ class Booking(models.Model):
                 }
                 if show_paid:
                     data['Paid'] = 'pass_required' if not r.entry_fee and not self.legacy_id else 'Yes' if paid else 'No'
+                else:
+                    data['Paid'] = ''
                 payment_dict.append(data)
         else:
             pass

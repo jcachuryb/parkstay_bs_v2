@@ -2811,6 +2811,7 @@ def create_booking(request, *args, **kwargs):
         booking.details['selecttype'] = selecttype 
         booking.details['multiplesites_class_totals'] = multiplesites_class_totals
         booking.save()
+        park_entry_fee_required = booking.campground.park.entry_fee_required
         booking_campsite = booking.campsites.all()[0].campsite if booking else None
         parkstay_models.AdditionalBooking.objects.filter(booking=booking, identifier="vehicles").delete()
         entry_fees = parkstay_models.ParkEntryRate.objects.filter(Q(period_start__lte = booking.arrival), Q(period_end__gte=booking.arrival)|Q(period_end__isnull=True)).order_by('-period_start').first() if (booking and booking_campsite.campground.park.entry_fee_required) else None
@@ -2863,6 +2864,9 @@ def create_booking(request, *args, **kwargs):
                   fee_description = "Park Entry Fee for 'Registration to be confirmed before arrival'"+concession_text
             else:
                   fee_description = "Park Entry Fee for "+rego_text+concession_text
+
+            if park_entry_fee_required is False:
+                entry_fee = False
 
             bvr = parkstay_models.BookingVehicleRego.objects.create(booking=booking,rego=rego_text, type='vehicle',entry_fee=entry_fee, concession=concession, hire_car=hire_car)
 
