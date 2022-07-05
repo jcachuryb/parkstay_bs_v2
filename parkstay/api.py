@@ -996,7 +996,7 @@ def campground_availabilty_view(request,  *args, **kwargs):
     end_date = datetime.strptime(end_date_string, "%Y/%m/%d").date()
 
     date_diff = end_date - start_date
-    booking_days = date_diff.days + 1
+    booking_days = date_diff.days# + 1
 
     #attributes_data_file = settings.BASE_DIR+"/datasets/campground-attributes.json"
 
@@ -1027,10 +1027,10 @@ def campground_availabilty_view(request,  *args, **kwargs):
            site_obj['campground_available'][c['id']]['total_bookable'] = len(site_obj['campground_available'][c['id']]['sites'])
 
     daily_calender = {}
-    
-    for day in range(0, booking_days+1):
+    for day in range(0, booking_days):
         nextday = start_date + timedelta(days=day)
         nextday_string = nextday.strftime('%Y-%m-%d')
+        print (nextday_string)
         data_file = settings.BASE_DIR+"/datasets/daily/"+str(nextday_string)+"-availablity.json"
         fileopened = True
         if os.path.isfile(data_file):
