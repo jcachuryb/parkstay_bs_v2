@@ -2429,7 +2429,7 @@ def booking_updates(request, *args, **kwargs):
 
                  #if v[2] is True:
                  vehicle_type=''
-                 if v[0] == 0:
+                 if v[0] == 0 or v[0] == 3:
                      if entry_fee_required:
                          vehicle_entry_fee = entry_fees.vehicle
                          if concession is True:
@@ -2442,6 +2442,8 @@ def booking_updates(request, *args, **kwargs):
                  if v[0] == 3:
                      if entry_fee_required:
                          vehicle_entry_fee = entry_fees.campervan
+                         if concession is True:
+                             vehicle_entry_fee = entry_fees.concession
                      vehicle_type='campervan'
                  if v[0] == 4:
                      if entry_fee_required:
