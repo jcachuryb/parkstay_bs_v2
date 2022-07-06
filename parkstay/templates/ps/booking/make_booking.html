@@ -417,7 +417,7 @@
 
                                           <div class="col-md-2">
 						  
-						  <div class="form-check form-switch" v-if="campers.concession > 0 && vehicle[0] == 0 && vehicle[2] == true" >  
+						  <div class="form-check form-switch" v-if="campers.concession > 0 && (vehicle[0] == 0 || vehicle[0] == 3 ) && vehicle[2] == true" >  
                                                        <label class="form-check-label">
 						       <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-concession'" type="checkbox" v-model="vehicle[5]" v-on-click="updateVehiclesFees" checked/> Concession driver</label>
 
