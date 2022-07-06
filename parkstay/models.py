@@ -1807,7 +1807,7 @@ class Booking(models.Model):
                                'trailer' : 'Other trailer'
                               }
 
-                if r.type=='trailer' or r.type=='caravan' or r.type=='motorbike' or r.type=='campervan':
+                if r.type=='trailer' or r.type=='caravan':
                     show_paid = False
                 
                 rego_number = "To be confirmed"
