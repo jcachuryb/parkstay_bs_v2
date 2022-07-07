@@ -266,13 +266,13 @@ class BookingVehicleRegoInline(admin.TabularInline):
 @admin.register(models.Booking)
 class BookingAdmin(admin.ModelAdmin):
     #raw_id_fields = ('customer','overridden_by','canceled_by',)
-    list_display = ('id','customer','arrival', 'departure', 'campground','booking_type', 'cost_total','property_cache_version','property_cache_stale')
+    list_display = ('id','customer','arrival', 'departure', 'campground','booking_type', 'cost_total','property_cache_version','property_cache_stale',)
     ordering = ('-id',)
     #search_fields = ('id','arrival', 'departure')
     search_fields = ('id',)
     list_filter = ('booking_type','arrival', 'departure', 'campground', )
     inlines = [BookingVehicleRegoInline, BookingInvoiceInline, CampsiteBookingInline, BookingAdditionalInline, BookingLogInline]
-    readonly_fields=('created','property_cache','customer','overridden_by','canceled_by')
+    readonly_fields=('created','property_cache','customer','overridden_by','canceled_by','booking_hash')
 
     def has_add_permission(self, request, obj=None):
         return False
