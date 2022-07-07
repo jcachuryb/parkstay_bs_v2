@@ -1328,6 +1328,7 @@ class Booking(models.Model):
     old_booking = models.IntegerField(blank=True, null=True) 
     next_check_for_payment=models.DateTimeField(null=True, blank=True, default=timezone.now)
     customer_managed_booking_disabled = models.BooleanField(default=False)
+    booking_hash=models.CharField(max_length=1024, blank=True, null=True)
 
     # Properties
     # =================================
