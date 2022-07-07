@@ -57,6 +57,7 @@ api_patterns = [
     url(r'^api/campsite_availablity_view/(?P<campground_id>[0-9]+)/', api.campsite_availablity_view, name='campsite_availablity_view'),
     url(r'^api/search_suggest', api.search_suggest, name='search_suggest'),
     url(r'^api/create_booking', api.create_booking, name='create_booking'),
+    url(r'^api/complete_booking/(?P<booking_hash>[\w]+)/(?P<booking_id>[0-9]+)/', api.complete_booking, name='complete_booking'),
     url(r'^api/campground_map/$', api.campground_map_view, name='campground_map'),
     url(r'^api/places/', api.places, name='places'),
     url(r'^api/booking_pricing/$', api.get_booking_pricing, name='booking_pricing'),

@@ -1042,8 +1042,6 @@ def booking_change_fees(booking):
     #     "line_status" : 1 
     #     })
     #cancellation_data['cancellation_fee'] = cancellation_fee
-    print ("CANCEL DATA")
-    print (cancellation_data)
     return cancellation_data 
 
 def booking_policy_cancellation_rules(cancellation_data,cb_date,cb, old_arrival, old_booking):
@@ -1714,7 +1712,8 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'system': settings.PS_PAYMENT_SYSTEM_ID,
         'fallback_url': request.build_absolute_uri('/'),
         'return_url': request.build_absolute_uri(reverse('public_booking_success'))+'?checkouthash='+checkouthash,
-        'return_preload_url': request.build_absolute_uri(reverse('public_booking_success')),
+        'return_preload_url': settings.PARKSTAY_EXTERNAL_URL+'/api/complete_booking/'+booking.booking_hash+'/'+str(booking.id)+'/',
+        #'return_preload_url': request.build_absolute_uri(reverse('public_booking_success')),
         'force_redirect': True,
         'proxy': True if internal else False,
         'invoice_text': invoice_text,
@@ -1722,7 +1721,6 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'basket_owner' : booking.customer.id 
         #'amount_override': float('1.00')
     }
-
     #if not internal:
     #    checkout_params['check_url'] = request.build_absolute_uri('/api/booking/{}/booking_checkout_status.json'.format(booking.id))
     if internal or request.user.is_anonymous:

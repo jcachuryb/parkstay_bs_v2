@@ -30,6 +30,7 @@ import os
 from ledger_api_client.ledger_models import EmailUserRO as EmailUser
 from ledger_api_client.ledger_models import Address
 from ledger_api_client.ledger_models import Invoice
+from ledger_api_client.ledger_models import Basket
 from ledger_api_client.country_models import Country
 
 ##
@@ -512,6 +513,29 @@ def search_suggest_data():
     for x in PromoArea.objects.filter(wkb_geometry__isnull=False).values_list('id', 'name', 'wkb_geometry','zoom_level'):
         entries.append(geojson.Point((x[2].x, x[2].y), properties={'type': 'PromoArea', 'id': x[0], 'name': x[1], 'zoom_level': x[3]}))
     return geojson.dumps(geojson.FeatureCollection(entries))
+
+
+def complete_booking(request, booking_hash, booking_id):
+    #booking_hash=request.GET.get('booking_hash',None)
+    #booking_id = request.GET.get('booking_id', None)
+    jsondata={"status": "error completing booking"}
+    if booking_hash:
+           try: 
+                booking = Booking.objects.get(id=booking_id,booking_hash=booking_hash)
+                basket = Basket.objects.filter(status='Submitted', booking_reference=settings.BOOKING_PREFIX+'-'+str(booking.id)).order_by('-id')[:1]
+                if basket.count() > 0:
+                    pass
+                else:
+                    raise ValidationError('Error unable to find basket')
+
+                utils.bind_booking(booking, basket)
+                jsondata={"status": "success"}
+           except Exception as e:
+               print ("EXCEPTION")
+               print (e)
+               jsondata={"status": "error binding"}
+    response = HttpResponse(json.dumps(jsondata), content_type='application/json')
+    return response
 
 
 class CampgroundViewSet(viewsets.ModelViewSet):
@@ -2812,6 +2836,7 @@ def create_booking(request, *args, **kwargs):
 
         booking.details['selecttype'] = selecttype 
         booking.details['multiplesites_class_totals'] = multiplesites_class_totals
+        booking.booking_hash = hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
         booking.save()
         park_entry_fee_required = booking.campground.park.entry_fee_required
         booking_campsite = booking.campsites.all()[0].campsite if booking else None
