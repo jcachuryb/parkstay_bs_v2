@@ -1054,7 +1054,7 @@ def campground_availabilty_view(request,  *args, **kwargs):
     for day in range(0, booking_days):
         nextday = start_date + timedelta(days=day)
         nextday_string = nextday.strftime('%Y-%m-%d')
-        print (nextday_string)
+        #print (nextday_string)
         data_file = settings.BASE_DIR+"/datasets/daily/"+str(nextday_string)+"-availablity.json"
         fileopened = True
         if os.path.isfile(data_file):
