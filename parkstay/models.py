@@ -470,6 +470,18 @@ class CampgroundGroup(models.Model):
 
 CampgroundGroup.members.through._meta.get_field('emailuserro_id').column='emailuser_id'
 
+class CampgroundPermission(models.Model):
+      PERMISSION_GROUP = (
+          (0, 'Campground Booking Management'),
+      )
+
+      email = models.CharField(max_length=500)
+      campground = models.ForeignKey(Campground, related_name='campground_permissions', on_delete=models.CASCADE)
+      permission_group = models.SmallIntegerField(choices=PERMISSION_GROUP, default=0)
+      active = models.BooleanField(default=True)
+
+      def __str__(self):
+           return self.email
 
 class CampgroundGroupCampgrounds(models.Model):
       #id = models.IntegerField()

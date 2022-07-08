@@ -367,12 +367,20 @@ class CampgroundImage(admin.ModelAdmin):
 
 @admin.register(models.ParkstayPermission)
 class ParkstayPermissionAdmin(admin.ModelAdmin):
+      search_fields = ('email',)
       list_display = ('email','permission_group','active')
       list_filter = ('permission_group',)
 
       def save_model(self, request, obj, form, change):
           messages.add_message(request, messages.WARNING, 'Permission changes will not update until the user logout and login again.')
           super().save_model(request, obj, form, change)
+
+@admin.register(models.CampgroundPermission)
+class CampgroundPermissionAdmin(admin.ModelAdmin):
+      search_fields = ('email',)
+      list_display = ('email','campground','permission_group','active',)
+      list_filter = ('permission_group','campground','active')
+
 
 @admin.register(models.CampsiteBookingLegacy)
 class CampsiteBookingLegacyAdmin(admin.ModelAdmin):

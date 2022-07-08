@@ -220,6 +220,14 @@ class MakeBookingsView(TemplateView):
         #num_infants= request.GET.get('num_infants', 0)
         context['allow_price_override'] = False
         context['booking_without_payment'] = False
+        context['create_booking_on_behalf'] = False
+        cp = 0
+        if booking:
+            if booking.campground and request.user.email:
+                cp = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=booking.campground,active=True,permission_group=0).count()
+        if cp > 0:
+            context['create_booking_on_behalf'] = True
+
         if request.user.is_authenticated: 
             if request.user.is_staff is True:
                  if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=1).count() > 0:
@@ -297,6 +305,7 @@ class MakeBookingsView(TemplateView):
             'cg' : context['cg'],
             'allow_price_override' : context['allow_price_override'],
             'booking_without_payment' : context['booking_without_payment'],
+            'create_booking_on_behalf': context['create_booking_on_behalf'],
             'request': request,
             'override_reasons' : override_reasons
         })
@@ -322,7 +331,11 @@ class MakeBookingsView(TemplateView):
 
         #form = AnonymousMakeBookingsForm(form_context)
         if request.user.is_authenticated:
-            if request.user.is_staff:
+            cp = 0
+            if booking:
+                if booking.campground and request.user.email:
+                    cp = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=booking.campground,active=True,permission_group=0).count()
+            if request.user.is_staff or cp > 0:
                 if booking:
                     if booking.old_booking:
                         if booking.old_booking > 0:
@@ -356,10 +369,11 @@ class MakeBookingsView(TemplateView):
             else:
                 del request.session['ps_booking']
 
+        cp_perms_on_behalf = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=booking.campground,active=True,permission_group=0).count()
         #booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
 
         if request.user.is_authenticated:
-            if request.user.is_staff:
+            if request.user.is_staff or cp_perms_on_behalf > 0:
         #if request.user.is_anonymous:
                 form = AnonymousMakeBookingsForm(request.POST)
             else:
@@ -476,7 +490,7 @@ class MakeBookingsView(TemplateView):
         # get the customer object
         #if request.user.is_anonymous:
         if request.user.is_authenticated:
-            if request.user.is_staff:
+            if request.user.is_staff or cp_perms_on_behalf > 0:
                   # searching on EmailIdentity looks for both EmailUser and Profile objects with the email entered by user
                   customer_qs = EmailIdentity.objects.filter(email__iexact=form.cleaned_data.get('email'))
                   if customer_qs:
@@ -490,7 +504,7 @@ class MakeBookingsView(TemplateView):
                               mobile_number=form.cleaned_data.get('phone')
                       )
                       customer = EmailUser.objects.filter(email__iexact=form.cleaned_data.get('email').lower())[0] 
-                      Address.objects.create(line1='address', user=customer, postcode=form.cleaned_data.get('postcode'), country=form.cleaned_data.get('country').iso_3166_1_a2)
+                      #Address.objects.create(line1='address', user=customer, postcode=form.cleaned_data.get('postcode'), country=form.cleaned_data.get('country').iso_3166_1_a2)
             else:
                   customer = request.user
         
@@ -542,7 +556,12 @@ class ChangeBookingView(TemplateView):
          booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
          if booking_data.count() > 0:
              booking = booking_data[0]
-             if (booking.customer.id == request.user.id and booking.customer_managed_booking_disabled is False) or (request.user.is_staff is True):
+             cp = 0
+             if booking:
+                 if booking.campground and request.user.email:
+                     cp = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=booking.campground,active=True,permission_group=0).count()
+
+             if (booking.customer.id == request.user.id and booking.customer_managed_booking_disabled is False) or (request.user.is_staff is True or cp > 0):
                   arrival_date = booking.arrival.strftime("%Y/%m/%d")
                   departure_date = booking.departure.strftime("%Y/%m/%d")
                      
@@ -568,24 +587,30 @@ class CancelBookingView(TemplateView):
         cancel_past_booking_override = request.GET.get('override_cancellation','false')
         cancel_past_booking_override_access = False
 
+        booking = None
+        booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
+        cp_perms_on_behalf = 0
+        if booking_data.count() > 0:
+             booking = booking_data[0]
+             cp_perms_on_behalf = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=booking.campground,active=True,permission_group=0).count()        
+
         if request.user.is_authenticated:
-            if request.user.is_staff is True:
+            if request.user.is_staff is True or cp_perms_on_behalf > 0:
                 if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=2).count() > 0:
                        only_cancel_booking = True
 
         if request.user.is_authenticated:
-            if request.user.is_staff is True:
+            if request.user.is_staff is True or cp_perms_on_behalf > 0:
                 if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=3).count() > 0:
                        cancel_past_booking = True
 
         if cancel_past_booking_override == 'true' and cancel_past_booking == True:
                cancel_past_booking_override_access = True
 
-        booking = None
-        booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
+        #booking = None
         if booking_data.count() > 0:
-            booking = booking_data[0]
-            if (booking.customer.id == request.user.id and booking.customer_managed_booking_disabled is False) or (request.user.is_staff is True):
+            #booking = booking_data[0]
+            if (booking.customer.id == request.user.id and booking.customer_managed_booking_disabled is False) or (request.user.is_staff is True or cp_perms_on_behalf > 0):
             #if booking.customer.id == request.user.id or request.user.is_staff is True:
                     if booking.arrival > today or cancel_past_booking_override_access == True:
                              booking_totals = utils.booking_total_to_refund(booking)
@@ -630,9 +655,10 @@ class CancelBookingView(TemplateView):
         booking = Booking.objects.get(id=int(booking_id))
         only_cancel_booking = False 
         cancel_booking_with_full_refund  = False
+        cp_perms_on_behalf = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=booking.campground,active=True,permission_group=0).count()
 
         if request.user.is_authenticated:
-            if request.user.is_staff is True:
+            if request.user.is_staff is True or cp_perms_on_behalf > 0:
                 if parkstay_models.ParkstayPermission.objects.filter(email=request.user.email,permission_group=2).count() > 0:
                        ocb = request.POST.get('only_cancel_booking', False)
                        cbfr = request.POST.get('cancel_booking_with_full_refund', False)
@@ -642,7 +668,7 @@ class CancelBookingView(TemplateView):
                            cancel_booking_with_full_refund = True
                       
 
-        if booking.customer.id == request.user.id or request.user.is_staff is True:
+        if booking.customer.id == request.user.id or request.user.is_staff is True or cp_perms_on_behalf > 0:
 
                if only_cancel_booking is True:
                     jsondata = {}
@@ -742,7 +768,6 @@ class BookingSuccessView(TemplateView):
                 pass
             else:
                 raise ValidationError('Error unable to find basket') 
-
             try:
                 utils.bind_booking(booking, basket)
                 utils.delete_session_booking(request.session)
@@ -1003,14 +1028,13 @@ class SearchAvailablityByCampground(TemplateView):
         else:
             basket = Basket.objects.filter(status='Submitted', booking_reference=settings.BOOKING_PREFIX+'-'+str(booking.id)).order_by('-id')
             if basket.count() > 0:
-                print ("Booking Has a completed Basket")
+                print ("Booking has a completed Basket")
             else:
                 booking.delete()
-
+        cp = 0
         #print ("BASKET")
         #print (basket)
         # End Check for temp booking and if payment exists otherwise clean up temporary booking.
-
 
         today = timezone.now().date()
         context['change_booking'] = None
@@ -1022,7 +1046,11 @@ class SearchAvailablityByCampground(TemplateView):
                     if int(change_booking_id) > 0:
                           if Booking.objects.filter(id=change_booking_id, is_canceled=False).count() > 0:
                                cb = Booking.objects.get(id=change_booking_id)
-                               if cb.customer.id == request.user.id or request.user.is_staff is True:
+                               if cb:
+                                    if cb.campground and request.user.email:
+                                          cp = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=cb.campground,active=True,permission_group=0).count()
+                               print (cp)
+                               if cb.customer.id == request.user.id or request.user.is_staff is True or cp > 0:
                                        if cb.arrival > today:
                                             context['change_booking'] = cb
                                        else:
