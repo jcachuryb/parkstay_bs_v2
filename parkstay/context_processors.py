@@ -1,6 +1,7 @@
 from django.conf import settings
 from parkstay import models
 from parkstay import utils
+from ledger_api_client import utils as ledger_api_utils
 from django.core.cache import cache
 import json
 
@@ -12,6 +13,7 @@ def parkstay_url(request):
 
     # staff need to login and logout for permissions to refresh
     parkstay_permissions_cache = cache.get('parkstay_url_permissions'+str(is_authenticated)+str(session_id))
+    parkstay_officers = ledger_api_utils.user_in_system_group(request.user.id,'Parkstay Officers')
 
     parkstay_permissions = {'special_permissions': False}
     if parkstay_permissions_cache is None:
@@ -53,4 +55,5 @@ def parkstay_url(request):
         'LEDGER_SYSTEM_ID' : settings.PS_PAYMENT_SYSTEM_ID.replace("S","0"),
         'template_title' : '',
         'ledger_totals': lt,
+        'parkstay_officers' : parkstay_officers
     }
