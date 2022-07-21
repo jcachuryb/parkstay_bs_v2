@@ -6,7 +6,7 @@
 {% block content %}
 <div class="container" style='z-index:1'>
 	{% if cancel_past_booking is True %}
-	{% if booking.arrival < today %}
+	{% if booking.arrival <= today %}
 
             <div class="alert alert-warning" role="alert">
 		    <p>The booking you are requesting to cancel has already past its arrival date.</p>
