@@ -1841,6 +1841,7 @@ def bind_booking(booking, basket):
         booking.booking_type = 1  # internet booking
         booking.expiry_time = None
         booking.save()
+        parkstay_models.BookingLog.objects.create(booking=booking,message="Booking Completed")
         if booking.old_booking:
             if booking.old_booking > 0:
                 logger.info(u'cancelling old booking started {}'.format(booking.old_booking))
