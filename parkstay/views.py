@@ -733,9 +733,15 @@ class CancelBookingView(TemplateView):
                         booking.cancelation_time = timezone.now()
                         booking.cancellation_reason = "Booking Cancelled Online"
                         booking.save()
-                        BookingInvoice.objects.get_or_create(booking=booking, invoice_reference=jsondata['data']['invoice_reference'])
+                        for ir in jsondata['data']['invoice_reference']:
+                             BookingInvoice.objects.get_or_create(booking=booking, invoice_reference=ir)
                         extra_data = {}
-                        extra_data['totalbooking'] = round(Decimal(totalbooking),2)
+                        total_refunded = Decimal('0.00')
+                        for order_line in lines:
+                              total_refunded = total_refunded + Decimal(order_line['price_incl_tax'])
+                        total_refunded = total_refunded - total_refunded - total_refunded 
+                        #extra_data['totalbooking'] = round(Decimal(totalbooking),2)
+                        extra_data['totalbooking'] = round(total_refunded,2)
                         extra_data['fees_for_cancellation'] = round(Decimal(fees_for_cancellation),2)
                         emails.send_booking_cancelation(booking, extra_data)
 
