@@ -68,6 +68,7 @@ CACHES = {
         'LOCATION': os.path.join(BASE_DIR, 'parkstay', 'cache'),
     }
 }
+
 STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'parkstay', 'static')))
 #STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'ledger_api_client', 'static')))
 
@@ -139,12 +140,12 @@ if os.path.isdir(DATA_STORE):
 else:
     os.mkdir(DATA_STORE)
 
-LEDGER_UI_ACCOUNTS_MANAGEMENT = [
-            {'first_name': {'options' : {'view': True, 'edit': True}}},
-            {'last_name': {'options' : {'view': True, 'edit': True}}},
-            {'residential_address': {'options' : {'view': True, 'edit': True}}},
-            {'phone_number' : {'options' : {'view': True, 'edit': True}}},
-            {'mobile_number' : {'options' : {'view': True, 'edit': True}}},
-]
-
+#LEDGER_UI_ACCOUNTS_MANAGEMENT = [
+#            {'first_name': {'options' : {'view': True, 'edit': True}}},
+#            {'last_name': {'options' : {'view': True, 'edit': True}}},
+#            {'residential_address': {'options' : {'view': True, 'edit': True}}},
+#            {'phone_number' : {'options' : {'view': True, 'edit': True}}},
+#            {'mobile_number' : {'options' : {'view': True, 'edit': True}}},
+#]
+LEDGER_UI_CARDS_MANAGEMENT = True
 BOOKING_PREFIX="PB"
