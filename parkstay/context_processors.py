@@ -8,20 +8,33 @@ import json
 def parkstay_url(request):
     session_id = request.COOKIES.get('sessionid', None)
     is_authenticated = False
-    if request.user.is_authenticated is True:
-        is_authenticated = request.user.is_authenticated
 
+    #user_request = request.user
+    #if user_request.is_authenticated is True:
+    #    is_authenticated = True
+   
+    if 'is_authenticated' in request.session:
+        if request.session['is_authenticated'] is True:
+             is_authenticated = True
+
+    
     # staff need to login and logout for permissions to refresh
     parkstay_permissions_cache = cache.get('parkstay_url_permissions'+str(is_authenticated)+str(session_id))
-    parkstay_officers = ledger_api_utils.user_in_system_group(request.user.id,'Parkstay Officers')
+    #parkstay_officers = ledger_api_utils.user_in_system_group(request.user.id,'Parkstay Officers')
+    parkstay_officers = None
+    if is_authenticated is True:
+        parkstay_officers = ledger_api_utils.user_in_system_group(request.session['user_obj']['user_id'],'Parkstay Officers')
+
 
     parkstay_permissions = {'special_permissions': False}
     if parkstay_permissions_cache is None:
         for pg in models.ParkstayPermission.PERMISSION_GROUP:
             parkstay_permissions['p'+str(pg[0])] = False
 
-        if request.user.is_authenticated:
-            parkstay_permissions_obj = models.ParkstayPermission.objects.filter(email=request.user.email)
+        #if request.user.is_authenticated:
+        if is_authenticated is True:
+            #parkstay_permissions_obj = models.ParkstayPermission.objects.filter(email=request.user.email)
+            parkstay_permissions_obj = models.ParkstayPermission.objects.filter(email=request.session['user_obj']['email'])
             for pp in parkstay_permissions_obj:
                 if pp.active is True:
                    parkstay_permissions['p'+str(pp.permission_group)] = True
