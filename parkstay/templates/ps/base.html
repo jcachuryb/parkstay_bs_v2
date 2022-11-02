@@ -1,4 +1,4 @@
-{% extends "webtemplate_dbca/base_b5.html" %}
+{% extends "webtemplate_dbca/base_b5_auth_session.html" %}
 
 {% block extra_css %}
     <link rel="icon" type="image/png" href="/static/parkstay/favicon.ico">
@@ -65,10 +65,8 @@ MENU 2
 
 
 
-
-
 {% block menu_items2_right %}
- {% if request.user.is_authenticated %}
+ {% if request.session.is_authenticated %}
 
  {% else %}
     <a href="/ssologin" class="btn btn-primary btn-sm">Login</a>
@@ -79,11 +77,6 @@ MENU 2
 {% block menu_spacer %}
  <BR>
 {% endblock %}
-
-
-
-
-
 
 
 
