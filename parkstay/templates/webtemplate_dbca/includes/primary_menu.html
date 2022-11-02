@@ -1,10 +1,10 @@
-{% if request.session.is_authenticated %}
+{% if request.session.user_obj.is_authenticated %}
       <li class="nav-item"><a class="nav-link active" href="{% url 'public_my_bookings'%}">My Bookings</a></li>
 {% else %}
       <li class="nav-item"><a class="nav-link active" href="/ssologin">My Bookings</a></li>
 {% endif %}
 
-{% if request.session.is_staff %}
+{% if request.session.user_obj.is_staff %}
 <li class="nav-item"><a class="nav-link active" href="{% url 'dash-campgrounds'%}">Campgrounds</a></li>
 <li class="nav-item"><a class="nav-link active" href="{% url 'dash-campsite-types'%}">Camp Site Types</a></li>
 <li class="nav-item"><a class="nav-link active" href="{% url 'dash-bulkpricing'%}">Bulk Pricing</a></li>
@@ -13,7 +13,7 @@
   
 {% endif %}
 
-{% if request.session.is_staff or parkstay_officers is True %}
+{% if request.session.user_obj.is_staff or parkstay_officers is True %}
         <li class="nav-item"><a class="nav-link active" href="{% url 'dash-bookings'%}">Existing Bookings</a></li>
 {% endif %}
 
