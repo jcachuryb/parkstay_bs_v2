@@ -92,6 +92,7 @@ urlpatterns = [
     #url(r'^account/', views.ProfileView.as_view(), name='account'),
     url(r'^$', views.ParkstayRoutingView.as_view(), name='ps_home'),
     url(r'^$', views.ParkstayRoutingView.as_view(), name='home'),
+    url(r'^login-success/$', views.LoginSuccess.as_view(), name='login-success'),
     url(r'^testing-server/$', views.TestView.as_view(), name='test_view'),
     url(r'^testing-server-with-auth/$', views.TestViewAuth.as_view(), name='test_view'),
     url(r'^search-availability/information/', views.SearchAvailablity.as_view(), name='search_availability_information'),
