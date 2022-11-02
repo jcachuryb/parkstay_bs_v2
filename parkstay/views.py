@@ -117,6 +117,16 @@ class CampgroundFeed(ICalFeed):
             x[0] for x in item.campsites.values_list('campsite__name').distinct()
         ] ))
 
+class LoginSuccess(TemplateView):
+    template_name = 'ps/login_success.html';
+
+    def get(self, request, *args, **kwargs):
+        context = {}
+        context = {'LEDGER_UI_URL' : settings.LEDGER_UI_URL}
+        response = render(request, self.template_name, context)
+        return response
+
+
 
 class TestView(TemplateView):
     template_name = 'ps/test.html'
@@ -941,8 +951,6 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
             bs += 1
 
         return bookings_store
-
-
 
 
 class ParkstayRoutingView(TemplateView):
