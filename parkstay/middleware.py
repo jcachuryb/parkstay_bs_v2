@@ -21,37 +21,40 @@ class BookingTimerMiddleware(object):
 
     def pr(self, request):
         response= self.get_response(request)
-        if 'ps_booking' in request.session:
-            try:
-                booking = Booking.objects.get(pk=request.session['ps_booking'])
-            except:
-                # no idea what object is in self.request.session['ps_booking'], ditch it
-                del request.session['ps_booking']
-                return response
-            #if booking.booking_type != 3:
-            #    # booking in the session is not a temporary type, ditch it
-            #    del request.session['ps_booking']
-            if booking.expiry_time is not None:
-                if timezone.now() > booking.expiry_time and booking.booking_type == 3:
-                # expiry time has been hit, destroy the Booking then ditch it
-                #booking.delete()
+        if request.path.startswith('/static') or request.path.startswith('/favicon') or request.path.startswith('/media') or request.path.startswith('/api') or request.path.startswith('/search-availability/information/') or request.path.startswith('/search-availability/campground/'):
+             pass
+        else:
+            if 'ps_booking' in request.session:
+                try:
+                    booking = Booking.objects.get(pk=request.session['ps_booking'])
+                except:
+                    # no idea what object is in self.request.session['ps_booking'], ditch it
                     del request.session['ps_booking']
+                    return response
+                #if booking.booking_type != 3:
+                #    # booking in the session is not a temporary type, ditch it
+                #    del request.session['ps_booking']
+                if booking.expiry_time is not None:
+                    if timezone.now() > booking.expiry_time and booking.booking_type == 3:
+                    # expiry time has been hit, destroy the Booking then ditch it
+                    #booking.delete()
+                        del request.session['ps_booking']
 
-            if CHECKOUT_PATH.match(request.path) and request.method == 'POST' and booking.booking_type == 3:
-                # safeguard against e.g. part 1 of the multipart checkout confirmation process passing, then part 2 timing out.
-                # on POST boosts remaining time to at least 2 minutes
-                booking.expiry_time = max(booking.expiry_time, timezone.now()+datetime.timedelta(minutes=2))
-                booking.save()
+                if CHECKOUT_PATH.match(request.path) and request.method == 'POST' and booking.booking_type == 3:
+                    # safeguard against e.g. part 1 of the multipart checkout confirmation process passing, then part 2 timing out.
+                    # on POST boosts remaining time to at least 2 minutes
+                    booking.expiry_time = max(booking.expiry_time, timezone.now()+datetime.timedelta(minutes=2))
+                    booking.save()
 
-        # force a redirect if in the checkout
-        if ('ps_booking_internal' not in request.COOKIES) and CHECKOUT_PATH.match(request.path):
-            if ('ps_booking' not in request.session) and CHECKOUT_PATH.match(request.path):
-                url_redirect = reverse('public_make_booking')
-                response = HttpResponse("<script> window.location='"+url_redirect+"';</script> <center><div class='container'><div class='alert alert-primary' role='alert'><a href='"+url_redirect+"'> Redirecting please wait: "+url_redirect+"</a><div></div></center>")
-                return response
-                #return HttpResponseRedirect(reverse('public_make_booking'))
-            else:
-                return response
+            # force a redirect if in the checkout
+            if ('ps_booking_internal' not in request.COOKIES) and CHECKOUT_PATH.match(request.path):
+                if ('ps_booking' not in request.session) and CHECKOUT_PATH.match(request.path):
+                    url_redirect = reverse('public_make_booking')
+                    response = HttpResponse("<script> window.location='"+url_redirect+"';</script> <center><div class='container'><div class='alert alert-primary' role='alert'><a href='"+url_redirect+"'> Redirecting please wait: "+url_redirect+"</a><div></div></center>")
+                    return response
+                    #return HttpResponseRedirect(reverse('public_make_booking'))
+                else:
+                    return response
         return response
 
 

@@ -501,7 +501,7 @@ def search_suggest(request, *args, **kwargs):
         f.write(dumped_data)
         f.close()
 
-    dumped_data = search_suggest_data()
+    #dumped_data = search_suggest_data()
     return HttpResponse(dumped_data, content_type='application/json')
 
 def search_suggest_data():
