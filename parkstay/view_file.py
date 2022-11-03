@@ -32,6 +32,7 @@ def getFile(request, height, width):
                  return HttpResponse(the_data, content_type="application/vnd.ms-outlook")
    
              return HttpResponse(the_data, content_type=mimetypes.types_map['.'+str(extension)])
+     return HttpResponse("FILE NOT FOUND", content_type="text/html")
 
 
 
