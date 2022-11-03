@@ -145,8 +145,8 @@ class CampgroundGroupAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """ Filter based on the group of the user"""
         qs = super(CampgroundGroupAdmin, self).get_queryset(request)
-        #if request.user.is_superuser:
-        #    return qs
+        if request.user.is_staff:
+            return qs
         group = models.CampgroundGroup.objects.filter(members__in=[request.user, ])
         return qs.filter(id__in=group)
 
