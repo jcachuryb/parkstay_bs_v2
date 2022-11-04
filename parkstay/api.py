@@ -1151,8 +1151,6 @@ def campground_availabilty_view2(request,  *args, **kwargs):
 
 def campsite_availablity_view(request,  *args, **kwargs):
 
-    #import time
-    #time.sleep(3)
     """Fetch full campsite availability for a campground."""
     # check if the user has an ongoing booking
     user_logged_in = None
@@ -1166,7 +1164,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
             ongoing_booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
         else:
             del request.session['ps_booking']
-
+    
     campground_id = kwargs.get('campground_id', None)
     change_booking_id = request.GET.get('change_booking_id', None)
 
@@ -1181,6 +1179,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
           if cb.campsite.campsite_class:
               current_booking_campsite_class_id = cb.campsite.campsite_class.id
 
+    
     show_all = False
     # convert GET parameters to objects
     #ground = Campground.objects.get(id=campground_id)
@@ -1207,6 +1206,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     num_infant = serializer.validated_data['num_infant']
     gear_type = serializer.validated_data['gear_type']
 
+    
     # get a length of the stay (in days), capped if necessary to the request maximum
     length = max(0, (end_date - start_date).days)
 
@@ -1217,7 +1217,6 @@ def campsite_availablity_view(request,  *args, **kwargs):
 
     # if campground doesn't support online bookings, abort!
     if ground['campground_type'] == 1:
-        print ("Is not bookable - 1")
         result = booking_availability.not_bookable_online(ongoing_booking,ground,start_date,end_date,num_adult,num_concession,num_child,num_infant,gear_type)
         return HttpResponse(geojson.dumps(
             result
@@ -1232,7 +1231,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     
     for s in sites_qs:
         sites_array.append({'pk': s['id'], 'data': s})
-
+    
     # fetch rate map
     rates = {
         siteid: {
@@ -1240,10 +1239,10 @@ def campsite_availablity_view(request,  *args, **kwargs):
             for date, info in dates.items()
         } for siteid, dates in booking_availability.get_visit_rates(ground['id'],sites_array, start_date, end_date).items()
     }
-
+   
     # fetch availability map
     availability = booking_availability.get_campsite_availability(ground['id'],sites_array, start_date, end_date, user_logged_in, change_booking_id)
-
+    
     # create our result object, which will be returned as JSON
     result = {
         'id': ground['id'],
@@ -1266,6 +1265,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     }
     # group results by campsite class
     if ground['site_type'] in (1, 2):
+        
         # from our campsite queryset, generate a distinct list of campsite classes
         classes = []
         classes_added =[]
@@ -1392,8 +1392,6 @@ def campsite_availablity_view(request,  *args, **kwargs):
         for klass in classes_map.values():
             klass['breakdown'] = [{'name': k, 'availability': v} for k, v in klass['breakdown'].items()]
 
-        print ("CLASS MAP")
-        print (class_sites_map)
         # any campsites remaining in the class sites map have zero bookings!
         # check if there's any left for each class, and if so return that as the target
         for k, v in class_sites_map.items():

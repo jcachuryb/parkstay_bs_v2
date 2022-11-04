@@ -4,6 +4,7 @@ venv/
 venv2/
 cronjobs
 mooring/cache/*
+parkstay/frontend/searchavail/node_modules/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

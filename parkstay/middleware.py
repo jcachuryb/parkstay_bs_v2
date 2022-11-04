@@ -21,7 +21,7 @@ class BookingTimerMiddleware(object):
 
     def pr(self, request):
         response= self.get_response(request)
-        if request.path.startswith('/static') or request.path.startswith('/favicon') or request.path.startswith('/media') or request.path.startswith('/api') or request.path.startswith('/search-availability/information/') or request.path.startswith('/search-availability/campground/'):
+        if request.path.startswith('/static') or request.path.startswith('/favicon') or request.path.startswith('/media') or request.path.startswith('/api') or request.path.startswith('/search-availability/information/') or request.path.startswith('/search-availability/campground/') or request.path.startswith('/campground-image'):
              pass
         else:
             if 'ps_booking' in request.session:

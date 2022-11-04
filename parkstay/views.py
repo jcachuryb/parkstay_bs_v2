@@ -52,6 +52,8 @@ from parkstay.helpers import is_officer
 from parkstay import utils
 from parkstay import booking_availability
 from parkstay import context_processors
+
+from parkstay import utils_cache
 import json
 import hashlib
 
@@ -1027,7 +1029,7 @@ class SearchAvailablityByCampground(TemplateView):
         arrival=request.GET.get('arrival', None)
         departure=request.GET.get('departure', None)
         change_booking_id = request.GET.get('change_booking_id', None)
-      
+        
 
         # Start Check for temp booking and if payment exists otherwise clean up temporary booking.
         booking = None
@@ -1049,7 +1051,7 @@ class SearchAvailablityByCampground(TemplateView):
         #print ("BASKET")
         #print (basket)
         # End Check for temp booking and if payment exists otherwise clean up temporary booking.
-
+        
         today = timezone.now().date()
         context['change_booking'] = None
         context['change_booking_after_arrival_before_departure'] = False
@@ -1117,66 +1119,103 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['departure'] = departure
         context['cg']['friendly_departure'] = friendly_departure
 
-        campground_query = Campground.objects.get(id=campground_id)
-        max_people = Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_people'))["max_people__max"]
-        max_vehicles = Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_vehicles'))["max_vehicles__max"]
+        campground_obj = utils_cache.get_campground(campground_id)
+        #campground_query = Campground.objects.get(id=campground_id)
+        #max_people = Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_people'))["max_people__max"]
+        #max_vehicles = Campsite.objects.filter(campground_id=campground_id).aggregate(Max('max_vehicles'))["max_vehicles__max"]
 
-        context['cg']['campground']['id'] = campground_query.id
-        context['cg']['campground']['name'] = campground_query.name
-        context['cg']['campground']['largest_camper'] = max_people
-        context['cg']['campground']['largest_vehicle'] = max_vehicles
-        context['cg']['campground']['campground_type'] = campground_query.campground_type
+        #context['cg']['campground']['id'] = campground_query.id
+        #context['cg']['campground']['name'] = campground_query.name
+        #context['cg']['campground']['largest_camper'] = max_people
+        #context['cg']['campground']['largest_vehicle'] = max_vehicles
+        #context['cg']['campground']['campground_type'] = campground_query.campground_type
+        #context['cg']['campground']['description'] = campground_query.description
+        #context['cg']['campground']['about'] = campground_query.about
+        #context['cg']['campground']['booking_information'] = campground_query.booking_information
+        #context['cg']['campground']['campsite_information'] = campground_query.campsite_information
+        #context['cg']['campground']['facilities_information'] = campground_query.facilities_information
+        #context['cg']['campground']['campground_rules'] = campground_query.campground_rules
+        #context['cg']['campground']['fee_information'] = campground_query.fee_information
+        #context['cg']['campground']['health_and_safety_information'] = campground_query.health_and_safety_information
+        #context['cg']['campground']['location_information'] = campground_query.location_information
+        #context['cg']['campground']['campground_map'] = campground_query.campground_map
+        #context['cg']['campground']['max_advance_booking'] = campground_query.max_advance_booking
+
+        #context['cg']['campground']['park'] = {}
+        #context['cg']['campground']['park']['id'] = campground_query.park.id
+        #context['cg']['campground']['park']['name'] = campground_query.park.name
+        #context['cg']['campground']['park']['alert_count'] = campground_query.park.alert_count
+        #context['cg']['campground']['park']['alert_url'] = settings.ALERT_URL
+
+
+
+        context['cg']['campground']['id'] = campground_obj['campground']['id']
+        context['cg']['campground']['name'] = campground_obj['campground']['name']
+        context['cg']['campground']['largest_camper'] = campground_obj['campground']['largest_camper']
+        context['cg']['campground']['largest_vehicle'] = campground_obj['campground']['largest_vehicle']
+        context['cg']['campground']['campground_type'] = campground_obj['campground']['campground_type']
+        context['cg']['campground']['description'] = campground_obj['campground']['description']
+        context['cg']['campground']['about'] = campground_obj['campground']['about']
+        context['cg']['campground']['booking_information'] = campground_obj['campground']['booking_information']
+        context['cg']['campground']['campsite_information'] = campground_obj['campground']['campsite_information']
+        context['cg']['campground']['facilities_information'] = campground_obj['campground']['facilities_information']
+        context['cg']['campground']['campground_rules'] = campground_obj['campground']['campground_rules']
+        context['cg']['campground']['fee_information'] = campground_obj['campground']['fee_information']
+        context['cg']['campground']['health_and_safety_information'] = campground_obj['campground']['health_and_safety_information']
+        context['cg']['campground']['location_information'] = campground_obj['campground']['location_information']
+        context['cg']['campground']['campground_map'] = campground_obj['campground']['campground_map'] 
+        context['cg']['campground']['max_advance_booking'] = campground_obj['campground']['max_advance_booking']
+
         context['cg']['campground']['park'] = {}
-        context['cg']['campground']['park']['id'] = campground_query.park.id
-        context['cg']['campground']['park']['name'] = campground_query.park.name
-        context['cg']['campground']['park']['alert_count'] = campground_query.park.alert_count
+        context['cg']['campground']['park']['id'] = campground_obj['park']['id']
+        context['cg']['campground']['park']['name'] = campground_obj['park']['name']
+        context['cg']['campground']['park']['alert_count'] = campground_obj['park']['alert_count']
         context['cg']['campground']['park']['alert_url'] = settings.ALERT_URL
-        context['cg']['campground']['description'] = campground_query.description
-        context['cg']['campground']['about'] = campground_query.about
-        context['cg']['campground']['booking_information'] = campground_query.booking_information
-        context['cg']['campground']['campsite_information'] = campground_query.campsite_information
-        context['cg']['campground']['facilities_information'] = campground_query.facilities_information
-        context['cg']['campground']['campground_rules'] = campground_query.campground_rules
-        context['cg']['campground']['fee_information'] = campground_query.fee_information
-        context['cg']['campground']['health_and_safety_information'] = campground_query.health_and_safety_information
-        context['cg']['campground']['location_information'] = campground_query.location_information
-        context['cg']['campground']['campground_map'] = campground_query.campground_map
-        context['cg']['campground']['max_advance_booking'] = campground_query.max_advance_booking
 
-        if campground_query.campground_image:
-            context['cg']['campground']['campground_image'] = campground_query.campground_image.image_size(1200,800)
-        else:
-            context['cg']['campground']['campground_image'] = ""
-       
-        context['cg']['campground']['camping_images'] = []
-        campimages = parkstay_models.CampgroundImage.objects.filter(campground_id=campground_query.id)
-        for ci in campimages:
-            context['cg']['campground']['camping_images'].append({ 'image_url': ci.image.url })
-
-
-        context['cg']['campground_notices_red'] = 0
-        context['cg']['campground_notices_orange'] = 0
-        context['cg']['campground_notices_blue'] = 0
-
-        campground_notices_query = CampgroundNotice.objects.filter(campground_id=campground_id).order_by("order")
+        context['cg']['campground']['campground_image'] = campground_obj['campground']['campground_image']
+        context['cg']['campground']['camping_images'] = campground_obj['campground']['camping_images']
         
-        campground_notices_array = []
-        for cnq in campground_notices_query:
-               if cnq.notice_type == 0:
-                   context['cg']['campground_notices_red'] = context['cg']['campground_notices_red'] + 1
-               if cnq.notice_type == 1:
-                   context['cg']['campground_notices_orange'] = context['cg']['campground_notices_orange'] + 1
-               if cnq.notice_type == 2:
-                   context['cg']['campground_notices_blue'] = context['cg']['campground_notices_blue'] + 1
+        context['cg']['campground_notices_red'] = campground_obj['campground']['campground_notices_red']
+        context['cg']['campground_notices_orange'] = campground_obj['campground']['campground_notices_orange']
+        context['cg']['campground_notices_blue'] = campground_obj['campground']['campground_notices_blue']
 
-               campground_notices_array.append({'id': cnq.id, 'notice_type' : cnq.notice_type,'message': cnq.message})
+        context['cg']['campground_notices'] = campground_obj['campground']['campground_notices']
 
-        features_obj = []
-        context['cg']['campground_notices'] = campground_notices_array
-        features_query = Feature.objects.filter(type=1)
-        for f in features_query:
-            features_obj.append({'id': f.id,'name': f.name, 'symb': 'RF8G', 'description': f.description, 'type': f.type, 'key': 'twowheel','remoteKey': [f.name]})
-        # {name: '2WD accessible', symb: 'RV2', key: 'twowheel', 'remoteKey': ['2WD/SUV ACCESS']},
+        #if campground_query.campground_image:
+        #    context['cg']['campground']['campground_image'] = campground_query.campground_image.image_size(1200,800)
+        #else:
+        #    context['cg']['campground']['campground_image'] = ""
+       
+        #context['cg']['campground']['camping_images'] = []
+        #campimages = parkstay_models.CampgroundImage.objects.filter(campground_id=campground_query.id)
+        #for ci in campimages:
+        #    context['cg']['campground']['camping_images'].append({ 'image_url': ci.image.url })
+
+
+        #context['cg']['campground_notices_red'] = 0
+        #context['cg']['campground_notices_orange'] = 0
+        #context['cg']['campground_notices_blue'] = 0
+
+        #campground_notices_query = CampgroundNotice.objects.filter(campground_id=campground_id).order_by("order")
+        #
+        #campground_notices_array = []
+        #for cnq in campground_notices_query:
+        #       if cnq.notice_type == 0:
+        #           context['cg']['campground_notices_red'] = context['cg']['campground_notices_red'] + 1
+        #       if cnq.notice_type == 1:
+        #           context['cg']['campground_notices_orange'] = context['cg']['campground_notices_orange'] + 1
+        #       if cnq.notice_type == 2:
+        #           context['cg']['campground_notices_blue'] = context['cg']['campground_notices_blue'] + 1
+
+        #       campground_notices_array.append({'id': cnq.id, 'notice_type' : cnq.notice_type,'message': cnq.message})
+
+        #context['cg']['campground_notices'] = campground_notices_array
+        features_obj = utils_cache.get_features() 
+        #features_obj = []
+        #features_query = Feature.objects.filter(type=1)
+        #for f in features_query:
+        #    features_obj.append({'id': f.id,'name': f.name, 'symb': 'RF8G', 'description': f.description, 'type': f.type, 'key': 'twowheel','remoteKey': [f.name]})
+        ## {name: '2WD accessible', symb: 'RV2', key: 'twowheel', 'remoteKey': ['2WD/SUV ACCESS']},
         context['features'] = features_obj
         context['features_json'] = json.dumps(features_obj)
         return render(request, self.template_name, context)
