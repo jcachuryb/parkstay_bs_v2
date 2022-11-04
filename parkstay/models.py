@@ -97,6 +97,7 @@ class Park(models.Model):
 
     def save(self, *args, **kwargs):
         cache.delete('parks')
+        cache.delete('utils_cache.get_park('+str(self.id)+')')
         self.full_clean()
         super(Park, self).save(*args, **kwargs)
 
@@ -237,6 +238,7 @@ class Campground(models.Model):
            cache.delete('booking_availability.get_campsites_for_campground')
            cache.delete('booking_availability.get_campsites_for_campground:'+str(self.id))
            cache.delete('utils_cache.all_campground_campsites('+str(self.id)+')')
+           cache.delete('utils_cache.get_campground('+str(self.id)+')')
 
         super(Campground, self).save(*args, **kwargs)
 
@@ -1009,6 +1011,7 @@ class Feature(models.Model):
 
     def save(self, *args, **kwargs):
         cache.delete('features_array_type_0:')
+        cache.delete('booking_availability.get_features()')
         super(Feature, self).save(*args, **kwargs)
 
     def __str__(self):

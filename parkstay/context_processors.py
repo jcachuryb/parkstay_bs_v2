@@ -8,7 +8,7 @@ import json
 def parkstay_url(request):
     session_id = request.COOKIES.get('sessionid', None)
     is_authenticated = False
-
+    
     #user_request = request.user
     #if user_request.is_authenticated is True:
     #    is_authenticated = True
@@ -62,6 +62,7 @@ def parkstay_url(request):
         'QUEUE_DOMAIN' : settings.QUEUE_DOMAIN,
         'QUEUE_URL' : settings.QUEUE_URL,
         'QUEUE_ACTIVE_HOSTS' : settings.QUEUE_ACTIVE_HOSTS,
+        'QUEUE_GROUP_NAME' : settings.QUEUE_GROUP_NAME,
         'LEDGER_UI_URL' : settings.LEDGER_UI_URL,
         'PARKSTAY_PERMISSIONS' : parkstay_permissions,
         'template_group' : 'parksv2',

@@ -11,10 +11,16 @@ from django.db.models import Max
 import json
 
 def get_features():
+    cached_data = cache.get('booking_availability.get_features()')
     features_array = {}
-    features = models.Feature.objects.all()
-    for f in features:
-         features_array[f.id] = {'id': f.id, 'name': f.name, 'description': f.description, 'type': f.type }
+    if cached_data is None:
+        features = models.Feature.objects.all()
+        for f in features:
+             features_array[f.id] = {'id': f.id, 'name': f.name, 'description': f.description, 'type': f.type }
+        cache.set('booking_availability.get_features()', json.dumps(features_array),  86400)
+    else:
+        features_array = json.loads(cached_data)
+
     return features_array
     
 
@@ -23,7 +29,7 @@ def get_campsites_for_campground(ground, gear_type):
     sites_array = []
     cached_data = cache.get('booking_availability.get_campsites_for_campground:'+str(ground['id']))
     features_array = get_features() 
-    cached_data = None
+    #cached_data = None
     if cached_data is None:
         sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name','short_description','vehicle','motorcycle','trailer').order_by('name')
         for cs in sites_qs:
@@ -173,9 +179,7 @@ def get_campground_rates(campground_id):
               rates_array.append(row)
 
         cache.set('booking_availability.get_campground_rates_'+str(campground_id), json.dumps(rates_array, default=json_serial),  86400)
-        print ("NOT CACEHED")
     else:
-        print ("CACHED RATES")
         rates_array = json.loads(cached_data)
 
     return rates_array 

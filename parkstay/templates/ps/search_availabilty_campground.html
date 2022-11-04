@@ -574,7 +574,7 @@
 			   </div> 
 			   <div class="col-6 text-end">
 				   {% if cg.campground.campground_map %}
-				   <i class="bi bi-map-fill" style='color:#B8591F'></i> <A href='/media/{{ cg.campground.campground_map }}' target='campground_map_{{ cg.campground.id }}' style='text-decoration: none;'>Campground map</a>
+				   <i class="bi bi-map-fill" style='color:#B8591F'></i> <A href='{{ cg.campground.campground_map }}' target='campground_map_{{ cg.campground.id }}' style='text-decoration: none;'>Campground map</a>
 				   {% endif %}
 			   </div>
 		   </div>

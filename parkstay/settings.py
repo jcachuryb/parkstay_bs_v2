@@ -13,7 +13,7 @@ BOOKING_TIMEOUT = 1800
 
 INSTALLED_APPS += [
     'webtemplate_dbca',
-    'bootstrap3',
+#    'bootstrap3',
     'parkstay',
     'taggit',
     'rest_framework',
@@ -26,9 +26,10 @@ INSTALLED_APPS += [
 MIDDLEWARE_CLASSES += [
     'parkstay.middleware.BookingTimerMiddleware',
     'parkstay.middleware.CacheControl',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
-
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'parkstay.queue_middleware.QueueControl',
 ]
+
 MIDDLEWARE = MIDDLEWARE_CLASSES
 MIDDLEWARE_CLASSES = None
 SESSION_COOKIE_HTTPONLY=True
@@ -89,6 +90,33 @@ LOGGING['loggers']['booking_checkout'] = {
     'handlers': ['console'],
     'level': 'INFO'
 }
+
+LOGGING['loggers']['django.db.backends'] = {
+    'handlers': ['file'],
+    'level': 'DEBUG',
+    'propagate': True, 
+}
+
+## To see database sql queries
+#LOGGING = {
+#    'version': 1,
+#    'disable_existing_loggers': False,
+#    'handlers': {
+#        'file': {
+#            'level': 'DEBUG',
+#            'class': 'logging.FileHandler',
+#            'filename': 'sql.log',
+#        },
+#    },
+#    'loggers': {
+#        'django.db.backends': {
+#            'handlers': ['file'],
+#            'level': 'DEBUG',
+#            'propagate': True,
+#        },
+#    },
+#}
+
 os.environ['LEDGER_REFUND_TRANSACTION_CALLBACK_MODULE'] = 'parkstay:parkstay.api.refund_transaction_callback'
 os.environ['LEDGER_INVOICE_TRANSACTION_CALLBACK_MODULE'] = 'parkstay:parkstay.api.invoice_callback'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
@@ -97,6 +125,9 @@ SYSTEM_NAME = env('SYSTEM_NAME', 'Parkstay WA')
 EMAIL_FROM = env('EMAIL_FROM', ADMINS[0])
 DEFAULT_FROM_EMAIL = EMAIL_FROM
 WAITING_QUEUE_ENABLED = env('WAITING_QUEUE_ENABLED',"False")
+QUEUE_GROUP_NAME = env('QUEUE_GROUP_NAME', None)
+QUEUE_WAITING_URL = env('QUEUE_WAITING_URL', None)
+
 PS_PAYMENT_SYSTEM_ID = env('PS_PAYMENT_SYSTEM_ID', 'S483')
 if not VALID_SYSTEMS:
     VALID_SYSTEMS = [PS_PAYMENT_SYSTEM_ID]
