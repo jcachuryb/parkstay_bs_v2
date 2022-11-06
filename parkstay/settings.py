@@ -11,6 +11,8 @@ SITE_ID = 1
 # number of seconds before expiring a temporary booking
 BOOKING_TIMEOUT = 1800
 
+
+
 INSTALLED_APPS += [
     'webtemplate_dbca',
 #    'bootstrap3',
@@ -27,11 +29,8 @@ MIDDLEWARE_CLASSES += [
     'parkstay.middleware.BookingTimerMiddleware',
     'parkstay.middleware.CacheControl',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'parkstay.queue_middleware.QueueControl',
 ]
 
-MIDDLEWARE = MIDDLEWARE_CLASSES
-MIDDLEWARE_CLASSES = None
 SESSION_COOKIE_HTTPONLY=True
 # maximum number of days allowed for a booking
 PS_MAX_BOOKING_LENGTH = 28 
@@ -145,6 +144,11 @@ BOOKING_PROPERTY_CACHE_VERSION='v1.04'
 QUEUE_DOMAIN = env('QUEUE_DOMAIN','')
 QUEUE_URL = env('QUEUE_URL','')
 QUEUE_ACTIVE_HOSTS = env('QUEUE_ACTIVE_HOSTS','')
+ENABLE_QUEUE_MIDDLEWARE = env('ENABLE_QUEUE_MIDDLEWARE',False)
+if ENABLE_QUEUE_MIDDLEWARE is True or ENABLE_QUEUE_MIDDLEWARE == 'True':
+    MIDDLEWARE_CLASSES += [
+        'parkstay.queue_middleware.QueueControl',
+    ]
 
 # Use git commit hash for purging cache in browser for deployment changes
 GIT_COMMIT_HASH = ''
@@ -180,3 +184,6 @@ else:
 #]
 LEDGER_UI_CARDS_MANAGEMENT = True
 BOOKING_PREFIX="PB"
+MIDDLEWARE = MIDDLEWARE_CLASSES
+MIDDLEWARE_CLASSES = None
+

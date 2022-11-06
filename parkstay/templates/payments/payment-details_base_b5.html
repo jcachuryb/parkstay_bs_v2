@@ -1,0 +1,55 @@
+{% extends "payments/payment-details_base_b5.html" %}
+
+{% block page_content_inner_top %}
+<!-- Payment Timer to automatically expire session -->
+<div class='col-lg-12' style="padding: 20px; background-color: #f9f9f9;">
+	<b>Time left to complete booking <span id='timeleft'></span>.</b>
+	<script>
+
+        var checkout_timer = {
+		var: {"timer": {{ booking_timer }} ,"timeleft": {{ booking_timer }} },
+	          
+	     
+             get: function() { 
+                      var mins = ~~(checkout_timer.var.timeleft / 60);
+                      var secs = checkout_timer.var.timeleft % 60;
+
+                      // Hours, minutes and seconds
+                      var hrs = ~~(checkout_timer.var.timeleft / 3600);
+                      var mins = ~~((checkout_timer.var.timeleft % 3600) / 60);
+                      var secs = checkout_timer.var.timeleft % 60;
+
+                      // Output like "1:01" or "4:03:59" or "123:03:59"
+                      var ret = "";
+
+                      if (hrs > 0) {
+                          ret += "" + hrs + ":" + (mins < 10 ? "0" : "");
+                      }
+
+                      ret += "" + mins + ":" + (secs < 10 ? "0" : "");
+                      ret += "" + secs;
+                      return ret;
+	           },
+            	   updateTimer: function() { 
+			var timeleft = checkout_timer.var.timer;
+			var downloadTimer = setInterval(function(){
+			  if(timeleft <= 0){
+			    clearInterval(downloadTimer);
+			    document.getElementById("timeleft").innerHTML = "Time UP";
+			    window.location.reload();
+			  } else {
+			    document.getElementById("timeleft").innerHTML = checkout_timer.get();
+			    checkout_timer.var.timeleft = timeleft; 
+			  }
+			  
+			  timeleft -= 1;
+			}, 1000);
+
+            	   }
+          
+
+	     }
+          checkout_timer.updateTimer();
+	</script>
+</div>
+{% endblock %}
