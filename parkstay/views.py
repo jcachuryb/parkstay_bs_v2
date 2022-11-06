@@ -1034,6 +1034,7 @@ class SearchAvailablityByCampground(TemplateView):
         # Start Check for temp booking and if payment exists otherwise clean up temporary booking.
         booking = None
         basket = None
+       
         try:
             booking = utils.get_session_booking(request.session)
         except:
@@ -1057,7 +1058,8 @@ class SearchAvailablityByCampground(TemplateView):
         context['change_booking_after_arrival_before_departure'] = False
         friendly_arrival = ''
         friendly_departure = ''
-        if self.request.user.is_authenticated:
+        #if self.request.user.is_authenticated:
+        if self.request.session['is_authenticated'] is True:
               if change_booking_id is not None:
                     if int(change_booking_id) > 0:
                           if Booking.objects.filter(id=change_booking_id, is_canceled=False).count() > 0:
@@ -1095,7 +1097,7 @@ class SearchAvailablityByCampground(TemplateView):
 
                                        
 
-
+        
         if context['change_booking'] is None:
               if change_booking_id is not None:
                       self.template_name = 'ps/search_availabilty_campground_change_booking_error.html'

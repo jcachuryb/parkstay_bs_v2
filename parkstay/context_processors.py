@@ -3,12 +3,13 @@ from parkstay import models
 from parkstay import utils
 from ledger_api_client import utils as ledger_api_utils
 from django.core.cache import cache
+from django.utils import timezone
 import json
 
 def parkstay_url(request):
     session_id = request.COOKIES.get('sessionid', None)
     is_authenticated = False
-    
+    booking_timer = 0
     #user_request = request.user
     #if user_request.is_authenticated is True:
     #    is_authenticated = True
@@ -17,7 +18,15 @@ def parkstay_url(request):
         if request.session['is_authenticated'] is True:
              is_authenticated = True
 
-    
+    if request.path.startswith('/ledger-api/payment-details'):
+       booking_timer = 400
+       if 'ps_booking' in request.session:
+           try:
+               booking = models.Booking.objects.get(pk=request.session['ps_booking'])
+               booking_timer = (booking.expiry_time-timezone.now()).seconds if booking else -1
+           except:
+               pass
+
     # staff need to login and logout for permissions to refresh
     parkstay_permissions_cache = cache.get('parkstay_url_permissions'+str(is_authenticated)+str(session_id))
     #parkstay_officers = ledger_api_utils.user_in_system_group(request.user.id,'Parkstay Officers')
@@ -69,5 +78,6 @@ def parkstay_url(request):
         'LEDGER_SYSTEM_ID' : settings.PS_PAYMENT_SYSTEM_ID.replace("S","0"),
         'template_title' : '',
         'ledger_totals': lt,
-        'parkstay_officers' : parkstay_officers
+        'parkstay_officers' : parkstay_officers,
+        'booking_timer' : booking_timer
     }
