@@ -1029,8 +1029,16 @@ class SearchAvailablityByCampground(TemplateView):
         arrival=request.GET.get('arrival', None)
         departure=request.GET.get('departure', None)
         change_booking_id = request.GET.get('change_booking_id', None)
-        
+       
+        try:
+            if int(campground_id) > 0:
+                 pass
+            else:
+               return redirect(reverse('search_availability_information'))
+        except:
+            return redirect(reverse('search_availability_information'))
 
+      
         # Start Check for temp booking and if payment exists otherwise clean up temporary booking.
         booking = None
         basket = None
