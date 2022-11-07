@@ -77,16 +77,16 @@ class CacheControl(object):
        elif request.path[:20] == '/api/campground_map/':
             response['Cache-Control'] = 'public, max-age=300'
        elif request.path[:17] == '/campground-image':
-            response['Cache-Control'] = 'public, max-age=86400'
+            response['Cache-Control'] = 'public, max-age=3600'
        elif request.path[:31] == '/api/campsite_availablity_view/':
             response['Cache-Control'] = 'private, no-store'
        elif request.path[:5] == '/api/':
             response['Cache-Control'] = 'private, no-store'
             #response['Cache-Control'] = 'public, max-age=60'
        elif request.path[:8] == '/static/':
-            response['Cache-Control'] = 'public, max-age=172800'
+            response['Cache-Control'] = 'public, max-age=3600'
        elif request.path[:7] == '/media/':
-            response['Cache-Control'] = 'public, max-age=86400'
+            response['Cache-Control'] = 'public, max-age=3600'
        else:
             pass
             #response['Cache-Control'] = 'private, no-store'
