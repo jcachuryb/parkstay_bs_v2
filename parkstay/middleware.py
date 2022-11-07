@@ -84,7 +84,7 @@ class CacheControl(object):
             response['Cache-Control'] = 'private, no-store'
             #response['Cache-Control'] = 'public, max-age=60'
        elif request.path[:8] == '/static/':
-            response['Cache-Control'] = 'public, max-age=86400'
+            response['Cache-Control'] = 'public, max-age=172800'
        elif request.path[:7] == '/media/':
             response['Cache-Control'] = 'public, max-age=86400'
        else:
