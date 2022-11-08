@@ -15,15 +15,18 @@ class QueueControl(object):
     def __init__(self, get_response):
             self.get_response = get_response
 
+
     def __call__(self, request):
-       response= self.get_response(request)
+       #response= self.get_response(request)
        if settings.WAITING_QUEUE_ENABLED is True:
-            
+            print ("LOADING CACHE")
+            print (request.path) 
             sitequeuesession = request.COOKIES.get('sitequeuesession', None)
             if request.path == '/' or request.path.startswith('/search-availability/information/') or request.path.startswith('/search-availability/campground') or  request.path.startswith('/mybookings') or request.path.startswith('/api/'):
 
                  try:
                       if 'HTTP_HOST' in request.META:
+                           print (request.META.get('HTTP_HOST',''))
                            if settings.QUEUE_ACTIVE_HOSTS == request.META.get('HTTP_HOST',''):
                                 if settings.QUEUE_WAITING_URL:
 
@@ -32,15 +35,17 @@ class QueueControl(object):
                                          response =HttpResponse("<script>window.location.replace('"+settings.QUEUE_WAITING_URL+"');</script>Redirecting")
                                          return response
                                     else:
+                                         print ("QUEUE SESSION")
                                          url = settings.QUEUE_URL+"/api/check-create-session/?session_key="+sitequeuesession+"&queue_group="+settings.QUEUE_GROUP_NAME
                                          resp = requests.get(url, data = {}, cookies={},  verify=False)
                                          queue_json = resp.json()
                                          if queue_json['status'] == 'Waiting': 
                                                response =HttpResponse("<script>window.location.replace('"+settings.QUEUE_WAITING_URL+"');</script>Redirecting")
-                                               return response
                                                print ('You are waiting')
+                                               return response
                                          else:
                                                print ('Active Session')
+                                               
                  except Exception as e:
                      print (e)
                      print ("ERROR LOADING QUEUE")
@@ -48,5 +53,5 @@ class QueueControl(object):
                  pass
        else:
            pass
-
+       response= self.get_response(request)
        return response
