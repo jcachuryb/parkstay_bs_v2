@@ -28,6 +28,7 @@ class QueueControl(object):
                                 if settings.QUEUE_WAITING_URL:
 
                                     if sitequeuesession is None:
+                                         print ("QUEUE REDIRECT")
                                          response =HttpResponse("<script>window.location.replace('"+settings.QUEUE_WAITING_URL+"');</script>Redirecting")
                                          return response
                                     else:
