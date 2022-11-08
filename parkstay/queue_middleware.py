@@ -20,7 +20,7 @@ class QueueControl(object):
        if settings.WAITING_QUEUE_ENABLED is True:
             
             sitequeuesession = request.COOKIES.get('sitequeuesession', None)
-            if request.path == '/' or request.path.startswith('/search-availability/information/') or request.path.startswith('/search-availability/campground') or  request.path.startswith('/mybookings'):
+            if request.path == '/' or request.path.startswith('/search-availability/information/') or request.path.startswith('/search-availability/campground') or  request.path.startswith('/mybookings') or request.path.startswith('/api/'):
 
                  try:
                       if 'HTTP_HOST' in request.META:
