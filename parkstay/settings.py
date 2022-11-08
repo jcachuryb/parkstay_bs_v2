@@ -104,7 +104,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/app/logs/sql.log',
+            'filename': str(BASE_DIR)+'/logs/sql.log',
         },
     },
     'loggers': {
