@@ -15,10 +15,13 @@ class QueueControl(object):
     def __init__(self, get_response):
             self.get_response = get_response
 
-
     def __call__(self, request):
-       #response= self.get_response(request)
        if settings.WAITING_QUEUE_ENABLED is True:
+            # Required for ledger to send completion signal after payment is received.
+            if request.path.startswith('/api/complete_booking/'):
+                 response= self.get_response(request)
+                 return response
+
             sitequeuesession = request.COOKIES.get('sitequeuesession', None)
             if request.path == '/' or request.path.startswith('/search-availability/information/') or request.path.startswith('/search-availability/campground') or  request.path.startswith('/mybookings') or request.path.startswith('/api/'):
 

@@ -94,6 +94,7 @@ urlpatterns = [
     url(r'^$', views.ParkstayRoutingView.as_view(), name='home'),
     url(r'^login-success/$', views.LoginSuccess.as_view(), name='login-success'),
     url(r'^testing-server/$', views.TestView.as_view(), name='test_view'),
+    url(r'^status/$', views.StatusView.as_view(), name='status_view'),
     url(r'^testing-server-with-auth/$', views.TestViewAuth.as_view(), name='test_view'),
     url(r'^search-availability/information/', views.SearchAvailablity.as_view(), name='search_availability_information'),
     url(r'^search-availability/campground/', views.SearchAvailablityByCampground.as_view(), name='search_availability_campground'),

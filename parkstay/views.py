@@ -139,6 +139,24 @@ class TestView(TemplateView):
         response = render(request, self.template_name, context)
         return response
 
+class StatusView(TemplateView):
+    template_name = 'ps/status.html'
+
+    def get(self, request, *args, **kwargs):
+        context = {}
+        context = {'LEDGER_UI_URL' : settings.LEDGER_UI_URL}
+        cached_data = cache.get('StatusView')
+        temp_book_count = 0 
+        context['cached'] = True
+        if cached_data is None:
+            temp_book_count = parkstay_models.Booking.objects.filter(booking_type=3).count()
+            cache.set('StatusView', json.dumps(temp_book_count),  60)
+            context['cached'] = False
+        else:
+            temp_book_count = int(json.loads(cached_data))
+        context['temp_book_count'] = temp_book_count
+        response = render(request, self.template_name, context)
+        return response
 
 class TestViewAuth(UserPassesTestMixin, TemplateView):
     template_name = 'ps/test.html'
