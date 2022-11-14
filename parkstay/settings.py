@@ -9,7 +9,7 @@ ROOT_URLCONF = 'parkstay.urls'
 SITE_ID = 1
 
 # number of seconds before expiring a temporary booking
-BOOKING_TIMEOUT = 660 
+BOOKING_TIMEOUT = 900 
 
 INSTALLED_APPS += [
     'webtemplate_dbca',
