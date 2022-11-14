@@ -9,9 +9,7 @@ ROOT_URLCONF = 'parkstay.urls'
 SITE_ID = 1
 
 # number of seconds before expiring a temporary booking
-BOOKING_TIMEOUT = 1800
-
-
+BOOKING_TIMEOUT = 660 
 
 INSTALLED_APPS += [
     'webtemplate_dbca',
@@ -96,7 +94,7 @@ LOGGING['loggers']['django.db.backends'] = {
     'propagate': True, 
 }
 
-# To see database sql queries
+## To see database sql queries
 #LOGGING = {
 #    'version': 1,
 #    'disable_existing_loggers': False,

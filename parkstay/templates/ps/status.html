@@ -1,0 +1,37 @@
+{% extends 'ps/base.html' %}
+
+{% load static %}
+
+{% block extra_css %}
+    <link type="text/css" href="{% static 'ledger/css/index.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block messages %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h2>
+                    Parkstay Status
+                </h2>
+            </div>
+            <div class="col-md-4">
+		    &nbsp;
+            </div>
+	    <div class="col-md-12 pt-2">
+		 This is placeholder page for status checks
+                 
+	    </div>
+            <div class="col-md-12 pt-2">
+		 DB Temp Count   {{ temp_book_count }}
+	    </div>
+            <div class="col-md-12 pt-2">
+                 Cached {{ cached }}
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
