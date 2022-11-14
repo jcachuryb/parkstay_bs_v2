@@ -52,7 +52,9 @@ def get_campground(campground_id):
         campground['fee_information'] = campground_query.fee_information
         campground['health_and_safety_information'] = campground_query.health_and_safety_information
         campground['location_information'] = campground_query.location_information
-        campground['campground_map'] = campground_query.campground_map.url
+        campground['campground_map'] = ''
+        if campground_query.campground_map:
+            campground['campground_map'] = campground_query.campground_map.url
         campground['max_advance_booking'] = campground_query.max_advance_booking
 
         campground['campground_image'] = ""
