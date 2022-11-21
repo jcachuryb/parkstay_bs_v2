@@ -341,7 +341,6 @@
                    <div class="modal-content">
                      <div class="modal-header">
                        <h5 class="modal-title" id="exampleModalLabel">Vehicle</h5>
-                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                      </div>
                      <div class="modal-body">
                        <div class="alert alert-danger" role="alert" id='vehicle-popup-error' style='display:none'></div>
@@ -438,7 +437,6 @@
         </div>
 
          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id='group-close-modal' data-bs-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary peak-group-create" v-on:click="updateVehiclesFees"  button-data='{"action": "create"}'>Save</button>
             <div class="spinner-border text-primary" role="status" style='display:none' id='peakgroup_progress_loader_create'>
                       <span class="visually-hidden">Loading...</span>
