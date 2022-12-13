@@ -1,10 +1,16 @@
 # Prepare the base environment.
-FROM ubuntu:20.04 as builder_base_parkstay
+FROM ubuntu:22.04 as builder_base_parkstay
 MAINTAINER asi@dbca.wa.gov.au
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Australia/Perth
 ENV PRODUCTION_EMAIL=True
 ENV SECRET_KEY="ThisisNotRealKey"
+
+# Use Australian Mirrors
+RUN sed 's/archive.ubuntu.com/au.archive.ubuntu.com/g' /etc/apt/sources.list > /etc/apt/sourcesau.list
+RUN mv /etc/apt/sourcesau.list /etc/apt/sources.list
+# Use Australian Mirrors
+
 RUN apt-get clean
 RUN apt-get update
 RUN apt-get upgrade -y
@@ -38,7 +44,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 COPY cron /etc/cron.d/dockercron
 COPY startup.sh /
-RUN service rsyslog start
+#RUN service rsyslog start
 RUN chmod 0644 /etc/cron.d/dockercron
 RUN crontab /etc/cron.d/dockercron
 RUN touch /var/log/cron.log
