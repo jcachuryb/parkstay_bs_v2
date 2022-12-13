@@ -18,7 +18,7 @@ RUN apt-get install --no-install-recommends -y wget git libmagic-dev gcc binutil
 RUN apt-get install --no-install-recommends -y libpq-dev patch
 RUN apt-get install --no-install-recommends -y mtr
 RUN apt-get install --no-install-recommends -y sqlite3 vim ssh htop
-RUN apt-get install --no-install-recommends -y postgresql-client-12
+RUN apt-get install --no-install-recommends -y postgresql-client
 RUN ln -s /usr/bin/python3 /usr/bin/python 
 #RUN ln -s /usr/bin/pip3 /usr/bin/pip
 RUN pip install --upgrade pip
