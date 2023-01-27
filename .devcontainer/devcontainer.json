@@ -10,6 +10,6 @@
 	"runArgs": ["--env-file","${localEnv:HOME}/vscode-env/parkstayv2.env",
 		   "--hostname","parkstayv2-dev"
 		   ],
-	"forwardPorts": [9091,9092,9093,9094,9095,9096,9097,9098,9099],
+	"forwardPorts": [9091,9092,9093,9094,9095,9096,9097,9098,9099, 9021],
 	"initializeCommand" : "${localEnv:HOME}/docker-scripts-dev/windows_vbox/postgres_docker_load.sh && ${localEnv:HOME}/docker-scripts-dev/windows_vbox/ledger_docker_load.sh "
 }

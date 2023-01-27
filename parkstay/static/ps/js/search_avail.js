@@ -884,15 +884,17 @@ var search_avail = {
 				campsitehtml = campsitehtml + "<div class='row'>";
 				campsitehtml = campsitehtml + "<div class='col-3'>";
 
-				if (campsite_available == true) {
-                                     if (append_site == true) {
-     				          campsitehtml = campsitehtml + "<i class='bi bi-check-square-fill product-availablity-status product-availablity-selection-green' onfocus='search_avail.show_avail_by_day("+campsites[s].id+")'></i>";
-                                     } else {
-					  campsitehtml = campsitehtml + "<i class='bi bi-slash-square-fill product-availablity-status product-availablity-selection-grey' ></i>";
-				     }
-				} else {
-			             campsitehtml = campsitehtml + "<i class='bi bi-x-square-fill product-availablity-status product-availablity-selection-red' ></i>";
-				}
+                campsitehtml = campsitehtml + "<button class='btn btn-dark product-availablity-status' te='product-availablity-status product-availablity-selection-green' onfocus='search_avail.show_avail_by_day("+campsites[s].id+")'>Check Availability</button>";
+				// if (campsite_available == true) {
+                        
+                //         if (append_site == true) {
+     			// 	          campsitehtml = campsitehtml + "<button class='btn btn-dark product-availablity-status' te='product-availablity-status product-availablity-selection-green' onfocus='search_avail.show_avail_by_day("+campsites[s].id+")'>Check Availability</button>";
+                //                      } else {
+				// 	  campsitehtml = campsitehtml + "<i class='bi bi-slash-square-fill product-availablity-status product-availablity-selection-grey' ></i>";
+				//      }
+				// } else {
+			    //          campsitehtml = campsitehtml + "<i class='bi bi-x-square-fill product-availablity-status product-availablity-selection-red' ></i>";
+				// }
                                 
                                 campsitehtml = campsitehtml + "<div id='campsite-availablity-by-day"+campsites[s].id+"' class='product-available-dates-box' >";
 				campsitehtml = campsitehtml + "<h4>Availablity</h4>";
