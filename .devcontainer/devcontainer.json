@@ -1,0 +1,15 @@
+{
+	"name": "Parkstay V2 Development",
+	"image": "dbcawa/docker_app_dev:parkstay_v2_latest",
+	"remoteUser": "container",
+	"workspaceFolder": "/data/data/projects/boranga",
+	"mounts": ["type=bind,source=/data/,target=/data/",
+	           "type=bind,source=/data/data/containerhome/,target=/home/container/"
+	          ],	
+	"appPort": [ "7010:8080","9091:9091","9092:9092","9093:9093","9094:9094","9095:9095","9096:9096","9097:9097","9098:9098","9099:9099" ],
+	"runArgs": ["--env-file","${localEnv:HOME}/vscode-env/parkstayv2.env",
+		   "--hostname","parkstayv2-dev"
+		   ],
+	"forwardPorts": [9091,9092,9093,9094,9095,9096,9097,9098,9099],
+	"initializeCommand" : "${localEnv:HOME}/docker-scripts-dev/windows_vbox/postgres_docker_load.sh && ${localEnv:HOME}/docker-scripts-dev/windows_vbox/ledger_docker_load.sh "
+}
