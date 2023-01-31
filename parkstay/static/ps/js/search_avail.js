@@ -333,12 +333,27 @@ var search_avail = {
            search_avail.var.arrival_days = diffDays;
 	   return diffDays;
     },
+    select_place_id: function(place_id) {
+	    var found = false;
+        for (let i = 0; i < search_avail.var.places.length; i++) {           
+            if (search_avail.var.places[i].id == place_id) {
+                found = true;
+                //alert(search_avail.var.places[i].zoom_level);
+                //
+                search_avail.select_region(search_avail.var.places[i].id, search_avail.var.places[i].name,search_avail.var.places[i].gps[0],search_avail.var.places[i].gps[1],search_avail.var.places[i].zoom_level); 
+            }
+           
+        }   
+	    if (found == false) {
+		 $("#loading-error").html('<div class="alert alert-danger" role="alert">Sorry, unable to find places with id '+place_id+'.</div>');
+	    }
+    },
     select_campground_id: function(campground_id) {
 	    var found = false;
             for (let i = 0; i < search_avail.var.search_locations.features.length; i++) {
                     if (search_avail.var.search_locations.features[i].properties.id == campground_id && search_avail.var.search_locations.features[i].properties.type =='Campground') {
-			   found = true;
-                           search_avail.select_region(search_avail.var.search_locations.features[i].properties.id,search_avail.var.search_locations.features[i].properties.name,search_avail.var.search_locations.features[i].coordinates[0],search_avail.var.search_locations.features[i].coordinates[1],search_avail.var.search_locations.features[i].properties.zoom_level); 
+			            found = true;
+                        search_avail.select_region(search_avail.var.search_locations.features[i].properties.id,search_avail.var.search_locations.features[i].properties.name,search_avail.var.search_locations.features[i].coordinates[0],search_avail.var.search_locations.features[i].coordinates[1],search_avail.var.search_locations.features[i].properties.zoom_level); 
                     }
             }
 	    if (found == false) {
@@ -356,20 +371,20 @@ var search_avail = {
               $('#region-park').show();
     },
     select_region: function(value_id, value_name, coord_1, coord_2, zoom_level) {
-	      $('#coord_1').val(coord_1);
-	      $('#coord_2').val(coord_2);
-	      $('#zoom_level').val(zoom_level);
-              $('#search-filters').show();
- 	      $('#search-selections').show();
-	      // search_avail.load_campground_availabilty();
-	      // need to open the map first before the campground cards will show
-	      search_avail.select_filter_tab('map');
-	      search_avail.select_filter_tab('campgrounds');
+	        $('#coord_1').val(coord_1);
+	        $('#coord_2').val(coord_2);
+	        $('#zoom_level').val(zoom_level);
+            $('#search-filters').show();
+ 	        $('#search-selections').show();
+	        // search_avail.load_campground_availabilty();
+	        // need to open the map first before the campground cards will show
+	        search_avail.select_filter_tab('map');
+	        search_avail.select_filter_tab('campgrounds');
 
-              $('#region-park-selection-outer').show();
-              $('#region-park-selection-inner').html(value_name);
-              $('#ps_search_dropdown').remove();
-              $('#region-park').hide();
+            $('#region-park-selection-outer').show();
+            $('#region-park-selection-inner').html(value_name);
+            $('#ps_search_dropdown').remove();
+            $('#region-park').hide();
     },
     select_filter_tab: function(tab) {
               $('#card-preview').hide();
@@ -884,15 +899,17 @@ var search_avail = {
 				campsitehtml = campsitehtml + "<div class='row'>";
 				campsitehtml = campsitehtml + "<div class='col-3'>";
 
-				if (campsite_available == true) {
-                                     if (append_site == true) {
-     				          campsitehtml = campsitehtml + "<i class='bi bi-check-square-fill product-availablity-status product-availablity-selection-green' onfocus='search_avail.show_avail_by_day("+campsites[s].id+")'></i>";
-                                     } else {
-					  campsitehtml = campsitehtml + "<i class='bi bi-slash-square-fill product-availablity-status product-availablity-selection-grey' ></i>";
-				     }
-				} else {
-			             campsitehtml = campsitehtml + "<i class='bi bi-x-square-fill product-availablity-status product-availablity-selection-red' ></i>";
-				}
+                campsitehtml = campsitehtml + "<button class='btn btn-dark product-availablity-status' te='product-availablity-status product-availablity-selection-green' onfocus='search_avail.show_avail_by_day("+campsites[s].id+")'>Check Availability</button>";
+				// if (campsite_available == true) {
+                        
+                //         if (append_site == true) {
+     			// 	          campsitehtml = campsitehtml + "<button class='btn btn-dark product-availablity-status' te='product-availablity-status product-availablity-selection-green' onfocus='search_avail.show_avail_by_day("+campsites[s].id+")'>Check Availability</button>";
+                //                      } else {
+				// 	  campsitehtml = campsitehtml + "<i class='bi bi-slash-square-fill product-availablity-status product-availablity-selection-grey' ></i>";
+				//      }
+				// } else {
+			    //          campsitehtml = campsitehtml + "<i class='bi bi-x-square-fill product-availablity-status product-availablity-selection-red' ></i>";
+				// }
                                 
                                 campsitehtml = campsitehtml + "<div id='campsite-availablity-by-day"+campsites[s].id+"' class='product-available-dates-box' >";
 				campsitehtml = campsitehtml + "<h4>Availablity</h4>";
@@ -1112,20 +1129,25 @@ var search_avail = {
 	    setTimeout("search_avail.bellflash();",1000);
     },
     init_cg: function () {
-              if (search_avail.var.loaded.locations == false || search_avail.var.loaded.search_locations == false ||  search_avail.var.loaded.places == false) {
-                      $('#LoadingPopup').modal('show');
-		      setTimeout("search_avail.init_cg()",1000);
-	      } else {
+            if (search_avail.var.loaded.locations == false || search_avail.var.loaded.search_locations == false ||  search_avail.var.loaded.places == false) {
+                $('#LoadingPopup').modal('show');
+		        setTimeout("search_avail.init_cg()",1000);
+	        } else {
                  var queryString = window.location.search;
                  var urlParams = new URLSearchParams(queryString);
+                 var DEFAULT_SEARCH_AVAILABILITY_LOCATION = $("#DEFAULT_SEARCH_AVAILABILITY_LOCATION").val();
                  var campground_id = urlParams.get('campground_id');
                  if (campground_id != null) {
                     search_avail.select_campground_id(parseInt(campground_id));
+                 } else {
+                    if (DEFAULT_SEARCH_AVAILABILITY_LOCATION > 0) {
+                        search_avail.select_place_id(parseInt(DEFAULT_SEARCH_AVAILABILITY_LOCATION));
+                    }
                  }
 
                  $('#LoadingPopup').modal('hide');
                  
-	      }
+	        }
 
 
     },	    

@@ -1019,6 +1019,7 @@ class SearchAvailablity(TemplateView):
         context['features_campgrounds'] = features_obj
         context['features_campsites'] = features_obj_campsites
         context['features_json'] = json.dumps(features_obj)
+        context['DEFAULT_SEARCH_AVAILABILITY_LOCATION'] = settings.DEFAULT_SEARCH_AVAILABILITY_LOCATION
         return render(request, self.template_name, context)
 
     #def get(self, *args, **kwargs):
