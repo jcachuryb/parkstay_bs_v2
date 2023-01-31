@@ -56,6 +56,7 @@ window.onload = function() {
 						<input id="coord_1" value='113.84' type='hidden'> 
 						<input id="coord_2" value='-22.247' type='hidden'>
 						<input id="zoom_level" value='12' type='hidden'>
+                                                <input id="DEFAULT_SEARCH_AVAILABILITY_LOCATION" value="{{ DEFAULT_SEARCH_AVAILABILITY_LOCATION }}" type="hidden">
 					</div>
 				      </div>
 				</div>
@@ -203,23 +204,11 @@ window.onload = function() {
 		  <textarea id='feature_json' style='display:none'>{{ features_json }}</textarea>
 		  </form>
 
-                  <div id='search-selections' class="round-box col-12 px-3">
-                         <div class="col-12">
-                                <div class="col-sm-12 col-md-12">
-
-                                      <ul class="nav nav-pills nav-justified">
-                                        <li class="nav-item">
-                                          <a id='card-preview-tab' class="nav-link" aria-current="page" href="javascript:void(0);" onclick="search_avail.select_filter_tab('campgrounds');">Campgrounds</a>
-                                        </li>
-                                        <li class="nav-item">
-                                          <a id='map-preview-tab' class="nav-link active" href="javascript:void(0);" onclick="search_avail.select_filter_tab('map');">Map</a>
-                                        </li>
-                                      </ul>
+                  
 
 
-                                <h5></h5>
-                                </div>
-                         </div>
+                  <div id='search-selections' iclass="round-box col-12 px-3">
+
                          <div class="col-12">
                               <div class='row'>
 

@@ -1,195 +1,72 @@
 <template>
     <div v-cloak class="f6inject">
-<div class="row">
-<div class="small-12 medium-3 large-6 columns search-params">
-<button id='map-reload' type="button" class="button formButton" v-on:click="reloadMap" style='display:none'>MAP RELOAD</button>
-</div>
-</div>
-
-
-<!-- dd -->
-
-        <div id='map-preview' style='display:none'>
-
         <div class="row">
-            <div class="small-12 medium-12 large-12 columns search-params" style='display:none'>
-                <div class="row">
-                    <div class="small-12 columns">
-                        <label>Search <input class="input-group-field" id="searchInput" type="text" placeholder="Search for campgrounds, parks, addresses..."/></label>
-                    </div>
-                </div><div class="row">
-                    <div class="small-12 medium-12 large-4 columns">
-                        <label>Arrival <input id="dateArrival" name="arrival" type="text" placeholder="dd/mm/yyyy" vonchange="updateDates"/></label>
-                    </div>
-                    <div class="small-12 medium-12 large-4 columns">
-                        <label>Departure <input id="dateDeparture" name="departure" type="text" placeholder="dd/mm/yyyy" vonchange="updateDates"/></label>
-                    </div>
-                    <div class="small-12 medium-12 large-4 columns">
-                        <label>
-                            Guests <input type="button" class="button formButton" v-bind:value="numPeople" data-toggle="guests-dropdown"/> 
-                        </label>
-                        <div class="dropdown-pane" id="guests-dropdown" data-dropdown data-auto-focus="true">
-                            <div class="row">
-                                <div class="small-6 columns">
-                                    <label for="num_adults" class="text-right">Adults (non-concessions)</label>
-                                </div><div class="small-6 columns">
-                                   <label> <input type="number" id="numAdults" name="num_adults" v-model.number="numAdults" min="0" max="16"/></label>
+            <div class="small-12 medium-3 large-6 columns search-params">
+                <button id='map-reload' type="button" class="button formButton" v-on:click="reloadMap" style='display:none'>MAP RELOAD</button>
+            </div>
+        </div>
+
+
+        <!-- dd -->
+        <div class="round-box col-12 px-3">
+        <div id='card-previewi' istyle='display:none'>
+
+            <div>
+                <!-- vif="$slots.default && $slots.default.length" -->
+                <VueSlickCarousel v-if="camping_distance_array.length > 0" :arrows="true" :dots="true" v-bind="slicksettings" @reInit="reInitSlides" :key="slickcount">
+	            <div v-for="f in camping_distance_array.slice(0, 21)">
+                        <div class='slick-slide-card' >
+                            <div class='row'>
+                                <div class='col-xs-12 col-sm-6'> 
+                                        <div v-if="f.images && f.images[0] && f.images[0].image">
+                                                <img class="slider-card-thumbnail" v-bind:src="parkstayUrl+'/campground-image-cropped-square/250/400/?mediafile='+f.images[0].image"/>
+                                        </div>
                                 </div>
-                            </div><div class="row">
-                                <div class="small-6 columns">
-                                <!-- <a class="button" v-bind:href="f.info_url" target="_blank">More info</a> -->
-                                    <label for="num_concessions" class="text-right"><span class="has-tip" title="Holders of one of the following Australian-issued cards:
-- Seniors Card
-- Age Pension
-- Disability Support
-- Carer Payment
-- Carer Allowance
-- Companion Card
-- Department of Veterans' Affairs">Concessions</span></label>
-                                </div><div class="small-6 columns">
-                                  <label>  <input type="number" id="numConcessions" name="num_concessions" v-model.number="numConcessions" min="0" max="16"/></label>
+                                <div class='col-xs-12 col-sm-6'>
+                                <div>
+                                <div class="slick-slide-card-title" :title="f.campground_name" :alt="f.campground_name">
+		                                {{ f.campground_name.slice(0, 20) }}<span v-if="f.campground_name.length > 20">...</span>
                                 </div>
-                            </div><div class="row">
-                                <div class="small-6 columns">
-                                    <label for="num_children" class="text-right">Children (ages 6-15)</label>
-                                </div><div class="small-6 columns">
-                                   <label> <input type="number" id="numChildren" name="num_children" v-model.number="numChildren" min="0" max="16"/></label>
+                                <div class="slick-slide-card-distance" title="Distance from selected location" alt="Distance from selected location">
+	                                {{ f.distance_short }}km
+		                        </div>
+                            </div>
+                        <div>
+
+                        <div v-if="f.park_name" v-html="f.park_name.slice(0,55)" class='slick-slide-description'></div>
+                            <div v-if="f.campground_type == 0" >
+                                <div v-if="booking_arrival_days > f.max_advance_booking && permission_to_make_advanced_booking == false" class='slick-slide-card-notavailabile'>
+                                    Book up to {{ f.max_advance_booking }} days
                                 </div>
-                            </div><div class="row">
-                                <div class="small-6 columns">
-                                    <label for="num_infants" class="text-right">Infants (ages 0-5)</label>
-                                </div><div class="small-6 columns">
-                                 <label>   <input type="number" id="numInfants" name="num_infants" v-model.number="numInfants" min="0" max="16"/></label>
+                                <div v-else>
+                                    <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Approximate Sites Available: {{ campgroundSiteTotal[f.id].total_available }}</div>
+                                    <div v-else class='slick-slide-card-notavailabile'>
+                                         No availablity for selected period
+                                    </div>
                                 </div>
+                            </div>
+                            <div class='slick-slide-card-notavailabile' v-else-if="f.campground_type == 1" >
+                                   Bookings not required. Pay on arrival
+                            </div>
+                            <div class='slick-slide-card-notavailabile' v-else-if="f.campground_type == 2" >
+                                   Operated by Parks and Wildlife partner
+                            </div>
+                          
+                            <div v-else ><div>&nbsp;</div></div>
+                                <p v-if="f.price_hint && Number(f.price_hint)"><i><small>From ${{ f.price_hint }} per night</small></i></p>
+                                <!-- This line has to be changed to use a v-if/else clause
+                                    Changed again to utilize changes in api to further enable forwarding offline sites to availability app
+                                -->
+                                <a v-if="(f.campground_type == 0 && campgroundAvailablity[f.id].total_bookable) > 0 && (booking_arrival_days <= f.max_advance_booking || permission_to_make_advanced_booking == true)" class="button formButton1" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
+                                <a v-else-if="f.campground_type == 1" class="button formButton" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" target="_blank">More Info</a>
+                                <a v-else class="button formButton2" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" style="width:100%;" target="_blank">More info</a>
                             </div>
                         </div>
                     </div>
-                    <div class="small-12 medium-12 large-12 columns">
-                        <label><input type="checkbox" v-model="bookableOnly"/> Show bookable campsites only</label>
-                    </div>
-                </div><div class="row"><div class="small-12 columns">
-                    <hr/>
-                </div></div><div class="row">
-                    <div class="small-12 medium-12 large-12 columns">
-                        <label>Select equipment</label>
-                    </div>
-                    <div class="small-12 medium-12 large-4 columns">
-                        <label><input type="radio" name="gear_type" value="all" v-model="gearType" class="show-for-sr" v-on:change="reload()"/><i class="symb RC3"></i> All types</label>
-                    </div>
-                    <div class="small-12 medium-12 large-4 columns">
-                        <label><input type="radio" name="gear_type" value="tent" v-model="gearType" class="show-for-sr" v-on:change="reload()"/><i class="symb RC2"></i> Tent</label>
-                    </div>
-                    <div class="small-12 medium-12 large-4 columns">
-                        <label><input type="radio" name="gear_type" value="campervan" v-model="gearType" class="show-for-sr" v-on:change="reload()"/><i class="symb RV10"></i> Campervan</label>
-                    </div>
-                    <div class="small-12 medium-12 large-5 columns">
-                        <label><input type="radio" name="gear_type" value="caravan" v-model="gearType" class="show-for-sr" v-on:change="reload()"/><i class="symb RC4"></i> Caravan / Camper trailer</label>
-                    </div>
-                </div><div class="row"><div class="small-12 columns">
-                    <hr class="search"/>
-                </div></div><div class="row">
-                    <div class="small-12 medium-12 large-12 columns">
-                        <label>Select features</label>
-                    </div>
-                    <template v-for="filt in filterList">
-                        <div class="small-12 medium-12 large-4 columns">
-                            <label><input type="checkbox" class="show-for-sr" :value="'filt_'+ filt.key" v-model="filterParams[filt.key]" v-on:change="updateFilter()"/> <i class="symb" :class="filt.symb"></i> {{ filt.name }}</label>
-                        </div>
-                    </template>
-                    <template v-for="filt in extraFilterList">
-                        <div class="small-12 medium-12 large-4 columns" v-bind:class="{'filter-hide': hideExtraFilters}">
-                            <label><input type="checkbox" class="show-for-sr" :value="'filt_'+ filt.key" v-model="filterParams[filt.key]" v-on:change="updateFilter()"/> <i class="symb" :class="filt.symb"></i> {{ filt.name }}</label>
-                        </div>
-                    </template>
-                </div><div class="row">
-                    <div class="small-12 medium-12 large-4 columns" v-bind:class="{'filter-hide': hideExtraFilters}">
-                        <label><input type="checkbox" v-model="sitesOnline" v-on:change="updateFilter()"/><img v-bind:src="sitesOnlineIcon" width="24" height="24"/> Online bookings</label>
-                    </div>
-                    <div class="small-12 medium-12 large-4 columns" v-bind:class="{'filter-hide': hideExtraFilters}">
-                        <label><input type="checkbox" v-model="sitesInPerson" v-on:change="updateFilter()"/><img v-bind:src="sitesInPersonIcon" width="24" height="24"/> No online bookings</label>
-                    </div>
-                    <div class="small-12 medium-12 large-4 columns" v-bind:class="{'filter-hide': hideExtraFilters}">
-                        <label><input type="checkbox" v-model="sitesAlt" v-on:change="updateFilter()"/><img v-bind:src="sitesAltIcon" width="24" height="24"/> Third-party site</label>
-                    </div>
-                    <div class="small-12 medium-12 large-12 columns filter-button">
-                        <button class="button expanded" v-on:click="toggleShowFilters"><span v-if="hideExtraFilters">Show more filters ▼</span><span v-else>Hide filters ▲</span></button>
-                    </div>
                 </div>
-            </div>
-            <div class="small-12 medium-12 large-12 columns">
-                <div id="map"></div>
-                <div id="mapPopup" class="mapPopup" v-cloak>
-                    <a href="#" id="mapPopupClose" class="mapPopupClose"></a>
-                    <div id="mapPopupContent">
-                        <h4 style="margin: 0"><b id="mapPopupName"></b></h4>
-                        <p><i id="mapPopupPrice"></i></p>
-                        <img class="thumbnail" id="mapPopupImage" />
-                        <div id="mapPopupDescription" style="font-size: 0.75rem;"/>
-                        <a id="mapPopupBook" class="button formButton1" style="margin-bottom: 0; margin-top: 1em;" target="_self">Book now</a>
-                        <a id="mapPopupInfo" class="button formButton" style="margin-bottom: 0;" target="_blank">More Info</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div>
-        <div id='card-preview' style='display:none'>
-
-<div>
- <!-- vif="$slots.default && $slots.default.length" -->
-    <VueSlickCarousel v-if="camping_distance_array.length > 0" :arrows="true" :dots="true" v-bind="slicksettings" @reInit="reInitSlides" :key="slickcount">
-	<div v-for="f in camping_distance_array.slice(0, 21)">
-            <div class='slick-slide-card' >
-                <div class='row'>
-                    <div class='col-xs-12 col-sm-6'> 
-                       <div v-if="f.images && f.images[0] && f.images[0].image">
-                                <img class="slider-card-thumbnail" v-bind:src="parkstayUrl+'/campground-image-cropped-square/250/400/?mediafile='+f.images[0].image"/>
-                       </div>
-                    </div>
-                    <div class='col-xs-12 col-sm-6'>
-                       <div>
-                       <div class="slick-slide-card-title" :title="f.campground_name" :alt="f.campground_name">
-		            {{ f.campground_name.slice(0, 20) }}<span v-if="f.campground_name.length > 20">...</span>
-                       </div>
-                       <div class="slick-slide-card-distance" title="Distance from selected location" alt="Distance from selected location">
-	                    {{ f.distance_short }}km
-		       </div>
-                       </div>
-                       <div>
-
-                       <div v-if="f.park_name" v-html="f.park_name.slice(0,55)" class='slick-slide-description'></div>
-                          <div v-if="f.campground_type == 0" >
-                             <div v-if="booking_arrival_days > f.max_advance_booking && permission_to_make_advanced_booking == false" class='slick-slide-card-notavailabile'>
-                                    Book up to {{ f.max_advance_booking }} days
-                             </div>
-                             <div v-else>
-                                 <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Approximate Sites Available: {{ campgroundSiteTotal[f.id].total_available }}</div>
-                                 <div v-else class='slick-slide-card-notavailabile'>
-                                     No availablity for selected period
-                                 </div>
-                             </div>
-                          </div>
-                          <div class='slick-slide-card-notavailabile' v-else-if="f.campground_type == 1" >
-                                   Bookings not required. Pay on arrival
-                          </div>
-                          <div class='slick-slide-card-notavailabile' v-else-if="f.campground_type == 2" >
-                                   Operated by Parks and Wildlife partner
-                          </div>
-                          
-                          <div v-else ><div>&nbsp;</div></div>
-                       <p v-if="f.price_hint && Number(f.price_hint)"><i><small>From ${{ f.price_hint }} per night</small></i></p>
-                       <!-- This line has to be changed to use a v-if/else clause
-                        Changed again to utilize changes in api to further enable forwarding offline sites to availability app
-                        -->
-                       <a v-if="(f.campground_type == 0 && campgroundAvailablity[f.id].total_bookable) > 0 && (booking_arrival_days <= f.max_advance_booking || permission_to_make_advanced_booking == true)" class="button formButton1" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
-                       <a v-else-if="f.campground_type == 1" class="button formButton" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" target="_blank">More Info</a>
-                       <a v-else class="button formButton2" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" style="width:100%;" target="_blank">More info</a>
-                   </div>
-               </div>
-            </div>
-         </div>
     </VueSlickCarousel>
 
-<div style='display:none'>
+    <div style='display:none'>
                    <template v-if="extentFeatures.length > 0">
                        <paginate name="filterResults" class="resultList" :list="extentFeatures" :per="10009">
                            <div class="row">
@@ -222,18 +99,154 @@
                    </template>
 
         </div>
+                <template v-else>
+                    <div class="row align-center">
+                        <div class="small-12 medium-12 large-12 columns">
+                            <h2 class="text-center">There are no campgrounds found matching your search criteria. Please change your search or click <a href="https://exploreparks.dbca.wa.gov.au/know/park-stay-search-tips">here</a> for more information.</h2>
+                        </div>
+                    </div>
+                    </template>
+        </div>
+    </div>
+    </div>
+    
+    <div class="round-box col-12 px-3">
+        <div id='map-previewi' istyle='display:none'>
 
-        <template v-else>
-            <div class="row align-center">
-                <div class="small-12 medium-12 large-12 columns">
-                    <h2 class="text-center">There are no campgrounds found matching your search criteria. Please change your search or click <a href="https://exploreparks.dbca.wa.gov.au/know/park-stay-search-tips">here</a> for more information.</h2>
+        <div class="row">
+            <div class="small-12 medium-12 large-12 columns search-params" style='display:none'>
+                <div class="row">
+                    <div class="small-12 columns">
+                        <label>Search <input class="input-group-field" id="searchInput" type="text" placeholder="Search for campgrounds, parks, addresses..."/></label>
+                </div>
+        </div>
+        
+        <div class="row">
+            <div class="small-12 medium-12 large-4 columns">
+                <label>Arrival <input id="dateArrival" name="arrival" type="text" placeholder="dd/mm/yyyy" vonchange="updateDates"/></label>
+            </div>
+            <div class="small-12 medium-12 large-4 columns">
+                <label>Departure <input id="dateDeparture" name="departure" type="text" placeholder="dd/mm/yyyy" vonchange="updateDates"/></label>
+            </div>
+            <div class="small-12 medium-12 large-4 columns">
+                <label>
+                    Guests <input type="button" class="button formButton" v-bind:value="numPeople" data-toggle="guests-dropdown"/> 
+                </label>
+                <div class="dropdown-pane" id="guests-dropdown" data-dropdown data-auto-focus="true">
+                    <div class="row">
+                        <div class="small-6 columns">
+                            <label for="num_adults" class="text-right">Adults (non-concessions)</label>
+                        </div><div class="small-6 columns">
+                           <label> <input type="number" id="numAdults" name="num_adults" v-model.number="numAdults" min="0" max="16"/></label>
+                        </div>
+                    </div><div class="row">
+                        <div class="small-6 columns">
+                        <!-- <a class="button" v-bind:href="f.info_url" target="_blank">More info</a> -->
+                            <label for="num_concessions" class="text-right"><span class="has-tip" title="Holders of one of the following Australian-issued cards:
+- Seniors Card
+- Age Pension
+- Disability Support
+- Carer Payment
+- Carer Allowance
+- Companion Card
+- Department of Veterans' Affairs">Concessions</span></label>
+                        </div><div class="small-6 columns">
+                          <label>  <input type="number" id="numConcessions" name="num_concessions" v-model.number="numConcessions" min="0" max="16"/></label>
+                        </div>
+                    </div><div class="row">
+                        <div class="small-6 columns">
+                            <label for="num_children" class="text-right">Children (ages 6-15)</label>
+                        </div><div class="small-6 columns">
+                           <label> <input type="number" id="numChildren" name="num_children" v-model.number="numChildren" min="0" max="16"/></label>
+                        </div>
+                    </div><div class="row">
+                        <div class="small-6 columns">
+                            <label for="num_infants" class="text-right">Infants (ages 0-5)</label>
+                        </div><div class="small-6 columns">
+                         <label>   <input type="number" id="numInfants" name="num_infants" v-model.number="numInfants" min="0" max="16"/></label>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </template>
-     </div>
+            <div class="small-12 medium-12 large-12 columns">
+                <label><input type="checkbox" v-model="bookableOnly"/> Show bookable campsites only</label>
+            </div>
+        </div><div class="row"><div class="small-12 columns">
+            <hr/>
+        </div></div><div class="row">
+            <div class="small-12 medium-12 large-12 columns">
+                <label>Select equipment</label>
+            </div>
+            <div class="small-12 medium-12 large-4 columns">
+                <label><input type="radio" name="gear_type" value="all" v-model="gearType" class="show-for-sr" v-on:change="reload()"/><i class="symb RC3"></i> All types</label>
+            </div>
+            <div class="small-12 medium-12 large-4 columns">
+                <label><input type="radio" name="gear_type" value="tent" v-model="gearType" class="show-for-sr" v-on:change="reload()"/><i class="symb RC2"></i> Tent</label>
+            </div>
+            <div class="small-12 medium-12 large-4 columns">
+                <label><input type="radio" name="gear_type" value="campervan" v-model="gearType" class="show-for-sr" v-on:change="reload()"/><i class="symb RV10"></i> Campervan</label>
+            </div>
+            <div class="small-12 medium-12 large-5 columns">
+                <label><input type="radio" name="gear_type" value="caravan" v-model="gearType" class="show-for-sr" v-on:change="reload()"/><i class="symb RC4"></i> Caravan / Camper trailer</label>
+            </div>
+        </div><div class="row"><div class="small-12 columns">
+            <hr class="search"/>
+        </div></div><div class="row">
+            <div class="small-12 medium-12 large-12 columns">
+                <label>Select features</label>
+            </div>
+            <template v-for="filt in filterList">
+                <div class="small-12 medium-12 large-4 columns">
+                    <label><input type="checkbox" class="show-for-sr" :value="'filt_'+ filt.key" v-model="filterParams[filt.key]" v-on:change="updateFilter()"/> <i class="symb" :class="filt.symb"></i> {{ filt.name }}</label>
+                </div>
+            </template>
+            <template v-for="filt in extraFilterList">
+                <div class="small-12 medium-12 large-4 columns" v-bind:class="{'filter-hide': hideExtraFilters}">
+                    <label><input type="checkbox" class="show-for-sr" :value="'filt_'+ filt.key" v-model="filterParams[filt.key]" v-on:change="updateFilter()"/> <i class="symb" :class="filt.symb"></i> {{ filt.name }}</label>
+                </div>
+            </template>
+        </div><div class="row">
+            <div class="small-12 medium-12 large-4 columns" v-bind:class="{'filter-hide': hideExtraFilters}">
+                <label><input type="checkbox" v-model="sitesOnline" v-on:change="updateFilter()"/><img v-bind:src="sitesOnlineIcon" width="24" height="24"/> Online bookings</label>
+            </div>
+            <div class="small-12 medium-12 large-4 columns" v-bind:class="{'filter-hide': hideExtraFilters}">
+                <label><input type="checkbox" v-model="sitesInPerson" v-on:change="updateFilter()"/><img v-bind:src="sitesInPersonIcon" width="24" height="24"/> No online bookings</label>
+            </div>
+            <div class="small-12 medium-12 large-4 columns" v-bind:class="{'filter-hide': hideExtraFilters}">
+                <label><input type="checkbox" v-model="sitesAlt" v-on:change="updateFilter()"/><img v-bind:src="sitesAltIcon" width="24" height="24"/> Third-party site</label>
+            </div>
+            <div class="small-12 medium-12 large-12 columns filter-button">
+                <button class="button expanded" v-on:click="toggleShowFilters"><span v-if="hideExtraFilters">Show more filters ▼</span><span v-else>Hide filters ▲</span></button>
+            </div>
+        </div>
+    </div>
+    <div class="small-12 medium-12 large-12 columns">
+        <div id="map"></div>
+        <div id="mapPopup" class="mapPopup" v-cloak>
+            <a href="#" id="mapPopupClose" class="mapPopupClose"></a>
+            <div id="mapPopupContent">
+                <h4 style="margin: 0"><b id="mapPopupName"></b></h4>
+                <p><i id="mapPopupPrice"></i></p>
+                <img class="thumbnail" id="mapPopupImage" />
+                <div id="mapPopupDescription" style="font-size: 0.75rem;"/>
+                <a id="mapPopupBook" class="button formButton1" style="margin-bottom: 0; margin-top: 1em;" target="_self">Book now</a>
+                <a id="mapPopupInfo" class="button formButton" style="margin-bottom: 0;" target="_blank">More Info</a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
 <!-- End of hide-->
 
+    
+    
+    
+    
+    
+    
     </div>
+</div>
 </template>
 
 <style lang="scss">
@@ -1101,7 +1114,7 @@ export default {
                      var campsite_features = el.properties.features; 
                      var description = el.properties.description;
                      var images  = el.properties.images;
-	             var price_hint  = el.properties.price_hint;
+	                 var price_hint  = el.properties.price_hint;
                      var campsites = el.properties.campsites;
                      var campsites_total = el.properties.campsites.length;
                      var info_url = el.properties.info_url;
@@ -1664,10 +1677,10 @@ export default {
 
         $(".filter-features").click(function() {
                 console.log("UPDATE FILTERS");
-		vm.updateFilter();
+		        vm.updateFilter();
                 // vm.groundsSource.loadSource();
                 vm.buildDistanceArray();
-	});
+	    });
 
 
         $(".filter-featurescs").click(function() {
