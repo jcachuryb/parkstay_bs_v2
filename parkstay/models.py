@@ -149,6 +149,7 @@ class Campground(models.Model):
         (1, 'Not Bookable Online'),
         (2, 'Other Accomodation'),
         (3, 'Unpublished'),
+        (4, 'Booking by application')
     )
     CAMPGROUND_PRICE_LEVEL_CHOICES = (
         (0, 'Campground level'),
