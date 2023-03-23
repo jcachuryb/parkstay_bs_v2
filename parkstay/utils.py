@@ -1072,7 +1072,7 @@ def booking_policy_cancellation_rules(cancellation_data,cb_date,cb, old_arrival,
                        if pg.peak_arrival_limit_enabled is True:
                             #datetime.now().date()
                             peak_arrival_time_calc = cb.date - timedelta(days=pg.peak_arrival_time)
-                            if today_dt > peak_arrival_time_calc:
+                            if today_dt >= peak_arrival_time_calc:
                                    cancellation_fee = cancellation_fee + pg.peak_amount
                             else:
                                    pass
@@ -1085,7 +1085,7 @@ def booking_policy_cancellation_rules(cancellation_data,cb_date,cb, old_arrival,
                        
                        if pg.arrival_limit_enabled is True:
                            arrival_time_calc = cb.date - timedelta(days=pg.arrival_time)
-                           if today_dt > arrival_time_calc:
+                           if today_dt >= arrival_time_calc:
                                cancellation_fee = cancellation_fee + pg.amount
                            else:
                                pass
