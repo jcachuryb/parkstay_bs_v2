@@ -7,9 +7,8 @@
         </div>
 
 
-        <!-- dd -->
-        <div class="round-box col-12 px-3">
-        <div id='card-previewi' istyle='display:none'>
+    
+        <div id='card-preview' style='display:none'>
 
             <div>
                 <!-- vif="$slots.default && $slots.default.length" -->
@@ -113,10 +112,10 @@
                     </template>
         </div>
     </div>
-    </div>
     
-    <div class="round-box col-12 px-3">
-        <div id='map-previewi' istyle='display:none'>
+    
+    
+        <div id='map-preview' style='display:none'>
 
         <div class="row">
             <div class="small-12 medium-12 large-12 columns search-params" style='display:none'>
@@ -240,6 +239,7 @@
         </div>
     </div>
 </div>
+
 </div>
 
 <!-- End of hide-->
@@ -250,7 +250,7 @@
     
     
     
-    </div>
+    
 </div>
 </template>
 
