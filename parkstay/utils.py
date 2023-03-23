@@ -1202,7 +1202,7 @@ def price_or_lineitemsv2(request, booking):
             'ledger_description': 'Camping fee ({}) {} - {} night(s)'.format(booking.details['num_adult'], 'adult', num_days),
             "quantity": 1, #booking.details['num_adult'],
             "price_incl_tax": str(total_amount_adult),
-            "price_excl_tax": calculate_excl_gst(str(total_amount_adult))
+            "price_excl_tax": calculate_excl_gst(str(total_amount_adult)),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
 
