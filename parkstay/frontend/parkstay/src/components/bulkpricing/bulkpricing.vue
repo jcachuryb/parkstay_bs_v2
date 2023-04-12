@@ -258,6 +258,8 @@ export default {
                 }, {
                    data: 'trailer',
                 }, {
+                   data: 'gst',                   
+                }, {
                     data: 'reason',
                     mRender: function(data, type, full) {
                         if (data.id == 1){
@@ -286,7 +288,7 @@ export default {
                 },
             },
             priceHistoryDtHeaders:[
-                "Period Start","Period End","Car","Concession","Motorbike","Campervan","Caravan","Trailer","Comment","Action"
+                "Period Start","Period End","Car","Concession","Motorbike","Campervan","Caravan","Trailer","GST","Comment","Action"
             ]
 
         }
