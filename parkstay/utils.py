@@ -1121,7 +1121,7 @@ def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
             'ledger_description': 'Adjustment - Camping fee ({}) {} - {} night(s)'.format(booking.details['num_adult'],'adult', num_days),
             "quantity": 1, #booking.details['num_adult'],
             "price_incl_tax": str(total_amount_adult - total_amount_adult - total_amount_adult),
-            #"price_excl_tax": calculate_excl_gst(str(total_amount_adult - total_amount_adult - total_amount_adult)), 
+            "price_excl_tax": str(calculate_excl_gst(total_amount_adult - total_amount_adult - total_amount_adult)), 
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
             })
@@ -1131,7 +1131,7 @@ def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
             'ledger_description': 'Adjustment - Camping fee ({}) {} - {} night(s)'.format(booking.details['num_child'],'child', num_days),
             "quantity": 1, #booking.details['num_child'],
             "price_incl_tax": str(total_amount_child - total_amount_child- total_amount_child),
-            #"price_excl_tax": calculate_excl_gst(str(total_amount_child - total_amount_child- total_amount_child)),
+            "price_excl_tax": str(calculate_excl_gst(total_amount_child - total_amount_child- total_amount_child)),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
             })
@@ -1142,7 +1142,7 @@ def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
             'ledger_description': 'Adjustment - Camping fee ({}) {} - {} night(s)'.format(booking.details['num_infant'], 'infant', num_days),
             "quantity": 1, #booking.details['num_infant'],
             "price_incl_tax": str(total_amount_infant - total_amount_infant - total_amount_infant),
-            #"price_excl_tax": calculate_excl_gst(str(total_amount_infant - total_amount_infant - total_amount_infant)),
+            "price_excl_tax": str(calculate_excl_gst(total_amount_infant - total_amount_infant - total_amount_infant)),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
             })
@@ -1153,7 +1153,7 @@ def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
             'ledger_description': 'Adjustment - Camping fee ({}) {} - {} night(s)'.format(booking.details['num_concession'],'concession', num_days),
             "quantity": 1, #booking.details['num_concession'],
             "price_incl_tax": str(total_amount_concession - total_amount_concession - total_amount_concession),
-            #"price_excl_tax": calculate_excl_gst(str(total_amount_concession - total_amount_concession - total_amount_concession)),
+            "price_excl_tax": str(calculate_excl_gst(total_amount_concession - total_amount_concession - total_amount_concession)),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
             })
@@ -1164,7 +1164,7 @@ def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
             'ledger_description': "Adjustment - "+ab.fee_description,
             "quantity": 1,
             "price_incl_tax": str(ab.amount - ab.amount - ab.amount),
-            #"price_excl_tax": calculate_excl_gst(str(ab.amount - ab.amount - ab.amount)),
+            "price_excl_tax": str(calculate_excl_gst(ab.amount - ab.amount - ab.amount)),
             "oracle_code": ab.oracle_code,
             "line_status" : line_status
             })
@@ -1203,7 +1203,7 @@ def price_or_lineitemsv2(request, booking):
             'ledger_description': 'Camping fee ({}) {} - {} night(s)'.format(booking.details['num_adult'], 'adult', num_days),
             "quantity": 1, #booking.details['num_adult'],
             "price_incl_tax": str(total_amount_adult),
-            #"price_excl_tax": calculate_excl_gst(str(total_amount_adult)),
+            "price_excl_tax": str(calculate_excl_gst(total_amount_adult)),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
 
@@ -1214,7 +1214,7 @@ def price_or_lineitemsv2(request, booking):
             'ledger_description': 'Camping fee ({}) {} - {} night(s)'.format(booking.details['num_child'],'child', num_days),
             "quantity": 1, #booking.details['num_child'],
             "price_incl_tax": str(total_amount_child),
-            #"price_excl_tax": calculate_excl_gst(str(total_amount_child)),
+            "price_excl_tax": str(calculate_excl_gst(total_amount_child)),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
             })
@@ -1225,7 +1225,7 @@ def price_or_lineitemsv2(request, booking):
             'ledger_description': 'Camping fee ({}) {} - {} night(s)'.format(booking.details['num_infant'],'infant', num_days),
             "quantity": 1, #booking.details['num_infant'],
             "price_incl_tax": str(total_amount_infant),
-            #"price_excl_tax": calculate_excl_gst(str(total_amount_infant)),
+            "price_excl_tax": str(calculate_excl_gst(total_amount_infant)),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
             })
@@ -1236,21 +1236,33 @@ def price_or_lineitemsv2(request, booking):
             'ledger_description': 'Camping fee ({}) {} - {} night(s)'.format(booking.details['num_concession'],'concession', num_days),
             "quantity": 1, #booking.details['num_concession'],
             "price_incl_tax": str(total_amount_concession),
-            #"price_excl_tax": calculate_excl_gst(str(total_amount_concession)),
+            "price_excl_tax": str(calculate_excl_gst(total_amount_concession)),
             "oracle_code": booking.campsite_oracle_code,
             "line_status" : line_status
             })
 
     additional_booking = parkstay_models.AdditionalBooking.objects.filter(booking=booking)
     for ab in additional_booking:
-       invoice_lines.append({
-            'ledger_description': ab.fee_description,
-            "quantity": 1,
-            "price_incl_tax": str(ab.amount),
-            #"price_excl_tax": calculate_excl_gst(str(ab.amount)),
-            "oracle_code": ab.oracle_code,
-            "line_status" : line_status
+        
+        
+        if ab.gst is False:
+            invoice_lines.append({
+                'ledger_description': ab.fee_description,
+                "quantity": 1,
+                "price_incl_tax": str(ab.amount),
+                "price_excl_tax": str(ab.amount),
+                "oracle_code": ab.oracle_code,
+                "line_status" : line_status
             })
+        else:             
+            invoice_lines.append({
+                'ledger_description': ab.fee_description,
+                "quantity": 1,
+                "price_incl_tax": str(ab.amount),
+                "price_excl_tax": str(calculate_excl_gst(ab.amount)),
+                "oracle_code": ab.oracle_code,
+                "line_status" : line_status
+                })
 
     return invoice_lines
 
@@ -1326,7 +1338,7 @@ def price_or_lineitems(request, booking, campsite_list, lines=True, old_booking=
                             'ledger_description': 'Camping fee {} - {} night(s)'.format(guest_type, num_days),
                             "quantity": guest_count,
                             "price_incl_tax": price,
-                            #"price_excl_tax": calculate_excl_gst(price),
+                            "price_excl_tax": str(calculate_excl_gst(Decimal(price))),
                             "oracle_code": booking.campground.oracle_code})
                     else:
                         price = (num_days * Decimal(rate[guest_type])) * guest_count
@@ -1358,7 +1370,7 @@ def price_or_lineitems(request, booking, campsite_list, lines=True, old_booking=
                         'ledger_description': 'Park entry fee - {}'.format(k),
                         'quantity': v.count(),
                         'price_incl_tax': price,
-                        #'price_excl_tax': calculate_excl_gst(price),
+                        'price_excl_tax': str(calculate_excl_gst(Decimal(price))),
                         'oracle_code': booking.campground.park.oracle_code
                     })
                 else:
@@ -1373,7 +1385,7 @@ def price_or_lineitems(request, booking, campsite_list, lines=True, old_booking=
                 'ledger_description': '{} - {}'.format(reason.text, booking.override_reason_info),
                 'quantity': 1,
                 'price_incl_tax': str(total_price - booking.discount),
-                #'price_excl_tax' : calculate_excl_gst(str(total_price - booking.discount)),
+                'price_excl_tax' : str(calculate_excl_gst(total_price - booking.discount)),
                 'oracle_code': booking.campground.oracle_code
             })
 
@@ -1707,7 +1719,7 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'booking_reference': 'PB-'+str(booking.id),
         'booking_reference_link': old_booking,
         'no_payment': no_payment,
-        #'tax_override': True
+        'tax_override': True
     }
     #basket, basket_hash = create_basket_session(request, basket_params)
     basket_user_id = None

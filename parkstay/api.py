@@ -2444,6 +2444,9 @@ def booking_updates(request, *args, **kwargs):
              #parkstay_models.BookingVehicleRego.objects.filter(booking=booking).delete()
 
              vehicle_entry_fee = '0.00'
+             gst_entry_fee = True
+             if entry_fees.gst is False:
+                  gst_entry_fee = False
              for v in vehicles:
                  concession = False
                  if v[5] == True:
@@ -2509,6 +2512,7 @@ def booking_updates(request, *args, **kwargs):
                                  else:
                                       ab.fee_description = "Park Entry Fee for "+v[1]+concession_text
                                  ab.amount = vehicle_entry_fee
+                                 ab.gst = gst_entry_fee
                                  ab.save() 
                  else:
                          if entry_fee is True and entry_fee_required is True:
@@ -2519,6 +2523,7 @@ def booking_updates(request, *args, **kwargs):
                              ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                                           fee_description="Park Entry Fee for "+vh,
                                                                           amount=vehicle_entry_fee,
+                                                                          gst=gst_entry_fee,
                                                                           identifier="vehicles",
                                                                           oracle_code=booking.campground.park.oracle_code
                                                                       )
@@ -2902,6 +2907,7 @@ def create_booking(request, *args, **kwargs):
                     ab = parkstay_models.AdditionalBooking.objects.create(booking=booking,
                                                             fee_description=fee_description,
                                                             amount=entry_fee_amount,
+                                                            gst=entry_fees.gst,
                                                             identifier="vehicles",
                                                             oracle_code=booking.campground.park.oracle_code
                                                          )

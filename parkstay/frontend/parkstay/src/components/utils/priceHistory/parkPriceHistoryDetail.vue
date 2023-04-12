@@ -53,7 +53,7 @@
                         <label>Caravan : </label>
                     </div>
                     <div class="col-md-4">
-                        <input name="caravan"  v-model="priceHistory.caravan" type='number' class="form-control" />
+                        <input name="caravan"  v-model="priceHistory.caravan" type='number' class="" />
                     </div>
                 </div>
             </div>
@@ -68,7 +68,16 @@
                     </div>
                 </div>
             </div>
-
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-md-2">
+                        <label>GST : </label>
+                    </div>
+                    <div class="col-md-4">
+                        <input name="gst"  v-model="priceHistory.gst" type='checkbox' class="" />
+                    </div>
+                </div>
+            </div>
 
             <div class="row">
                 <div class="form-group">
@@ -76,7 +85,7 @@
                         <label>Period start: </label>
                     </div>
                     <div class="col-md-4">
-                        <div class='input-group date'>
+                        <div class='input-group 'date>
                             <input  name="period_start"  v-model="priceHistory.period_start" type='text' class="form-control" />
                             <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-calendar"></span>
@@ -182,7 +191,7 @@ module.exports = {
                     motorbike: "required",
                     campervan: "required",
                     trailer: "required",
-                    period_start: "required",
+                    period_start: "required",                    
                     details: {
                         required: {
                             depends: function(el) {
