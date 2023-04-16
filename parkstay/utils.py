@@ -1175,7 +1175,7 @@ def price_or_lineitemsv2old_booking(request, booking, invoice_lines):
                 'ledger_description': "Adjustment - "+ab.fee_description,
                 "quantity": 1,
                 "price_incl_tax": str(ab.amount - ab.amount - ab.amount),
-                "price_excl_tax": str(ab.amount - ab.amount - ab.amount),
+                "price_excl_tax": str(ab.amount - ab.amount - ab.amount ),
                 "oracle_code": ab.oracle_code,
                 "line_status" : line_status
                 })
