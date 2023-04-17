@@ -2445,8 +2445,9 @@ def booking_updates(request, *args, **kwargs):
 
              vehicle_entry_fee = '0.00'
              gst_entry_fee = True
-             if entry_fees.gst is False:
-                  gst_entry_fee = False
+             if entry_fees:
+                if entry_fees.gst is False:
+                    gst_entry_fee = False
              for v in vehicles:
                  concession = False
                  if v[5] == True:
