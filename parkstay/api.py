@@ -2830,8 +2830,8 @@ def create_booking(request, *args, **kwargs):
                 start_date, end_date,
                 num_adult, num_concession,
                 num_child, num_infant,
-                num_vehicle, num_campervan, 
-                num_motorcycle, num_trailer,num_caravan, old_booking,
+                num_vehicle, num_motorcycle, num_campervan, 
+                num_trailer,num_caravan, old_booking,
             )
 
             booking.created_by = request.user.id
