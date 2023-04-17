@@ -2,6 +2,10 @@
 
 <p>It&rsquo;s not long now until your camping trip to {{ booking.campground.name }}, {{ booking.campground.park.name }}. <strong>Check your booking details carefully and change them if they are incorrect.</strong></p>
 
+<p>
+{{ booking.campground.additional_info }}
+</p>
+
 {% include "ps/email/confirmation-booking-details.html" %}
 
 <p>We may ask for proof of identity (bookings are not transferable) and, for any concession fees paid, evidence of qualification for concession.</p>
