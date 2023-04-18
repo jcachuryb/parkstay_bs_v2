@@ -132,7 +132,8 @@ export default {
         getTitle: function() {
             if (this.price.id || this.price.original){
                 return 'Update Price History';
-            }else{
+            } else {
+                $('#gst').prop('checked', true);
                 return 'Add Price History';
             }
         },
@@ -290,6 +291,7 @@ export default {
                         vm.$refs.historyModal.selected_rate= rate;
                         vm.price.period_start = Moment(vm.price.period_start ).format('YYYY-MM-DD');
                         vm.price.period_end != null ? vm.price.period_end : '';
+			vm.price.gst = vm.price.gst;
                         vm.price.bookingpolicyid = bookingpolicyid;
                     },(error)=>{
                         console.log(error);
@@ -319,6 +321,7 @@ export default {
                         vm.price.period_start = data.date_start;
                         vm.price.id = data.id;
                         vm.price.booking_policy = bookingpolicyid;
+                        vm.price.gst = false;
                         console.log("VM PERT");
                         console.log(vm.price);
                         vm.$refs.historyModal.selected_rate = data.rate;

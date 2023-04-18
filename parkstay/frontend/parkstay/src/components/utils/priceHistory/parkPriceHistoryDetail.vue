@@ -53,7 +53,7 @@
                         <label>Caravan : </label>
                     </div>
                     <div class="col-md-4">
-                        <input name="caravan"  v-model="priceHistory.caravan" type='number' class="" />
+                        <input name="caravan"  v-model="priceHistory.caravan" type='number' class="form-control" />
                     </div>
                 </div>
             </div>
@@ -74,7 +74,7 @@
                         <label>GST : </label>
                     </div>
                     <div class="col-md-4">
-                        <input name="gst"  v-model="priceHistory.gst" type='checkbox' class="" />
+                        <input name="gst" id="gst" v-model="priceHistory.gst" type='checkbox' checked class="" />
                     </div>
                 </div>
             </div>
@@ -179,6 +179,9 @@ module.exports = {
                     this.$emit('updateParkPriceHistory');
                 } else {
                     this.$emit('addParkPriceHistory');
+                    //this.priceHistory.gst = true;
+                    
+                    //this.priceForm.gst =true;
                 }
             }
         },
