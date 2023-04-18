@@ -36,6 +36,10 @@ class Command(BaseCommand):
                                bc = utils.booking_cancellation_fees(b)
                                emails.send_booking_reminder(b.id, bc)
                                models.BookingLog.objects.create(booking=b,message="Reminder email sent")
+                            elif past_booking_days < 0:
+                               models.BookingLog.objects.create(booking=b,message="Reminder email not sent is a past booking")
+                               b.error_sending_reminder = True
+                               b.save()                               
                             else:
                                models.BookingLog.objects.create(booking=b,message="Reminder email not sent as booking created less than 8 days")
                                b.error_sending_reminder = True
