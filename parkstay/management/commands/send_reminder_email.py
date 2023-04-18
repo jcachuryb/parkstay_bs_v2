@@ -27,10 +27,12 @@ class Command(BaseCommand):
                 for b in booking_reminder:
                     print ("booking")
                     print (b.id)
-                    if b.paid is True:
+                    if b.property_cache['paid'] is True:
                         try:
                             booking_date_from_arrival = (b.arrival - b.created.date()).days
-                            if booking_date_from_arrival > 7:
+                            past_booking_days = (b.arrival - datetime.today().date()).days
+                            
+                            if booking_date_from_arrival > 7 and past_booking_days > 0:
                                bc = utils.booking_cancellation_fees(b)
                                emails.send_booking_reminder(b.id, bc)
                                models.BookingLog.objects.create(booking=b,message="Reminder email sent")
