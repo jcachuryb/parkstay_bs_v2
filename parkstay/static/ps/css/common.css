@@ -10,3 +10,27 @@
  z-index: 10;
 }
 
+.login-success-bg-body {
+   z-index: 3;
+   background-image: url(/static/ps/img/parkstay-booking-bg.jpg);
+   height: 100%;
+   width: 100%;
+   position: absolute;
+   background-size: 100%;
+}
+
+.login-success-message-box {
+   background-color: #FFFFFF;
+   border: 1px solid #FFFFFF;
+   padding-bottom: 30px;
+}
+
+.login-success-message-icon {
+ 
+   margin-top: -50px;
+   
+   align-text: center;
+}
+.login-success-box-before {
+   padding-top: 50px;
+}
