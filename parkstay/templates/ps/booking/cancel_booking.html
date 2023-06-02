@@ -47,16 +47,24 @@
                        </div>
                        <div class="col-12 text-center" style='padding: 20px;'>
 
-                           <div class="col-12 text-center">
-                                   <p>Your cancellation for booking PB{{ booking.id }} is complete.</p>
-                                   <p>Any refunds related to this booking have been completed.  Please allow 2-5 business days for any refunds to appear in your account.</p>
-                           </div>
-                           <div class="col-12 text-center">
-                                   <br>
-                                   <a href='{% url "search_availability_information" %}' class="btn btn-primary">Make Booking</a>
-                                   <a href='{% url "public_my_bookings" %}' class="btn btn-primary">My Bookings</a>
+                                <div class="col-12 text-center">
+                                        <p>Your cancellation for booking PB{{ booking.id }} is complete.</p>
+                                        <p>Any refunds related to this booking have been completed.  Please allow 2-5 business days for any refunds to appear in your account.</p>
+                                </div>
+                                <div class="col-12 text-center">
+                                        <br>
+                                        <a href='{% url "search_availability_information" %}' class="btn btn-primary">Make Booking</a>
+                                        <a href='{% url "public_my_bookings" %}' class="btn btn-primary">My Bookings</a>
 
-                           </div>
+                                </div>
+                                <BR>
+                                <div class="col-12 text-center">
+                                        <div class="card-body" style='background-color: #fdf2f2; font-size: 20px;'> 
+                                                If you are using a shared device log out now to protect your personal information.<BR><BR>
+                                                <a class='btn btn-primary' href="/logout/?next=/&relogin=/">Logout</a>
+                                        </div>
+                                </div>
+
                         </div>
                   	  </center>
                      </div>
