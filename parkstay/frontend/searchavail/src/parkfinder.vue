@@ -52,7 +52,7 @@
                             </div>
                           
                             <div class='slick-slide-card-notavailabile' v-else-if="f.campground_type == 4" >
-                                    Booking by application
+                                   Go to 'More Info' for booking conditions
                             </div>
                           
 
