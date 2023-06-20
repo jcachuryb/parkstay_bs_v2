@@ -257,7 +257,7 @@
 <style lang="scss">
 
 .slick-slide-card { 
-max-width: 440px;
+max-width: 490px;
 min-height: 220px;
 background-color: #FFFFFF;
 margin-right: 20px;
@@ -278,7 +278,7 @@ margin: auto;
     height: 22px;
 }
 .slick-slide-description {
-    height: 74px;
+    height: 94px;
     font-size: 12px;
 }
 .slick-slide-card-availabile {
