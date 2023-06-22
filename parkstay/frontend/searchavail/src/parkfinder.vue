@@ -62,8 +62,8 @@
                                     Changed again to utilize changes in api to further enable forwarding offline sites to availability app
                                 -->
                                 <a v-if="(f.campground_type == 0 && campgroundAvailablity[f.id].total_bookable) > 0 && (booking_arrival_days <= f.max_advance_booking || permission_to_make_advanced_booking == true)" class="button formButton1" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
-                                <a v-else-if="f.campground_type == 1 || f.campground_type == 4" class="button formButton" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" target="_blank">More Info</a>
-                                <a v-else class="button formButton2" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" style="width:100%;" target="_blank">More info</a>
+                                <a v-else-if="f.campground_type == 1 || f.campground_type == 4" class="button formButton" style="width:100%;" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" target="_self">More Info</a>
+                                <a v-else class="button formButton2" v-bind:href="parkstayUrl+'/search-availability/campground/?site_id='+f.id+'&'+bookingParam" style="width:100%;" target="_self">More info</a>
                             </div>
                         </div>
                     </div>
@@ -89,8 +89,8 @@
                                             Changed again to utilize changes in api to further enable forwarding offline sites to availability app
                                             -->
                                            <a v-if="f.campground_type == 0" class="button formButton1" v-bind:href="parkstayUrl+'/availability/?site_id='+f.id+'&'+bookingParam" target="_self">Book now</a>
-                                           <a v-else-if="f.campground_type == 1" class="button formButton" v-bind:href="f.info_url" target="_blank">More Info</a>
-                                           <a v-else class="button formButton2" v-bind:href="f.info_url" target="_blank">More info</a>
+                                           <a v-else-if="f.campground_type == 1" class="button formButton" v-bind:href="f.info_url" target="_self">More Info</a>
+                                           <a v-else class="button formButton2" v-bind:href="f.info_url" target="_self">More info</a>
                                            <!-- End of change -->
                                        </div>
                                    </div>
@@ -145,7 +145,7 @@
                         </div>
                     </div><div class="row">
                         <div class="small-6 columns">
-                        <!-- <a class="button" v-bind:href="f.info_url" target="_blank">More info</a> -->
+                        <!-- <a class="button" v-bind:href="f.info_url" target="_self">More info</a> -->
                             <label for="num_concessions" class="text-right"><span class="has-tip" title="Holders of one of the following Australian-issued cards:
 - Seniors Card
 - Age Pension
@@ -234,7 +234,7 @@
                 <img class="thumbnail" id="mapPopupImage" />
                 <div id="mapPopupDescription" style="font-size: 0.75rem;"/>
                 <a id="mapPopupBook" class="button formButton1" style="margin-bottom: 0; margin-top: 1em;" target="_self">Book now</a>
-                <a id="mapPopupInfo" class="button formButton" style="margin-bottom: 0;" target="_blank">More Info</a>
+                <a id="mapPopupInfo" class="button formButton" style="margin-bottom: 0;" target="_self">More Info</a>
             </div>
         </div>
     </div>
