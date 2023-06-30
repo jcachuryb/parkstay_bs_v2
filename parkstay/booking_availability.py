@@ -328,6 +328,7 @@ def get_campground_booking_range(campground_id, status):
 def get_campsite_availability(ground_id, sites_array, start_date, end_date, user = None, change_booking_id=None):
     is_officer_boolean = False
     can_make_advanced_booking = False
+    change_booking_id_obj = None
     nowtime = datetime.now()
     if user:
         if models.ParkstayPermission.objects.filter(email=user.email,permission_group=5).count() > 0:
@@ -341,6 +342,9 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
           sa_qy.append(s['pk'])
     if change_booking_id is not None:
         change_booking_id = int(change_booking_id)
+        change_booking_id_query = models.Booking.objects.filter(id=change_booking_id)
+        if change_booking_id_query.count() > 0:
+            change_booking_id_obj = change_booking_id_query[0]        
     # get current booking from change booking id
 
     # fetch all of the single-day CampsiteBooking objects within the date range for the sites
@@ -352,6 +356,7 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
             date__lt=end_date,
             booking__is_canceled=False,
         ).exclude(booking_type=3,booking__expiry_time__lt=nowtime).order_by('date', 'campsite__name')
+
     else:
         bookings_qs = models.CampsiteBooking.objects.filter(
             campsite_id__in=sa_qy,
@@ -476,7 +481,9 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
             #    pass
                  if change_booking_id is not None:
                      if change_booking_id > 0 and  start_date <= today:
-                        print ("changing booking after arriving")
+                        if start_date != change_booking_id_obj.arrival:                            
+                            val[start_date + timedelta(days=i)][0] = 'pastdate'
+
                         pass
                      else:
                           pass
