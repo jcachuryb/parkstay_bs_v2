@@ -1960,6 +1960,25 @@ class ParkEntryRate(models.Model):
     def editable(self):
         today = datetime.now().date()
         return (self.period_start > today and not self.period_end) or (self.period_start > today <= self.period_end)
+    
+class Notice(models.Model):
+
+    NOTICE_TYPE_CHOICES = (
+        (0, 'Red Warning'),
+        (1, 'Orange Warning'),
+        (2, 'Blue Warning') ,
+        (3, 'Green Warning')   
+        )
+
+    notice_type = models.IntegerField(choices=NOTICE_TYPE_CHOICES,default=0)
+    message = models.TextField(null=True, blank=True, default='')
+    order = models.IntegerField(default=1)
+
+class MyBookingNotice(models.Model):
+
+    notice_type = models.IntegerField(choices=Notice.NOTICE_TYPE_CHOICES,default=0)
+    message = models.CharField(max_length=70, null=True, blank=True, default='')
+    order = models.IntegerField(default=1)
 
 
 # REASON MODELS

@@ -344,6 +344,14 @@ class ClosureReason(ReasonAdmin):
 class OutstandingBookingRecipient(admin.ModelAdmin):
     pass
 
+@admin.register(models.Notice)
+class NoticeAdmin(admin.ModelAdmin):
+    list_display = ('message', 'notice_type', 'order')
+
+@admin.register(models.MyBookingNotice)
+class MyBookingNoticeAdmin(admin.ModelAdmin):
+    list_display = ('message', 'notice_type', 'order')
+
 
 @admin.register(models.PromoArea)
 class PromoAreaAdmin(admin.GeoModelAdmin):

@@ -113,6 +113,52 @@ window.onload = function() {
                          </div>
                  </div>
 
+        {% if notices_obj.notices|length > 0 %}
+                <div class="col-lg-12 ">
+                        <div class="row flex-wrap">
+                                {% for notice in notices_obj.notices %}
+                                        {% if notice.notice_type == 0 %}
+                                                <div class="col-sm-12 col-md-6 d-flex"> 
+                                                        <div class="round-box col-12 px-3 mb-3" style='background-color: #ffcbcb; border: 1px solid #fb9e9e;'>
+                                                                <div>
+                                                                        <i class="bi-exclamation-diamond-fill" style='font-size: 20px; color: red; padding-right:8px;' ></i>
+                                                                        <span style='color:red; margin-top: -10px;'>{{ notice.message }}</span>
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        {% elif notice.notice_type == 1 %}
+                                                <div class="col-sm-12 col-md-6 d-flex"> 
+                                                        <div class="round-box col-12 px-3 mb-3" style='background-color: #fff4e0; border: 1px solid #ff89358a;'>
+                                                                <div>
+                                                                        <i class="bi-exclamation-triangle-fill" style='font-size: 20px; color: #ffa500; padding-right:8px;' ></i>
+                                                                        <span style='color:#ffa500; margin-top: -10px;'>{{ notice.message }}</span>
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        {% elif notice.notice_type == 2 %}
+                                                <div class="col-sm-12 col-md-6 d-flex"> 
+                                                        <div class="round-box col-12 px-3 mb-3" style='background-color: #cbe5ff; border: 1px solid #9eccfb;'>
+                                                                <div>
+                                                                        <i class="bi-info-circle-fill" style='font-size: 20px; color: #2a84e0; padding-right:8px;' ></i>
+                                                                        <span style='color:#2a84e0; margin-top: -10px;'>{{ notice.message }}</span>
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        {% elif notice.notice_type == 3 %}
+                                                <div class="col-sm-12 col-md-6 d-flex"> 
+                                                        <div class="round-box col-12 px-3 mb-3" style='background-color: #e9f9ea; border: 1px solid #21ab26;'>
+                                                                <div>
+                                                                        <i class="bi-info-circle-fill" style='font-size: 20px; color: #1a851d; padding-right:8px;' ></i>
+                                                                        <span style='color:#1a851d; margin-top: -10px;'>{{ notice.message }}</span>
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        {% endif %}
+                                {% endfor %}
+                        </div>
+                </div>
+        {% endif %}
+
                  <div id='search-filters' class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
