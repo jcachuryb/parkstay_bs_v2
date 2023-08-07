@@ -1974,11 +1974,27 @@ class Notice(models.Model):
     message = models.TextField(null=True, blank=True, default='')
     order = models.IntegerField(default=1)
 
+    def __str__(self):
+           return '{}'.format(self.message)
+    
+    def save(self, *args, **kwargs):
+        cache.delete('utils_cache.get_notices()')
+        self.full_clean()
+        super(Notice, self).save(*args, **kwargs)
+
 class MyBookingNotice(models.Model):
 
     notice_type = models.IntegerField(choices=Notice.NOTICE_TYPE_CHOICES,default=0)
     message = models.CharField(max_length=70, null=True, blank=True, default='')
     order = models.IntegerField(default=1)
+
+    def __str__(self):
+           return '{}'.format(self.message)
+    
+    def save(self, *args, **kwargs):
+        cache.delete('utils_cache.get_my_booking_notices()')
+        self.full_clean()
+        super(MyBookingNotice, self).save(*args, **kwargs)
 
 
 # REASON MODELS
