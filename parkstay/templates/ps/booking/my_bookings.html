@@ -24,7 +24,47 @@
        <div class="alert alert-success" role="alert" id='group-flat-success' style='display:none'>
        </div>
 
-       <div class='alert alert-info'>Bookings with confirmation number beginning PS are not listed here. Please refer to the confirmation email sent when your booking was made. The <a href='https://exploreparks.dbca.wa.gov.au/online-campsite-booking-terms-and-conditions' target='_termsconditions'>terms and conditions</a> at the time the booking was made continue to apply.</div>
+       {% comment %} <div class='alert alert-info'>Bookings with confirmation number beginning PS are not listed here. Please refer to the confirmation email sent when your booking was made. The <a href='https://exploreparks.dbca.wa.gov.au/online-campsite-booking-terms-and-conditions' target='_termsconditions'>terms and conditions</a> at the time the booking was made continue to apply.</div> {% endcomment %}
+    
+    {% if booking_notices_obj.booking_notices|length > 0 %}
+        <div class="col-lg-12 ">
+            <div class="row flex-wrap">
+                {% for notice in booking_notices_obj.booking_notices %}
+		            {% if notice.notice_type == 0 %}
+                            <div class="round-box col-12 px-3" style='background-color: #ffcbcb; border: 1px solid #fb9e9e;'>
+                                <div>
+                                    <i class="bi-exclamation-diamond-fill" style='font-size: 20px; color: red; padding-right:8px;' ></i>
+                                    <span style='color:red; margin-top: -10px;'>{{ notice.message|safe }}</span>
+                                </div>
+                            </div>
+                    {% elif notice.notice_type == 1 %}
+                            <div class="round-box col-12 px-3" style='background-color: #fff4e0; border: 1px solid #ff89358a;'>
+                                <div>
+                                    <i class="bi-exclamation-triangle-fill" style='font-size: 20px; color: #ffa500; padding-right:8px;' ></i>
+                                    <span style='color:#ffa500; margin-top: -10px;'>{{ notice.message|safe }}</span>
+                                </div>
+                            </div>
+                    {% elif notice.notice_type == 2 %}
+                            <div class="round-box col-12 px-3" style='background-color: #cbe5ff; border: 1px solid #9eccfb;'>
+                                <div>
+                                    <i class="bi-info-circle-fill" style='font-size: 20px; color: #2a84e0; padding-right:8px;' ></i>
+                                    <span style='color:#2a84e0; margin-top: -10px;'>{{ notice.message|safe }}</span>
+                                </div>
+                        </div>
+                    {% elif notice.notice_type == 3 %}
+                            <div class="round-box col-12 px-3" style='background-color: #e9f9ea; border: 1px solid #21ab26;'>
+                                <div>
+                                    <i class="bi-info-circle-fill" style='font-size: 20px; color: #1a851d; padding-right:8px;' ></i>
+                                    <span style='color:#1a851d; margin-top: -10px;'>{{ notice.message|safe }}</span>
+                                </div>
+                            </div>
+                    {% endif %}
+			    {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+
     <h2>My Bookings</h2>
 	    <div class="row">
         <div class="col-sm-12">
