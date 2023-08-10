@@ -120,7 +120,7 @@ window.onload = function() {
                                         {% if notice.notice_type == 0 %}
                                                 <div class="col-sm-12 col-md-6 d-flex"> 
                                                         <div class="round-box col-12 px-3 mb-3" style='background-color: #ffcbcb; border: 1px solid #fb9e9e;'>
-                                                                <div>
+                                                                <div style='margin-bottom:-12px;'>
                                                                         <span style='color:red;'>{{ notice.message|safe }}</span>
                                                                 </div>
                                                         </div>
@@ -128,7 +128,7 @@ window.onload = function() {
                                         {% elif notice.notice_type == 1 %}
                                                 <div class="col-sm-12 col-md-6 d-flex"> 
                                                         <div class="round-box col-12 px-3 mb-3" style='background-color: #fff4e0; border: 1px solid #ff89358a;'>
-                                                                <div>
+                                                                <div style='margin-bottom:-12px;'>
                                                                         <span style='color:#ffa500;'>{{ notice.message|safe }}</span>
                                                                 </div>
                                                         </div>
@@ -136,7 +136,7 @@ window.onload = function() {
                                         {% elif notice.notice_type == 2 %}
                                                 <div class="col-sm-12 col-md-6 d-flex"> 
                                                         <div class="round-box col-12 px-3 mb-3" style='background-color: #cbe5ff; border: 1px solid #9eccfb;'>
-                                                                <div>
+                                                                <div style='margin-bottom:-12px;'>
                                                                         <span style='color:#2a84e0;'>{{ notice.message|safe }}</span>
                                                                 </div>
                                                         </div>
@@ -144,7 +144,7 @@ window.onload = function() {
                                         {% elif notice.notice_type == 3 %}
                                                 <div class="col-sm-12 col-md-6 d-flex"> 
                                                         <div class="round-box col-12 px-3 mb-3" style='background-color: #e9f9ea; border: 1px solid #21ab26;'>
-                                                                <div>
+                                                                <div style='margin-bottom:-12px;'>
                                                                         <span style='color:#1a851d;'>{{ notice.message|safe }}</span>
                                                                 </div>
                                                         </div>
