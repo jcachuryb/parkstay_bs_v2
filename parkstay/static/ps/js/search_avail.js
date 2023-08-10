@@ -369,6 +369,7 @@ var search_avail = {
               $('#region-park-selection-inner').html('');
               $('#region-park').val('');
               $('#region-park').show();
+              $('#notice_div').show();
     },
     select_region: function(value_id, value_name, coord_1, coord_2, zoom_level) {
 	        $('#coord_1').val(coord_1);
@@ -385,6 +386,7 @@ var search_avail = {
             $('#region-park-selection-inner').html(value_name);
             $('#ps_search_dropdown').remove();
             $('#region-park').hide();
+            $('#notice_div').hide();
     },
     select_filter_tab: function(tab) {
               $('#card-preview').hide();
