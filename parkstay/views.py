@@ -850,8 +850,9 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
 
              context = {
                  'action': 'upcoming',
-                 'current_bookings': self.booking_filter_upcoming(request.user), #bookings.filter(departure__gte=today).order_by('arrival'),
+                 'current_bookings': self.booking_filter_upcoming(request.user), 
                  'past_bookings': [],
+                 'cancelled_bookings':[],
                  'today' : today
              }
 
@@ -859,9 +860,21 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
              context = {
                 'action': 'past_bookings',
                 'current_bookings': [],
-                'past_bookings': self.booking_filter_past_bookings(request.user), #bookings.filter(departure__lt=today).order_by('-arrival'),
+                'cancelled_bookings':[],
+                'past_bookings': self.booking_filter_past_bookings(request.user), 
                 'today' : today
              }
+        if action == 'cancelled_bookings':
+             context = {
+                'action': 'cancelled_bookings',
+                'current_bookings': [],
+                'past_bookings': [],
+                'cancelled_bookings': self.booking_filter_cancelled_bookings(request.user), 
+                'today' : today
+             }
+
+
+
         return render(request, self.template_name, context)
 
     def last_booking_update(self, customer):
@@ -881,7 +894,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
         cached_data = cache.get('booking_filter_upcoming:'+str(customer.id)+":"+str(lub))
         cached_data = None
         if cached_data is None:
-             bookings = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__gt=today).order_by('is_canceled','arrival')
+             bookings = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__gt=today, is_canceled=False).order_by('is_canceled','arrival')
              for b in bookings:
                  row = {}
                  row['id']  = b.id
@@ -930,7 +943,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
         cached_data = cache.get('booking_filter_past_bookings:'+str(customer.id)+":"+str(lub))
         #bookings = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__lt=today).order_by('-arrival'),
         if cached_data is None:
-             bookings_past = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__lte=today).order_by('-arrival')[:60]
+             bookings_past = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__lte=today, is_canceled=False).order_by('-arrival')[:60]
              for b in bookings_past:
                  row = {}
                  row['id']  = b.id
@@ -961,6 +974,56 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  bookings_store.append(row)
         
                  cache.set('booking_filter_past_bookings:'+str(customer.id)+":"+str(lub), json.dumps(bookings_store),  86400)
+        else:
+            bookings_store = json.loads(cached_data)
+
+        bs = 0
+        while bs < len(bookings_store):
+            bookings_store[bs]['arrival'] = datetime.strptime(bookings_store[bs]['arrival_str'], "%Y-%m-%d").date()
+            bookings_store[bs]['departure'] = datetime.strptime(bookings_store[bs]['departure_str'], "%Y-%m-%d").date()   
+            bs += 1
+
+        return bookings_store
+
+
+    def booking_filter_cancelled_bookings(self, customer):
+        today = timezone.now().date()
+        bookings_store = []
+        lub = self.last_booking_update(customer)
+        cached_data = cache.get('booking_filter_cancelled_bookings:'+str(customer.id)+":"+str(lub))
+        #bookings = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), departure__lt=today).order_by('-arrival'),
+        if cached_data is None:
+             bookings_cancelled = Booking.objects.filter(customer=customer, booking_type__in=(0, 1), is_canceled=True).order_by('-arrival')[:60]
+             for b in bookings_cancelled:
+                 row = {}
+                 row['id']  = b.id
+                 row['campground']  = {}
+                 row['campground']['name'] = b.campground.name
+                 row['campground']['first_image']  = {}
+                 row['campground']['first_image']['image'] = {}
+                 row['campground']['first_image']['image']['url'] = b.campground.first_image.image.url
+                 row['contact_name'] = ''
+                 row['contact_phone_number'] = ''
+                 if b.campground.contact:
+                      row['contact_name'] = b.campground.contact.name
+                      row['contact_phone_number'] = b.campground.contact.phone_number
+                 row['departure_str'] = b.departure.strftime("%Y-%m-%d")
+                 row['arrival_str'] = b.arrival.strftime("%Y-%m-%d")
+                 row['is_canceled'] = b.is_canceled
+                 row['confirmation_number'] = b.confirmation_number
+                 row['first_campsite'] = {} 
+                 row['first_campsite']['type'] = b.first_campsite.type
+                 row['first_campsite']['name'] = b.first_campsite.name
+                 row['stay_dates'] = b.stay_dates
+                 row['stay_guests'] = b.stay_guests
+                 row['old_booking'] = b.old_booking
+                 row['property_cache'] = b.property_cache
+                 row['details'] = b.details
+                 row['customer_managed_booking_disabled'] = b.customer_managed_booking_disabled
+
+                 bookings_store.append(row)
+        
+                 cache.set('booking_filter_cancelled_bookings:'+str(customer.id)+":"+str(lub), json.dumps(bookings_store),  86400)
         else:
             bookings_store = json.loads(cached_data)
 

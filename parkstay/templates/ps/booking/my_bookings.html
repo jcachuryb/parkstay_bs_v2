@@ -36,6 +36,9 @@
   <li class="nav-item" role="presentation">
 	  <a class="nav-link {% if action == 'past_bookings' %}active{% endif %}" aria-current="page" href="?action=past_bookings">Past Bookings</a>
   </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link {% if action == 'cancelled_bookings' %}active{% endif %}" aria-current="page" href="?action=cancelled_bookings">Cancelled Bookings</a>
+  </li>  
 </ul>
 
 
@@ -54,6 +57,13 @@
         {% include "ps/booking/booking_view.html" %}
     {% endfor %}
 {% endif %}
+
+{% if cancelled_bookings %}
+    {% for booking in cancelled_bookings %}
+        {% include "ps/booking/booking_view.html" %}
+    {% endfor %}
+{% endif %}
+
         </div>
     </div></div>
 {% endblock %}
