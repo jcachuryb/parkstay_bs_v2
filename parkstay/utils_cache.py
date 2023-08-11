@@ -142,4 +142,40 @@ def get_features():
 
     return features_obj
 
+def get_notices():
+    notices_dumped_data = cache.get('utils_cache.get_notices()')
+
+    if notices_dumped_data is None or len(notices_dumped_data) != 0:
+        notices_obj = {}
+
+        notices_query = parkstay_models.Notice.objects.all().order_by("order")
+
+        notices_array = []
+        for nq in notices_query:
+               notices_array.append({'id': nq.id, 'notice_type' : nq.notice_type,'message': nq.message})
+
+        notices_obj['notices'] = notices_array
+        cache.set('utils_cache.get_notices()', json.dumps(notices_obj), 86400)
+    else:
+       notices_obj = json.loads(notices_dumped_data)
+    return notices_obj
+
+def get_my_booking_notices():
+    my_booking_notices_dumped_data = cache.get('utils_cache.get_my_booking_notices()')
+
+    if my_booking_notices_dumped_data is None or len(my_booking_notices_dumped_data) != 0:
+        my_booking_notices_obj = {}
+
+        my_booking_notices_query = parkstay_models.MyBookingNotice.objects.all().order_by("order")
+        
+        notices_array = []
+        for mbnq in my_booking_notices_query:
+               notices_array.append({'id': mbnq.id, 'notice_type' : mbnq.notice_type,'message': mbnq.message})
+
+        my_booking_notices_obj['booking_notices'] = notices_array
+        cache.set('utils_cache.get_my_booking_notices()', json.dumps(my_booking_notices_obj), 86400)
+    else:
+        my_booking_notices_obj = json.loads(my_booking_notices_dumped_data)
+    return my_booking_notices_obj
+
 

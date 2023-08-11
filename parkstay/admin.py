@@ -13,6 +13,8 @@ from django.http import HttpResponse
 from django_summernote.admin import SummernoteModelAdmin
 from copy import deepcopy
 from django.contrib import messages
+from django import forms
+from django_summernote.widgets import SummernoteWidget
 
 admin.site.index_template = 'admin-index.html'
 admin.autodiscover()
@@ -343,6 +345,30 @@ class ClosureReason(ReasonAdmin):
 @admin.register(models.OutstandingBookingRecipient)
 class OutstandingBookingRecipient(admin.ModelAdmin):
     pass
+
+class NoticeForm(forms.ModelForm):
+    message = forms.CharField(widget=SummernoteWidget(attrs={'summernote': {'toolbar': [['style', ['bold', 'italic', 'underline', 'strikethrough', 'fontsize']], ['insert', ['link']]]}}))
+    
+    class Meta:
+        model = models.Notice
+        fields = '__all__'
+
+@admin.register(models.Notice)
+class NoticeAdmin(admin.ModelAdmin):
+    form = NoticeForm
+    list_display = ('message', 'notice_type', 'order')
+
+class MyBookingNoticeForm(forms.ModelForm):
+    message = forms.CharField(widget=SummernoteWidget(attrs={'summernote': {'toolbar': [['style', ['bold', 'italic', 'underline', 'strikethrough', 'fontsize']], ['insert', ['link']]]}}))
+    
+    class Meta:
+        model = models.MyBookingNotice
+        fields = '__all__'
+
+@admin.register(models.MyBookingNotice)
+class MyBookingNoticeAdmin(admin.ModelAdmin):
+    form = MyBookingNoticeForm
+    list_display = ('message', 'notice_type', 'order')
 
 
 @admin.register(models.PromoArea)

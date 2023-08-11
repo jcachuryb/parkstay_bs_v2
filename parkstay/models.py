@@ -27,6 +27,7 @@ from ledger_api_client import utils as ledger_api_utils
 from rest_framework import viewsets, serializers, status, generics, views
 from parkstay import property_cache 
 from django.utils.safestring import mark_safe
+from django.utils.html import strip_tags
 
 PARKING_SPACE_CHOICES = (
     (0, 'Parking within site.'),
@@ -1960,6 +1961,41 @@ class ParkEntryRate(models.Model):
     def editable(self):
         today = datetime.now().date()
         return (self.period_start > today and not self.period_end) or (self.period_start > today <= self.period_end)
+    
+class Notice(models.Model):
+
+    NOTICE_TYPE_CHOICES = (
+        (0, 'Red Warning'),
+        (1, 'Orange Warning'),
+        (2, 'Blue Warning') ,
+        (3, 'Green Warning')   
+        )
+
+    notice_type = models.IntegerField(choices=NOTICE_TYPE_CHOICES,default=0)
+    message = models.TextField(null=True, blank=True, default='')
+    order = models.IntegerField(default=1)
+
+    def __str__(self):
+           return '{}'.format(strip_tags(self.message).replace('&nbsp;', ' '))
+    
+    def save(self, *args, **kwargs):
+        cache.delete('utils_cache.get_notices()')
+        self.full_clean()
+        super(Notice, self).save(*args, **kwargs)
+
+class MyBookingNotice(models.Model):
+
+    notice_type = models.IntegerField(choices=Notice.NOTICE_TYPE_CHOICES,default=0)
+    message = models.TextField(null=True, blank=True, default='')
+    order = models.IntegerField(default=1)
+
+    def __str__(self):
+           return '{}'.format(strip_tags(self.message).replace('&nbsp;', ' '))
+    
+    def save(self, *args, **kwargs):
+        cache.delete('utils_cache.get_my_booking_notices()')
+        self.full_clean()
+        super(MyBookingNotice, self).save(*args, **kwargs)
 
 
 # REASON MODELS

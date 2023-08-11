@@ -844,6 +844,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
         bookings = Booking.objects.filter(customer=request.user, booking_type__in=(0, 1), )
         today = timezone.now().date()
         action = request.GET.get('action')
+        my_booking_notices_obj = utils_cache.get_my_booking_notices()
 
         context = {}
         if action == '' or action is None or action == 'upcoming':
@@ -853,7 +854,8 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  'current_bookings': self.booking_filter_upcoming(request.user), 
                  'past_bookings': [],
                  'cancelled_bookings':[],
-                 'today' : today
+                 'today' : today,
+                 'booking_notices_obj' : my_booking_notices_obj
              }
 
         if action == 'past_bookings':
@@ -863,6 +865,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                 'cancelled_bookings':[],
                 'past_bookings': self.booking_filter_past_bookings(request.user), 
                 'today' : today
+                'booking_notices_obj' : my_booking_notices_obj
              }
         if action == 'cancelled_bookings':
              context = {
@@ -1059,6 +1062,7 @@ class SearchAvailablity(TemplateView):
         features_obj = []
         features_obj_campsites = []
         features_obj_cache = cache.get('features_array_type_0:')
+        notices_obj = utils_cache.get_notices()
 
         if features_obj_cache is None:
             features_query = Feature.objects.filter(type=0)
@@ -1083,6 +1087,7 @@ class SearchAvailablity(TemplateView):
         context['features_campsites'] = features_obj_campsites
         context['features_json'] = json.dumps(features_obj)
         context['DEFAULT_SEARCH_AVAILABILITY_LOCATION'] = settings.DEFAULT_SEARCH_AVAILABILITY_LOCATION
+        context['notices_obj'] = notices_obj
         return render(request, self.template_name, context)
 
     #def get(self, *args, **kwargs):
