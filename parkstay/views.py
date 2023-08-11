@@ -864,7 +864,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                 'current_bookings': [],
                 'cancelled_bookings':[],
                 'past_bookings': self.booking_filter_past_bookings(request.user), 
-                'today' : today
+                'today' : today,
                 'booking_notices_obj' : my_booking_notices_obj
              }
         if action == 'cancelled_bookings':
