@@ -152,7 +152,7 @@ def get_notices():
 
         notices_array = []
         for nq in notices_query:
-               notices_array.append({'id': nq.id, 'notice_type' : nq.notice_type,'message': nq.message})
+               notices_array.append({'id': nq.id, 'notice_type' : nq.notice_type, 'message': nq.message, 'active': nq.active})
 
         notices_obj['notices'] = notices_array
         cache.set('utils_cache.get_notices()', json.dumps(notices_obj), 86400)
@@ -170,7 +170,7 @@ def get_my_booking_notices():
         
         notices_array = []
         for mbnq in my_booking_notices_query:
-               notices_array.append({'id': mbnq.id, 'notice_type' : mbnq.notice_type,'message': mbnq.message})
+               notices_array.append({'id': mbnq.id, 'notice_type' : mbnq.notice_type, 'message': mbnq.message, 'active': mbnq.active})
 
         my_booking_notices_obj['booking_notices'] = notices_array
         cache.set('utils_cache.get_my_booking_notices()', json.dumps(my_booking_notices_obj), 86400)

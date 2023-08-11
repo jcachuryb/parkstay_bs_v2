@@ -1974,6 +1974,7 @@ class Notice(models.Model):
     notice_type = models.IntegerField(choices=NOTICE_TYPE_CHOICES,default=0)
     message = models.TextField(null=True, blank=True, default='')
     order = models.IntegerField(default=1)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
            return '{}'.format(strip_tags(self.message).replace('&nbsp;', ' '))
@@ -1988,6 +1989,7 @@ class MyBookingNotice(models.Model):
     notice_type = models.IntegerField(choices=Notice.NOTICE_TYPE_CHOICES,default=0)
     message = models.TextField(null=True, blank=True, default='')
     order = models.IntegerField(default=1)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
            return '{}'.format(strip_tags(self.message).replace('&nbsp;', ' '))

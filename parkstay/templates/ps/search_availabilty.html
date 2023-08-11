@@ -117,7 +117,7 @@ window.onload = function() {
                 <div class="col-lg-12" id="notice_div">
                         <div class="row flex-wrap">
                                 {% for notice in notices_obj.notices %}
-                                        {% if notice.notice_type == 0 %}
+                                        {% if notice.notice_type == 0 and notice.active %}
                                                 <div class="col-sm-12 col-md-6 d-flex"> 
                                                         <div class="round-box col-12 px-3 mb-3" style='background-color: #ffcbcb; border: 1px solid #fb9e9e;'>
                                                                 <div style='margin-bottom:-12px;'>
@@ -125,7 +125,7 @@ window.onload = function() {
                                                                 </div>
                                                         </div>
                                                 </div>
-                                        {% elif notice.notice_type == 1 %}
+                                        {% elif notice.notice_type == 1 and notice.active %}
                                                 <div class="col-sm-12 col-md-6 d-flex"> 
                                                         <div class="round-box col-12 px-3 mb-3" style='background-color: #fff4e0; border: 1px solid #ff89358a;'>
                                                                 <div style='margin-bottom:-12px;'>
@@ -133,7 +133,7 @@ window.onload = function() {
                                                                 </div>
                                                         </div>
                                                 </div>
-                                        {% elif notice.notice_type == 2 %}
+                                        {% elif notice.notice_type == 2 and notice.active %}
                                                 <div class="col-sm-12 col-md-6 d-flex"> 
                                                         <div class="round-box col-12 px-3 mb-3" style='background-color: #cbe5ff; border: 1px solid #9eccfb;'>
                                                                 <div style='margin-bottom:-12px;'>
@@ -141,7 +141,7 @@ window.onload = function() {
                                                                 </div>
                                                         </div>
                                                 </div>
-                                        {% elif notice.notice_type == 3 %}
+                                        {% elif notice.notice_type == 3 and notice.active %}
                                                 <div class="col-sm-12 col-md-6 d-flex"> 
                                                         <div class="round-box col-12 px-3 mb-3" style='background-color: #e9f9ea; border: 1px solid #21ab26;'>
                                                                 <div style='margin-bottom:-12px;'>
