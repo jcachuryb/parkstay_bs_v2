@@ -1732,19 +1732,12 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'no_payment': no_payment,
         'tax_override': True
     }
-    #basket, basket_hash = create_basket_session(request, basket_params)
-    basket_user_id = None
-    if request.user.id is not None:
-        basket_user_id = request.user.id
-    else:
-        basket_user_id = booking.customer.id
+    basket_user_id = booking.customer.id
 
     basket_hash = create_basket_session(request,basket_user_id, basket_params)
-    #checkouthash =  hashlib.sha256('TEST'.encode('utf-8')).hexdigest()
-
-    checkouthash = request.session.get('checkouthash','')
-    #basket, basket_hash = use_existing_basket_from_invoice('00193349270')
     
+    checkouthash = request.session.get('checkouthash','')
+        
     checkout_params = {
         'system': settings.PS_PAYMENT_SYSTEM_ID,
         'fallback_url': request.build_absolute_uri('/'),
@@ -1758,6 +1751,7 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'basket_owner' : booking.customer.id 
         #'amount_override': float('1.00')
     }
+
     #if not internal:
     #    checkout_params['check_url'] = request.build_absolute_uri('/api/booking/{}/booking_checkout_status.json'.format(booking.id))
     if internal or request.user.is_anonymous:
