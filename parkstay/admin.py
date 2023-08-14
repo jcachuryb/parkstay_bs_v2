@@ -15,6 +15,7 @@ from copy import deepcopy
 from django.contrib import messages
 from django import forms
 from django_summernote.widgets import SummernoteWidget
+from django.utils.html import strip_tags
 
 admin.site.index_template = 'admin-index.html'
 admin.autodiscover()
@@ -356,7 +357,11 @@ class NoticeForm(forms.ModelForm):
 @admin.register(models.Notice)
 class NoticeAdmin(admin.ModelAdmin):
     form = NoticeForm
-    list_display = ('message', 'notice_type', 'order')
+    list_display = ('formatted_message', 'notice_type', 'order', 'active')
+
+    def formatted_message(self, obj):
+        return f"{strip_tags(obj.message).replace('&nbsp;', ' ')}"
+    formatted_message.short_description = 'Message'
 
 class MyBookingNoticeForm(forms.ModelForm):
     message = forms.CharField(widget=SummernoteWidget(attrs={'summernote': {'toolbar': [['style', ['bold', 'italic', 'underline', 'strikethrough', 'fontsize']], ['insert', ['link']]]}}))
@@ -368,8 +373,11 @@ class MyBookingNoticeForm(forms.ModelForm):
 @admin.register(models.MyBookingNotice)
 class MyBookingNoticeAdmin(admin.ModelAdmin):
     form = MyBookingNoticeForm
-    list_display = ('message', 'notice_type', 'order')
-
+    list_display = ('formatted_message', 'notice_type', 'order', 'active')
+    
+    def formatted_message(self, obj):
+        return f"{strip_tags(obj.message).replace('&nbsp;', ' ')}"
+    formatted_message.short_description = 'Message'
 
 @admin.register(models.PromoArea)
 class PromoAreaAdmin(admin.GeoModelAdmin):
