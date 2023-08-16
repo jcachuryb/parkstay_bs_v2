@@ -145,7 +145,7 @@ def get_features():
 def get_notices():
     notices_dumped_data = cache.get('utils_cache.get_notices()')
 
-    if notices_dumped_data is None or len(notices_dumped_data) != 0:
+    if notices_dumped_data is None:
         notices_obj = {}
 
         notices_query = parkstay_models.Notice.objects.all().order_by("order")
@@ -163,7 +163,7 @@ def get_notices():
 def get_my_booking_notices():
     my_booking_notices_dumped_data = cache.get('utils_cache.get_my_booking_notices()')
 
-    if my_booking_notices_dumped_data is None or len(my_booking_notices_dumped_data) != 0:
+    if my_booking_notices_dumped_data is None:
         my_booking_notices_obj = {}
 
         my_booking_notices_query = parkstay_models.MyBookingNotice.objects.all().order_by("order")
