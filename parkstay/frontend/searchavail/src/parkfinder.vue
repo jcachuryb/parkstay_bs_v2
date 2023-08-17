@@ -40,7 +40,7 @@
                                 <div v-else>
                                     <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Approximate Sites Available: {{ campgroundSiteTotal[f.id].total_available }}</div>
                                     <div v-else class='slick-slide-card-notavailabile'>
-                                         No availablity for selected period
+                                         No availability for selected period
                                     </div>
                                 </div>
                             </div>
@@ -1753,6 +1753,7 @@ export default {
                 vm.groundsData.clear();
                 vm.groundsData.extend(features);
                 vm.groundsSource.loadSource();
+                vm.slickcount = vm.slickcount + 1;
             }
         });
 
@@ -1804,6 +1805,7 @@ export default {
                         vm.campgroundAvailablity = response['campground_available']; 
                     }
                     vm.updateFilter();
+                    vm.slickcount = vm.slickcount + 1;
                 },
                 dataType: 'json'
             });
