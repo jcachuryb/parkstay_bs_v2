@@ -40,7 +40,7 @@
                                 <div v-else>
                                     <div v-if="campgroundAvailablity[f.id].total_bookable > 0" class='slick-slide-card-availabile' >Approximate Sites Available: {{ campgroundSiteTotal[f.id].total_available }}</div>
                                     <div v-else class='slick-slide-card-notavailabile'>
-                                         No availablity for selected period
+                                         No availability for selected period
                                     </div>
                                 </div>
                             </div>
