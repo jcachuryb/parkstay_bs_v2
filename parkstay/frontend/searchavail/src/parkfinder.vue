@@ -1261,7 +1261,7 @@ export default {
 
                      vm.campgroundSiteTotal[campground_id]['total_available'] = vm.campgroundSiteTotal[campground_id]['sites'].length;
                      var row = {'campground_name': 'test', 'distance': null};
-                          
+                     vm.slickcount = vm.slickcount + 1;     
             });
             vm.camping_distance_array.sort(function (a, b) {
                 return a.distance - b.distance;
