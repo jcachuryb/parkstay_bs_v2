@@ -1040,6 +1040,7 @@ export default {
                          vm.campgroundSiteTotal[campground_id]['sites'].splice(cst,1);
                      }
                }
+                
         },
         reloadMap: function() {
             console.log('RELOAD MAP');
@@ -1752,8 +1753,7 @@ export default {
                 vm.campground_data=response.features;
                 vm.groundsData.clear();
                 vm.groundsData.extend(features);
-                vm.groundsSource.loadSource();
-                vm.slickcount = vm.slickcount + 1;
+                vm.groundsSource.loadSource();                
             }
         });
 
@@ -1805,7 +1805,7 @@ export default {
                         vm.campgroundAvailablity = response['campground_available']; 
                     }
                     vm.updateFilter();
-                    vm.slickcount = vm.slickcount + 1;
+                    vm.buildDistanceArray();                    
                 },
                 dataType: 'json'
             });
@@ -2007,7 +2007,6 @@ export default {
                  vm.reloadMap();
         });
          
-
 //new Glider(document.querySelector('.glider'), {  slidesToShow: 5,
 //  slidesToScroll: 5,
 //  draggable: true,
