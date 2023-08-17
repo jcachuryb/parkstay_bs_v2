@@ -1753,6 +1753,7 @@ export default {
                 vm.groundsData.clear();
                 vm.groundsData.extend(features);
                 vm.groundsSource.loadSource();
+                vm.slickcount = vm.slickcount + 1;
             }
         });
 
@@ -1804,6 +1805,7 @@ export default {
                         vm.campgroundAvailablity = response['campground_available']; 
                     }
                     vm.updateFilter();
+                    vm.slickcount = vm.slickcount + 1;
                 },
                 dataType: 'json'
             });
