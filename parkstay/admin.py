@@ -358,6 +358,7 @@ class NoticeForm(forms.ModelForm):
 class NoticeAdmin(admin.ModelAdmin):
     form = NoticeForm
     list_display = ('formatted_message', 'notice_type', 'order', 'created', 'active')
+    readonly_fields = ['created',]
 
     def formatted_message(self, obj):
         return f"{strip_tags(obj.message).replace('&nbsp;', ' ')}"
@@ -374,6 +375,7 @@ class MyBookingNoticeForm(forms.ModelForm):
 class MyBookingNoticeAdmin(admin.ModelAdmin):
     form = MyBookingNoticeForm
     list_display = ('formatted_message', 'notice_type', 'order', 'created', 'active')
+    readonly_fields = ['created',]
     
     def formatted_message(self, obj):
         return f"{strip_tags(obj.message).replace('&nbsp;', ' ')}"
