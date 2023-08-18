@@ -357,7 +357,7 @@ class NoticeForm(forms.ModelForm):
 @admin.register(models.Notice)
 class NoticeAdmin(admin.ModelAdmin):
     form = NoticeForm
-    list_display = ('formatted_message', 'notice_type', 'order', 'active')
+    list_display = ('formatted_message', 'notice_type', 'order', 'created', 'active')
 
     def formatted_message(self, obj):
         return f"{strip_tags(obj.message).replace('&nbsp;', ' ')}"
@@ -373,7 +373,7 @@ class MyBookingNoticeForm(forms.ModelForm):
 @admin.register(models.MyBookingNotice)
 class MyBookingNoticeAdmin(admin.ModelAdmin):
     form = MyBookingNoticeForm
-    list_display = ('formatted_message', 'notice_type', 'order', 'active')
+    list_display = ('formatted_message', 'notice_type', 'order', 'created', 'active')
     
     def formatted_message(self, obj):
         return f"{strip_tags(obj.message).replace('&nbsp;', ' ')}"
