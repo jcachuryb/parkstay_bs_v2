@@ -29,7 +29,7 @@ def get_campsites_for_campground(ground, gear_type):
     sites_array = []
     cached_data = cache.get('booking_availability.get_campsites_for_campground:'+str(ground['id']))
     features_array = get_features() 
-    #cached_data = None
+    cached_data = None
     if cached_data is None:
         sites_qs = models.Campsite.objects.filter(campground_id=ground['id']).values('id','campground_id','name','campsite_class_id','wkb_geometry','tent','campervan','caravan','min_people','max_people','max_vehicles','description','campground__max_advance_booking','campsite_class__name','short_description','vehicle','motorcycle','trailer').order_by('name')
         for cs in sites_qs:
@@ -59,8 +59,9 @@ def get_campsites_for_campground(ground, gear_type):
             row['campground__max_advance_booking'] = cs['campground__max_advance_booking']
             row['features'] = []
             for cs_feature in sites_qs_features:
-                if cs_feature['features'] in features_array:
-                     row['features'].append(features_array[cs_feature['features']])
+                feature_id_str = str(cs_feature['features'])
+                if feature_id_str in features_array:
+                     row['features'].append(features_array[feature_id_str])
             sites_array.append(row) 
         cache.set('booking_availability.get_campsites_for_campground:'+str(ground['id']), json.dumps(sites_array),  86400)
     else:
