@@ -1975,6 +1975,7 @@ class Notice(models.Model):
     message = models.TextField(null=True, blank=True, default='')
     order = models.IntegerField(default=1)
     active = models.BooleanField(default=True)
+    created = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
            return '{}'.format(strip_tags(self.message).replace('&nbsp;', ' '))
@@ -1990,6 +1991,7 @@ class MyBookingNotice(models.Model):
     message = models.TextField(null=True, blank=True, default='')
     order = models.IntegerField(default=1)
     active = models.BooleanField(default=True)
+    created = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
            return '{}'.format(strip_tags(self.message).replace('&nbsp;', ' '))
