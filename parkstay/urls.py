@@ -114,6 +114,7 @@ urlpatterns = [
     url(r'^booking/cancel/(?P<booking_id>[0-9]+)/$', views.CancelBookingView.as_view(), name='cancel_booking'),
     url(r'^booking/change/(?P<booking_id>[0-9]+)/$', views.ChangeBookingView.as_view(), name='change_booking'),
     url(r'^booking/', views.MakeBookingsView.as_view(), name='public_make_booking'),
+    url(r'^booking-history/(?P<pk>[0-9]+)/', views.ViewBookingHistory.as_view(), name='view_booking_history'),
     url(r'^mybookings/', views.MyBookingsView.as_view(), name='public_my_bookings'),
     url(r'^success/', views.BookingSuccessView.as_view(), name='public_booking_success'),
     url(r'^map/', views.MapView.as_view(), name='map'),

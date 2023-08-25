@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from ledger_api_client.utils import create_basket_session, create_checkout_session, place_order_submission, use_existing_basket, use_existing_basket_from_invoice, process_api_refund
 from django import forms
+from ledger_api_client import utils as ledger_api_utils
 #from ledger.basket.models import Basket
 from parkstay.forms import LoginForm, MakeBookingsForm, AnonymousMakeBookingsForm, VehicleInfoFormset
 from parkstay.exceptions import BindBookingException
@@ -1328,3 +1329,53 @@ class MapView(TemplateView):
 
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'ps/profile.html'
+
+class ViewBookingHistory(LoginRequiredMixin, TemplateView):
+    template_name = 'ps/booking/booking_history.html'
+
+    def get(self, request, *args, **kwargs):
+        booking_id = kwargs['pk']
+        booking = None
+        booking_history= []
+        parkstay_officers = ledger_api_utils.user_in_system_group(request.session['user_obj']['user_id'],'Parkstay Officers')
+        allowed = False
+        if (request.user.is_staff and parkstay_officers) or request.user.is_superuser:
+             booking = Booking.objects.get(pk=booking_id)
+             newest_booking = self.get_newest_booking(booking_id)
+             booking_history = self.get_history(newest_booking, booking_array=[])            
+             allowed = True
+
+        context = {
+           'booking_id': booking_id,
+           'booking': booking,
+           'booking_history' : booking_history,
+           'GIT_COMMIT_DATE' : settings.GIT_COMMIT_DATE,
+           'GIT_COMMIT_HASH' : settings.GIT_COMMIT_HASH,
+           'allowed' : allowed
+        }
+
+        return render(request, self.template_name,context)
+
+    def get_newest_booking(self, booking_id):
+        latest_id = booking_id
+        if Booking.objects.filter(old_booking=booking_id).exclude(booking_type=3).count() > 0:
+            booking = Booking.objects.filter(old_booking=booking_id)[0]   
+            latest_id = self.get_newest_booking(booking.id)
+        return latest_id
+
+    def get_history(self, booking_id, booking_array=[]):
+        booking = Booking.objects.get(pk=booking_id)
+        #booking.invoices =[]      
+        booking_invoices= BookingInvoice.objects.filter(booking=booking) 
+        vehicles = BookingVehicleRego.objects.filter(booking=booking)
+        campsite_bookings = CampsiteBooking.objects.filter(booking=booking)
+        created_by = {}
+        try: 
+            created_by = EmailUser.objects.get(id=booking.created_by)
+        except:
+            print ("error getting created by")
+
+        booking_array.append({'booking': booking, 'invoices': booking_invoices, 'vehicles': vehicles, 'created_by': created_by, 'campsite_bookings': campsite_bookings})
+        if booking.old_booking:
+            self.get_history(booking.old_booking, booking_array)
+        return booking_array

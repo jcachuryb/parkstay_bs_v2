@@ -1,0 +1,135 @@
+{% extends 'ps/base.html' %}
+{% load static %}
+{% block extra_css %}
+    {{ block.super }}
+    <!--link href="/static/common/css/font-awesome.css" rel="stylesheet"/-->
+    <style>
+        .bold {
+            font-weight: bold;
+        }
+        .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+            border:none;
+        }
+
+        .table>tr>td>a:before,.table>tr>td>a:after{
+            box-sizing: content-box !important;
+            color: white;
+        }
+        *, *::before, *::after {
+            box-sizing: content-box !important;
+            
+
+        }
+    </style>
+
+    <div>
+
+
+    </div>
+
+{% endblock %}
+{% block content %}
+
+    {% if allowed is True %}
+    <div class="container">
+        <div class="row">
+
+        <div class="col-sm-12">
+            <h2>Booking History</h2>
+	</div>
+        
+        <div class="col-sm-12 col-md-12 col-lg-12">
+        <div class="pull-right">
+                      <a class='btn btn-primary' href="{{ LEDGER_UI_URL }}/ledger/payments/oracle/payments?booking_reference=PB-{{ booking_id }}">Ledger Payments</a>
+    
+        </div>
+        <div><BR></div>
+        &nbsp;
+        <table cellspacing="0" width="100%" id="bookings-table" class="hover table table-striped table-bordered dt-responsive nowrap dataTable no-footer dtr-inline" role="grid" aria-describedby="bookings-table_info">
+        <thead>
+		<tr>
+		  <th>Confirmation#</th>
+		            <th>Total</th>
+                  <th>Booking Date<br>
+                  Booked By <br>
+                  Campground
+                  
+                  </th>
+                  <th>Booking Details</th>
+                  <th>Arrival</th>
+                  <th>Departure</th>
+                  <th>Cancel Date<br>Cancelled By<br>Cancellation Reason</th>
+                  <th width='125px'>Invoices#</th>
+		</tr>
+	</thead>
+        <tbody> 
+ 
+                 {% for bh in booking_history %}
+                  {% if bh.booking.booking_type != 3 %}
+                  <tr>
+                      <td><A title='New Booking' HREF='/api/get_confirmation/{{ bh.booking.id }}'>PS{{ bh.booking.id }}</A> {% if bh.booking.old_booking %}</i><br><i style="color:red; padding-left:15px;" class="bi bi-caret-up-fill"></i> <br><A title='OLD Booking' HREF='/api/get_confirmation/{{ bh.booking.old_booking }}'>PS{{ bh.booking.old_booking }}{% endif %}</A></td>
+                      
+                      <td style='color: {% if bh.booking.cost_total > 0 %}red{% elif  bh.booking.cost_total < 0 %}green{% endif %}'  >${{ bh.booking.cost_total }}</td>
+                      <td>{{ bh.booking.created }}<br>
+                          {{ bh.created_by.email }}<br>
+                          {{ bh.booking.campground }}<br>
+                          <br>
+                          <b>Campsites</b>
+                          
+                          <table>
+                            {% for cs in bh.campsite_bookings %}
+                                <tr><td>{{ cs.date|date:"d-m-Y" }}</td><td>-</td><td>{{ cs.campsite }}</td></tr>
+                            {% endfor %}
+                          </table>
+                      </td>
+                      <td>
+                          <table>
+                            <tr><td class='fw-bold'>Adults: </td><td>{{ bh.booking.details.num_adult }}</td></tr>
+                            <tr><td class='fw-bold'>Adults (Concession): </td><td>{{ bh.booking.details.num_concession }}</td></tr>
+                            <tr><td class='fw-bold'>Children:  </td><td>{{ bh.booking.details.num_child }}</td></tr>
+                            <tr><td class='fw-bold'>Infants:  </td><td>{{ bh.booking.details.num_infant }}</td></tr>
+                          </table>
+                          {% for v in bh.vehicles %}
+                            <table style='background-color: #e5edf3 ; width: 100%; padding: 5px; border-radius: 5px;' cellpadding=5>
+                                <tr><td class='fw-bold'>Type</td><td>{{ v.get_type_display}}</td></tr>
+                                <tr><td class='fw-bold'>Rego</td><td>{{ v.rego}}</td></tr>
+                                <tr><td class='fw-bold'>Entry Fee</td><td>{% if v.entry_fee is True %}<i style='color: #00ff0a' class="bi bi-check-circle-fill"></i>{% else %}<i style='color: red' class="bi bi-x-circle-fill"></i>{%endif%}</td></tr>
+                            </table>
+                            <br>
+                          {% endfor %}
+
+                      </td>
+                      <td>
+                        {{ bh.booking.arrival }}
+                      </td>
+                      <td>
+                        {{ bh.booking.departure }}
+                      </td>
+                      <td>
+                          {% if bh.booking.cancelation_time %}{{ bh.booking.cancelation_time }}{% endif %}<BR>
+			              {% if bh.booking.canceled_by  %}{{ bh.booking.canceled_by }}{% endif %}<br>
+                          {% if bh.booking.cancellation_reason  %}<div style='border: solid 1px #dedede; background-color: #FFFFFF; width: 100%; padding: 2px;'>{{ bh.booking.cancellation_reason }}</div>{% endif %}
+                      </td>
+
+                      <td>{% for bi in bh.invoices %}
+                            <A href='/ledger-toolkit-api/invoice-pdf/{{ bi.invoice_reference }}' style='text-decoration: none;'><i style="color:red;" class="fa fa-file-pdf-o"></i>&nbsp;{{ bi.invoice_reference }}</A><BR>
+                      {% endfor %}
+		            </td>
+                  </tr> 
+                  {% endif %}
+		 {% endfor %}
+        </tbody>
+        </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="container">
+        <div class="row">
+
+        <div class="col-sm-12">
+        <h2>Access Denied</h2>
+        </div>
+    </div>
+</div>
+    {% endif %}
+{% endblock %}
