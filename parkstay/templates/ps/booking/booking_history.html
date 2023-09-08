@@ -51,6 +51,7 @@
 		  <th>Confirmation#</th>
 		            <th>Fee/Fee Change</th>
                   <th>Booking Date<br>
+                  Created By Email<br>
                   Booking Email <br>
                   Booking Name <br>
                   Phone <br>
@@ -80,6 +81,7 @@
                       </td>
                       <td>{{ bh.booking.created }}<br>
                           {{ bh.created_by.email }}<br>
+                          {{ bh.customer.email }}<br>
                           {{ bh.booking.details.first_name }} {{ bh.booking.details.last_name }}<br>                        
                           {{ bh.booking.details.phone }}<br>
                           {{ bh.booking.campground }}<br>
