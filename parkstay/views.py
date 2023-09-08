@@ -1370,12 +1370,18 @@ class ViewBookingHistory(LoginRequiredMixin, TemplateView):
         vehicles = BookingVehicleRego.objects.filter(booking=booking)
         campsite_bookings = CampsiteBooking.objects.filter(booking=booking)
         created_by = {}
+        customer = {}
         try: 
             created_by = EmailUser.objects.get(id=booking.created_by)
         except:
             print ("error getting created by")
 
-        booking_array.append({'booking': booking, 'invoices': booking_invoices, 'vehicles': vehicles, 'created_by': created_by, 'campsite_bookings': campsite_bookings})
+        try: 
+            customer = EmailUser.objects.get(id=booking.customer.id)
+        except:
+            print ("error getting created by")
+
+        booking_array.append({'booking': booking, 'invoices': booking_invoices, 'vehicles': vehicles, 'customer' : customer, 'created_by': created_by, 'campsite_bookings': campsite_bookings})
         if booking.old_booking:
             self.get_history(booking.old_booking, booking_array)
         return booking_array
