@@ -49,10 +49,13 @@
         <thead>
 		<tr>
 		  <th>Confirmation#</th>
-		            <th>Total</th>
+		            <th>Fee/Fee Change</th>
                   <th>Booking Date<br>
-                  Booked By <br>
-                  Campground
+                  Booking Email <br>
+                  Booking Name <br>
+                  Phone <br>
+                  Campground<br>
+                  Campsite
                   
                   </th>
                   <th>Booking Details</th>
@@ -69,18 +72,19 @@
                   <tr>
                       <td><A title='New Booking' HREF='/api/get_confirmation/{{ bh.booking.id }}'>PS{{ bh.booking.id }}</A> {% if bh.booking.old_booking %}</i><br><i style="color:red; padding-left:15px;" class="bi bi-caret-up-fill"></i> <br><A title='OLD Booking' HREF='/api/get_confirmation/{{ bh.booking.old_booking }}'>PS{{ bh.booking.old_booking }}{% endif %}</A></td>
                       
-                      <td style='color: {% if bh.booking.cost_total > 0 %}red{% elif  bh.booking.cost_total < 0 %}green{% endif %}'  >${{ bh.booking.cost_total }}</td>
+                      <td>
+                        <span style='color: {% if bh.booking.cost_total > 0 %}red{% elif  bh.booking.cost_total < 0 %}green{% endif %}'>${{ bh.booking.cost_total }}</span><br>
+                        {{ bh.booking.property_cache.status }}<br>
+
+
+                      </td>
                       <td>{{ bh.booking.created }}<br>
                           {{ bh.created_by.email }}<br>
+                          {{ bh.booking.details.first_name }} {{ bh.booking.details.last_name }}<br>                        
+                          {{ bh.booking.details.phone }}<br>
                           {{ bh.booking.campground }}<br>
+                          {{ bh.campsite_bookings.0.campsite }}<br>
                           <br>
-                          <b>Campsites</b>
-                          
-                          <table>
-                            {% for cs in bh.campsite_bookings %}
-                                <tr><td>{{ cs.date|date:"d-m-Y" }}</td><td>-</td><td>{{ cs.campsite }}</td></tr>
-                            {% endfor %}
-                          </table>
                       </td>
                       <td>
                           <table>
@@ -111,9 +115,13 @@
                           {% if bh.booking.cancellation_reason  %}<div style='border: solid 1px #dedede; background-color: #FFFFFF; width: 100%; padding: 2px;'>{{ bh.booking.cancellation_reason }}</div>{% endif %}
                       </td>
 
-                      <td>{% for bi in bh.invoices %}
+                      <td class='text-end'>{% for bi in bh.invoices %}
                             <A href='/ledger-toolkit-api/invoice-pdf/{{ bi.invoice_reference }}' style='text-decoration: none;'><i style="color:red;" class="fa fa-file-pdf-o"></i>&nbsp;{{ bi.invoice_reference }}</A><BR>
-                      {% endfor %}
+                         {% endfor %}
+                         {% if bh.booking.is_canceled is False %}
+                         <a href='/booking/change/{{ bh.booking.id }}/' class='btn btn-primary btn-sm mt-1'>Change</a><br>
+                         <a href='/booking/cancel/{{ bh.booking.id }}/' class='btn btn-primary btn-sm mt-1'>Cancel</a><br>
+                        {% endif %}
 		            </td>
                   </tr> 
                   {% endif %}
