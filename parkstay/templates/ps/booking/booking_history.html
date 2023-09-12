@@ -117,23 +117,24 @@
                           {% if bh.booking.cancellation_reason  %}<div style='border: solid 1px #dedede; background-color: #FFFFFF; width: 100%; padding: 2px;'>{{ bh.booking.cancellation_reason }}</div>{% endif %}
                       </td>
 
-                      <td class='text-end'>{% for bi in bh.invoices %}
-                            <A href='/ledger-toolkit-api/invoice-pdf/{{ bi.invoice_reference }}' style='text-decoration: none;'><i style="color:red;" class="fa fa-file-pdf-o"></i>&nbsp;{{ bi.invoice_reference }}</A><BR>
+                       <td class='text-end'>{% for bi in bh.invoices %}
+                        <A href='/ledger-toolkit-api/invoice-pdf/{{ bi.invoice_reference }}' style='text-decoration: none;'><i style="color:red;" class="fa fa-file-pdf-o"></i>&nbsp;{{ bi.invoice_reference }}</A><BR>
                          {% endfor %}
                                 {% if bh.booking.is_canceled is False %}                                  
-                                    {% if bh.booking.departure >= today_date %}
-                                    
+                                    {% if bh.booking.departure >= today_date %}                                    
                                             <a href='/booking/change/{{ bh.booking.id }}/' class='btn btn-primary btn-sm mt-1'>Change</a><br>                                                                                
+                                    {% else %}
+                                            <a href='/booking/change/{{ bh.booking.id }}/' class='btn btn-warning btn-sm mt-1'>Change</a><br>  
                                     {% endif %}
 
-                                {% if bh.booking.departure >= today_date %}
-                                    <a href='/booking/cancel/{{ bh.booking.id }}/' class='btn btn-primary btn-sm mt-1'>Cancel</a><br>  
-                                {% else %}                                
-                                    {% if PARKSTAY_PERMISSIONS.p3 is True %}
-                                        <a href='/booking/cancel/{{ bh.booking.id }}/' class='btn btn-primary btn-sm mt-1'>Cancel</a><br>
-                                    {% endif %}                                                            
+                                    {% if bh.booking.departure >= today_date %}
+                                        <a href='/booking/cancel/{{ bh.booking.id }}/' class='btn btn-primary btn-sm mt-1'>Cancel</a><br>  
+                                    {% else %}                                
+                                        {% if PARKSTAY_PERMISSIONS.p3 is True %}
+                                            <a href='/booking/cancel/{{ bh.booking.id }}/' class='btn btn-danger btn-sm mt-1'>Cancel</a><br>
+                                        {% endif %}                                                            
+                                    {% endif %}
                                 {% endif %}
-                        {% endif %}
 		            </td>
                   </tr> 
                   {% endif %}
