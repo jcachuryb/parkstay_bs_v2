@@ -350,13 +350,13 @@ export default {
                   "/' class='text-primary' data-change = '" +
                   htmlEscape(booking) +
                   "' > Change</a><br/>";
-                  column += change_booking;
+                  // column += change_booking;
               }
               var cancel_booking =
                 "<a href='/booking/cancel/"+full.id+"/' class='text-primary' data-cancel='" +
                 htmlEscape(booking) +
                 "' > Cancel</a><br/>";
-              column += cancel_booking;
+              // column += cancel_booking;
               
               full.has_history
                 ? (column +=
