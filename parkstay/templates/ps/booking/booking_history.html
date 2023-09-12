@@ -120,9 +120,19 @@
                       <td class='text-end'>{% for bi in bh.invoices %}
                             <A href='/ledger-toolkit-api/invoice-pdf/{{ bi.invoice_reference }}' style='text-decoration: none;'><i style="color:red;" class="fa fa-file-pdf-o"></i>&nbsp;{{ bi.invoice_reference }}</A><BR>
                          {% endfor %}
-                         {% if bh.booking.is_canceled is False %}
-                         <a href='/booking/change/{{ bh.booking.id }}/' class='btn btn-primary btn-sm mt-1'>Change</a><br>
-                         <a href='/booking/cancel/{{ bh.booking.id }}/' class='btn btn-primary btn-sm mt-1'>Cancel</a><br>
+                                {% if bh.booking.is_canceled is False %}                                  
+                                    {% if bh.booking.departure >= today_date %}
+                                    
+                                            <a href='/booking/change/{{ bh.booking.id }}/' class='btn btn-primary btn-sm mt-1'>Change</a><br>                                                                                
+                                    {% endif %}
+
+                                {% if bh.booking.departure >= today_date %}
+                                    <a href='/booking/cancel/{{ bh.booking.id }}/' class='btn btn-primary btn-sm mt-1'>Cancel</a><br>  
+                                {% else %}                                
+                                    {% if PARKSTAY_PERMISSIONS.p3 is True %}
+                                        <a href='/booking/cancel/{{ bh.booking.id }}/' class='btn btn-primary btn-sm mt-1'>Cancel</a><br>
+                                    {% endif %}                                                            
+                                {% endif %}
                         {% endif %}
 		            </td>
                   </tr> 
@@ -132,6 +142,7 @@
         </table>
         </div>
     </div>
+    {{ PARKSTAY_PERMISSIONS }}
     {% else %}
     <div class="container">
         <div class="row">

@@ -44,7 +44,7 @@ from ledger_api_client.ledger_models import Basket
 #from ledger.accounts.models import EmailUser, Address, EmailIdentity
 #from ledger.payments.models import Invoice
 from django_ical.views import ICalFeed
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from decimal import *
 from django.db.models import Max
 from django.core.cache import cache
@@ -1339,6 +1339,7 @@ class ViewBookingHistory(LoginRequiredMixin, TemplateView):
         booking_history= []
         parkstay_officers = ledger_api_utils.user_in_system_group(request.session['user_obj']['user_id'],'Parkstay Officers')
         allowed = False
+        today_date = date.today()
         if (request.user.is_staff and parkstay_officers) or request.user.is_superuser:
              booking = Booking.objects.get(pk=booking_id)
              newest_booking = self.get_newest_booking(booking_id)
@@ -1346,12 +1347,13 @@ class ViewBookingHistory(LoginRequiredMixin, TemplateView):
              allowed = True
 
         context = {
-           'booking_id': booking_id,
-           'booking': booking,
-           'booking_history' : booking_history,
-           'GIT_COMMIT_DATE' : settings.GIT_COMMIT_DATE,
-           'GIT_COMMIT_HASH' : settings.GIT_COMMIT_HASH,
-           'allowed' : allowed
+            'today_date': today_date,
+            'booking_id': booking_id,
+            'booking': booking,
+            'booking_history' : booking_history,
+            'GIT_COMMIT_DATE' : settings.GIT_COMMIT_DATE,
+            'GIT_COMMIT_HASH' : settings.GIT_COMMIT_HASH,
+            'allowed' : allowed
         }
 
         return render(request, self.template_name,context)

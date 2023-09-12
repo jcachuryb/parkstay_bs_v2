@@ -5061,10 +5061,10 @@ exports.default = {
             }
             if (full.editable) {
               var change_booking = "<a href='/booking/change/" + full.id + "/' class='text-primary' data-change = '" + (0, _hooks.htmlEscape)(booking) + "' > Change</a><br/>";
-              column += change_booking;
+              // column += change_booking;
             }
             var cancel_booking = "<a href='/booking/cancel/" + full.id + "/' class='text-primary' data-cancel='" + (0, _hooks.htmlEscape)(booking) + "' > Cancel</a><br/>";
-            column += cancel_booking;
+            // column += cancel_booking;
 
             full.has_history ? column += "<a href='edit/" + full.id + "' class='text-primary' data-history = '" + (0, _hooks.htmlEscape)(booking) + "' > View History</a><br/>" : "";
             _hooks.$.each(full.active_invoices, function (i, v) {
