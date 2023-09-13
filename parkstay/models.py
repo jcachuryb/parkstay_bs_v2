@@ -724,6 +724,7 @@ class CampgroundBookingRange(BookingRange):
                 raise ValidationError('This Booking Range is not editable')
             # if self.range_start < datetime.now().date() and original.range_start != self.range_start:
             #    raise ValidationError('The start date can\'t be in the past')
+        cache.delete('booking_availability.get_campground_booking_range'+str(self.campground.id))
         super(CampgroundBookingRange, self).clean(*args, **kwargs)
 
 
