@@ -1174,7 +1174,10 @@ class SearchAvailablityByCampground(TemplateView):
 
                                            if cb.arrival <= today:
                                                if cb.departure >= today:
-                                                   context['change_booking_after_arrival_before_departure'] = True
+                                                   if cp > 0:
+                                                        pass
+                                                   else:
+                                                        context['change_booking_after_arrival_before_departure'] = True
                                                    context['change_booking'] = cb
                                                    arrival = cb.arrival.strftime("%Y/%m/%d")
                                                    friendly_arrival = cb.arrival.strftime("%d/%m/%Y")
@@ -1317,6 +1320,7 @@ class SearchAvailablityByCampground(TemplateView):
         ## {name: '2WD accessible', symb: 'RV2', key: 'twowheel', 'remoteKey': ['2WD/SUV ACCESS']},
         context['features'] = features_obj
         context['features_json'] = json.dumps(features_obj)
+        context['cp_booking'] = cp
         return render(request, self.template_name, context)
 
 

@@ -80,7 +80,7 @@ def build_campground_calender(params):
                        closure_end = end_date
                    closure_diff = closure_end - closure_start
 
-                   for day in range(0, closure_diff.days+1):
+                   for day in range(0, closure_diff.days):
                        nextday = closure_start + timedelta(days=day)
                        nextday_string = nextday.strftime('%Y-%m-%d')
                        for cs_id in campground_calender['campsite_ids']:
@@ -103,7 +103,7 @@ def build_campground_calender(params):
                         closure_end = end_date
 
                    closure_diff = closure_end - closure_start
-                   for day in range(0, closure_diff.days+1):
+                   for day in range(0, closure_diff.days):
                        nextday = closure_start + timedelta(days=day)
                        nextday_string = nextday.strftime('%Y-%m-%d')
                        if str(closure.campsite.id) in campground_calender['campsites']:
@@ -159,32 +159,35 @@ def build_campground_daily_calender(params):
                data_file = settings.BASE_DIR+"/datasets/daily/"+str(nextday_string)+"-availablity.json"
                cg = utils_cache.all_campgrounds()
                for c in cg:
-                   cg_id = c['id']
-                   cg_calender = {}
-                   campground_data_file = settings.BASE_DIR+"/datasets/"+str(cg_id)+"-campground-availablity.json"
-                   if os.path.isfile(campground_data_file):
-                      f = open(campground_data_file, "r")
-                      datajsonstring = f.read()
-                      cg_calender = json.loads(datajsonstring)
-                      #print (cg_calender)
+                    try:
+                        cg_id = c['id']
+                        cg_calender = {}
+                        campground_data_file = settings.BASE_DIR+"/datasets/"+str(cg_id)+"-campground-availablity.json"
+                        if os.path.isfile(campground_data_file):
+                            f = open(campground_data_file, "r")
+                            datajsonstring = f.read()
+                            cg_calender = json.loads(datajsonstring)
+                            #print (cg_calender)
 
-                   if c['campground_type'] == 0:
-                       daily_calender['campgrounds'][cg_id] = {}
+                        if c['campground_type'] == 0:
+                            daily_calender['campgrounds'][cg_id] = {}
 
-                       campsites = utils_cache.all_campground_campsites(c['id'])
-                       for cs in campsites:
-                           cs_id = cs['id']
-                           avail_status = params['status'][1]
-                           if 'campsites' in cg_calender:
-                               if str(cs_id) in cg_calender['campsites']:
-                                   if nextday_string in cg_calender['campsites'][str(cs_id)]:
-                                        avail_status = cg_calender['campsites'][str(cs_id)][nextday_string]
+                            campsites = utils_cache.all_campground_campsites(c['id'])
+                            for cs in campsites:
+                                cs_id = cs['id']
+                                avail_status = params['status'][1]
+                                if 'campsites' in cg_calender:
+                                    if str(cs_id) in cg_calender['campsites']:
+                                        if nextday_string in cg_calender['campsites'][str(cs_id)]:
+                                                avail_status = cg_calender['campsites'][str(cs_id)][nextday_string]
 
-                           if cs_id not in daily_calender['campgrounds'][cg_id]:
-                               daily_calender['campgrounds'][cg_id][cs_id] = {}
+                                if cs_id not in daily_calender['campgrounds'][cg_id]:
+                                    daily_calender['campgrounds'][cg_id][cs_id] = {}
 
-                           daily_calender['campgrounds'][cg_id][cs_id][nextday_string] = avail_status
-
+                                daily_calender['campgrounds'][cg_id][cs_id][nextday_string] = avail_status
+                    except Exception as e:
+                        print ("ERROR Writing Daily")
+                        print (e)
 
 
                f = open(data_file, "w")
