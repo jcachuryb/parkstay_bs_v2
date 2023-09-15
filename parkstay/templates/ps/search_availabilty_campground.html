@@ -150,10 +150,11 @@
 
 
         <!--- STARTING -->
+
 	<div class="col-sm-12 col-md-6">
             <div class="col-sm-12 ">
                <input id='change_booking_after_arrival_before_departure' value='{{ change_booking_after_arrival_before_departure }}' type='hidden'>
-               {% if change_booking_after_arrival_before_departure is True %}
+               {% if change_booking_after_arrival_before_departure is True and cp_booking == 0 %}
                <div class="col-sm-12 ">
                       <div id="when-date-range" class='form-control'>
                          <div class='selection-informbox'>
@@ -173,8 +174,6 @@
                         </div>
                 </div>
                 {% else %}
-
-
           	<div class="col-sm-12 ">
 
 	           <div class='row' style='padding-bottom:5px;'>
@@ -649,7 +648,6 @@ window.onload = function() {
 
    {% else %}
          search_avail.change_tabs('campground-details');        
-
    {% endif %}
 
 window.addEventListener( "pageshow", function ( event ) {

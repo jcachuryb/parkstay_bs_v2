@@ -241,7 +241,8 @@ class Campground(models.Model):
            cache.delete('booking_availability.get_campsites_for_campground:'+str(self.id))
            cache.delete('utils_cache.all_campground_campsites('+str(self.id)+')')
            cache.delete('utils_cache.get_campground('+str(self.id)+')')
-
+           cache.delete('booking_availability.get_campground_booking_range'+str(self.id))
+           
         super(Campground, self).save(*args, **kwargs)
 
     class Meta:
