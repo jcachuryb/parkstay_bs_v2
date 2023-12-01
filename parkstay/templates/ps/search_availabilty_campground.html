@@ -153,7 +153,8 @@
 
 	<div class="col-sm-12 col-md-6">
             <div class="col-sm-12 ">
-               <input id='change_booking_after_arrival_before_departure' value='{{ change_booking_after_arrival_before_departure }}' type='hidden'>
+               <input id='change_booking_after_arrival_before_departure' value='{{ change_booking_after_arrival_before_departure }}' type='hidden'>               
+               <input id='parkstay_officers_change_arrival' value='{{ parkstay_officers_change_arrival }}' type='hidden'>
                {% if change_booking_after_arrival_before_departure is True and cp_booking == 0 %}
                <div class="col-sm-12 ">
                       <div id="when-date-range" class='form-control'>
@@ -220,7 +221,7 @@
 
 
 </div>
-<!-- ENDING -->
+                                <!-- ENDING -->
 				  <div class="col-sm-12 col-md-6" style='display:none'>
 					<div class="col-sm-12 col-md-12">
 						Check In

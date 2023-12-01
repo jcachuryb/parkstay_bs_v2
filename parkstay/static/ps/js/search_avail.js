@@ -30,12 +30,12 @@ var search_avail = {
 	   'permission_to_make_advanced_booking' : false
     },
     change_tabs: function(tabname) {
-          $("#campsite-booking").hide();
-	  $("#campground-details").hide();
-	  $("#campsite-booking-tab").removeClass("active");
-	  $("#campground-details-tab").removeClass("active");
-          $("#"+tabname+"-tab").addClass('active');
-	  $("#"+tabname).show();
+            $("#campsite-booking").hide();
+	        $("#campground-details").hide();
+	        $("#campsite-booking-tab").removeClass("active");
+	        $("#campground-details-tab").removeClass("active");
+            $("#"+tabname+"-tab").addClass('active');
+	        $("#"+tabname).show();
     },
     change_camper_counters: function(group, direction) {
 	   if (group in search_avail.var.campers) {
@@ -453,7 +453,10 @@ var search_avail = {
             var end_date = Date.parse(end);
 	    end = moment(end_date);
 	}
+        
         var change_booking_after_arrival_before_departure = $('#change_booking_after_arrival_before_departure').val();
+        var parkstay_officers_change_arrival = $('#parkstay_officers_change_arrival').val();
+        // parkstay_officers_change_arrival = 'False';
         if (change_booking_after_arrival_before_departure == 'True') { 
              $('#departure-date').datepicker({
                  format: 'dd/mm/yyyy',
@@ -471,8 +474,13 @@ var search_avail = {
                     //search_avail.init_dateselection($('#checkin').val(), date_split[2]+"/"+date_split[1]+"/"+date_split[0])
              });
         } else {
+             var minDate = new Date();
+             if (parkstay_officers_change_arrival == 'True') {
+                //minDate = null; 
+                minDate = start;
+             }
              $('#when-date-range').daterangepicker({
-                 minDate: new Date(),
+                 minDate: minDate,
                  startDate: start,
                  endDate: end,
                  //ranges: {
