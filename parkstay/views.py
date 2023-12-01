@@ -1153,6 +1153,7 @@ class SearchAvailablityByCampground(TemplateView):
         today = timezone.now().date()
         context['change_booking'] = None
         context['change_booking_after_arrival_before_departure'] = False
+        context['parkstay_officers_change_arrival'] = False
         friendly_arrival = ''
         friendly_departure = ''
         #if self.request.user.is_authenticated:
@@ -1176,6 +1177,7 @@ class SearchAvailablityByCampground(TemplateView):
                                            if cb.arrival <= today:
                                                if cb.departure >= today:
                                                    if parkstay_officers > 0:
+                                                        context['parkstay_officers_change_arrival'] = True
                                                         pass
                                                    else:
                                                         context['change_booking_after_arrival_before_departure'] = True
