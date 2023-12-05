@@ -1154,6 +1154,7 @@ class SearchAvailablityByCampground(TemplateView):
         context['change_booking'] = None
         context['change_booking_after_arrival_before_departure'] = False
         context['parkstay_officers_change_arrival'] = False
+        context['parkstay_officers'] = False
         friendly_arrival = ''
         friendly_departure = ''
         #if self.request.user.is_authenticated:
@@ -1163,6 +1164,7 @@ class SearchAvailablityByCampground(TemplateView):
                           if Booking.objects.filter(id=change_booking_id, is_canceled=False).count() > 0:
                                cb = Booking.objects.get(id=change_booking_id)
                                parkstay_officers = ledger_api_utils.user_in_system_group(request.session['user_obj']['user_id'],'Parkstay Officers')
+                               context['parkstay_officers'] = parkstay_officers
                                if cb:
                                     if cb.campground and request.user.email:
                                           cp = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=cb.campground,active=True,permission_group=0).count()

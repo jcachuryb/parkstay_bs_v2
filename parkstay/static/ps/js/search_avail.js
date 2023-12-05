@@ -27,7 +27,10 @@ var search_avail = {
 	   'availabity' : null,
 	   'max_advance_booking': 60,
 	   'arrival_days': 0,
-	   'permission_to_make_advanced_booking' : false
+	   'permission_to_make_advanced_booking' : false,
+       'arrival': null,
+       'departure': null
+
     },
     change_tabs: function(tabname) {
             $("#campsite-booking").hide();
@@ -441,18 +444,24 @@ var search_avail = {
 	}
     },
     init_dateselection: function(start,end) { 
+
+        var dateoverride = $('#date-override').is(':checked');
+        if (dateoverride == null) {
+            dateoverride = false;
+        }
+        
         if (start == null) {
             start = moment().add(0, 'days');
-	} else {
+	    } else {
               var start_date= Date.parse(start);
-	      start = moment(start_date);
-	}
-	if (end == null) {
+	    start = moment(start_date);
+	    }
+	    if (end == null) {
             end = moment().add(1,'days');
-	} else {
+	    } else {
             var end_date = Date.parse(end);
-	    end = moment(end_date);
-	}
+	        end = moment(end_date);
+	    }
         
         var change_booking_after_arrival_before_departure = $('#change_booking_after_arrival_before_departure').val();
         var parkstay_officers_change_arrival = $('#parkstay_officers_change_arrival').val();
@@ -479,19 +488,35 @@ var search_avail = {
                 //minDate = null; 
                 minDate = start;
              }
-             $('#when-date-range').daterangepicker({
-                 minDate: minDate,
-                 startDate: start,
-                 endDate: end,
-                 //ranges: {
-                 //   'Today': [moment(), moment()],
-                 //   'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                 //   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                 //   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                 //   'This Month': [moment().startOf('month'), moment().endOf('month')],
-                 //   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                 //}
-             }, search_avail.select_dates);
+             
+             if (dateoverride == true) { 
+                $('#when-date-range').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    //ranges: {
+                    //   'Today': [moment(), moment()],
+                    //   'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    //   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    //   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    //   'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    //   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    //}
+                }, search_avail.select_dates);
+             } else {
+                $('#when-date-range').daterangepicker({
+                    minDate: minDate,
+                    startDate: start,
+                    endDate: end,
+                    //ranges: {
+                    //   'Today': [moment(), moment()],
+                    //   'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    //   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    //   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    //   'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    //   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    //}
+                }, search_avail.select_dates);
+            }
          }
              search_avail.select_dates(start,end); 
         
@@ -1217,6 +1242,15 @@ var search_avail = {
 	       }
                search_avail.load_campsite_availabilty();
          });
+
+
+        $( "#date-override" ).click(function() {
+            
+            search_avail.init_dateselection(search_avail.var.arrival,search_avail.var.departure);
+
+        });
+
+
 
 
 

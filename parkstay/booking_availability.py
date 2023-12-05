@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.cache import cache
 from parkstay.helpers import is_officer
 from django.db.models import Max
-
+from ledger_api_client import utils as ledger_api_utils
 import json
 
 def get_features():
@@ -331,10 +331,13 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     can_make_advanced_booking = False
     change_booking_id_obj = None
     nowtime = datetime.now()
+    parkstay_officers = False
+
     if user:
         if models.ParkstayPermission.objects.filter(email=user.email,permission_group=5).count() > 0:
              can_make_advanced_booking = True
-
+        parkstay_officers = ledger_api_utils.user_in_system_group(user.id,'Parkstay Officers')
+ 
     if user:
        is_officer_boolean = is_officer(user) 
     """Fetch the availability of each campsite in a queryset over a range of visit dates."""
@@ -482,10 +485,12 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
             #    pass
                  if change_booking_id is not None:
                      if change_booking_id > 0 and  start_date <= today:
-                        if start_date != change_booking_id_obj.arrival:                            
-                            val[start_date + timedelta(days=i)][0] = 'pastdate'
-
-                        pass
+                        if parkstay_officers is  True:                        
+                            print ("Parkstay Officer Past Date Override")
+                        else:
+                            if start_date != change_booking_id_obj.arrival:                                                        
+                                val[start_date + timedelta(days=i)][0] = 'pastdate'
+                                                    
                      else:
                           pass
                           val[start_date + timedelta(days=i)][0] = 'tooearly'

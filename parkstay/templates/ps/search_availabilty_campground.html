@@ -176,7 +176,12 @@
                 </div>
                 {% else %}
           	<div class="col-sm-12 ">
-
+                        {% if parkstay_officers is True %}
+                        <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="date-override">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">Date override</label>
+                        </div>                        
+                        {% endif %}
 	           <div class='row' style='padding-bottom:5px;'>
 		     <div class="col-xs-6 col-lg-6 text-start">
 			<div class="d-grid gap-2 d-block d-sm-none">
@@ -619,6 +624,8 @@ window.onload = function() {
        search_avail.var.vehicles.trailer = parseInt('{{ cg.num_trailer }}');
        search_avail.var.vehicles.caravan = parseInt('{{ cg.num_caravan }}');
        search_avail.var.max_advance_booking = '{{ cg.campground.max_advance_booking }}';
+       search_avail.var.arrival = {% if cg.arrival %}'{{ cg.arrival }}'{% else %}null{% endif %};
+       search_avail.var.departure = {% if cg.departure %}'{{ cg.departure }}'{% else %}null{% endif %};
 
        {% if PARKSTAY_PERMISSIONS.p5 is True %}
             search_avail.var.permission_to_make_advanced_booking = true;
