@@ -29,3 +29,5 @@
 01 0 * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python /app/manage.py build_campsite_attributes  >> /app/logs/build_campsite_attributes.log 2>&1
 
 */2 17-23 * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python /app/manage.py send_reminder_email  >> /app/logs/send_reminder_email.log 2>&1
+
+10 9 * * 0 root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py appmonitor_client >> /app/logs/appmonitor_client.log 2>&1

@@ -21,6 +21,7 @@ INSTALLED_APPS += [
     'django_summernote',
     'ledger_api_client',
 #    'django_site_queue',
+    'appmonitor_client'
 ]
 
 MIDDLEWARE_CLASSES += [
@@ -181,6 +182,7 @@ else:
 #            {'phone_number' : {'options' : {'view': True, 'edit': True}}},
 #            {'mobile_number' : {'options' : {'view': True, 'edit': True}}},
 #]
+
 LEDGER_UI_CARDS_MANAGEMENT = True
 BOOKING_PREFIX="PB"
 MIDDLEWARE = MIDDLEWARE_CLASSES
