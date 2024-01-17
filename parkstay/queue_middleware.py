@@ -19,7 +19,7 @@ class QueueControl(object):
        session_key = ''
        if settings.WAITING_QUEUE_ENABLED is True:
             # Required for ledger to send completion signal after payment is received.
-            if request.path.startswith('/api/complete_booking/') or request.path.startswith('/api/booking_pricing/') or request.path.startswith('/api/booking_updates/'):
+            if request.path.startswith('/api/complete_booking/') or request.path.startswith('/api/booking_pricing/') or request.path.startswith('/api/booking_updates/') or request.path.startswith('/status'):
                  response= self.get_response(request)
                  return response
             
