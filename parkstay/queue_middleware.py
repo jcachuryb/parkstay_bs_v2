@@ -42,17 +42,18 @@ class QueueControl(object):
                                    #  else:
                                          
                                    url = settings.QUEUE_BACKEND_URL+"/api/check-create-session/?session_key="+sitequeuesession+"&queue_group="+settings.QUEUE_GROUP_NAME
-                                   resp = requests.get(url, data = {}, cookies={},  verify=False)
+                                   resp = requests.get(url, data = {}, cookies={},  verify=False, timeout=10)
                                    
                                    
                                    queue_json = resp.json()
-                                   print (queue_json)
+                                   #print (queue_json)
                                    if 'session_key' in queue_json:
                                         session_key = queue_json['session_key']
                                    
                                    if queue_json['status'] == 'Waiting': 
-                                        response =HttpResponse("<script>window.location.replace('"+settings.QUEUE_WAITING_URL+"');</script>Redirecting")
-                                        print ('You are waiting')
+                                        #print (queue_json['queue_waiting_room_url'])
+                                        response =HttpResponse("<script>window.location.replace('"+queue_json['queue_waiting_room_url']+"');</script>Redirecting")
+                                        print ('You are waiting : '+str(sitequeuesession))
                                         return response
                                    else:
                                         print ('Active Session')
