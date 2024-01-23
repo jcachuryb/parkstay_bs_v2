@@ -148,7 +148,7 @@ var search_avail = {
 
                     },
                     error: function(error) {
-                        alert('Error loading search locations');
+                        console.log('Error loading search locations');
                     },
                 });
     },
@@ -194,11 +194,11 @@ var search_avail = {
                     contentType: 'application/json',
                     data: "{}",
                     success: function(response) {
-                            search_avail.var.search_locations = response;
-			    search_avail.var.loaded.search_locations = true;
+                        search_avail.var.search_locations = response;
+                        search_avail.var.loaded.search_locations = true;
                     },
                     error: function (error) {
-                        alert('Error loading search locations');
+                        console.log('Error loading search locations');
                     },
                 });
     },	   
@@ -210,13 +210,11 @@ var search_avail = {
                     contentType: 'application/json',
                     data: "{}",
                     success: function(response) {
-                            search_avail.var.locations = response;
-			    search_avail.var.loaded.locations = true;
-                            // console.log(response);
-
+                        search_avail.var.locations = response;
+			            search_avail.var.loaded.locations = true;                    
                     },
                     error: function (error) {
-                        alert('Error loading locations');
+                        console.log('Error loading locations');
                     },
                 });
     },
@@ -233,7 +231,7 @@ var search_avail = {
                             // console.log(response);
                     },
                     error: function (error) {
-                        alert('Error loading places');
+                        console.log('Error loading places');
                     },
                 });
     },
