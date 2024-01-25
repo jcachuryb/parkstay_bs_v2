@@ -67,5 +67,5 @@ class QueueControl(object):
            pass
        response= self.get_response(request)
        if len(session_key) > 5:
-          response.set_cookie('sitequeuesession', session_key)
+          response.set_cookie('sitequeuesession', session_key, domain=settings.QUEUE_DOMAIN)
        return response
