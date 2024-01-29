@@ -734,6 +734,7 @@ export default {
             paginate: ['filterResults'],
             selectedFeature: null,
             booking_arrival_days: 0,
+            screen_width: 0,
             slickcount: 0,
             slicksettings0: {
               "dots": true,
@@ -1057,7 +1058,7 @@ export default {
             var coord_1 = $('#coord_1').val();
             var coord_2 = $('#coord_2').val();
             var zoom_level = $('#zoom_level').val();
-            var coord = []
+            var coord = [];
             coord[0] = parseFloat(coord_1);
             coord[1] = parseFloat(coord_2);
             var fromLonLat = vm.ol.proj.fromLonLat(coord);
@@ -1065,7 +1066,7 @@ export default {
             // zoom slightly closer in for campgrounds
             var resolution = vm.resolutions[10];
             if (zoom_level > 0) {
-		var resolution = vm.resolutions[zoom_level];
+		        var resolution = vm.resolutions[zoom_level];
             }
 
             // pan to the spot, zoom slightly closer in for campgrounds
@@ -2008,7 +2009,11 @@ export default {
         });
 
         $( window ).resize(function() {
+            var screen_width = $(window).width();
+            if(vm.screen_width !== screen_width ) {
                  vm.reloadMap();
+                 vm.screen_width = screen_width;
+            }
         });
          
 //new Glider(document.querySelector('.glider'), {  slidesToShow: 5,
@@ -2028,6 +2033,7 @@ export default {
    console.log("LOAD MOUNTED START");
    this.init_mounted();
    console.log("LOAD MOUNTED END");
+   this.screen_width = $(window).width();
   }
 };
 </script>
