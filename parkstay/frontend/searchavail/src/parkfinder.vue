@@ -309,10 +309,14 @@ display:none !important;
 
 .slick-prev {
     z-index:10;
+    left: 10px !important;
+    color: #012531;
 }
 
 .slick-next {
     z-index:10;
+    right: 10px !important;
+    color: #012531;
 }
 
 .slick-next:before {
