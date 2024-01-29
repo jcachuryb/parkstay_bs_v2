@@ -278,6 +278,9 @@
    color: red;
 }
 
+.body-wrapper {
+    min-height: 1200px;
+}
 
 @media (max-width: 600px) {
     .slider-card-thumbnail { 
