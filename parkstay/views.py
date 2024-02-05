@@ -1172,21 +1172,47 @@ class SearchAvailablityByCampground(TemplateView):
                                if cb.customer.id == request.user.id or request.user.is_staff is True or parkstay_officers is True:
                                        if cb.arrival > today:
                                             context['change_booking'] = cb
+                                            arrival = cb.arrival.strftime("%Y/%m/%d")
+                                            friendly_arrival = cb.arrival.strftime("%d/%m/%Y")
+                                            friendly_departure = cb.departure.strftime("%d/%m/%Y")
+
+                                            num_adult = cb.details.get('num_adult') 
+                                            num_concession= cb.details.get('num_concession')
+                                            num_children= cb.details.get('num_child')
+                                            num_infants= cb.details.get('num_infant')
+                                            
+                                            num_vehicle= cb.details.get('num_vehicle')
+                                            num_campervan = cb.details.get('num_campervan')
+                                            num_motorcycle = cb.details.get('num_motorcycle')
+                                            num_trailer = cb.details.get('num_trailer')
+                                            num_caravan = cb.details.get('num_caravan')
+
+
                                        else:
                                            if request.user.is_staff is True:
                                                 context['change_booking'] = cb 
 
                                            if cb.arrival <= today:
                                                if cb.departure >= today:
-                                                   if parkstay_officers > 0:
-                                                        context['parkstay_officers_change_arrival'] = True
-                                                        pass
-                                                   else:
-                                                        context['change_booking_after_arrival_before_departure'] = True
-                                                   context['change_booking'] = cb
-                                                   arrival = cb.arrival.strftime("%Y/%m/%d")
-                                                   friendly_arrival = cb.arrival.strftime("%d/%m/%Y")
-                                                   friendly_departure = cb.departure.strftime("%d/%m/%Y")
+                                                    if parkstay_officers > 0:
+                                                            context['parkstay_officers_change_arrival'] = True
+                                                            pass
+                                                    else:
+                                                            context['change_booking_after_arrival_before_departure'] = True
+                                                    context['change_booking'] = cb
+                                                    arrival = cb.arrival.strftime("%Y/%m/%d")
+                                                    friendly_arrival = cb.arrival.strftime("%d/%m/%Y")
+                                                    friendly_departure = cb.departure.strftime("%d/%m/%Y")
+                                                    num_adult = cb.details.get('num_adult') 
+                                                    num_concession= cb.details.get('num_concession')
+                                                    num_children= cb.details.get('num_child')
+                                                    num_infants= cb.details.get('num_infant')
+                                                    
+                                                    num_vehicle= cb.details.get('num_vehicle')
+                                                    num_campervan = cb.details.get('num_campervan')
+                                                    num_motorcycle = cb.details.get('num_motorcycle')
+                                                    num_trailer = cb.details.get('num_trailer')
+                                                    num_caravan = cb.details.get('num_caravan')                                                   
 
                                            else:
                                                 context["error_message"] = "Sorry,  your booking has already started and cannot be changed."
