@@ -1173,6 +1173,7 @@ class SearchAvailablityByCampground(TemplateView):
                                        if cb.arrival > today:
                                             context['change_booking'] = cb
                                             arrival = cb.arrival.strftime("%Y/%m/%d")
+                                            departure = cb.departure.strftime("%Y/%m/%d")
                                             friendly_arrival = cb.arrival.strftime("%d/%m/%Y")
                                             friendly_departure = cb.departure.strftime("%d/%m/%Y")
 
@@ -1201,6 +1202,7 @@ class SearchAvailablityByCampground(TemplateView):
                                                             context['change_booking_after_arrival_before_departure'] = True
                                                     context['change_booking'] = cb
                                                     arrival = cb.arrival.strftime("%Y/%m/%d")
+                                                    departure = cb.departure.strftime("%Y/%m/%d")
                                                     friendly_arrival = cb.arrival.strftime("%d/%m/%Y")
                                                     friendly_departure = cb.departure.strftime("%d/%m/%Y")
                                                     num_adult = cb.details.get('num_adult') 
