@@ -40,7 +40,7 @@
 
 {% else %}
 <div id="addBooking">
-    <input type='hidden' value='disabled' id='site_queue_manager_active'>
+    <input type='hidden' value='disabled' id='REMOVETHISPARTOENABLE-site_queue_manager_active'>
     <form method="POST" name="addBookingForm" @submit.prevent="validate()" novalidate><div class="container">
 
     {% csrf_token %}
