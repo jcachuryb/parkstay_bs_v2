@@ -912,7 +912,7 @@ var search_avail = {
 				    }
 				}
 
-				campsitehtml = campsitehtml + "<div><i class='bi bi-person-fill' alt='Vehicle(s)' title='Vehicle(s)' ></i> "+campsites[s].min_people+" to "+campsites[s].max_people+" <i class='bi-p-square-fill'></i> "+campsites[s].max_vehicles+" </div>";
+				campsitehtml = campsitehtml + "<div><i class='bi-people-fill' alt='Vehicle(s)' title='Vehicle(s)' ></i> "+campsites[s].min_people+" to "+campsites[s].max_people+" <i class='bi-p-square-fill'></i> "+campsites[s].max_vehicles+" </div>";
 
 				//campsitehtml = campsitehtml + "<div class='product-availablity'>";
 
