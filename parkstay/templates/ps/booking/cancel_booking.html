@@ -4,10 +4,11 @@
 {% block content %}
 
    {% if booking.is_canceled is False %}
+  
     {% include "ps/modal_loader.html" %}
     {% include "ps/modal_error.html" %}
 
-
+    
      <div class="modal" tabindex="-1" id='CancellationConfirm' aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
        <div class="modal-dialog">
          <div class="modal-content">
@@ -25,7 +26,7 @@
          </div>
        </div>
      </div>
-
+     
     <div class="modal" tabindex="-1" id='CancellationComplete' aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -74,7 +75,7 @@
           </div>
         </div>
       </div>
-    </div>
+    
 
     <div class="container">
         <h3>Cancel Booking</h3>
@@ -106,6 +107,7 @@
                                    </label>
 				 </div>
 				<div>
+                                        {{ booking.arrival }} {{ today }}
                                    <input type='checkbox' value='' class="form-check-input"  id="only_cancel_booking" {% if cancel_past_booking_override_access is True %}checked{% endif %}
                                    <label class="form-check-label" >
                                      Only cancel booking. <br><small><i>no refund or cancel fees</i></small> 

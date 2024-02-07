@@ -3319,11 +3319,12 @@ class CampsiteClassViewSet(viewsets.ModelViewSet):
 
 
 class BookingViewSet(viewsets.ModelViewSet):
-    queryset = Booking.objects.all()
+    queryset = Booking.objects.none()
     serializer_class = BookingSerializer
 
     def list(self, request, *args, **kwargs):
         try:
+            
             #print("MLINE 1.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             search = request.GET.get('search[value]')
             draw = request.GET.get('draw') if request.GET.get('draw') else 1
@@ -3339,7 +3340,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             refund_status = request.GET.get('refund_status', None)
             #print("MLINE 2.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             campground_groups = models.CampgroundGroup.objects.filter(members__in=[request.user.id])
-
+            
             if canceled:
                 canceled = True if canceled.lower() in ['yes', 'true', 't', '1'] else False
             #print ("MLINE 2.20", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
@@ -3426,7 +3427,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                      #bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','customer__email','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale').order_by('campground__name','campground__park__district__region__name','id')[int(start):int(start)+int(length)]
                      bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer_id','canceled_by_id','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale').order_by('campground__name','campground__park__district__region__name','id')[int(start):int(start)+int(length)]
                 #cache.set('BookingViewSet'+data_hash, bookings, 1200)
-        
+
                 recordsFiltered = filteredresultscount
                 filteredResults = []
                 rowcount = 0

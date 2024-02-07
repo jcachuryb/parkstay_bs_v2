@@ -670,7 +670,8 @@ class CancelBookingView(TemplateView):
                                  'totalbooking' : str(totalbooking),
                                  'totalbooking_no_fees' : str(refund_total_no_fees),
                                  'only_cancel_booking' : only_cancel_booking,
-                                 'cancel_past_booking_override_access' : cancel_past_booking_override_access
+                                 'cancel_past_booking_override_access' : cancel_past_booking_override_access,
+                                 'today': today
                                  }
 
                              response = render(request, self.template_name, context)
