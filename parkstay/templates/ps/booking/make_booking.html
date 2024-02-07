@@ -85,7 +85,7 @@
                          <div class="col-12">
                                 <div class="row">
                                      <div class="col-sm-12">
-                                         <h5>Where</h5>
+                                         <h5 class="bi-geo-alt"> Where</h5>
                                      </div>
                                 </div>
                          </div>
@@ -96,9 +96,6 @@
                                                 <div id='region-park-avail-selection-outer' class='form-control'>
 
                                                          <div class='selection-informbox'>
-                                                                  <span >
-                                                                      <i class='bi-geo-alt'></i>
-                                                                  </span>
                                                                   <span id='region-park-selection-inner'>
 									  {{ booking.campground.name }}, {{ booking.campground.park.name }} - {% if booking.campground.site_type == 2 %}{{ booking.first_campsite.type }}{% else %}{{ booking.first_campsite.name }} {% if booking.first_campsite.type %}({{ booking.first_campsite.type }}){% endif %}{% endif %}
 
@@ -116,7 +113,7 @@
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                 <h5>When</h5>
+                                 <h5 class='bi-calendar3'> When</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -128,7 +125,6 @@
                                            <div class="col-sm-12 ">
                                               <div id="when-date-range" class='form-control' style=" ">
                                                        <div class='selection-informbox'>
-                                                           <i class='bi-calendar3' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
 						           <span id='when-dates'>Arrive: ({{  booking.arrival|date:"D" }}) {{ booking.arrival|date:"j M y" }} Depart: ({{  booking.departure|date:"D" }}) {{ booking.departure|date:"j M y" }} </span>
 						           <span> (<span id='when-nights'>{{ cg.nights }}</span> nights)</span>
                                                        </div>
@@ -144,7 +140,7 @@
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                 <h5>Campers</h5>
+                                 <h5 class='bi-people-fill'> Campers</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -154,7 +150,6 @@
                                            <div class="col-sm-12 ">
                                               <div id="when-date-range" class='form-control' style="">
                                                  <div class='selection-informbox'>
-                                                     <i class='bi-people-fill' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
 						     <span> {{ cg.num_adult }} adult, {{ cg.num_concession }} concession, {{ cg.num_children }} child, {{ cg.num_infants }} Infant </span>
                                                  </div>
                                             </div>
@@ -201,7 +196,7 @@
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                   <h5>Vehicles</h5>
+                                   <h5 class='bi-p-square-fill'> Vehicles</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -211,7 +206,6 @@
                                            <div class="col-sm-12 ">
                                               <div id="when-date-range" class='form-control' style="">
                                                  <div class='selection-informbox'>
-                                                     <i class='bi-people-fill' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
 						     <span > {{ booking.details.num_vehicle }} car/ute , {{ booking.details.num_campervan }} campervan, {{ booking.details.num_caravan }} caravan/camper trailer, {{ booking.details.num_motorcycle  }} motorcycle, {{ booking.details.num_trailer }} other trailers </span>
                                                  </div>
                                             </div>
