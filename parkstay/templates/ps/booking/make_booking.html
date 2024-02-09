@@ -52,7 +52,7 @@
                             <p v-cloak>
 
                             {% verbatim %}
-                                <b>Time left to complete booking {{ timeleft }}.</b>
+                                <b style='display:none;'>Time left to complete booking {{ timeleft }}.</b>
                             {% endverbatim %}
                                 <a class="btn btn-primary" href="{% url 'public_abort_booking' %}?change=true">Change details (same campground)</a>
                                 <a class="btn btn-warning" href="{% url 'public_abort_booking' %}">Cancel and search for another campground</a>
