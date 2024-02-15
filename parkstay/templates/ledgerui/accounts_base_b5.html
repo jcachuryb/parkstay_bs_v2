@@ -2,3 +2,18 @@
 
 {% block myaccount_nav %}
 {% endblock %}
+
+{% block additional_content %}
+
+
+{% if WAITING_QUEUE_ENABLED == True %}
+
+<script src="{{ QUEUE_URL }}/static/js/django_queue_manager/site-queue-manager.js?ver={{ GIT_COMMIT_HASH }}"></script>
+<script>
+     if (typeof sitequeuemanager !== "undefined") {
+           sitequeuemanager.init('{{ QUEUE_DOMAIN }}','{{ QUEUE_URL }}','{{ QUEUE_GROUP_NAME }}','{{ QUEUE_ACTIVE_HOSTS }}');
+     }
+</script>
+{% endif %}
+{% endblock %}	   
+
