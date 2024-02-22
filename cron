@@ -31,3 +31,5 @@
 */2 17-23 * * *  root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python /app/manage.py send_reminder_email  >> /app/logs/send_reminder_email.log 2>&1
 
 10 9 * * 0 root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py appmonitor_check >> /app/logs/appmonitor_client.log 2>&1
+
+30 3 * * 4 root eval $(grep -v '^#' /etc/.cronenv | xargs -d "\n" -I {} echo export \"{}\" ) && python3 /app/manage.py clearsessions >> /app/logs/clearsessions.log 2>&1
