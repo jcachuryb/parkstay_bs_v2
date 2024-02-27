@@ -16,6 +16,9 @@ from django.urls import path
 
 # API patterns
 router = routers.DefaultRouter()
+if settings.DEBUG is not True:
+    router.include_root_view = False  
+
 #router.register(r'campground_map', api.CampgroundMapViewSet)
 router.register(r'campground_map_filter', api.CampgroundMapFilterViewSet)
 router.register(r'availability', api.AvailabilityViewSet, 'availability')
