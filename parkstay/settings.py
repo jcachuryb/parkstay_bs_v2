@@ -28,6 +28,7 @@ MIDDLEWARE_CLASSES += [
     'parkstay.middleware.BookingTimerMiddleware',
     'parkstay.middleware.CacheControl',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    #'wagov_utils.components.debug.middleware.DebugControl',
 ]
 
 SESSION_COOKIE_HTTPONLY=True
@@ -46,7 +47,7 @@ WSGI_APPLICATION = 'parkstay.wsgi.application'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
 #        'parkstay.perms.OfficerPermission',
-    )
+    ),
 }
 
 # disable Django REST Framework UI on prod
@@ -192,3 +193,4 @@ MIDDLEWARE_CLASSES = None
 DEFAULT_SEARCH_AVAILABILITY_LOCATION=env('DEFAULT_SEARCH_AVAILABILITY_LOCATION','')
 
 SESSION_COOKIE_AGE = 3600
+DEBUG_CONTROL = False
