@@ -60,7 +60,7 @@ RUN python manage.py collectstatic --noinput
 RUN apt-get install --no-install-recommends -y python3-pil
 
 # Health checks for kubernetes 
-RUN wget https://raw.githubusercontent.com/dbca-wa/wagov_utils/main/wagov_utils/bin/health_check.sh -O /bin/health_check.py
+RUN wget https://raw.githubusercontent.com/dbca-wa/wagov_utils/main/wagov_utils/bin/health_check.sh -O /bin/health_check.sh
 RUN chmod 755 /bin/health_check.py
 
 EXPOSE 8080
