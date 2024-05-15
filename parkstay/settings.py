@@ -1,5 +1,6 @@
 import os
 import confy
+import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 confy.read_environment_file(BASE_DIR+"/.env")
 os.environ.setdefault("BASE_DIR", BASE_DIR)
@@ -194,3 +195,23 @@ DEFAULT_SEARCH_AVAILABILITY_LOCATION=env('DEFAULT_SEARCH_AVAILABILITY_LOCATION',
 
 SESSION_COOKIE_AGE = 3600
 DEBUG_CONTROL = False
+
+APPLICATION_VERSION = env("APPLICATION_VERSION", "1.0.0") + "-" + GIT_COMMIT_HASH[:7]
+RUNNING_DEVSERVER = len(sys.argv) > 1 and sys.argv[1] == "runserver"
+
+# Sentry settings
+SENTRY_DSN = env("SENTRY_DSN", default=None)
+SENTRY_SAMPLE_RATE = env("SENTRY_SAMPLE_RATE", default=1.0)  # Error sampling rate
+SENTRY_TRANSACTION_SAMPLE_RATE = env(
+    "SENTRY_TRANSACTION_SAMPLE_RATE", default=0.0
+)  # Transaction sampling
+if not RUNNING_DEVSERVER and SENTRY_DSN and EMAIL_INSTANCE:
+    import sentry_sdk
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        sample_rate=SENTRY_SAMPLE_RATE,
+        traces_sample_rate=SENTRY_TRANSACTION_SAMPLE_RATE,
+        environment=EMAIL_INSTANCE.lower(),
+        release=APPLICATION_VERSION,
+    )

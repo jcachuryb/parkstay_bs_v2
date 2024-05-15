@@ -49,6 +49,10 @@ router.register(r'contacts', api.ContactViewSet)
 router.register(r'countries', api.CountryViewSet)
 router.register(r'discountReasons', api.DiscountReasonViewset)
 
+# To test sentry
+def trigger_error(request):
+    division_by_zero = 1 / 0  # noqa
+
 api_patterns = [
     url(r'^api/profile$', api.GetProfile.as_view(), name='get-profile'),
     #url(r'^api/profile/update_personal$', api.UpdateProfilePersonal.as_view(), name='update-profile-personal'),
@@ -79,7 +83,8 @@ api_patterns = [
     url(r'^api/reports/booking_settlements$', api.BookingSettlementReportView.as_view(), name='booking-settlements-report'),
     url(r'^api/server-date$', api.GetServerDate.as_view(), name='get-server-date'),
     url(r'^api/test_server_api/', api.test_server_api, name='test_server_api'),
-    url(r'^api/', include(router.urls))
+    url(r'^api/', include(router.urls)),
+    url(r'^sentry-debug/', trigger_error)
 ]
 
 # URL Patterns
