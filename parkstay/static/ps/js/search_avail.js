@@ -300,12 +300,11 @@ var search_avail = {
         $('#checkin').val(start.format('YYYY/MM/DD'));
         $('#checkout').val(end.format('YYYY/MM/DD'));
         search_avail.var.camping_period['checkin'] = start.format('YYYY/MM/DD')
-	search_avail.var.camping_period['checkout'] = end.format('YYYY/MM/DD')
+	    search_avail.var.camping_period['checkout'] = end.format('YYYY/MM/DD')
 
         var whennights = search_avail.calculate_nights(start.format("YYYY-MM-DD"),end.format("YYYY-MM-DD"));
-	var arrival_days = search_avail.calculate_arrival_days(start.format("YYYY-MM-DD"));
-	console.log("ARRIVAL DAYS");
-	console.log(arrival_days);
+	    var arrival_days = search_avail.calculate_arrival_days(start.format("YYYY-MM-DD"));
+
         $('#when-nights').html(whennights);
 	if (search_avail.var.page == 'campground') { 
 	   // search_avail.load_campground_availabilty();
@@ -463,6 +462,8 @@ var search_avail = {
         
         var change_booking_after_arrival_before_departure = $('#change_booking_after_arrival_before_departure').val();
         var parkstay_officers_change_arrival = $('#parkstay_officers_change_arrival').val();
+        var is_change_booking = $('#is_change_booking').val();
+
         // parkstay_officers_change_arrival = 'False';
         if (change_booking_after_arrival_before_departure == 'True') { 
              $('#departure-date').datepicker({
@@ -501,19 +502,40 @@ var search_avail = {
                     //}
                 }, search_avail.select_dates);
              } else {
-                $('#when-date-range').daterangepicker({
-                    minDate: minDate,
-                    startDate: start,
-                    endDate: end,
-                    //ranges: {
-                    //   'Today': [moment(), moment()],
-                    //   'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    //   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                    //   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                    //   'This Month': [moment().startOf('month'), moment().endOf('month')],
-                    //   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                    //}
-                }, search_avail.select_dates);
+
+                if (is_change_booking == "True") { 
+                    // dont initate date range selection                    
+                    $('#arrival-date').datepicker({
+                        format: 'dd/mm/yyyy',
+                        startDate : '+1d',
+                    });
+       
+                    $('#arrival-date').change(function(){
+                           console.log("input's current value: " + this.value);
+                           var date_split = this.value.split("/");
+                           var start_date = Date.parse(date_split[2]+"/"+date_split[1]+"/"+date_split[0]); 
+                           var end_date = Date.parse($('#checkout').val());
+                           start = moment(start_date);
+                           end = moment(end_date);
+                           search_avail.select_dates(start,end);
+                           //search_avail.init_dateselection($('#checkin').val(), date_split[2]+"/"+date_split[1]+"/"+date_split[0])
+                    });
+
+                } else {
+                    $('#when-date-range').daterangepicker({
+                        minDate: minDate,
+                        startDate: start,
+                        endDate: end,
+                        //ranges: {
+                        //   'Today': [moment(), moment()],
+                        //   'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        //   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        //   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        //   'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        //   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                        //}
+                    }, search_avail.select_dates);
+                }
             }
          }
              search_avail.select_dates(start,end); 
