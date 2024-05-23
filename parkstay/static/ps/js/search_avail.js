@@ -463,13 +463,26 @@ var search_avail = {
         var change_booking_after_arrival_before_departure = $('#change_booking_after_arrival_before_departure').val();
         var parkstay_officers_change_arrival = $('#parkstay_officers_change_arrival').val();
         var is_change_booking = $('#is_change_booking').val();
-
+        var is_parkstay_officers = $('#is_parkstay_officers').val();
+        //alert($('#checkin').val());
         // parkstay_officers_change_arrival = 'False';
         if (change_booking_after_arrival_before_departure == 'True') { 
-             $('#departure-date').datepicker({
-                 format: 'dd/mm/yyyy',
+            $('#departure-date').datepicker({
+                format: 'dd/mm/yyyy',
                  startDate : '+1d',
-             });
+            });
+            if (is_parkstay_officers == 'True') {
+
+               
+                $('#when-date-range').daterangepicker({
+                    minDate: minDate,
+                    startDate: start,
+                    endDate: end,
+                }, search_avail.select_dates);
+            } else {
+                
+                $('#departure-date').datepicker('setStartDate', start.format('DD-MM-YYYY'));
+             }
 
              $('#departure-date').change(function(){
                     console.log("input's current value: " + this.value);
@@ -509,7 +522,21 @@ var search_avail = {
                         format: 'dd/mm/yyyy',
                         startDate : '+1d',
                     });
-       
+                   
+                    if (is_parkstay_officers == 'True') {
+                        
+                        $('#when-date-range').daterangepicker({
+                            minDate: minDate,
+                            startDate: start,
+                            endDate: end,
+                        }, search_avail.select_dates);
+
+
+                    } else {
+                       
+                        $('#arrival-date').datepicker('setEndDate', end.format('DD-MM-YYYY'));
+                     }
+
                     $('#arrival-date').change(function(){
                            console.log("input's current value: " + this.value);
                            var date_split = this.value.split("/");
