@@ -154,7 +154,8 @@
                <input id='change_booking_after_arrival_before_departure' value='{{ change_booking_after_arrival_before_departure }}' type='hidden'>               
                <input id='parkstay_officers_change_arrival' value='{{ parkstay_officers_change_arrival }}' type='hidden'>
                <input id='is_change_booking' value='{{ is_change_booking }}' type='hidden'>
-               
+               <input id='is_parkstay_officers' value='{{ parkstay_officers }}' type='hidden'>
+             
               
                
                {% if is_change_booking is True %}                        
@@ -179,7 +180,7 @@
                                         </div>
                                 </div>
                         {% else %}
-                       
+                               
                                 {% if parkstay_officers is True %}
                                 <div class="col-sm-12 ">
                                 
@@ -216,7 +217,7 @@
                                  {% endif %}
                                 
                                 {% if parkstay_officers is True %}
-                               
+                                
                                 <div class="col-sm-12 ">
                                 <div id="when-date-range" class='form-control' style="cursor: pointer; ">
                                         <div class='selection-informbox'>
