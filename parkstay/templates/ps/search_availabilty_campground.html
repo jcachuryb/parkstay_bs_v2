@@ -112,7 +112,7 @@
 			 <div class="col-12">
 				<div class="row">
  				     <div class="col-sm-12">
-                                              <h5 class='bi-geo-alt'> Where</h5>
+                                        <h5 class='bi-geo-alt'> Where</h5>
 				     </div>
 				</div>
 			 </div>
@@ -123,7 +123,7 @@
 						<div id='region-park-avail-selection-outer' class='form-control'>
 
 							 <div class='selection-informbox'> 
-								  
+
 								  <span id='region-park-selection-inner'>
 									  {{ cg.campground.name }}, {{ cg.campground.park.name }} 
 								  </span>
@@ -140,7 +140,7 @@
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
 				<div class="col-sm-12 col-md-12">
-                                 <h5 class="bi-calendar3"> When</h5>
+                                 <h5 class="bi-calendar3" > When</h5>
 				</div>
                          </div>
                          <div class="col-12">
@@ -153,67 +153,145 @@
             <div class="col-sm-12 ">
                <input id='change_booking_after_arrival_before_departure' value='{{ change_booking_after_arrival_before_departure }}' type='hidden'>               
                <input id='parkstay_officers_change_arrival' value='{{ parkstay_officers_change_arrival }}' type='hidden'>
-               {% if change_booking_after_arrival_before_departure is True and cp_booking == 0 %}
-               <div class="col-sm-12 ">
-                      <div id="when-date-range" class='form-control'>
-                         <div class='selection-informbox'>
-                             <i class='bi-calendar3' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
-			     <span id='when-dates'></span>
-			     <span> (<span id='when-nights'></span> nights)</span>
-                             &nbsp;&nbsp;
-                         </div>
-		       </div>
-                       <div class="col-sm-12 ">
-				 Change Departure Date:
-				 <input type='text' value='{{ cg.friendly_departure }}' id='departure-date' class='form-control'>
-                       </div>
+               <input id='is_change_booking' value='{{ is_change_booking }}' type='hidden'>
+               
+              
+               
+               {% if is_change_booking is True %}                        
+                        {% if change_booking_after_arrival_before_departure is True and cp_booking == 0 %}  
+                            
+                                <div class="col-sm-12 ">
+                                <div id="when-date-range" class='form-control'>
+                                        <div class='selection-informbox'>
+                                        
+                                        <span id='when-dates'></span>
+                                        <span> (<span id='when-nights'></span> nights)</span>
+                                        &nbsp;&nbsp;
+                                        </div>
+                                </div>
+                                <div class="col-sm-12 ">
+                                                Change Departure Date:
+                                                <input type='text' value='{{ cg.friendly_departure }}' id='departure-date' class='form-control'>
+                                </div>
 
-                        <div id='form-vars' style='display:none'>
-                            <input id='checkin' > <input id='checkout' >
-                        </div>
-                </div>
-                {% else %}
-          	<div class="col-sm-12 ">
-                        {% if parkstay_officers is True %}
-                        <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="date-override">
-                                <label class="form-check-label" for="flexSwitchCheckDefault">Date override</label>
-                        </div>                        
+                                                <div id='form-vars' style='display:none'>
+                                        <input id='checkin' > <input id='checkout' >
+                                        </div>
+                                </div>
+                        {% else %}
+                       
+                                {% if parkstay_officers is True %}
+                                <div class="col-sm-12 ">
+                                
+                                
+                                        <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="date-override">
+                                                <label class="form-check-label" for="flexSwitchCheckDefault">Date override</label>
+                                        </div>                        
+                                
+                                </div>
+                                <div class="col-sm-12 ">
+                                
+                                                <div class='row' style='padding-bottom:5px;'>
+                                                        <div class="col-xs-6 col-lg-6 text-start">
+                                                                <div class="d-grid gap-2 d-block d-sm-none">
+                                                                        <button type="button" class="btn btn-success btn-sm" onclick="search_avail.select_days_earlier(1)">One day earlier</button>
+                                                                </div>
+                                                                <div class="d-none d-sm-block">
+                                                                        <button type="button" class="btn btn-success btn-sm" onclick="search_avail.select_days_earlier(1)">One day earlier</button>
+                                                                </div>
+                                                        </div> 
+                                                        <div class="col-xs-6 col-lg-6 text-end">
+                                                                <div class="d-grid gap-2 d-block d-sm-none">
+                                                                        <button type="button" onclick="search_avail.select_days_later(1)" class="btn btn-success btn-sm">One day later</button>
+                                                                </div>
+                                                                <div class="d-none d-sm-block">
+                                                                <button type="button" onclick="search_avail.select_days_later(1)" class="btn btn-success btn-sm">One day later</button>
+                                                                </div>
+                                                        </div> 
+                                                </div>
+                                
+
+                                 </div>
+                                 {% endif %}
+                                
+                                {% if parkstay_officers is True %}
+                               
+                                <div class="col-sm-12 ">
+                                <div id="when-date-range" class='form-control' style="cursor: pointer; ">
+                                        <div class='selection-informbox'>
+                                        <span id='when-dates'></span> 
+                                        <span> (<span id='when-nights'></span> nights)</span>
+                                        &nbsp;&nbsp;<i class='bi-caret-down-fill' ddclass="glyphicon glyphicon-triangle-bottom"></i>
+                                        </div>
+                                        
+                                        <div id='form-vars' style='display:none'>
+                                        <input id='checkin' > <input id='checkout' >
+                                        </div>
+                                </div>
+                                </div>
+                                {% else %}
+                                        <div class="col-sm-12 ">
+                                                <div id="when-date-range" class='form-control'>
+                                                        <div class='selection-informbox'>
+                                                        
+                                                        <span id='when-dates'></span>
+                                                        <span> (<span id='when-nights'></span> nights)</span>
+                                                        &nbsp;&nbsp;
+                                                        </div>
+                                                </div>
+                                                <div class="col-sm-12 ">
+                                                                Change Arrival Date:
+                                                                <input type='text' value='{{ cg.friendly_departure }}' id='arrival-date' class='form-control'>
+                                                </div>
+        
+                                                <div id='form-vars' style='display:none'>
+                                                        <input id='checkin' > <input id='checkout' >
+                                                </div>
+                                        </div>
+
+
+                                {% endif %}
                         {% endif %}
-	           <div class='row' style='padding-bottom:5px;'>
-		     <div class="col-xs-6 col-lg-6 text-start">
-			<div class="d-grid gap-2 d-block d-sm-none">
-                                <button type="button" class="btn btn-success btn-sm" onclick="search_avail.select_days_earlier(1)">One day earlier</button>
-			</div>
-			<div class="d-none d-sm-block">
-				<button type="button" class="btn btn-success btn-sm" onclick="search_avail.select_days_earlier(1)">One day earlier</button>
-			</div>
-		     </div> 
-		     <div class="col-xs-6 col-lg-6 text-end">
-			<div class="d-grid gap-2 d-block d-sm-none">
-				<button type="button" onclick="search_avail.select_days_later(1)" class="btn btn-success btn-sm">One day later</button>
-			</div>
-			<div class="d-none d-sm-block">
-			     <button type="button" onclick="search_avail.select_days_later(1)" class="btn btn-success btn-sm">One day later</button>
-			</div>
-		    </div> 
-	          </div>
-	      </div>
+                {% else %}
+                <div class="col-sm-12 ">                        
+                                <div class='row' style='padding-bottom:5px;'>
+                                        <div class="col-xs-6 col-lg-6 text-start">
+                                                <div class="d-grid gap-2 d-block d-sm-none">
+                                                        <button type="button" class="btn btn-success btn-sm" onclick="search_avail.select_days_earlier(1)">One day earlier</button>
+                                                </div>
+                                                <div class="d-none d-sm-block">
+                                                        <button type="button" class="btn btn-success btn-sm" onclick="search_avail.select_days_earlier(1)">One day earlier</button>
+                                                </div>
+                                        </div> 
+                                        <div class="col-xs-6 col-lg-6 text-end">
+                                                <div class="d-grid gap-2 d-block d-sm-none">
+                                                        <button type="button" onclick="search_avail.select_days_later(1)" class="btn btn-success btn-sm">One day later</button>
+                                                </div>
+                                                <div class="d-none d-sm-block">
+                                                <button type="button" onclick="search_avail.select_days_later(1)" class="btn btn-success btn-sm">One day later</button>
+                                                </div>
+                                        </div> 
+                                </div>
+                        </div>
 
-       	      <div class="col-sm-12 ">
-                     <div id="when-date-range" class='form-control' style="cursor: pointer; ">
-                        <div class='selection-informbox'>
-                            <span id='when-dates'></span> 
-                            <span> (<span id='when-nights'></span> nights)</span>
-                            &nbsp;&nbsp;<i class='bi-caret-down-fill' ddclass="glyphicon glyphicon-triangle-bottom"></i>
+                        <div class="col-sm-12 ">
+                                <div id="when-date-range" class='form-control' style="cursor: pointer; ">
+                                        <div class='selection-informbox'>
+                                        
+                                        <span id='when-dates'></span> 
+                                        <span> (<span id='when-nights'></span> nights)</span>
+                                        &nbsp;&nbsp;<i class='bi-caret-down-fill' ddclass="glyphicon glyphicon-triangle-bottom"></i>
+                                        </div>
+                                        
+                                        <div id='form-vars' style='display:none'>
+                                        <input id='checkin' > <input id='checkout' >
+                                        </div>
+                                </div>
                         </div>
-        		
-                        <div id='form-vars' style='display:none'>
-                            <input id='checkin' > <input id='checkout' >
-                        </div>
-                    </div>
-               </div>
-               {% endif %}
+
+
+                {% endif %}
           <div class='text-danger ps-2 pt-1'>
                   <i class="bi bi-info-circle-fill"></i> Bookings can be made up to 180 days (approx. six months) before arrival.
           </div>
@@ -298,7 +376,7 @@
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                    <h5 class="bi-people-fill"> Campers</h5>
+                                    <h5 class="bi-people-fill" > Campers</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -307,7 +385,7 @@
                                         <div class="col-sm-12 col-md-12">
 						<div id='region-park-avail-selection-outer' class='form-control selection-dropdown' {% if change_booking_after_arrival_before_departure is True %} {% else %}style="cursor: pointer; " onclick="search_avail.campers_toggle();" {% endif %}>
                                                          <div class='selection-informbox'>
-                                                                   <span id='camper-selection-inner-text'>0 adult, 0 concession, 0 child, 0 Infant </span>  <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ddclass="glyphicon glyphicon-triangle-bottom"></i>{% endif %}</span>
+                                                                  <span id='camper-selection-inner-text'>0 adult, 0 concession, 0 child, 0 Infant </span>  <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ddclass="glyphicon glyphicon-triangle-bottom"></i>{% endif %}</span>
                                                          </div>
                                                 </div>
 						<div id='camper-dropdown' class='camper-dropdown selection-dropdown'>
@@ -386,7 +464,7 @@
                   <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                    <h5 class="bi-p-square-fill"> Vehicles</h5>
+                                    <h5 class="bi-p-square-fill" > Vehicles</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -395,7 +473,7 @@
                                         <div class="col-sm-12 col-md-12">
 						<div id='region-park-avail-selection-outer' class='form-control selection-dropdown' {% if change_booking_after_arrival_before_departure is True %} {% else %}style="cursor: pointer; " onclick="search_avail.vehicle_toggle();" {% endif %}>
                                                          <div class='selection-informbox'>
-                                                                   <span id='vehicle-selection-inner-text'> &nbsp;0 cars/ute , 0 campervan, 0 motor cycles, 0 trailers </span> <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ></i>{% endif %}</span>
+                                                                  <span id='vehicle-selection-inner-text'> &nbsp;0 cars/ute , 0 campervan, 0 motor cycles, 0 trailers </span> <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ></i>{% endif %}</span>
                                                          </div>
                                                 </div>
 
@@ -548,7 +626,7 @@
 
 		  <div class="row">
 		      <div class="col-6">
-		           <div class='pull-right'>
+		           <div class='pull-left'>
                                <div class="form-check form-switch">
 		                         <input class="form-check-input" type="checkbox" id="multiple-campsite-selection">
 		                         <label class="form-check-label" for="flexSwitchCheckDefault">Enable Multiple Campsite Selection</label>

@@ -25,6 +25,7 @@ from rest_framework.permissions import IsAuthenticated
 from datetime import datetime, timedelta, date
 from collections import OrderedDict
 from django.core.cache import cache
+from ledger_api_client import utils as ledger_api_utils
 import os
 ##
 from ledger_api_client.ledger_models import EmailUserRO as EmailUser
@@ -2705,6 +2706,7 @@ def get_booking_pricing(request, *args, **kwargs):
 def create_booking(request, *args, **kwargs):
     context_p = context_processors.parkstay_url(request)
     change_booking_id = request.POST.get('change_booking_id',None)
+    today = timezone.now().date()
     if change_booking_id == '':
          change_booking_id = None
     else:
@@ -2766,6 +2768,10 @@ def create_booking(request, *args, **kwargs):
        multiplesites = []
        multiplesites_class_totals = {}
 
+    parkstay_officers = False
+    if 'user_obj' in request.session:
+        parkstay_officers = ledger_api_utils.user_in_system_group(request.session['user_obj']['user_id'],'Parkstay Officers')       
+
 
     if 'ps_booking' in request.session:
         # Delete booking and start again
@@ -2781,6 +2787,35 @@ def create_booking(request, *args, **kwargs):
         #    'msg': 'Booking already in progress.',
         #    'pk': request.session['ps_booking']
         #}), content_type='application/json')
+
+    if old_booking:
+        if Booking.objects.filter(id=old_booking).exclude(booking_type=3).count() > 0:
+            old_booking_obj = Booking.objects.get(id=old_booking)
+
+            if old_booking_obj.arrival > today:
+                if old_booking_obj.departure >= today:
+                    if  parkstay_officers is True:
+                        pass
+                    else:                        
+                        old_end_date = old_booking_obj.departure.strftime("%Y-%m-%d")
+                        if old_end_date != end_date.strftime("%Y-%m-%d"):
+                            error = {"status": "error", 'msg': {"error" :"The departure date for a booking can not be changed.  Please contact the campground operator for more inforamtion."} }
+                            return HttpResponse(json.dumps(error), status=400, content_type='application/json')                    
+
+
+            if old_booking_obj.arrival <= today:
+                if old_booking_obj.departure >= today:
+                    if  parkstay_officers is True:
+                            # context['parkstay_officers_change_arrival'] = True
+                            pass
+                    else:
+
+                            old_start_date = old_booking_obj.arrival.strftime("%Y-%m-%d")
+                            if old_start_date != start_date.strftime("%Y-%m-%d"):
+                                error = {"status": "error", 'msg': {"error" :"The arrival date can not be changed once a booking has started."} }
+                                return HttpResponse(json.dumps(error), status=400, content_type='application/json')
+     
+                            pass
 
     # for a manually-specified campsite, do a sanity check
     # ensure that the campground supports per-site bookings and bomb out if it doesn't
