@@ -112,7 +112,7 @@
 			 <div class="col-12">
 				<div class="row">
  				     <div class="col-sm-12">
-				         <h5>Where</h5>
+                                        <h5 class='bi-geo-alt'> Where</h5>
 				     </div>
 				</div>
 			 </div>
@@ -123,9 +123,7 @@
 						<div id='region-park-avail-selection-outer' class='form-control'>
 
 							 <div class='selection-informbox'> 
-								  <span >
-								      <i class='bi-geo-alt'></i>
-								  </span> 
+
 								  <span id='region-park-selection-inner'>
 									  {{ cg.campground.name }}, {{ cg.campground.park.name }} 
 								  </span>
@@ -142,7 +140,7 @@
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
 				<div class="col-sm-12 col-md-12">
-                                 <h5>When</h5>
+                                 <h5 class="bi-calendar3" > When</h5>
 				</div>
                          </div>
                          <div class="col-12">
@@ -165,7 +163,7 @@
                                 <div class="col-sm-12 ">
                                 <div id="when-date-range" class='form-control'>
                                         <div class='selection-informbox'>
-                                        <i class='bi-calendar3' dclass="glyphicon glyphicon-,"></i>&nbsp;
+                                        
                                         <span id='when-dates'></span>
                                         <span> (<span id='when-nights'></span> nights)</span>
                                         &nbsp;&nbsp;
@@ -222,7 +220,6 @@
                                 <div class="col-sm-12 ">
                                 <div id="when-date-range" class='form-control' style="cursor: pointer; ">
                                         <div class='selection-informbox'>
-                                        <i class='bi-calendar3' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
                                         <span id='when-dates'></span> 
                                         <span> (<span id='when-nights'></span> nights)</span>
                                         &nbsp;&nbsp;<i class='bi-caret-down-fill' ddclass="glyphicon glyphicon-triangle-bottom"></i>
@@ -237,7 +234,7 @@
                                         <div class="col-sm-12 ">
                                                 <div id="when-date-range" class='form-control'>
                                                         <div class='selection-informbox'>
-                                                        <i class='bi-calendar3' dclass="glyphicon glyphicon-,"></i>&nbsp;
+                                                        
                                                         <span id='when-dates'></span>
                                                         <span> (<span id='when-nights'></span> nights)</span>
                                                         &nbsp;&nbsp;
@@ -281,7 +278,7 @@
                         <div class="col-sm-12 ">
                                 <div id="when-date-range" class='form-control' style="cursor: pointer; ">
                                         <div class='selection-informbox'>
-                                        <i class='bi-calendar3' dclass="glyphicon glyphicon-calendar"></i>&nbsp;
+                                        
                                         <span id='when-dates'></span> 
                                         <span> (<span id='when-nights'></span> nights)</span>
                                         &nbsp;&nbsp;<i class='bi-caret-down-fill' ddclass="glyphicon glyphicon-triangle-bottom"></i>
@@ -379,7 +376,7 @@
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                    <h5>Campers</h5>
+                                    <h5 class="bi-people-fill" > Campers</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -388,8 +385,7 @@
                                         <div class="col-sm-12 col-md-12">
 						<div id='region-park-avail-selection-outer' class='form-control selection-dropdown' {% if change_booking_after_arrival_before_departure is True %} {% else %}style="cursor: pointer; " onclick="search_avail.campers_toggle();" {% endif %}>
                                                          <div class='selection-informbox'>
-                                                                  <span >
-									  <i class='bi-people-fill'></i></span> <span id='camper-selection-inner-text'>0 adult, 0 concession, 0 child, 0 Infant </span>  <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ddclass="glyphicon glyphicon-triangle-bottom"></i>{% endif %}</span>
+                                                                  <span id='camper-selection-inner-text'>0 adult, 0 concession, 0 child, 0 Infant </span>  <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ddclass="glyphicon glyphicon-triangle-bottom"></i>{% endif %}</span>
                                                          </div>
                                                 </div>
 						<div id='camper-dropdown' class='camper-dropdown selection-dropdown'>
@@ -468,7 +464,7 @@
                   <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
-                                    <h5>Vehicles</h5>
+                                    <h5 class="bi-p-square-fill" > Vehicles</h5>
                                 </div>
                          </div>
                          <div class="col-12">
@@ -477,8 +473,7 @@
                                         <div class="col-sm-12 col-md-12">
 						<div id='region-park-avail-selection-outer' class='form-control selection-dropdown' {% if change_booking_after_arrival_before_departure is True %} {% else %}style="cursor: pointer; " onclick="search_avail.vehicle_toggle();" {% endif %}>
                                                          <div class='selection-informbox'>
-                                                                  <span>
-									  <i class='bi-speedometer'></i></span> <span id='vehicle-selection-inner-text'> &nbsp;0 cars/ute , 0 campervan, 0 motor cycles, 0 trailers </span> <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ></i>{% endif %}</span>
+                                                                  <span id='vehicle-selection-inner-text'> &nbsp;0 cars/ute , 0 campervan, 0 motor cycles, 0 trailers </span> <span>{% if change_booking_after_arrival_before_departure is True %} {% else %}<i class="bi-caret-down-fill" ></i>{% endif %}</span>
                                                          </div>
                                                 </div>
 
