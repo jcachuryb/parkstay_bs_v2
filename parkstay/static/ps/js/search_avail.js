@@ -518,12 +518,12 @@ var search_avail = {
 
                 if (is_change_booking == "True") { 
                     // dont initate date range selection                    
-                    $('#arrival-date').datepicker({
-                        format: 'dd/mm/yyyy',
-                        startDate : '+1d',
-                    });
+                    // $('#arrival-date').datepicker({
+                    //     format: 'dd/mm/yyyy',
+                    //     startDate : '+1d',
+                    // });
                    
-                    if (is_parkstay_officers == 'True') {
+                    // if (is_parkstay_officers == 'True') {
                         
                         $('#when-date-range').daterangepicker({
                             minDate: minDate,
@@ -532,10 +532,10 @@ var search_avail = {
                         }, search_avail.select_dates);
 
 
-                    } else {
+                    // } else {
                        
-                        $('#arrival-date').datepicker('setEndDate', end.format('DD-MM-YYYY'));
-                     }
+                    //     $('#arrival-date').datepicker('setEndDate', end.format('DD-MM-YYYY'));
+                    //  }
 
                     $('#arrival-date').change(function(){
                            console.log("input's current value: " + this.value);
