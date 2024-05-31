@@ -2791,16 +2791,23 @@ def create_booking(request, *args, **kwargs):
     if old_booking:
         if Booking.objects.filter(id=old_booking).exclude(booking_type=3).count() > 0:
             old_booking_obj = Booking.objects.get(id=old_booking)
-
+            total_days_departure_old_booking = old_booking_obj.departure - today
+            total_days_departure_new_booking = end_date - today
+            max_advance_booking = old_booking_obj.campground.max_advance_booking
+            
             if old_booking_obj.arrival > today:
                 if old_booking_obj.departure >= today:
                     if  parkstay_officers is True:
                         pass
                     else:                        
-                        old_end_date = old_booking_obj.departure.strftime("%Y-%m-%d")
-                        if old_end_date != end_date.strftime("%Y-%m-%d"):
-                            error = {"status": "error", 'msg': {"error" :"The departure date for a booking can not be changed.  Please contact the campground operator for more inforamtion."} }
+                        if total_days_departure_new_booking.days > total_days_departure_old_booking.days:
+                            error = {"status": "error", 'msg': {"error" :"Your booking date is greater than the max advanced booking period of "+str(max_advance_booking)+" days in which case your booking can not be changed to a future date.  <br><br>Please contact the campground operator for more inforamtion."} }
                             return HttpResponse(json.dumps(error), status=400, content_type='application/json')                    
+
+                        # old_end_date = old_booking_obj.departure.strftime("%Y-%m-%d")
+                        # if old_end_date != end_date.strftime("%Y-%m-%d"):
+                        #     error = {"status": "error", 'msg': {"error" :"The departure date for a booking can not be changed. "+str(total_days.days)+"  Please contact the campground operator for more inforamtion."} }
+                        #     return HttpResponse(json.dumps(error), status=400, content_type='application/json')                    
 
 
             if old_booking_obj.arrival <= today:

@@ -216,7 +216,7 @@
                                  </div>
                                  {% endif %}
                                 
-                                {% if parkstay_officers is True %}
+                                
                                 
                                 <div class="col-sm-12 ">
                                 <div id="when-date-range" class='form-control' style="cursor: pointer; ">
@@ -231,6 +231,7 @@
                                         </div>
                                 </div>
                                 </div>
+                                {% comment %} {% if parkstay_officers is True %}
                                 {% else %}
                                         <div class="col-sm-12 ">
                                                 <div id="when-date-range" class='form-control'>
@@ -252,7 +253,7 @@
                                         </div>
 
 
-                                {% endif %}
+                                {% endif %} {% endcomment %}
                         {% endif %}
                 {% else %}
                 <div class="col-sm-12 ">                        
