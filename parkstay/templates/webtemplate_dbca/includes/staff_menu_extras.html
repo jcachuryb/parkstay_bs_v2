@@ -2,7 +2,6 @@
      <li><a  class="dropdown-item" href="{{ LEDGER_UI_URL }}/ledger/payments/oracle/payment-totals?system_id={{ LEDGER_SYSTEM_ID }}">Payment Totals</a></li>
      <li><a  class="dropdown-item" href="{{ LEDGER_UI_URL }}/ledger/payments/oracle/failed-transactions?system_id={{ LEDGER_SYSTEM_ID }}">Failed Refunds {% if ledger_totals.total_failed > 0 %}<span class="badge bg-danger">{{ ledger_totals.total_failed }}</span>{% endif %}</li>
      
-
      <li><hr class="dropdown-divider"></li>
      <li><a  class="dropdown-item" href="/dashboard/booking-policy/">Manage Booking Policies</a></li>
      <li><a  class="dropdown-item" href="/dashboard/peak-periods/">Manage Peak Groups</a></li>

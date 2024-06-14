@@ -8,6 +8,21 @@
 	 if (typeof sitequeuemanager !== "undefined") {
 		   sitequeuemanager.init('{{ QUEUE_DOMAIN }}','{{ QUEUE_URL }}','{{ QUEUE_GROUP_NAME }}','{{ QUEUE_ACTIVE_HOSTS }}');
 	 }
+	 function createCookie(name, value, days) {
+		var expires;
+	
+		if (days) {
+			var date = new Date();
+			date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+			expires = "; expires=" + date.toGMTString();
+		} else {
+			expires = "";
+		}
+		document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + expires + "; path=/";
+	}
+	createCookie('checkouthash', "{{ checkouthash }}");
+	
+
 </script>
 {% endif %}
 <!-- Payment Timer to automatically expire session -->

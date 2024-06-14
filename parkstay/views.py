@@ -1,6 +1,6 @@
 import logging
 from django.db.models import Q
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 #from django.core.urlresolvers import reverse
 from django.urls import reverse
@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from ledger_api_client.utils import create_basket_session, create_checkout_session, place_order_submission, use_existing_basket, use_existing_basket_from_invoice, process_api_refund
 from django import forms
+from django.contrib import messages
 from ledger_api_client import utils as ledger_api_utils
 #from ledger.basket.models import Basket
 from parkstay.forms import LoginForm, MakeBookingsForm, AnonymousMakeBookingsForm, VehicleInfoFormset
@@ -57,6 +58,7 @@ from parkstay import context_processors
 from parkstay import utils_cache
 import json
 import hashlib
+import uuid
 
 logger = logging.getLogger('booking_checkout')
 
@@ -243,6 +245,9 @@ class MakeBookingsView(TemplateView):
         # for now, we can assume that there's only one campsite per booking.
         # later on we might need to amend that
 
+        checkouthash = hashlib.sha256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
+        if booking:
+            checkouthash =  hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
         context = {'cg': {'campground': {},'campground_notices': []}}
         #campground_id = request.GET.get('site_id', None)
         #num_adult = request.GET.get('num_adult', 0)
@@ -338,7 +343,8 @@ class MakeBookingsView(TemplateView):
             'booking_without_payment' : context['booking_without_payment'],
             'create_booking_on_behalf': context['create_booking_on_behalf'],
             'request': request,
-            'override_reasons' : override_reasons
+            'override_reasons' : override_reasons,
+            'checkouthash':  checkouthash
         })
 
     def get(self, request, *args, **kwargs):
@@ -350,14 +356,15 @@ class MakeBookingsView(TemplateView):
                 booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
                 print ("CURRENT")
                 print (booking.id)
-
+        
+        
         #booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
         form_context = {
             'num_adult': booking.details.get('num_adult', 0) if booking else 0,
             'num_concession': booking.details.get('num_concession', 0) if booking else 0,
             'num_child': booking.details.get('num_child', 0) if booking else 0,
             'num_infant': booking.details.get('num_infant', 0) if booking else 0,
-            'country': 'AU',
+            'country': 'AU'            
         }
 
         #form = AnonymousMakeBookingsForm(form_context)
@@ -391,8 +398,10 @@ class MakeBookingsView(TemplateView):
     def post(self, request, *args, **kwargs):
 
         booking = None
+        booking_hash_id = request.POST.get('booking_hash_id', None)
         no_payment = request.POST.get('no_payment', 'false')
         customer_managed_booking_disabled = request.POST.get('customer_managed_booking_disabled', 'false')
+
 
         if 'ps_booking' in request.session:
             if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
@@ -401,6 +410,11 @@ class MakeBookingsView(TemplateView):
                 del request.session['ps_booking']
         cp_perms_on_behalf = 0
         if booking:
+            checkouthash =  hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
+            if booking_hash_id != checkouthash:  
+                messages.error(request, "There was a booking mismatch issue while trying to complete your booking, your inprogress booking as been cancelled and will need to be completed again.  This can sometimes be caused by using multiple browser tabs and recommend only to complete a booking using one browser tab window. ")          
+                return HttpResponseRedirect("/booking/abort")            
+            
             cp_perms_on_behalf = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=booking.campground,active=True,permission_group=0).count()
         #booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
 
@@ -1132,12 +1146,16 @@ class SearchAvailablityByCampground(TemplateView):
       
         # Start Check for temp booking and if payment exists otherwise clean up temporary booking.
         booking = None
-        basket = None
-       
+        basket = None        
+        in_progress_booking_id = None
         try:
             booking = utils.get_session_booking(request.session)
         except:
             pass
+
+        if 'ps_booking' in request.session:
+            if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
+                in_progress_booking_id = Booking.objects.get(pk=request.session['ps_booking'])        
 
         if booking is None:
             pass
@@ -1146,7 +1164,8 @@ class SearchAvailablityByCampground(TemplateView):
             if basket.count() > 0:
                 print ("Booking has a completed Basket")
             else:
-                booking.delete()
+                pass
+                # booking.delete()
         cp = 0
         #print ("BASKET")
         #print (basket)
@@ -1359,6 +1378,7 @@ class SearchAvailablityByCampground(TemplateView):
         context['features'] = features_obj
         context['features_json'] = json.dumps(features_obj)
         context['cp_booking'] = cp
+        context['in_progress_booking_id'] = in_progress_booking_id
         return render(request, self.template_name, context)
 
 

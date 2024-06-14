@@ -1,6 +1,8 @@
 import os
 import confy
 import sys
+from django.contrib.messages import constants as messages
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 confy.read_environment_file(BASE_DIR+"/.env")
 os.environ.setdefault("BASE_DIR", BASE_DIR)
@@ -185,6 +187,9 @@ else:
 #            {'phone_number' : {'options' : {'view': True, 'edit': True}}},
 #            {'mobile_number' : {'options' : {'view': True, 'edit': True}}},
 #]
+# for am in LEDGER_UI_ACCOUNTS_MANAGEMENT:
+#     LEDGER_UI_ACCOUNTS_MANAGEMENT_KEYS.append(list(am.keys())[0])
+    
 
 LEDGER_UI_CARDS_MANAGEMENT = True
 BOOKING_PREFIX="PB"
@@ -215,3 +220,11 @@ if not RUNNING_DEVSERVER and SENTRY_DSN and EMAIL_INSTANCE:
         environment=EMAIL_INSTANCE.lower(),
         release=APPLICATION_VERSION,
     )
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-info',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}

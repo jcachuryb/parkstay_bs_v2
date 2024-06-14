@@ -1545,9 +1545,7 @@ class Booking(models.Model):
     def status(self):
         if (self.legacy_id and self.invoices.count() >= 1) or not self.legacy_id:
             payment_status = self.__check_payment_status()
-            print ("P STATUS")
-            print (self.invoices.all())
-            print (payment_status)
+
             status = ''
             parts = payment_status.split('_')
             for p in parts:
