@@ -2801,7 +2801,7 @@ def create_booking(request, *args, **kwargs):
                         pass
                     else:                        
                         if total_days_departure_new_booking.days > total_days_departure_old_booking.days:
-                            error = {"status": "error", 'msg': {"error" :"Your booking date is greater than the max advanced booking period of "+str(max_advance_booking)+" days in which case your booking can not be changed to a future date.  <br><br>Please contact the campground operator for more inforamtion."} }
+                            error = {"status": "error", 'msg': {"title": "Change not permitted", "error" :"<div style='text-align:left'>Changes that add dates not currently available to others are not permitted. <br><br>You may:<br><ul><li>change to an earlier or later arrival and/or to an earlier departure.</li><li>cancel the booking</li></ul></div>"} }
                             return HttpResponse(json.dumps(error), status=400, content_type='application/json')                    
 
                         # old_end_date = old_booking_obj.departure.strftime("%Y-%m-%d")

@@ -677,7 +677,7 @@ var search_avail = {
 	    
     },	    
     create_booking: function(button_element) {
-
+        var errortitle = "Error Message"
 	    if (search_avail.var.selecttype == 'multiple') { 
                 if (search_avail.var.multiplesites.length > 0) {
                 } else {
@@ -712,15 +712,21 @@ var search_avail = {
 		   error: function (resp, status, error) {
 			setTimeout("$('#LoadingPopup').modal('hide');",800);
 			var errormessage = 'There was error attempting to create a booking for your selection.';
-                        if (resp.hasOwnProperty('responseJSON')) {
-				if (resp.responseJSON.hasOwnProperty('msg')) {
-					if (resp.responseJSON.msg.hasOwnProperty('error')) {
-                                             errormessage = resp.responseJSON.msg.error;
-					}
-				}
+                if (resp.hasOwnProperty('responseJSON')) {
+                    if (resp.responseJSON.hasOwnProperty('msg')) {
+                        if (resp.responseJSON.msg.hasOwnProperty('error')) {                                                                
+                            errormessage = resp.responseJSON.msg.error;
+                        }
+
+                        if (resp.responseJSON.msg.hasOwnProperty('title')) {
+                            errortitle = resp.responseJSON.msg.title;
+
+                        }
+                    }
 		 	}
 
-			$('#error-title').html('Error Message');
+			$('#error-title').html(errortitle);
+
 			$('#error-message').html(errormessage);
 			$('#MessageBox').modal('show');
 		   },
