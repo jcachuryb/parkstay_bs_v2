@@ -1,22 +1,37 @@
 import re
 import datetime
+from django.contrib import messages
 
 #from django.core.urlresolvers import reverse
 from django.urls import reverse
 from django.http import Http404, HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils import timezone
 from parkstay.models import Booking
-
+import hashlib
 
 CHECKOUT_PATH = re.compile('^/ledger-api')
 PROCESS_PAYMENT =  re.compile('^/ledger-api/process-payment')
 
 class BookingTimerMiddleware(object):
 
-    def __init__(self, get_response):
+    def __init__(self, get_response):            
             self.get_response = get_response
 
-    def __call__(self, request):
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        # Run before executing any function code
+
+        if 'ps_booking' in request.session:
+               pass
+        else:
+               if request.path.startswith("/ledger-api/process-payment"):
+                    # booking as expired or session been removed
+                    url_redirect = reverse('public_make_booking')
+                    response = HttpResponse("<script> window.location='"+url_redirect+"';</script> <center><div class='container'><div class='alert alert-primary' role='alert'><a href='"+url_redirect+"'> Redirecting please wait: "+url_redirect+"</a><div></div></center>")
+                    return response             
+        return None
+
+    def __call__(self, request):            
+            # Run after executing any function code
             return self.pr(request)
 
     def pr(self, request):
@@ -40,11 +55,29 @@ class BookingTimerMiddleware(object):
                     #booking.delete()
                         del request.session['ps_booking']
 
+                if request.path.startswith("/ledger-api/process-payment") or request.path.startswith('/ledger-api/payment-details'):                   
+                    checkouthash =  hashlib.sha256(str(request.session["ps_booking"]).encode('utf-8')).hexdigest() 
+
+                    checkouthash_cookie = request.COOKIES.get('checkouthash')
+                    total_booking = Booking.objects.filter(pk=request.session['ps_booking']).count()
+                    if checkouthash_cookie != checkouthash or total_booking == 0:                         
+                         # messages.error(request, "There was a booking mismatch issue while trying to complete your booking, your inprogress booking as been cancelled and will need to be completed again.  This can sometimes be caused by using multiple browser tabs and recommend only to complete a booking using one browser tab window. ")          
+                         # return HttpResponseRedirect("/")  
+                         url_redirect = reverse('public_make_booking')
+                         response = HttpResponse("<script> window.location='"+url_redirect+"';</script> <center><div class='container'><div class='alert alert-primary' role='alert'><a href='"+url_redirect+"'> Redirecting please wait: "+url_redirect+"</a><div></div></center>")
+                         return response                                                                                                 
+
                 if CHECKOUT_PATH.match(request.path) and request.method == 'POST' and booking.booking_type == 3:
                     # safeguard against e.g. part 1 of the multipart checkout confirmation process passing, then part 2 timing out.
                     # on POST boosts remaining time to at least 2 minutes
                     booking.expiry_time = max(booking.expiry_time, timezone.now()+datetime.timedelta(minutes=2))
                     booking.save()
+            else:
+                 if request.path.startswith("/ledger-api/process-payment"):
+                    # booking as expired or session been removed
+                    url_redirect = reverse('public_make_booking')
+                    response = HttpResponse("<script> window.location='"+url_redirect+"';</script> <center><div class='container'><div class='alert alert-primary' role='alert'><a href='"+url_redirect+"'> Redirecting please wait: "+url_redirect+"</a><div></div></center>")
+                    return response
 
             # force a redirect if in the checkout
             if ('ps_booking_internal' not in request.COOKIES) and CHECKOUT_PATH.match(request.path):
