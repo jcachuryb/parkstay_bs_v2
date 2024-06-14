@@ -5,11 +5,16 @@ from ledger_api_client import utils as ledger_api_utils
 from django.core.cache import cache
 from django.utils import timezone
 import json
+import hashlib
+import uuid
 
 def parkstay_url(request):
     session_id = request.COOKIES.get('sessionid', None)
     is_authenticated = False
     booking_timer = 0
+    checkouthash = hashlib.sha256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
+    if 'ps_booking' in request.session:
+        checkouthash =  hashlib.sha256(str(request.session["ps_booking"]).encode('utf-8')).hexdigest()
     #user_request = request.user
     #if user_request.is_authenticated is True:
     #    is_authenticated = True
@@ -23,7 +28,7 @@ def parkstay_url(request):
        if 'ps_booking' in request.session:
            try:
                booking = models.Booking.objects.get(pk=request.session['ps_booking'])
-               booking_timer = (booking.expiry_time-timezone.now()).seconds if booking else -1
+               booking_timer = (booking.expiry_time-timezone.now()).seconds if booking else -1      
            except:
                pass
 
@@ -33,7 +38,6 @@ def parkstay_url(request):
     parkstay_officers = None
     if is_authenticated is True:
         parkstay_officers = ledger_api_utils.user_in_system_group(request.session['user_obj']['user_id'],'Parkstay Officers')
-
 
     parkstay_permissions = {'special_permissions': False}
     if parkstay_permissions_cache is None:
@@ -79,5 +83,6 @@ def parkstay_url(request):
         'template_title' : '',
         'ledger_totals': lt,
         'parkstay_officers' : parkstay_officers,
-        'booking_timer' : booking_timer
+        'booking_timer' : booking_timer,
+        'checkouthash' : checkouthash
     }
