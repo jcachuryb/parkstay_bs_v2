@@ -20,8 +20,23 @@ class BookingTimerMiddleware(object):
     def process_view(self, request, view_func, view_args, view_kwargs):
         # Run before executing any function code
 
-        if 'ps_booking' in request.session:
-               pass
+        if 'ps_booking' in request.session:               
+               if request.path.startswith("/ledger-api/process-payment") or request.path.startswith('/ledger-api/payment-details'):                                       
+                    checkouthash =  hashlib.sha256(str(request.session["ps_booking"]).encode('utf-8')).hexdigest()
+                    checkouthash_cookie = request.COOKIES.get('checkouthash')
+                    print ("MIDDLE 1")
+                    print (request.session['ps_booking'])
+                    print (checkouthash_cookie)
+                    print (checkouthash)
+                    total_booking = Booking.objects.filter(pk=request.session['ps_booking']).count()
+                    if checkouthash_cookie != checkouthash or total_booking == 0:                         
+                         # messages.error(request, "There was a booking mismatch issue while trying to complete your booking, your inprogress booking has been cancelled and will need to be completed again.  This can sometimes be caused by using multiple browser tabs and recommend only to complete a booking using one browser tab window. ")          
+                         # return HttpResponseRedirect("/")  
+                         print ("MIDDLE 2")
+                         url_redirect = reverse('public_make_booking')
+                         response = HttpResponse("<script> window.location='"+url_redirect+"';</script> <center><div class='container'><div class='alert alert-primary' role='alert'><a href='"+url_redirect+"'> Redirecting please wait: "+url_redirect+"</a><div></div></center>")
+                         return response          
+
         else:
                if request.path.startswith("/ledger-api/process-payment"):
                     # booking as expired or session been removed
@@ -61,7 +76,7 @@ class BookingTimerMiddleware(object):
                     checkouthash_cookie = request.COOKIES.get('checkouthash')
                     total_booking = Booking.objects.filter(pk=request.session['ps_booking']).count()
                     if checkouthash_cookie != checkouthash or total_booking == 0:                         
-                         # messages.error(request, "There was a booking mismatch issue while trying to complete your booking, your inprogress booking as been cancelled and will need to be completed again.  This can sometimes be caused by using multiple browser tabs and recommend only to complete a booking using one browser tab window. ")          
+                         # messages.error(request, "There was a booking mismatch issue while trying to complete your booking, your inprogress booking has been cancelled and will need to be completed again.  This can sometimes be caused by using multiple browser tabs and recommend only to complete a booking using one browser tab window. ")          
                          # return HttpResponseRedirect("/")  
                          url_redirect = reverse('public_make_booking')
                          response = HttpResponse("<script> window.location='"+url_redirect+"';</script> <center><div class='container'><div class='alert alert-primary' role='alert'><a href='"+url_redirect+"'> Redirecting please wait: "+url_redirect+"</a><div></div></center>")
