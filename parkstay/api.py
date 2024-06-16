@@ -2706,6 +2706,10 @@ def get_booking_pricing(request, *args, **kwargs):
 def create_booking(request, *args, **kwargs):
     context_p = context_processors.parkstay_url(request)
     change_booking_id = request.POST.get('change_booking_id',None)
+    date_override = request.POST.get('date_override',"false")
+    print ("DATE OVERRIDE")
+    print (date_override)
+
     today = timezone.now().date()
     if change_booking_id == '':
          change_booking_id = None
@@ -2797,9 +2801,11 @@ def create_booking(request, *args, **kwargs):
             
             if old_booking_obj.arrival > today:
                 if old_booking_obj.departure >= today:
-                    if  parkstay_officers is True:
-                        pass
-                    else:                        
+                    # if  parkstay_officers is True:
+                    if parkstay_officers is True and date_override == 'true':
+                        print ("Date Override Permissions Activated")                                              
+                    else:
+                        
                         if total_days_departure_new_booking.days > total_days_departure_old_booking.days:
                             error = {"status": "error", 'msg': {"title": "Change not permitted", "error" :"<div style='text-align:left'>Changes that add dates not currently available to others are not permitted. <br><br>You may:<br><ul><li>change to an earlier or later arrival and/or to an earlier departure.</li><li>cancel the booking</li></ul></div>"} }
                             return HttpResponse(json.dumps(error), status=400, content_type='application/json')                    
@@ -3040,8 +3046,6 @@ def create_booking(request, *args, **kwargs):
             if i in  old_bvr_array[5]:
                 rego_text = old_bvr_array[5][i]['rego']
                 entry_fee = old_bvr_array[5][i]['entry_fee']
-                print ("OLD CARA")
-                print (entry_fee)
 
             entry_fee_amount = '0.00'
             if entry_fee_required:
@@ -3088,10 +3092,9 @@ def create_booking(request, *args, **kwargs):
 
     # add the booking to the current session
     request.session['ps_booking'] = booking.pk
-    checkouthash =  hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
-    request.session['checkouthash'] = checkouthash 
-
+    checkouthash = hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
     request.session['checkouthash'] = checkouthash
+
     return HttpResponse(geojson.dumps({
         'status': 'success',
         'pk': booking.pk

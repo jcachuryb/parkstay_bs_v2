@@ -8,23 +8,55 @@
 	 if (typeof sitequeuemanager !== "undefined") {
 		   sitequeuemanager.init('{{ QUEUE_DOMAIN }}','{{ QUEUE_URL }}','{{ QUEUE_GROUP_NAME }}','{{ QUEUE_ACTIVE_HOSTS }}');
 	 }
-	 function createCookie(name, value, days) {
-		var expires;
-	
-		if (days) {
-			var date = new Date();
-			date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-			expires = "; expires=" + date.toGMTString();
-		} else {
-			expires = "";
-		}
-		document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + expires + "; path=/";
-	}
-	createCookie('checkouthash', "{{ checkouthash }}");
-	
-
 </script>
 {% endif %}
+
+
+<script>
+	// This is to check the booking session has changed.   eg the user hasn't started another booking in another tab.  
+	// If the user starts another booking tab automatically abort all bookings.
+	
+	var payment_processing = 
+		{
+		   var: { checkouthash: "{{ checkouthash }}"}
+	}
+	function createCookie(name, value, days) {
+	   var expires;
+   
+	   if (days) {
+		   var date = new Date();
+		   date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+		   expires = "; expires=" + date.toGMTString();
+	   } else {
+		   expires = "";
+	   }
+	   document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + expires + "; path=/";
+   }
+   
+   function readCookie(name) {
+	   var nameEQ = name + "=";
+	   var ca = document.cookie.split(';');
+	   for(var i=0;i < ca.length;i++) {
+		   var c = ca[i];
+		   while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		   if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+	   }
+	   return null;
+   }
+
+   createCookie('checkouthash', "{{ checkouthash }}");
+
+   setInterval(function() {
+	   //	console.log("checkouthash"+readCookie("checkouthash"));
+	   var checkouthash_cookie = readCookie("checkouthash");
+	   if (payment_processing.var.checkouthash != checkouthash_cookie) {
+		   window.location = "/booking/abort"
+	   }		
+   },"500");
+   
+
+</script>
+
 <!-- Payment Timer to automatically expire session -->
 <div class='col-lg-12' style="padding: 20px; background-color: #f9f9f9; display:none;">
 	<b>Time left to complete booking <span id='timeleft'></span>.</b>

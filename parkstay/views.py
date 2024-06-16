@@ -412,7 +412,7 @@ class MakeBookingsView(TemplateView):
         if booking:
             checkouthash =  hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
             if booking_hash_id != checkouthash:  
-                messages.error(request, "There was a booking mismatch issue while trying to complete your booking, your inprogress booking as been cancelled and will need to be completed again.  This can sometimes be caused by using multiple browser tabs and recommend only to complete a booking using one browser tab window. ")          
+                #messages.error(request, "There was a booking mismatch issue while trying to complete your booking, your in-progress booking has been cancelled and will need to be completed again.  This can sometimes be caused by using multiple browser tabs and recommend only to complete a booking using one browser tab window. ")          
                 return HttpResponseRedirect("/booking/abort")            
             
             cp_perms_on_behalf = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=booking.campground,active=True,permission_group=0).count()

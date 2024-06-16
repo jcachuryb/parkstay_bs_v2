@@ -1,59 +1,60 @@
 var search_avail = {
     var: {
-	   'csrf_token' : '',
-	   'selected_site': null,
-	   'multiplesites': [],
-	   'multiplesites_options' : {'min_people': 0, 'max_people': 0, 'max_vehicle': 0},
-	   'multiplesites_class_totals' : {},
-           'change_booking_id': null,       
-	   'page': '',
-	   'campground_id': null,
-	   'camping_period': {'checkin': null, 'checkout': null},
-	   'location_url' : '/api/campground_map/?format=json',
-	   'search_location_url' : '/api/search_suggest',
-           'get_booking_vehicle_info' : '/api/get_booking_vehicle_info/',
-           'update_booking_vehicle_info' : '/api/booking_vehicle_update/',
-           'places_url' : '/api/places/',
-           'locations' : [],
-           'places': [],
-	   'search_locations': [],
-	   'campers': {'adult': 2, 'concession':0, 'children':0, 'infant':0, 'total_people': 0},
-	   'vehicles': {'vehicle': 0,'campervan': 0, 'motorcycle': 0, 'trailer': 0, 'caravan': 0, 'total_vehicles': 0},
-	   'loaded': {'locations': false,'search_locations': false, 'places': false},
-	   'selecttype' : 'single',
-           'mcs_enabled' : false,
-	   'selected_booking_id': null,
-	   'site_type' : null,
-	   'availabity' : null,
-	   'max_advance_booking': 60,
-	   'arrival_days': 0,
-	   'permission_to_make_advanced_booking' : false,
-       'arrival': null,
-       'departure': null
+        'csrf_token' : '',
+        'selected_site': null,
+        'multiplesites': [],
+        'multiplesites_options' : {'min_people': 0, 'max_people': 0, 'max_vehicle': 0},
+        'multiplesites_class_totals' : {},
+        'change_booking_id': null,       
+        'page': '',
+        'campground_id': null,
+        'camping_period': {'checkin': null, 'checkout': null},
+        'location_url' : '/api/campground_map/?format=json',
+        'search_location_url' : '/api/search_suggest',
+        'get_booking_vehicle_info' : '/api/get_booking_vehicle_info/',
+        'update_booking_vehicle_info' : '/api/booking_vehicle_update/',
+        'places_url' : '/api/places/',
+        'locations' : [],
+        'places': [],
+        'search_locations': [],
+        'campers': {'adult': 2, 'concession':0, 'children':0, 'infant':0, 'total_people': 0},
+        'vehicles': {'vehicle': 0,'campervan': 0, 'motorcycle': 0, 'trailer': 0, 'caravan': 0, 'total_vehicles': 0},
+        'loaded': {'locations': false,'search_locations': false, 'places': false},
+        'selecttype' : 'single',
+        'mcs_enabled' : false,
+        'selected_booking_id': null,
+        'site_type' : null,
+        'availabity' : null,
+        'max_advance_booking': 60,
+        'arrival_days': 0,
+        'permission_to_make_advanced_booking' : false,
+        'arrival': null,
+        'departure': null,
+        'date_override': false,
 
     },
     change_tabs: function(tabname) {
-            $("#campsite-booking").hide();
-	        $("#campground-details").hide();
-	        $("#campsite-booking-tab").removeClass("active");
-	        $("#campground-details-tab").removeClass("active");
-            $("#"+tabname+"-tab").addClass('active');
-	        $("#"+tabname).show();
+        $("#campsite-booking").hide();
+        $("#campground-details").hide();
+        $("#campsite-booking-tab").removeClass("active");
+        $("#campground-details-tab").removeClass("active");
+        $("#"+tabname+"-tab").addClass('active');
+        $("#"+tabname).show();
     },
     change_camper_counters: function(group, direction) {
 	   if (group in search_avail.var.campers) {
-		if (direction == 'up') { 
-			search_avail.var.campers[group] = search_avail.var.campers[group] + 1;
-		}
+            if (direction == 'up') { 
+                search_avail.var.campers[group] = search_avail.var.campers[group] + 1;
+            }
 	   }
 
-           if (group in search_avail.var.campers) {
-                if (direction == 'down') {
-                        if (search_avail.var.campers[group] > 0) { 
-                        	search_avail.var.campers[group] = search_avail.var.campers[group] - 1;
-			}
-                }
-           }
+        if (group in search_avail.var.campers) {
+            if (direction == 'down') {
+                    if (search_avail.var.campers[group] > 0) { 
+                        search_avail.var.campers[group] = search_avail.var.campers[group] - 1;
+                    }
+            }
+        }
 
 	   // search_avail.var.campers['total_people']  = search_avail.var.campers['adult'] + search_avail.var.campers['concession'] + search_avail.var.campers['children'];
            //$('#camper-selection-inner-text').html(search_avail.var.campers['adult']+' adult, '+search_avail.var.campers['concession']+' concession, '+search_avail.var.campers['children']+' child, '+search_avail.var.campers['infant']+' Infant');
@@ -698,9 +699,9 @@ var search_avail = {
 
 	   if (search_avail.var.site_type == 0) {
 	   // if (button_data['site_type'] == 0) {
-		post_data = {"arrival": search_avail.var.camping_period['checkin'],"departure":search_avail.var.camping_period['checkout'],"num_adult": search_avail.var.campers['adult'],"num_child":search_avail.var.campers['children'],"num_concession": search_avail.var.campers['concession'],"num_infant": search_avail.var.campers['infant'],"campsite": button_data['campsite_id'], 'num_vehicle': search_avail.var.vehicles['vehicle'], 'num_campervan': search_avail.var.vehicles['campervan'],'num_caravan': search_avail.var.vehicles['caravan'],'num_motorcycle': search_avail.var.vehicles['motorcycle'], 'num_trailer': search_avail.var.vehicles['trailer'], 'change_booking_id': search_avail.var.change_booking_id, 'selecttype': search_avail.var.selecttype, 'multiplesites' : JSON.stringify(search_avail.var.multiplesites), 'multiplesites_class_totals' : JSON.stringify(search_avail.var.multiplesites_class_totals) }
+		post_data = {"date_override": search_avail.var.date_override, "arrival": search_avail.var.camping_period['checkin'],"departure":search_avail.var.camping_period['checkout'],"num_adult": search_avail.var.campers['adult'],"num_child":search_avail.var.campers['children'],"num_concession": search_avail.var.campers['concession'],"num_infant": search_avail.var.campers['infant'],"campsite": button_data['campsite_id'], 'num_vehicle': search_avail.var.vehicles['vehicle'], 'num_campervan': search_avail.var.vehicles['campervan'],'num_caravan': search_avail.var.vehicles['caravan'],'num_motorcycle': search_avail.var.vehicles['motorcycle'], 'num_trailer': search_avail.var.vehicles['trailer'], 'change_booking_id': search_avail.var.change_booking_id, 'selecttype': search_avail.var.selecttype, 'multiplesites' : JSON.stringify(search_avail.var.multiplesites), 'multiplesites_class_totals' : JSON.stringify(search_avail.var.multiplesites_class_totals) }
 	   } else {
-		post_data = {"arrival": search_avail.var.camping_period['checkin'],"departure":search_avail.var.camping_period['checkout'],"num_adult": search_avail.var.campers['adult'],"num_child":search_avail.var.campers['children'],"num_concession": search_avail.var.campers['concession'],"num_infant": search_avail.var.campers['infant'], "campground_bg": button_data['campground_id'], 'campsite_class': button_data['campsite_class_id'], 'num_vehicle': search_avail.var.vehicles['vehicle'], 'num_campervan': search_avail.var.vehicles['campervan'],'num_caravan': search_avail.var.vehicles['caravan'], 'num_motorcycle': search_avail.var.vehicles['motorcycle'], 'num_trailer': search_avail.var.vehicles['trailer'], 'change_booking_id': search_avail.var.change_booking_id, 'selecttype': search_avail.var.selecttype, 'multiplesites_class_totals' : JSON.stringify(search_avail.var.multiplesites_class_totals), 'campground': search_avail.var.campground_id}
+		post_data = {"date_override": search_avail.var.date_override, "arrival": search_avail.var.camping_period['checkin'],"departure":search_avail.var.camping_period['checkout'],"num_adult": search_avail.var.campers['adult'],"num_child":search_avail.var.campers['children'],"num_concession": search_avail.var.campers['concession'],"num_infant": search_avail.var.campers['infant'], "campground_bg": button_data['campground_id'], 'campsite_class': button_data['campsite_class_id'], 'num_vehicle': search_avail.var.vehicles['vehicle'], 'num_campervan': search_avail.var.vehicles['campervan'],'num_caravan': search_avail.var.vehicles['caravan'], 'num_motorcycle': search_avail.var.vehicles['motorcycle'], 'num_trailer': search_avail.var.vehicles['trailer'], 'change_booking_id': search_avail.var.change_booking_id, 'selecttype': search_avail.var.selecttype, 'multiplesites_class_totals' : JSON.stringify(search_avail.var.multiplesites_class_totals), 'campground': search_avail.var.campground_id}
 		   // campsite_class: 75
 	   }
 
@@ -1298,9 +1299,9 @@ var search_avail = {
 
 
         $( "#date-override" ).click(function() {
-            
+            var dateoverride = $('#date-override').is(':checked');
+            search_avail.var.date_override = dateoverride;
             search_avail.init_dateselection(search_avail.var.arrival,search_avail.var.departure);
-
         });
 
 
