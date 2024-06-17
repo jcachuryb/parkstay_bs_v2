@@ -413,7 +413,7 @@ class MakeBookingsView(TemplateView):
             checkouthash =  hashlib.sha256(str(booking.pk).encode('utf-8')).hexdigest()
             if booking_hash_id != checkouthash:  
                 #messages.error(request, "There was a booking mismatch issue while trying to complete your booking, your in-progress booking has been cancelled and will need to be completed again.  This can sometimes be caused by using multiple browser tabs and recommend only to complete a booking using one browser tab window. ")          
-                return HttpResponseRedirect("/booking/abort")            
+                return HttpResponseRedirect("/booking/abort_session")            
             
             cp_perms_on_behalf = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=booking.campground,active=True,permission_group=0).count()
         #booking = Booking.objects.get(pk=request.session['ps_booking']) if 'ps_booking' in request.session else None
@@ -851,6 +851,31 @@ class BookingSuccessView(TemplateView):
         response = render(request, self.template_name, context)
         response.delete_cookie(settings.OSCAR_BASKET_COOKIE_OPEN)
         return response
+
+class SessionAbortView(TemplateView):
+    template_name = 'ps/booking/abort_session.html'
+
+    def get(self, request, *args, **kwargs):
+        today = timezone.now().date()
+        booking = None
+        try:
+            booking = utils.get_session_booking(request.session)
+        
+            # only ever delete a booking object if it's marked as temporary
+            if booking.booking_type == 3:
+                booking.delete()
+            utils.delete_session_booking(request.session)
+
+            
+        except Exception as e:
+            pass
+
+        context = {
+            'booking': booking,
+            'today' : today,
+        }
+        return render(request, self.template_name, context)
+        
 
 
 class MyBookingsView(LoginRequiredMixin, TemplateView):
