@@ -119,6 +119,7 @@ urlpatterns = [
     url(r'^dashboard/bulkpricing$', views.DashboardView.as_view(), name='dash-bulkpricing'),
     url(r'^dashboard/', views.DashboardView.as_view(), name='dash'),
     url(r'^booking/abort$', views.abort_booking_view, name='public_abort_booking'),
+    url(r'^booking/abort_session$', views.SessionAbortView.as_view(), name='public_booking_aborted'),
     url(r'^booking/cancel/(?P<booking_id>[0-9]+)/$', views.CancelBookingView.as_view(), name='cancel_booking'),
     url(r'^booking/change/(?P<booking_id>[0-9]+)/$', views.ChangeBookingView.as_view(), name='change_booking'),
     url(r'^booking/', views.MakeBookingsView.as_view(), name='public_make_booking'),
