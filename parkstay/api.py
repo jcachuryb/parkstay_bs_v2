@@ -2805,10 +2805,11 @@ def create_booking(request, *args, **kwargs):
                     if parkstay_officers is True and date_override == 'true':
                         print ("Date Override Permissions Activated")                                              
                     else:
-                        
-                        if total_days_departure_new_booking.days > total_days_departure_old_booking.days:
-                            error = {"status": "error", 'msg': {"title": "Change not permitted", "error" :"<div style='text-align:left'>Changes that add dates not currently available to others are not permitted. <br><br>You may:<br><ul><li>change to an earlier or later arrival and/or to an earlier departure.</li><li>cancel the booking</li></ul></div>"} }
-                            return HttpResponse(json.dumps(error), status=400, content_type='application/json')                    
+
+                        if total_days_departure_old_booking.days > max_advance_booking:
+                            if total_days_departure_new_booking.days > total_days_departure_old_booking.days:
+                                error = {"status": "error", 'msg': {"title": "Change not permitted", "error" :"<div style='text-align:left'>Changes that add dates not currently available to others are not permitted. <br><br>You may:<br><ul><li>change to an earlier or later arrival and/or to an earlier departure.</li><li>cancel the booking</li></ul></div>"} }
+                                return HttpResponse(json.dumps(error), status=400, content_type='application/json')                    
 
                         # old_end_date = old_booking_obj.departure.strftime("%Y-%m-%d")
                         # if old_end_date != end_date.strftime("%Y-%m-%d"):
