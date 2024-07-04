@@ -192,7 +192,7 @@ def create_booking_by_class(request,campground_id, multiplesites_class_totals, s
                 site = sites[0]
 
                 # Prevent booking if max people passed
-                total_people = num_adult + num_concession + num_child + num_infant
+                total_people = num_adult + num_concession + num_child # + num_infant
                 
                 if total_people > max_people:
                     raise ValidationError('Maximum number of people exceeded for the selected campsite')
@@ -312,7 +312,7 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
 
         if not override_checks:
             # Prevent booking if max people passed
-            total_people = num_adult + num_concession + num_child + num_infant
+            total_people = num_adult + num_concession + num_child #+ num_infant
             min_people = sum([cs.min_people for cs in campsite_qs])
             max_people = sum([cs.max_people for cs in campsite_qs])
             max_vehicles = sum([cs.max_vehicles for cs in campsite_qs])
