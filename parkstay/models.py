@@ -1437,6 +1437,15 @@ class Booking(models.Model):
             num_child = self.details.get('num_child', 0)
             return num_adult + num_concession + num_infant + num_child
         return 0
+    
+    @property
+    def num_guests_no_infant(self):
+        if self.details:
+            num_adult = self.details.get('num_adult', 0)
+            num_concession = self.details.get('num_concession', 0)
+            num_child = self.details.get('num_child', 0)
+            return num_adult + num_concession + num_child
+        return 0
 
     @property
     def guests(self):
