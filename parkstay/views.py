@@ -1107,6 +1107,13 @@ class SearchAvailablity(TemplateView):
         features_obj_cache = cache.get('features_array_type_0:')
         notices_obj = utils_cache.get_notices()
 
+        in_progress_booking_id = None
+
+        if 'ps_booking' in request.session:
+            if Booking.objects.filter(pk=request.session['ps_booking']).count() > 0:
+                in_progress_booking_id = Booking.objects.get(pk=request.session['ps_booking'])        
+
+
         if features_obj_cache is None:
             features_query = Feature.objects.filter(type=0)
             for f in features_query:
@@ -1131,6 +1138,7 @@ class SearchAvailablity(TemplateView):
         context['features_json'] = json.dumps(features_obj)
         context['DEFAULT_SEARCH_AVAILABILITY_LOCATION'] = settings.DEFAULT_SEARCH_AVAILABILITY_LOCATION
         context['notices_obj'] = notices_obj
+        context['in_progress_booking_id'] = in_progress_booking_id
         return render(request, self.template_name, context)
 
     #def get(self, *args, **kwargs):

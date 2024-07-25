@@ -26,6 +26,8 @@
 {% if not booking %}
     <input type='hidden' value='disabled' id='site_queue_manager_active'>
     <div class="container">
+        {% include "ps/booking/booking_session_expired_message.html"%}
+
         <div class="row">
             <div class="col-lg-12"><div class="well">
                 <h3>Your booking session has expired</h3>
@@ -63,8 +65,8 @@
                             {% verbatim %}
                                 <b style='display:none;'>Time left to complete booking {{ timeleft }}.</b>
                             {% endverbatim %}
-                                <a class="btn btn-primary" href="{% url 'public_abort_booking' %}?change=true">Change details (same campground)</a>
-                                <a class="btn btn-warning" href="{% url 'public_abort_booking' %}">Cancel and search for another campground</a>
+                                <a class="btn btn-warning" href="{% url 'public_abort_booking' %}?change=true">BACK</a>
+                                <a class="btn btn-danger" href="{% url 'public_abort_booking' %}">QUIT</a>
                             </p>
                             {% if show_errors %}
                             <div class="alert alert-danger">
@@ -268,7 +270,7 @@
                                         <div v-if="vehicle[1].length > 0" v-html="vehicle[1]">
                                         </div>
                                         <div v-else>
-                                                <b style='color:red'><span v-if="vehicle[4] == true">To be confirmed</span><span v-else>Registration number</span></b>
+                                                <b style='color:red'><span v-if="vehicle[4] == true">To be confirmed</span><span v-else>UPDATE REQUIRED</span></b>
                                         </div>
                                   </div>
                                   <div class="fw-bold d-flex justify-content-center" v-if="pricing.vehicle">
@@ -323,7 +325,7 @@
 						<div v-if="vehicle[1].length > 0" v-html="vehicle[1]">
 						</div>
                                                 <div v-else>
-							<b style='color:red'><span v-if="vehicle[4] == true">To be confirmed</span><span v-else>Registration number</span></b>
+							<b style='color:red'><span v-if="vehicle[4] == true">To be confirmed</span><span v-else>UPDATE REQUIRED</span></b>
 						</div>
                                           </div>
                                           <div class="col-md-6">
@@ -703,7 +705,7 @@ We may ask for proof of identity. Bookings are not transferable and you cannot b
                                     </div>
                                     <br>
 
-				    <button :disabled="!toc||!trav_res" type="submit" class="btn btn-primary btn-lg"><span v-if="total<0" >Refund Payment</span><span v-else-if="total==0">Complete Booking</span><span v-else >Proceed to payment</span></button>
+				    <button :disabled="!toc||!trav_res" type="submit" class="btn btn-primary btn-lg"><span v-if="total<0" >PROCEED</span><span v-else-if="total==0">PROCEED</span><span v-else >PROCEED</span></button>
                                     {% if request.user.is_staff is True or create_booking_on_behalf is True %}
 				              {% if PARKSTAY_PERMISSIONS.special_permissions is True %}
 					      <br><br>
