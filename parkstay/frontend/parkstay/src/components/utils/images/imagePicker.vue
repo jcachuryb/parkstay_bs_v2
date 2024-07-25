@@ -228,10 +228,12 @@ module.exports = {
     display: block;
 }
 .slick-prev {
-    left: -25px;
+    left: 10px;
+    color: #012531;
 }
 .slick-next {
-    right:-25px;
+    right:10px;
+    color: #012531;
 }
 @charset 'UTF-8';
 /* Slider */
