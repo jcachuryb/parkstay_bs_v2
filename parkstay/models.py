@@ -11,7 +11,8 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.contrib.gis import forms
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import JSONField
+# from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 from django.db import transaction
 from django.utils import timezone
 from datetime import date, time, datetime, timedelta
@@ -2157,22 +2158,24 @@ class CampgroundListener(object):
                             pass
 
 
-class BookingListener(object):
-    """
-    Event listener for Bookings
-    """
+# class BookingListener(object):
+#     """
+#     Event listener for Bookings
+#     """
 
-    @staticmethod
-    @receiver(pre_save, sender=Booking)
-    def _pre_save(sender, instance, **kwargs):
-        if instance.pk:
-            original_instance = Booking.objects.filter(pk=instance.pk)
-            if original_instance.exists():
-                setattr(instance, "_original_instance", original_instance.first())
-        elif hasattr(instance, "_original_instance"):
-            delattr(instance, "_original_instance")
-        else:
-            instance.full_clean()
+#     @staticmethod
+#     @receiver(pre_save, sender=Booking)
+#     def _pre_save(sender, instance, **kwargs):
+#         if instance.pk:
+#             original_instance = Booking.objects.filter(pk=instance.pk)
+#             if original_instance.exists():
+#                 setattr(instance, "_original_instance", original_instance.first())
+#         elif hasattr(instance, "_original_instance"):
+#             delattr(instance, "_original_instance")
+#         else:
+#             instance.full_clean()
+   
+
 
 
 class CampsiteListener(object):
