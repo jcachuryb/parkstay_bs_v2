@@ -51,8 +51,9 @@ WORKDIR /app
 USER oim
 RUN virtualenv /app/venv
 ENV PATH=/app/venv/bin:$PATH
+RUN git config --global --add safe.directory /app
 COPY requirements.txt ./
-# RUN pip install --upgrade piop
+RUN pip install --upgrade pip
 
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -66,12 +67,9 @@ COPY --chown=oim:oim  gunicorn.ini manage.py ./
 COPY .git ./.git
 RUN touch /app/.env
 RUN touch /app/git_hash
-RUN find /app/venv/lib/python3.12/site-packages/ | grep django5 | grep six
 COPY --chown=oim:oim  parkstay ./parkstay
 RUN mkdir -p /app/parkstay/cache/
 RUN chmod 777 /app/parkstay/cache/
-RUN pip list 
-RUN find /app/venv | grep python | grep bin
 RUN python manage.py collectstatic --noinput
 
 EXPOSE 8080
