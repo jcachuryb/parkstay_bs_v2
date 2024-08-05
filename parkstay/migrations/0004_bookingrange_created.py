@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 
 import datetime
 from django.db import migrations, models
-from django.utils.timezone import utc
-
+# from django.utils.timezone import utc
+import datetime
 
 class Migration(migrations.Migration):
 
@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='bookingrange',
             name='created',
-            field=models.DateTimeField(auto_now_add=True, default=datetime.datetime(2016, 11, 10, 0, 32, 47, 223622, tzinfo=utc)),
+            field=models.DateTimeField(auto_now_add=True, default=datetime.datetime(2016, 11, 10, 0, 32, 47, 223622, tzinfo=datetime.timezone.utc)),
             preserve_default=False,
         ),
     ]
