@@ -49,7 +49,7 @@ class CampsiteClassAdmin(admin.ModelAdmin):
     list_filter = ('name',)
 
 @admin.register(models.Park)
-class ParkAdmin(admin.GeoModelAdmin):
+class ParkAdmin(admin.GISModelAdmin):
     list_display = ('name', 'district')
     ordering = ('name',)
     list_filter = ('district',)
@@ -72,7 +72,7 @@ class CampsiteInline(admin.TabularInline):
 
 
 @admin.register(models.Campground)
-class CampgroundAdmin(admin.GeoModelAdmin,SummernoteModelAdmin):
+class CampgroundAdmin(admin.GISModelAdmin,SummernoteModelAdmin):
     summernote_fields = ('about','booking_information','campsite_information','facilities_information','campground_rules','fee_information','health_and_safety_information','location_information')
     list_display = ('name', 'park', 'promo_area', 'campground_type', 'site_type', 'max_advance_booking')
     ordering = ('name',)
@@ -382,14 +382,14 @@ class MyBookingNoticeAdmin(admin.ModelAdmin):
     formatted_message.short_description = 'Message'
 
 @admin.register(models.PromoArea)
-class PromoAreaAdmin(admin.GeoModelAdmin):
+class PromoAreaAdmin(admin.GISModelAdmin):
     list_display = ('name', 'wkb_geometry')
     ordering = ('name',)
     search_fields = ('name',)
     openlayers_url = 'https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js'
 
 @admin.register(models.Places)
-class PlacesAdmin(admin.GeoModelAdmin):
+class PlacesAdmin(admin.GISModelAdmin):
     list_display = ('name',)
     ordering = ('name',)
     search_fields = ('name',)

@@ -24,7 +24,10 @@ INSTALLED_APPS += [
     'django_summernote',
     'ledger_api_client',
 #    'django_site_queue',
-    'appmonitor_client'
+    'appmonitor_client',
+    'crispy_bootstrap5',
+    'crispy_forms',
+
 ]
 
 MIDDLEWARE_CLASSES += [
@@ -83,9 +86,8 @@ OSCAR_BASKET_COOKIE_OPEN = 'parkstay_basket'
 
 
 CRON_CLASSES = [
-    #'parkstay.cron.SendBookingsConfirmationCronJob',
     'parkstay.cron.UnpaidBookingsReportCronJob',
-    #'parkstay.cron.OracleIntegrationCronJob',
+    'appmonitor_client.cron.CronJobAppMonitorClient',    
 ]
 
 # Additional logging for parkstay
@@ -228,3 +230,5 @@ MESSAGE_TAGS = {
     messages.WARNING: 'alert-warning',
     messages.ERROR: 'alert-danger',
 }
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
