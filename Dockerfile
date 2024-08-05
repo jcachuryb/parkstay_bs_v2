@@ -19,8 +19,6 @@ RUN apt-get install --no-install-recommends -y python3-pil
 # RUN ln -s /usr/bin/python3 /usr/bin/python 
 #RUN ln -s /usr/bin/pip3 /usr/bin/pip
 # RUN pip install --upgrade pip
-# RUN wget -O /tmp/GDAL-3.8.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl https://github.com/girder/large_image_wheels/raw/wheelhouse/GDAL-3.8.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl#sha256=e2fe6cfbab02d535bc52c77cdbe1e860304347f16d30a4708dc342a231412c57
-# RUN pip install /tmp/GDAL-3.8.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 # Install Python libs from requirements.txt.
 
 RUN groupadd -g 5000 oim 
@@ -54,7 +52,8 @@ USER oim
 RUN virtualenv /app/venv
 ENV PATH=/app/venv/bin:$PATH
 COPY requirements.txt ./
-# RUN pip install --upgrade pip
+# RUN pip install --upgrade piop
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install the project (ensure that frontend projects have been built prior to this step).
@@ -66,14 +65,14 @@ RUN chmod 755 /startup.sh
 COPY --chown=oim:oim  gunicorn.ini manage.py ./
 COPY .git ./.git
 RUN touch /app/.env
+RUN touch /app/git_hash
+RUN find /app/venv/lib/python3.12/site-packages/ | grep django5 | grep six
 COPY --chown=oim:oim  parkstay ./parkstay
 RUN mkdir -p /app/parkstay/cache/
 RUN chmod 777 /app/parkstay/cache/
+RUN pip list 
+RUN find /app/venv | grep python | grep bin
 RUN python manage.py collectstatic --noinput
-
-
-
-
 
 EXPOSE 8080
 HEALTHCHECK --interval=1m --timeout=5s --start-period=10s --retries=3 CMD ["wget", "-q", "-O", "-", "http://localhost:8080/"]

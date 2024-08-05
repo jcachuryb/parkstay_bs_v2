@@ -15,11 +15,11 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from email.mime.base import MIMEBase
 from django.core.files.base import ContentFile
 from parkstay import doctopdf
-from confy import env
 import hashlib
 import datetime
 import socket
 import requests
+import decouple
 from email import encoders
 default_campground_email = settings.EMAIL_FROM
 
@@ -315,12 +315,12 @@ def email_log(line):
 
 def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,template_group,attachments=None):
     print ("start -- sendHtmlEmail")
-    email_delivery = env('EMAIL_DELIVERY', 'off')
-    override_email = env('OVERRIDE_EMAIL', None)
-    email_instance = env('EMAIL_INSTANCE','DEV')
+    email_delivery = decouple.config('EMAIL_DELIVERY', default='off')
+    override_email = decouple.config('OVERRIDE_EMAIL', default=None)
+    email_instance = decouple.config('EMAIL_INSTANCE',default='DEV')
     logomime = None
-    context['default_url'] = env('DEFAULT_HOST', '')
-    context['default_url_internal'] = env('DEFAULT_URL_INTERNAL', '')
+    context['default_url'] = decouple.config('DEFAULT_HOST', default='')
+    context['default_url_internal'] = decouple.config('DEFAULT_URL_INTERNAL', default='')
     log_hash = int(hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest(), 16) % (10 ** 8)
     email_log(str(log_hash)+' '+subject+":"+str(to)+":"+template_group)
     if email_delivery != 'on':
