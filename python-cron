@@ -1,4 +1,4 @@
-0 1 * * * python3 /app/manage.py runcrons >> /app/logs/cronjob.log 2>&1
+*/5 * * * * python3 /app/manage.py runcrons >> /app/logs/cronjob.log 2>&1
 
 */20 * * * * python3 /app/manage.py clear_temporary_bookings >> /app/logs/cronjob.log 2>&1
 */2 * * * * python3 /app/manage.py  rebuild_parkstay_changed_booking  >> /app/logs/cronjob_pcb.log 2>&1
