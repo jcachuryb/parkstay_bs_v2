@@ -130,7 +130,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
 SYSTEM_NAME = decouple.config('SYSTEM_NAME', default='Parkstay WA')
 EMAIL_FROM = decouple.config('EMAIL_FROM', default=ADMINS[0])
 DEFAULT_FROM_EMAIL = EMAIL_FROM
-WAITING_QUEUE_ENABLED = decouple.config('WAITING_QUEUE_ENABLED',default="False")
+WAITING_QUEUE_ENABLED = decouple.config('WAITING_QUEUE_ENABLED',default=False, cast=bool)
 QUEUE_GROUP_NAME = decouple.config('QUEUE_GROUP_NAME', default=None)
 QUEUE_WAITING_URL = decouple.config('QUEUE_WAITING_URL', default=None)
 
@@ -152,7 +152,7 @@ QUEUE_DOMAIN = decouple.config('QUEUE_DOMAIN',default='')
 QUEUE_URL = decouple.config('QUEUE_URL',default='')
 QUEUE_BACKEND_URL = decouple.config('QUEUE_BACKEND_URL',default='')
 QUEUE_ACTIVE_HOSTS = decouple.config('QUEUE_ACTIVE_HOSTS',default='')
-ENABLE_QUEUE_MIDDLEWARE = decouple.config('ENABLE_QUEUE_MIDDLEWARE',default=False)
+ENABLE_QUEUE_MIDDLEWARE = decouple.config('ENABLE_QUEUE_MIDDLEWARE',default=False, cast=bool)
 if ENABLE_QUEUE_MIDDLEWARE is True or ENABLE_QUEUE_MIDDLEWARE == 'True':
     MIDDLEWARE_CLASSES += [
         'parkstay.queue_middleware.QueueControl',
