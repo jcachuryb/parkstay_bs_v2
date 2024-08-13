@@ -2,13 +2,12 @@ import os
 import sys
 import decouple
 import json
+import pathlib
+
 from django.contrib.messages import constants as messages
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# confy.read_environment_file(BASE_DIR+"/.env")
-# os.environ.setdefault("BASE_DIR", BASE_DIR)
 from ledger_api_client.settings_base import *
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT_URLCONF = 'parkstay.urls'
 SITE_ID = 1
 
@@ -78,6 +77,7 @@ CACHES = {
 }
 
 STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'parkstay', 'static')))
+print (STATICFILES_DIRS)
 #STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'ledger_api_client', 'static')))
 
 
