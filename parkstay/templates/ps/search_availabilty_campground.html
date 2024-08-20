@@ -56,6 +56,10 @@
                  </div>
 		 {% endif %}
 
+        <div class="col-12 " >                
+                <div class="col-md-12"><p><a href="/search-availability/information/?campground_id={{ cg.campground.id }}" class="btn btn-warning">BACK</a> <a href="/booking/abort" class="btn btn-danger">QUIT</a></p></div>       
+        </div>
+
         {% if cg.campground.campground_type == 0 %}
             <ul class="nav nav-pills ">
               <li class="nav-item">
