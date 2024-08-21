@@ -48,9 +48,8 @@
                  {% if change_booking %}
                  <div class="alert alert-info d-flex align-items-center" role="alert">
                       <div>
-			   <p><i class="bi bi-calendar2-x-fill"></i>&nbsp;&nbsp; You are preparing to change booking PB{{ change_booking.id }} with arrival {{ change_booking.arrival|date:"j M Y" }} and departure {{ change_booking.departure|date:"j M Y" }}<p>
-
-			  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please use the options below to change your booking,  we have prefilled information from your current booking and will recalculate your booking fees on the next step.</p>
+			   <p><i class="bi bi-calendar2-x-fill"></i>&nbsp;&nbsp; Change booking PB{{ change_booking.id }}<p>
+			   <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'The camping fee indicated here is for the selected dates and campers. Any additional payment or refund due will be shown at the next step.</p>
 		    
                       </div>
                  </div>
@@ -689,7 +688,9 @@
              {% include "ps/search_availabilty_campground_details.html" %}
      </div>
 
-
+     <div class="col-12 " >                
+        <div class="col-md-12"><p><a href="/search-availability/information/?campground_id={{ cg.campground.id }}" class="btn btn-warning">BACK</a> <a href="/booking/abort" class="btn btn-danger">QUIT</a></p></div>       
+    </div>
 </div>
 <br>
 <br>

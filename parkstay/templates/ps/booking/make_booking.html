@@ -239,7 +239,7 @@
                                    <h5>Vehicle Details</h5>
                                 </div>
                                 <div class="col-sm-6 col-md-6 text-end">
-                                        <a href="javascript:void(0);" class='btn btn-primary' v-on:click="open_vehicle_popup" >Update vehicle details</a>
+                                        <a href="javascript:void(0);" class='btn btn-primary' v-on:click="open_vehicle_popup" >Update</a>
                                 </div>
                                 </div>
                          </div>
@@ -761,6 +761,10 @@ We may ask for proof of identity. Bookings are not transferable and you cannot b
                 </div>
             </div>
         </div>
+
+        <a class="btn btn-warning" href="{% url 'public_abort_booking' %}?change=true">BACK</a>
+        <a class="btn btn-danger" href="{% url 'public_abort_booking' %}">QUIT</a>
+
     </div></form>
     <div class="modal fade" id="OverridePriceModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
       <div class="modal-dialog modal-xl">
@@ -826,9 +830,12 @@ We may ask for proof of identity. Bookings are not transferable and you cannot b
           </div>
         </div>
       </div>
+
     </div>
 
 {% endif %}
+
+
 </div>
 {% endblock %}
 
