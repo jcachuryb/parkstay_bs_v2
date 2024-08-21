@@ -70,6 +70,7 @@
                             {% verbatim %}
                                 <b style='display:none;'>Time left to complete booking {{ timeleft }}.</b>
                             {% endverbatim %}
+
                                 <a class="btn btn-warning" href="{% url 'public_abort_booking' %}?change=true">BACK</a>
                                 <a class="btn btn-danger" href="{% url 'public_abort_booking' %}">QUIT</a>
                             </p>
@@ -231,6 +232,7 @@
                               </div>
                          </div>
                  </div>
+
 
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
@@ -526,9 +528,11 @@
                  </div>
              {% endif %}
          {% endif %}
+         <a class="btn btn-warning" href="{% url 'public_abort_booking' %}?change=true">BACK</a>
+         <a class="btn btn-danger" href="{% url 'public_abort_booking' %}">QUIT</a>
+         
 
-
-                 <div class="round-box col-12 px-3">
+                 <div class="round-box col-12 mt-2 px-3">
                          <div class="col-12">
                                 <div class="col-sm-12 col-md-12">
                                    <h5>Fee payable now (inc GST)</h5>
