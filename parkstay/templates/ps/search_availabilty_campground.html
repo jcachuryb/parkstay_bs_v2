@@ -21,9 +21,29 @@
 
 
         {% if in_progress_booking_id %}
-                <div class="round-box col-12 px-3 pt-3 pb-3" style="background-color: #f1f1f1; border: 1px solid #d2d2d2;">
-                        <div class="col-md-12"><b>You currently have and existing booking inprogress. Choose an option below:</b><br><br></div>
-                        <div class="col-md-12"><p><a href="/" class="btn btn-warning">BACK</a> <a href="/booking/abort" class="btn btn-danger">QUIT</a></p></div>       
+                <div class="col-12 px-3 pt-3 pb-3" dsstyle="background-color: #f1f1f1; border: 1px solid #d2d2d2;">
+                        <div class="row">
+                                <div class="col-lg-12"><div class="well">
+                                    <h3 class='alert alert-danger'><i class="bi bi-exclamation-circle-fill" istyle='color: red;' ></i> This action cannot be completed </h3>
+                                    <br>
+                                    <p><b>This may be because:</b><p>
+                                    <ul>
+                                        <li>You have Park Stay WA open on more than one tab, window, browser or device </li>
+                                        <li>You are attempting to resume a booking or change that was interuppted by using your browser controls, the expiry of your session, or a problem with your internet connection.</li>             
+                                    </ul>
+                                    <p><b>To continue:</b><p>
+                                        <ol type="1">
+                                                <li>If you have Park Stay WA open in any other browser tabs or windows, close them.</li>
+                                                <li>tap/click 'Clear error & start again'</li>
+                                             </ol>
+                        
+                                    <p><a href="/booking/abort_session_redirect" class="btn btn-danger">Clear error & Start Again</a></p>
+                                </div></div>
+                            </div>
+
+                        
+
+         
                 </div>
         {% else %}
         
@@ -56,7 +76,7 @@
 		 {% endif %}
 
         <div class="col-12 " >                
-                <div class="col-md-12"><p><a href="/search-availability/information/?campground_id={{ cg.campground.id }}" class="btn btn-warning">BACK</a> <a href="/booking/abort" class="btn btn-danger">QUIT</a></p></div>       
+                <div class="col-md-12"><p>{% if change_booking %}{% else %}<a href="/search-availability/information/?campground_id={{ cg.campground.id }}" class="btn btn-warning">BACK</a>{% endif %} <a href="/booking/abort_session_redirect" class="btn btn-danger">QUIT</a></p></div>       
         </div>
 
         {% if cg.campground.campground_type == 0 %}
@@ -689,7 +709,7 @@
      </div>
 
      <div class="col-12 " >                
-        <div class="col-md-12"><p><a href="/search-availability/information/?campground_id={{ cg.campground.id }}" class="btn btn-warning">BACK</a> <a href="/booking/abort" class="btn btn-danger">QUIT</a></p></div>       
+        <div class="col-md-12"><p>{% if change_booking %}{% else %}<a href="/search-availability/information/?campground_id={{ cg.campground.id }}" class="btn btn-warning">BACK</a>{% endif %} <a href="/booking/abort_session_redirect" class="btn btn-danger">QUIT</a></p></div>       
     </div>
 </div>
 <br>
