@@ -597,25 +597,40 @@ class BookingPolicy(TemplateView):
 class ChangeBookingView(TemplateView):
     #template_name = 'ps/booking/change_booking.html'
      def get(self, request, *args, **kwargs):
-         booking_id = kwargs['booking_id']
-         booking = None
-         booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
-         if booking_data.count() > 0:
-             booking = booking_data[0]
-             cp = 0
-             if booking:
-                 if booking.campground and request.user.email:
-                     cp = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=booking.campground,active=True,permission_group=0).count()
+        inprogress_booking = None
+        try:
+            inprogress_booking = utils.get_session_booking(request.session)
+        
+            # only ever delete a booking object if it's marked as temporary
+            if inprogress_booking.booking_type == 3:
+                inprogress_booking.delete()
+            utils.delete_session_booking(request.session)
 
-             if (booking.customer.id == request.user.id and booking.customer_managed_booking_disabled is False) or (request.user.is_staff is True or cp > 0):
-                  arrival_date = booking.arrival.strftime("%Y/%m/%d")
-                  departure_date = booking.departure.strftime("%Y/%m/%d")
+            
+        except Exception as e:
+            pass
+
+
+        booking_id = kwargs['booking_id']
+        booking = None
+         
+        booking_data = Booking.objects.filter(id=booking_id, is_canceled=False)
+        if booking_data.count() > 0:
+            booking = booking_data[0]
+            cp = 0
+            if booking:
+                if booking.campground and request.user.email:
+                    cp = parkstay_models.CampgroundPermission.objects.filter(email=request.user.email,campground=booking.campground,active=True,permission_group=0).count()
+
+            if (booking.customer.id == request.user.id and booking.customer_managed_booking_disabled is False) or (request.user.is_staff is True or cp > 0):
+                arrival_date = booking.arrival.strftime("%Y/%m/%d")
+                departure_date = booking.departure.strftime("%Y/%m/%d")
                      
-                  response = HttpResponse("<script>window.location='/search-availability/campground/?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details.get('num_adult',0))+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&num_vehicle="+str(booking.details['num_vehicle'])+"&num_campervan="+str(booking.details['num_campervan'])+"&num_motorcycle="+str(booking.details['num_motorcycle'])+"&num_trailer="+str(booking.details['num_trailer'])+"&num_caravan="+str(booking.details.get('num_caravan',0))+"&gear_type=all&change_booking_id="+str(booking.id)+"';</script>", content_type='text/html')
-                  return response
-         context = {}
-         self.template_name = 'ps/search_availabilty_campground_cancel_booking_error.html'
-         return render(request, self.template_name, context)
+                response = HttpResponse("<script>window.location='/search-availability/campground/?site_id="+str(booking.campground.id)+"&arrival="+arrival_date+"&departure="+departure_date+"&num_adult="+str(booking.details.get('num_adult',0))+"&num_concession="+str(booking.details['num_concession'])+"&num_children="+str(booking.details['num_child'])+"&num_infants="+str(booking.details['num_infant'])+"&num_vehicle="+str(booking.details['num_vehicle'])+"&num_campervan="+str(booking.details['num_campervan'])+"&num_motorcycle="+str(booking.details['num_motorcycle'])+"&num_trailer="+str(booking.details['num_trailer'])+"&num_caravan="+str(booking.details.get('num_caravan',0))+"&gear_type=all&change_booking_id="+str(booking.id)+"';</script>", content_type='text/html')
+                return response
+        context = {}
+        self.template_name = 'ps/search_availabilty_campground_cancel_booking_error.html'
+        return render(request, self.template_name, context)
 
 
 
@@ -876,7 +891,30 @@ class SessionAbortView(TemplateView):
         }
         return render(request, self.template_name, context)
         
+class SessionAbortRedirectView(TemplateView):
+    template_name = 'ps/booking/abort_session.html'
 
+    def get(self, request, *args, **kwargs):
+        today = timezone.now().date()
+        booking = None
+        try:
+            booking = utils.get_session_booking(request.session)
+        
+            # only ever delete a booking object if it's marked as temporary
+            if booking.booking_type == 3:
+                booking.delete()
+            utils.delete_session_booking(request.session)
+
+            
+        except Exception as e:
+            pass
+
+        context = {
+            'booking': booking,
+            'today' : today,
+        }
+        return HttpResponseRedirect("/")
+        return render(request, self.template_name, context)
 
 class MyBookingsView(LoginRequiredMixin, TemplateView):
     template_name = 'ps/booking/my_bookings.html'

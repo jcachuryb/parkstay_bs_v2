@@ -121,6 +121,7 @@ urlpatterns = [
     re_path(r'^dashboard/', views.DashboardView.as_view(), name='dash'),
     re_path(r'^booking/abort$', views.abort_booking_view, name='public_abort_booking'),
     re_path(r'^booking/abort_session$', views.SessionAbortView.as_view(), name='public_booking_aborted'),
+    re_path(r'^booking/abort_session_redirect$', views.SessionAbortRedirectView.as_view(), name='public_booking_aborted_redirect'),            
     re_path(r'^booking/cancel/(?P<booking_id>[0-9]+)/$', views.CancelBookingView.as_view(), name='cancel_booking'),
     re_path(r'^booking/change/(?P<booking_id>[0-9]+)/$', views.ChangeBookingView.as_view(), name='change_booking'),
     re_path(r'^booking/', views.MakeBookingsView.as_view(), name='public_make_booking'),

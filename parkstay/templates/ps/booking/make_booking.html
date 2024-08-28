@@ -32,20 +32,22 @@
     <input type='hidden' value='disabled' id='site_queue_manager_active'>
     <div class="container">
         {% include "ps/booking/booking_session_expired_message.html"%}
-
         <div class="row">
             <div class="col-lg-12"><div class="well">
-                <h3>Your booking session has expired</h3>
+                <h3 class='alert alert-danger'><i class="bi bi-exclamation-circle-fill" istyle='color: red;' ></i> This action cannot be completed </h3>
                 <br>
-                <p>Reasons for your session expiring are:<p>
+                <p><b>This may be because:</b><p>
                 <ul>
-                    <li>Your booking session has timed-out</li>
-                    <li>Your using multiple browser window tabs to make bookings</li>
-                    <li>You have not yet selected a campsite to book</li> 
-                    <li>You have cancelled your in-progress booking</li>                                 
+                    <li>You have Park Stay WA open on more than one tab, window, browser or device </li>
+                    <li>You are attempting to resume a booking or change that was interuppted by using your browser controls, the expiry of your session, or a problem with your internet connection.</li>             
                 </ul>
-
-                <p><a href="{{EXPLORE_PARKS_SEARCH}}" class="btn btn-primary">Start a new campsite search</a></p>
+                <p><b>To continue:</b><p>
+                    <ol type="1">
+                            <li>If you have Park Stay WA open in any other browser tabs or windows, close them.</li>
+                            <li>tap/click 'Clear error & start again'</li>
+                         </ol>
+    
+                <p><a href="/booking/abort_session_redirect" class="btn btn-primary">Start Again</a></p>
             </div></div>
         </div>
     </div>
@@ -72,7 +74,7 @@
                             {% endverbatim %}
 
                                 <a class="btn btn-warning" href="{% url 'public_abort_booking' %}?change=true">BACK</a>
-                                <a class="btn btn-danger" href="{% url 'public_abort_booking' %}">QUIT</a>
+                                <a class="btn btn-danger" href="/booking/abort_session_redirect">QUIT</a>
                             </p>
                             {% if show_errors %}
                             <div class="alert alert-danger">
@@ -233,7 +235,6 @@
                          </div>
                  </div>
 
-
                  <div class="round-box col-12 px-3">
                          <div class="col-12">
                                 <div class='row'>
@@ -252,7 +253,7 @@
                                   </div>
                                   <div class="d-flex justify-content-center">
                                           <div>
-						  <span v-if="vehicle[0] == 0">Car/Ute <span v-if="vehicle[5]">- concession</span><span>
+						            <span v-if="vehicle[0] == 0">Car/Ute <span v-if="vehicle[5]">- concession</span><span>
                                           </div>
                                           <div >
                                           <span v-if="vehicle[0] == 2">Motorcycle<span>
@@ -529,7 +530,7 @@
              {% endif %}
          {% endif %}
          <a class="btn btn-warning" href="{% url 'public_abort_booking' %}?change=true">BACK</a>
-         <a class="btn btn-danger" href="{% url 'public_abort_booking' %}">QUIT</a>
+         <a class="btn btn-danger" href="/booking/abort_session_redirect">QUIT</a>
          
 
                  <div class="round-box col-12 mt-2 px-3">
@@ -767,7 +768,7 @@ We may ask for proof of identity. Bookings are not transferable and you cannot b
         </div>
 
         <a class="btn btn-warning" href="{% url 'public_abort_booking' %}?change=true">BACK</a>
-        <a class="btn btn-danger" href="{% url 'public_abort_booking' %}">QUIT</a>
+        <a class="btn btn-danger" href="/booking/abort_session_redirect">QUIT</a>
 
     </div></form>
     <div class="modal fade" id="OverridePriceModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
