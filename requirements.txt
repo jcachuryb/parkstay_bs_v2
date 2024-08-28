@@ -16,7 +16,7 @@ django-datatables-view==1.13.0
 django-reversion==5.0.12
 django-reversion-compare==0.8.6
 git+https://github.com/xzzy/django-preserialize.git#egg=django-preserialize
-django-countries==7.2.1
+django-countries==7.6.1
 git+https://github.com/Tivix/django-cron#egg=django-cron
 django-dynamic-fixture==1.9.1
 openpyxl==3.0.7
