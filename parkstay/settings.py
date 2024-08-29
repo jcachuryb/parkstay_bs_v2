@@ -8,6 +8,7 @@ from django.contrib.messages import constants as messages
 
 from ledger_api_client.settings_base import *
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 ROOT_URLCONF = 'parkstay.urls'
 SITE_ID = 1
 
@@ -79,6 +80,7 @@ CACHES = {
 STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'parkstay', 'static')))
 
 #STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'ledger_api_client', 'static')))
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
 BPAY_ALLOWED = decouple.config('BPAY_ALLOWED',default=False)
