@@ -77,7 +77,7 @@ CACHES = {
 }
 
 STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'parkstay', 'static')))
-print (STATICFILES_DIRS)
+
 #STATICFILES_DIRS.append(os.path.join(os.path.join(BASE_DIR, 'ledger_api_client', 'static')))
 
 
