@@ -7,24 +7,44 @@
 <div class="container">
 
     {% include "ps/booking/booking_session_expired_message.html" %}
+
     <div class="row">
         <div class="col-lg-12"><div class="well">
-            <h3 class='alert alert-danger'><i class="bi bi-exclamation-circle-fill" istyle='color: red;' ></i> This action cannot be completed </h3>
+                <div class="text-center">
+                        <h1 style="color: #003e52; font-size: 48px;">Oops!</h1>
+                        <br>
+                        <div class="row">
+                        <div class='col-md-4'>
+                                &nbsp;
+                        </div>
+                        <div class='col-md-4 col-xs-12'>
+                                <div class="text-start">    
+           
             <br>
-            <p><b>This may be because:</b><p>
+            <p><b>You are attempting to complete a booking or booking change that cannot be completed because:</b><p>
             <ul>
-                <li>You have Park Stay WA open on more than one tab, window, browser or device </li>
-                <li>You are attempting to resume a booking or change that was interuppted by using your browser controls, the expiry of your session, or a problem with your internet connection.</li>             
+                <li>It has already been completed on another tab, window, browser or device</li>
+                <li>You have used your browser back button or history to access and expired booking or change</li>             
             </ul>
-            <p><b>To continue:</b><p>
-                <ol type="1">
-                        <li>If you have Park Stay WA open in any other browser tabs or windows, close them.</li>
-                        <li>tap/click 'Clear error & start again'</li>
-                     </ol>
-
-            <p><a href="/booking/abort_session_redirect" class="btn btn-primary">Start Again</a></p>
-        </div></div>
+            <p><b>To check the status of your existing bookings go to 'My bookings'</b><p>
+           <div class="text-center">
+                <div class="d-grid gap-2">
+                    
+                    <a href="/mybookings/" class="btn btn-warning">My bookings</a>
+                    <a href="/booking/abort_session_redirect" class="btn btn-primary">Start Again</a>
+                </div>
+                <div class="btn-group btn-group-justified">
+                       
+                </div>
+           </div>
+            </div>
+        </div>
+        <div class='col-md-4'>
+                &nbsp;
+        </div>
+</div>
     </div>
-
+</div>
+</div>
 </div>
 {% endblock %}
