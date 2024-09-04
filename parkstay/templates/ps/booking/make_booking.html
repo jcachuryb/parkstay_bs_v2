@@ -55,7 +55,7 @@
                     <div class="d-grid gap-2">
                         
                         <a href="/mybookings/" class="btn btn-warning">My bookings</a>
-                        <a href="/booking/abort_session_redirect" class="btn btn-primary">Start again</a>
+                        <a href="/booking-session/abort-redirect" class="btn btn-primary">Start again</a>
                     </div>
                     <div class="btn-group btn-group-justified">
                            
@@ -97,7 +97,7 @@
                             {% endverbatim %}
 
                                 <a class="btn btn-warning" href="{% url 'public_abort_booking' %}?change=true">BACK</a>
-                                <a class="btn btn-danger" href="/booking/abort_session_redirect">QUIT</a>
+                                <a class="btn btn-danger" href="/booking-session/abort-redirect">QUIT</a>
                             </p>
                             {% if show_errors %}
                             <div class="alert alert-danger">
@@ -553,7 +553,7 @@
              {% endif %}
          {% endif %}
          <a class="btn btn-warning" href="{% url 'public_abort_booking' %}?change=true">BACK</a>
-         <a class="btn btn-danger" href="/booking/abort_session_redirect">QUIT</a>
+         <a class="btn btn-danger" href="/booking-session/abort-redirect">QUIT</a>
          
 
                  <div class="round-box col-12 mt-2 px-3">
@@ -791,7 +791,7 @@ We may ask for proof of identity. Bookings are not transferable and you cannot b
         </div>
 
         <a class="btn btn-warning" href="{% url 'public_abort_booking' %}?change=true">BACK</a>
-        <a class="btn btn-danger" href="/booking/abort_session_redirect">QUIT</a>
+        <a class="btn btn-danger" href="/booking-session/abort-redirect">QUIT</a>
 
     </div></form>
     <div class="modal fade" id="OverridePriceModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-backdrop="static" data-keyboard="false">
