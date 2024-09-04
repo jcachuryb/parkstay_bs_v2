@@ -714,7 +714,19 @@ var search_avail = {
 			setTimeout("$('#LoadingPopup').modal('hide');",800);
 			var errormessage = 'There was error attempting to create a booking for your selection.';
                 if (resp.hasOwnProperty('responseJSON')) {
+                    if (resp.responseJSON.hasOwnProperty('inprogress_booking')) { 
+                                                                                    
+                        var inprogress_booking = resp.responseJSON.inprogress_booking;
+                        if (inprogress_booking == true) {
+                            window.location.reload();
+                            return;
+                        }
+                    }
+
                     if (resp.responseJSON.hasOwnProperty('msg')) {
+
+
+
                         if (resp.responseJSON.msg.hasOwnProperty('error')) {                                                                
                             errormessage = resp.responseJSON.msg.error;
                         }

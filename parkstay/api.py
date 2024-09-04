@@ -2707,8 +2707,23 @@ def create_booking(request, *args, **kwargs):
     context_p = context_processors.parkstay_url(request)
     change_booking_id = request.POST.get('change_booking_id',None)
     date_override = request.POST.get('date_override',"false")
-    print ("DATE OVERRIDE")
-    print (date_override)
+
+    try:
+        inprogress_booking = utils.get_session_booking(request.session)
+        print ("INPROGRESS BOOKING")
+        print (inprogress_booking)
+
+        return HttpResponse(geojson.dumps({
+            'status': 'error',
+            'msg': 'You have an in-progress booking.',
+            'inprogress_booking': True
+        }), status=400, content_type='application/json')
+
+        # only ever delete a booking object if it's marked as temporary
+                
+    except Exception as e:
+        pass
+
 
     today = timezone.now().date()
     if change_booking_id == '':
