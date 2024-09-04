@@ -5,7 +5,6 @@ from django.utils import timezone
 from parkstay import models
 from datetime import datetime
 from django.conf import settings
-from confy import env, database
 import requests
 from parkstay import api
 import json

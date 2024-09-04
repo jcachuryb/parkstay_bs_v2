@@ -6,7 +6,6 @@ from parkstay import models
 from ledger_api_client import utils
 from datetime import datetime
 from django.conf import settings
-from confy import env, database
 import requests
 import json
 

@@ -5,9 +5,9 @@ from django.utils import timezone
 from parkstay import models
 from datetime import datetime
 from django.conf import settings
-from confy import env, database
 import requests
 import json
+import decouple
 
 from datetime import timedelta
 
@@ -17,8 +17,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         try:
-           alert_url = env("ALERT_URL","")
-           alert_token = env("ALERT_TOKEN","")
+           alert_url = decouple.config('ALERT_URL', default='')
+           alert_token = decouple.config('ALERT_TOKEN', default='')
            print (alert_url)
            print (alert_token)
 
