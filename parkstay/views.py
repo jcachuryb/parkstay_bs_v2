@@ -602,9 +602,9 @@ class ChangeBookingView(TemplateView):
             inprogress_booking = utils.get_session_booking(request.session)
         
             # only ever delete a booking object if it's marked as temporary
-            if inprogress_booking.booking_type == 3:
-                inprogress_booking.delete()
-            utils.delete_session_booking(request.session)
+            # if inprogress_booking.booking_type == 3:
+            #     inprogress_booking.delete()
+            # utils.delete_session_booking(request.session)
 
             
         except Exception as e:
