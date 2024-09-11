@@ -482,7 +482,8 @@ var search_avail = {
                 }, search_avail.select_dates);
             } else {
                 
-                $('#departure-date').datepicker('setStartDate', start.format('DD-MM-YYYY'));
+                $('#departure-date').datepicker('setStartDate', start.add(1, "days").format('DD-MM-YYYY'));
+
              }
 
              $('#departure-date').change(function(){
@@ -525,7 +526,6 @@ var search_avail = {
                     // });
                    
                     // if (is_parkstay_officers == 'True') {
-                        
                         $('#when-date-range').daterangepicker({
                             minDate: minDate,
                             startDate: start,
