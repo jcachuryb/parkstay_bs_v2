@@ -2820,6 +2820,9 @@ def create_booking(request, *args, **kwargs):
                     if parkstay_officers is True and date_override == 'true':
                         print ("Date Override Permissions Activated")                                              
                     else:
+                        if end_date == today:
+                            error = {"status": "error", 'msg': {"title": "Change not permitted", "error" :"<div style='text-align:center'>Departure date can not be the same as today date.</div>"} }
+                            return HttpResponse(json.dumps(error), status=400, content_type='application/json')                    
 
                         if total_days_departure_old_booking.days > max_advance_booking:
                             if total_days_departure_new_booking.days > total_days_departure_old_booking.days:
@@ -2830,7 +2833,7 @@ def create_booking(request, *args, **kwargs):
                         # if old_end_date != end_date.strftime("%Y-%m-%d"):
                         #     error = {"status": "error", 'msg': {"error" :"The departure date for a booking can not be changed. "+str(total_days.days)+"  Please contact the campground operator for more inforamtion."} }
                         #     return HttpResponse(json.dumps(error), status=400, content_type='application/json')                    
-
+                
 
             if old_booking_obj.arrival <= today:
                 if old_booking_obj.departure >= today:
@@ -2838,6 +2841,9 @@ def create_booking(request, *args, **kwargs):
                             # context['parkstay_officers_change_arrival'] = True
                             pass
                     else:
+                            if end_date == today:
+                                error = {"status": "error", 'msg': {"title": "Change not permitted", "error" :"<div style='text-align:center'>Departure date can not be the same as today date.</div>"} }
+                                return HttpResponse(json.dumps(error), status=400, content_type='application/json')
 
                             old_start_date = old_booking_obj.arrival.strftime("%Y-%m-%d")
                             if old_start_date != start_date.strftime("%Y-%m-%d"):
