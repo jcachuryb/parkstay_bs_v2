@@ -481,8 +481,8 @@ var search_avail = {
                     endDate: end,
                 }, search_avail.select_dates);
             } else {
-                
-                $('#departure-date').datepicker('setStartDate', start.add(1, "days").format('DD-MM-YYYY'));
+                // $('#departure-date').datepicker('setStartDate', start.add(1, "days").format('DD-MM-YYYY'));
+                // $('#departure-date').datepicker({'setStartDate': start.format('DD-MM-YYYY'), 'minDate': startDate_plus_1 });
 
              }
 
