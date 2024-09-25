@@ -4,6 +4,7 @@ venv/
 venv2/
 cronjobs
 mooring/cache/*
+*/node_modules/*
 parkstay/frontend/searchavail/node_modules/*
 
 # Byte-compiled / optimized / DLL files
@@ -123,3 +124,4 @@ parkstay/static/parkstay/js/vendor.js
 
 # npm locks
 *-lock.json
+
