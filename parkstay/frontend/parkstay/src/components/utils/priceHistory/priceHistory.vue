@@ -13,7 +13,6 @@
      </div>
     <confirmbox id="deleteHistory" :options="deleteHistoryPrompt"></confirmbox>
 </div>
-{{ dt_options }}
 </template>
 
 <script>
@@ -91,11 +90,7 @@ export default {
             campground: {},
             campsite:{},
 
-            dt_options: {
-                columnDefs: [
-                     { "defaultContent": "-", "targets": "_all" },
-                ],
-            },
+           
 
             price: {
                 reason:''

@@ -11,68 +11,18 @@
 
         <div id='card-preview' style='display:none'>
 
-            <div>
-                <!-- vif="$slots.default && $slots.default.length" -->
+            <div v-if="camping_distance_array && camping_distance_array.length > 0">
                 <SearchCarousel 
-                    :slickcount="slickcount"
                     :camping_distance_array="camping_distance_array"
                     :parkstayUrl="parkstayUrl"
                     :booking_arrival_days="booking_arrival_days"
                     :permission_to_make_advanced_booking="permission_to_make_advanced_booking"
                     :campgroundSiteTotal="campgroundSiteTotal"
                     :campgroundAvailablity="campgroundAvailablity"
-                    :bookingParam="bookingParam" />
+                    :bookingParam="bookingParam" 
+                    />
 
-                <!-- <div style='display:none'> -->
-                <template v-if="extentFeatures.length > 0">
-                    <paginate name="filterResults" class="resultList" :list="extentFeatures" :per="10009">
-                        <div class="row">
-                            <div class="small-12 medium-4 large-4 columns" v-for="f in paginated('filterResults')">
-                                <div class="row">
-                                    <div class="small-12 columns">
-                                        <span class="slick-slide-card-title">{{ f.name }}</span>
-                                    </div>
-                                    <div class="small-12 medium-12 large-12 columns"
-                                        v-if="f.images && f.images[0] && f.images[0].image">
-                                        <img class="thumbnail"
-                                            v-bind:src="parkstayUrl+'/campground-image/146/248/?mediafile='+f.images[0].image" />
-                                    </div>
-                                    <div class="small-12 medium-9 large-9 columns">
-                                        <div v-html="f.description" />
-                                        <p v-if="f.price_hint && Number(f.price_hint)"><i><small>From ${{
-                                                    f.price_hint }} per night</small></i></p>
-                                        <!-- This line has to be changed to use a v-if/else clause
-                                            Changed again to utilize changes in api to further enable forwarding offline sites to availability app
-                                            -->
-                                        <a v-if="f.campground_type == 0" class="button formButton1"
-                                            v-bind:href="parkstayUrl+'/availability/?site_id='+f.id+'&'+bookingParam"
-                                            target="_self">Book now</a>
-                                        <a v-else-if="f.campground_type == 1" class="button formButton"
-                                            v-bind:href="f.info_url" target="_self">More Info</a>
-                                        <a v-else class="button formButton2" v-bind:href="f.info_url"
-                                            target="_self">More info</a>
-                                        <!-- End of change -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </paginate>
-                    <div class="row">
-                        <!-- <paginate-links for="filterResults" :classes="{'ul': 'pagination'}"></paginate-links> -->
-                    </div>
-                </template>
 
-                <!-- </div> -->
-                <template v-else>
-                    <div class="row align-center">
-                        <div class="small-12 medium-12 large-12 columns">
-                            <h2 class="text-center">There are no campgrounds found matching your search criteria. Please
-                                change your search or click <a
-                                    href="https://exploreparks.dbca.wa.gov.au/know/park-stay-search-tips">here</a> for
-                                more information.</h2>
-                        </div>
-                    </div>
-                </template>
             </div>
         </div>
 
@@ -329,7 +279,6 @@ export default {
             selectedFeature: null,
             booking_arrival_days: 0,
             screen_width: 0,
-            slickcount: 0,
             permission_to_make_advanced_booking: false
         }
     },
@@ -626,7 +575,6 @@ export default {
                     }
                 }
             });
-            let _slickcount = 0;
             this.campground_data.forEach(function (el) {
                 var skip_cg = false;
                 var geo = el.geometry.coordinates;
@@ -779,14 +727,10 @@ export default {
 
                 vm.campgroundSiteTotal[campground_id]['total_available'] = vm.campgroundSiteTotal[campground_id]['sites'].length;
                 var row = { 'campground_name': 'test', 'distance': null };
-               _slickcount++;
             });
             vm.camping_distance_array.sort(function (a, b) {
                 return a.distance - b.distance;
             });
-            _slickcount++;
-            this.slickcount = _slickcount;
-            setTimeout("$('.slick-prev').click();", 500);
         },
         distance_between_gps: function (lat1, lon1, lat2, lon2, unit) {
             if ((lat1 == lat2) && (lon1 == lon2)) {

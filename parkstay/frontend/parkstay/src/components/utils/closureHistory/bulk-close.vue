@@ -3,7 +3,7 @@
         <modal okText="Close Campgrounds" @ok="closeCampgrounds()" :force="true">
             <h4 slot="title">Bulk Close Campgrounds</h4>
             <div class="body">
-                <alert :show="false" type="danger">{{errorString}}</alert>
+                <alert :show="false" type="danger">{{ errorString }}</alert>
                 <form name="closeForm" class="form-horizontal">
                     <div class="row">
                         <div class="form-group">
@@ -11,7 +11,7 @@
                                 <label for="Campgrounds">Campgrounds</label>
                             </div>
                             <div class="col-md-8">
-                                <select  class="form-control" id="bc-campgrounds" name="campgrounds" placeholder="" multiple v-model="selected_campgrounds">
+                                <select  class="form-control" name="campgrounds" placeholder="" multiple v-model="selected_campgrounds">
                                     <option v-for="c in campgrounds" :value="c.id">{{ c.name }}</option>
                                 </select>
                             </div>
@@ -24,7 +24,8 @@
                             </div>
                             <div class="col-md-8">
                                 <div class='input-group date' :id='close_cg_range_start'>
-                                    <input  name="closure_start"  v-model="range_start" type='text' class="form-control" />
+                                    <input name="closure_start" v-model="range_start" type='text'
+                                        class="form-control" />
                                     <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
                                     </span>
@@ -47,14 +48,15 @@
                             </div>
                         </div>
                     </div>
-                    <reason type="close" v-model="reason" :large="true" ></reason>
+                    <reason type="close" v-model="reason" :large="true"></reason>
                     <div v-show="requireDetails" class="row">
                         <div class="form-group">
                             <div class="col-md-4">
                                 <label>Details: </label>
                             </div>
                             <div class="col-md-8">
-                                <textarea name="closure_details" v-model="details" class="form-control" id="close_cg_details"></textarea>
+                                <textarea name="closure_details" v-model="details" class="form-control"
+                                    id="close_cg_details"></textarea>
                             </div>
                         </div>
                     </div>
@@ -69,53 +71,56 @@ import modal from '../bootstrap-modal.vue'
 import reason from '../reasons.vue'
 import alert from '../alert.vue'
 import { mapGetters } from 'vuex'
-import { $, datetimepicker,api_endpoints, validate, helpers } from '../../../hooks'
+import { $, datetimepicker, api_endpoints, validate, helpers } from '../../../hooks'
 
 export default {
-    name:"bulk-close",
-    data:function () {
-        let vm =this;
+    name: "bulk-close",
+    data: function () {
+        let vm = this;
         return {
-            isModalOpen:false,
-            closeEndPicker:null,
-            closeStartPicker:null,
-            reason:'',
-            range_start:'',
-            range_end:'',
-            close_cg_range_end:'close_cg_range_end'+vm._uid,
-            close_cg_range_start:'close_cg_range_start'+vm._uid,
-            selected_campgrounds:[],
+            isModalOpen: false,
+            closeEndPicker: null,
+            closeStartPicker: null,
+            reason: '',
+            range_start: '',
+            range_end: '',
+            details: '',
+            errorString: '',
+            close_cg_range_end: 'close_cg_range_end' + vm._uid,
+            close_cg_range_start: 'close_cg_range_start' + vm._uid,
+            selected_campgrounds: [],
             form: null
         }
     },
-    computed:{
-        requireDetails:function () {
+    computed: {
+        requireDetails: function () {
             return (this.reason === '1')
         },
-        ...mapGetters([
-          'campgrounds'
-        ]),
+        ...mapGetters({
+            campgrounds: 'campgrounds'
+        })
+
     },
-    components:{
+    components: {
         modal,
         reason,
         alert
     },
-    methods:{
-        close:function () {
-            this.isModalOpen = this.$parent.showBulkClose  = false;
+    methods: {
+        close: function () {
+            this.isModalOpen = this.$parent.showBulkClose = false;
             this.$parent.$refs.dtGrounds.vmDataTable.ajax.reload();
             this.range_start = "";
             this.range_end = "";
-            this.campgrounds = "";
+            this.selected_campgrounds = [];
             this.reason = "";
-			this.closeStartPicker.data('DateTimePicker').date(new Date());
-			this.closeEndPicker.data('DateTimePicker').clear();
+            this.closeStartPicker.data('DateTimePicker').date(new Date());
+            this.closeEndPicker.data('DateTimePicker').clear();
         },
-        events:function () {
+        events: function () {
             let vm = this;
-            vm.closeEndPicker = $('#'+vm.close_cg_range_end);
-            vm.closeStartPicker = $('#'+vm.close_cg_range_start).datetimepicker({
+            vm.closeEndPicker = $('#' + vm.close_cg_range_end);
+            vm.closeStartPicker = $('#' + vm.close_cg_range_start).datetimepicker({
                 format: 'DD/MM/YYYY',
                 minDate: new Date()
             });
@@ -123,11 +128,11 @@ export default {
                 format: 'DD/MM/YYYY',
                 useCurrent: false
             });
-            vm.closeStartPicker.on('dp.change', function(e){
+            vm.closeStartPicker.on('dp.change', function (e) {
                 vm.range_start = vm.closeStartPicker.data('DateTimePicker').date().format('DD/MM/YYYY');
                 vm.closeEndPicker.data("DateTimePicker").minDate(e.date);
             });
-            vm.closeEndPicker.on('dp.change', function(e){
+            vm.closeEndPicker.on('dp.change', function (e) {
                 var date = vm.closeEndPicker.data('DateTimePicker').date();
                 vm.range_end = (date) ? date.format('DD/MM/YYYY') : null;
             });
@@ -135,64 +140,64 @@ export default {
             vm.fetchCampgrounds();
             vm.initSelectTwo();
         },
-        fetchCampgrounds: function() {
+        fetchCampgrounds: function () {
             let vm = this;
             if (vm.campgrounds.length == 0) {
                 vm.$store.dispatch("fetchCampgrounds");
             }
         },
-        initSelectTwo:function () {
+        initSelectTwo: function () {
             let vm = this;
             setTimeout(function () {
                 $('#bc-campgrounds').select2({
                     theme: 'bootstrap',
                     allowClear: true,
                     placeholder: "Select Campgrounds",
-                    tags:false,
+                    tags: false,
                 }).
-                on("select2:select",function (e) {
-                    vm.selected_campgrounds = $(e.currentTarget).val();
-                }).
-                on("select2:unselect",function (e) {
-                    vm.selected_campgrounds = $(e.currentTarget).val();
-                });
-            },100)
+                    on("select2:select", function (e) {
+                        vm.selected_campgrounds = $(e.currentTarget).val();
+                    }).
+                    on("select2:unselect", function (e) {
+                        vm.selected_campgrounds = $(e.currentTarget).val();
+                    });
+            }, 100)
         },
-        closeCampgrounds:function () {
-            let vm =this;
+        closeCampgrounds: function () {
+            let vm = this;
 
-            if (vm.form.valid() && vm.selected_campgrounds.length>0){
+            if (vm.form.valid() && vm.selected_campgrounds.length > 0) {
                 let vm = this;
                 let data = {
                     range_start: vm.range_start,
                     range_end: vm.range_end,
                     campgrounds: vm.selected_campgrounds,
                     closure_reason: vm.reason,
-                    status:'1'
+                    status: '1'
                 }
                 if (vm.reason == '1') {
                     data.details = vm.details
                 }
                 $.ajax({
-                    url:api_endpoints.bulk_close,
+                    url: api_endpoints.bulk_close,
                     method: 'POST',
-                    xhrFields: { withCredentials:true },
+                    xhrFields: { withCredentials: true },
                     data: data,
-                    headers: {'X-CSRFToken': helpers.getCookie('csrftoken')},
+                    headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
                     dataType: 'json',
-                    success: function(data, stat, xhr) {
-                        vm.$store.dispatch("updateAlert",{
-        					visible:true,
-        					type:"success",
-        					message: data
-		               });
-                       vm.close();
+                    success: function (data, stat, xhr) {
+                        vm.$store.dispatch("updateAlert", {
+                            visible: true,
+                            type: "success",
+                            message: data
+                        });
+                        vm.close();
                     },
-                    error:function (resp){
-                        vm.$store.dispatch("updateAlert",{
-        					visible:true,
-        					type:"danger",
-        					message: helpers.apiError(resp)
+                    error: function (resp) {
+                        vm.$store.dispatch("updateAlert", {
+                            visible: true,
+                            type: "danger",
+                            message: helpers.apiError(resp)
                         });
                         vm.close();
                     }
@@ -200,7 +205,7 @@ export default {
             }
 
         },
-        addFormValidations: function() {
+        addFormValidations: function () {
             let vm = this;
             vm.form.validate({
                 rules: {
@@ -209,7 +214,7 @@ export default {
                     open_reason: "required",
                     closure_details: {
                         required: {
-                            depends: function(el){
+                            depends: function (el) {
                                 return vm.requireDetails;
                             }
                         }
@@ -220,9 +225,9 @@ export default {
                     closure_status: "Select a closure reason from the options",
                     closure_details: "Details required if Other reason is selected"
                 },
-                showErrors: function(errorMap, errorList) {
+                showErrors: function (errorMap, errorList) {
 
-                    $.each(this.validElements(), function(index, element) {
+                    $.each(this.validElements(), function (index, element) {
                         var $element = $(element);
                         $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
                     });
@@ -242,9 +247,9 @@ export default {
                     }
                 }
             });
-       }
+        }
     },
-    mounted:function () {
+    mounted: function () {
         let vm = this;
         vm.form = $(document.forms.closeForm);
         vm.events();
@@ -254,7 +259,10 @@ export default {
 </script>
 
 <style lang="css">
-.body{
-    padding:0 20px;
+.body {
+    padding: 0 20px;
+}
+.select2-container{
+    z-index:100000;
 }
 </style>

@@ -1,41 +1,39 @@
 <template lang="html">
     <div id="campsite-type-dash">
-       <div class="card p-3" id="applications">
-         <div class="panel-heading" role="tab" id="applications-heading">
-             <h4 class="panel-title">
-                     <h3>Camp Site Types</h3>
-             </h4>
-         </div>
-         <div id="applications-collapse" class="" role="tabpanel"
-              aria-labelledby="applications-heading">
-            <div class="panel-body">
-              <div id="groundsList">
-                  <form class="form" id="campgrounds-filter-form">
-                      <div class="col-md-8">
-                          <div class="col-md-6">
-                              <div class="form-group">
-                                  <label for="campgrounds-filter-status">Status: </label>
-                                  <select v-model="selected_status" class="form-control">
-                                      <option value="All">All</option>
-                                      <option value="Active">Active</option>
-                                      <option value="Deleted">Deleted</option>
-                                  </select>
-                              </div>
-                          </div>
-                      </div>
-                      <div class="col-md-4">
-                          <div class="form-group">
-                              <router-link :to="{name:'campsite-type'}" style="margin-top: 20px;" class="btn btn-primary table_btn" >Add Camp Site Type</router-link>
-                          </div>
-                      </div>
-                  </form>
-                  <datatable :dtOptions="dt_options" :dtHeaders="dt_headers" ref="campsite_type_table" id="campsite-type-table"></datatable>
-              </div>
+        <div class="card p-3" id="applications">
+
+
+            <base-panel-heading title="Campsite Types">
+                <router-link :to="{ name: 'add-campsite-type' }" style="margin-top: 20px;"
+                    class="btn btn-primary table_btn">Add Campsite Type</router-link>
+            </base-panel-heading>
+            <div id="applications-collapse" class="" role="tabpanel" aria-labelledby="applications-heading">
+                <div class="panel-body">
+                    <div id="groundsList">
+                        <form class="form" id="campgrounds-filter-form">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="campgrounds-filter-status">Status: </label>
+                                            <select v-model="selected_status" class="form-control">
+                                                <option value="All">All</option>
+                                                <option value="Active">Active</option>
+                                                <option value="Deleted">Deleted</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <datatable :dtOptions="dt_options" :dtHeaders="dt_headers" ref="campsite_type_table"
+                            id="campsite-type-table"></datatable>
+                    </div>
+                </div>
             </div>
-          </div>
-       </div>
-    <confirmbox id="deleteCampsiteType" :options="deleteCampsiteTypePrompt"></confirmbox>
-   </div>
+        </div>
+        <confirmbox id="deleteCampsiteType" :options="deleteCampsiteTypePrompt"></confirmbox>
+    </div>
 </template>
 
 <script>
@@ -46,7 +44,7 @@ import {
     Moment,
     bus
 }
-from '../../hooks.js';
+    from '../../hooks.js';
 import datatable from '../utils/datatable.vue'
 import confirmbox from '../utils/confirmbox.vue'
 import loader from '../utils/loader.vue'
@@ -61,10 +59,10 @@ export default {
     computed: {
 
     },
-    data: function() {
+    data: function () {
         let vm = this;
         return {
-            selected_status:'All',
+            selected_status: 'All',
             deleteCampsiteType: null,
             deleteCampsiteTypePrompt: {
                 icon: "<i class='fa fa-exclamation-triangle fa-2x text-danger' aria-hidden='true'></i>",
@@ -73,7 +71,7 @@ export default {
                     text: "Delete",
                     event: "delete",
                     bsColor: "btn-danger",
-                    handler: function() {
+                    handler: function () {
                         vm.deleteCampsiteTypeRecord(vm.deleteCampsiteType);
                         vm.deleteCampsiteType = null;
                     },
@@ -81,26 +79,26 @@ export default {
                 }],
                 id: 'deleteCampsiteType'
             },
-            dt_headers:["Name","Status","Action"],
-            dt_options:{
+            dt_headers: ["Name", "Status", "Action"],
+            dt_options: {
                 language: {
                     processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
                 },
                 responsive: true,
-                processing:true,
+                processing: true,
                 columnDefs: [
-                // { targets: [0,1,2], responsivePriority:1 },
-                 { "defaultContent": "-", "targets": "_all" },
+                    // { targets: [0,1,2], responsivePriority:1 },
+                    { "defaultContent": "-", "targets": "_all" },
 
 
 
                     {
-                    responsivePriority: 1,
-                    targets: 0,
+                        responsivePriority: 1,
+                        targets: 0,
                     },
                     {
-                    responsivePriority: 2,
-                    targets: 1
+                        responsivePriority: 2,
+                        targets: 1
 
                     },
                     {
@@ -115,26 +113,26 @@ export default {
                 columns: [
                     {
                         "data": "name",
-                        mRender:function (data,type,full) {
+                        mRender: function (data, type, full) {
                             var max_length = 120;
                             var popover_class = (data.length > max_length) ? "class='name_popover'" : "";
-                            var name = (data.length > max_length) ? data.substring(0,max_length-1)+'...' : data;
-                            var column = '<td> <div '+popover_class+'tabindex="0" data-toggle="popover" data-placement="top" data-content="__NAME__" >'+ name +'</div></td>';
+                            var name = (data.length > max_length) ? data.substring(0, max_length - 1) + '...' : data;
+                            var column = '<td> <div ' + popover_class + 'tabindex="0" data-toggle="popover" data-placement="top" data-content="__NAME__" >' + name + '</div></td>';
                             return column.replace('__NAME__', data);
                         }
                     },
                     {
                         "data": "deleted",
-                        "mRender": function(data, type, full) {
+                        "mRender": function (data, type, full) {
                             var status = (!data) ? "Active" : "Deleted";
                             var column = "<td >__Status__</td>";
                             return column.replace('__Status__', status);
                         }
                     },
                     {
-                        "mRender": function(data, type, full) {
+                        "mRender": function (data, type, full) {
                             var id = full.id;
-                            if (!full.deleted){
+                            if (!full.deleted) {
                                 var column = "<td ><a href='#' class=\"detailRoute\" data-campsite-type='__ID__'> Edit</a> </br> ";
                                 column += "<a href='#' class=\"deleteCT\" data-campsite-type='__ID__'> Delete</a> </td>";
                                 return column.replace(/__ID__/g, full.id);
@@ -147,7 +145,7 @@ export default {
         };
     },
     watch: {
-        selected_status: function() {
+        selected_status: function () {
             let vm = this;
             if (vm.selected_status != 'All') {
                 vm.$refs.campsite_type_table.vmDataTable.columns(1).search(vm.selected_status).draw();
@@ -157,23 +155,23 @@ export default {
         }
     },
     methods: {
-        deleteCampsiteTypeRecord: function(id) {
+        deleteCampsiteTypeRecord: function (id) {
             var vm = this;
             var url = api_endpoints.campsite_class(id);
             $.ajax({
                 method: "DELETE",
                 url: url,
-                headers: {'X-CSRFToken': helpers.getCookie('csrftoken')}
-            }).done(function(msg) {
+                headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') }
+            }).done(function (msg) {
                 vm.$refs.campsite_type_table.vmDataTable.ajax.reload();
             });
         },
-        goBack: function() {
+        goBack: function () {
             helpers.goBack(this);
         },
-        attachTableEventListeners: function() {
+        attachTableEventListeners: function () {
             let vm = this;
-            vm.$refs.campsite_type_table.vmDataTable.on('click', '.detailRoute', function(e) {
+            vm.$refs.campsite_type_table.vmDataTable.on('click', '.detailRoute', function (e) {
                 e.preventDefault();
                 var id = $(this).data('campsite-type');
                 vm.$router.push({
@@ -183,7 +181,7 @@ export default {
                     }
                 });
             });
-            vm.$refs.campsite_type_table.vmDataTable.on('click','.deleteCT', function(e) {
+            vm.$refs.campsite_type_table.vmDataTable.on('click', '.deleteCT', function (e) {
                 e.preventDefault();
                 var id = $(this).data('campsite-type');
                 vm.deleteCampsiteType = id;
@@ -191,9 +189,9 @@ export default {
             });
         }
     },
-    mounted: function() {
+    mounted: function () {
         let vm = this;
-        helpers.namePopover($,vm.$refs.campsite_type_table.vmDataTable);
+        helpers.namePopover($, vm.$refs.campsite_type_table.vmDataTable);
         vm.attachTableEventListeners();
     }
 }
@@ -201,8 +199,8 @@ export default {
 </script>
 
 <style lang="css">
-    .name_popover{
-        padding: 10px;
-        cursor: pointer;
-    }
+.name_popover {
+    padding: 10px;
+    cursor: pointer;
+}
 </style>

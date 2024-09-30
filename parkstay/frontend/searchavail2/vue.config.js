@@ -109,5 +109,9 @@ module.exports = defineConfig({
             hints: false,
             
         },
+        
+        // optimization: {
+        //     runtimeChunk: 'single',
+        // }
     },
 });

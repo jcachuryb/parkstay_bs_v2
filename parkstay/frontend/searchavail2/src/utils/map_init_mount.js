@@ -329,7 +329,7 @@ export default function (vm) {
             altShiftDragRotate: false,
             pinchRotate: false,
         }),
-        layers: [vm.streets, vm.tenure, vm.grounds, vm.posLayer],
+        layers: [vm.streets, vm.grounds, vm.posLayer],
         overlays: [vm.popup],
     });
 

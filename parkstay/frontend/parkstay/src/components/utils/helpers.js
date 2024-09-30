@@ -2,10 +2,11 @@ import $ from 'jquery'
 import _ from 'lodash'
 module.exports = {
     apiError: function(resp){
-        var error_str = '';
+        let error_str = '';
         if (resp.status === 400) {
             try {
-                obj = JSON.parse(resp.responseText);
+                
+                let obj = JSON.parse(resp.responseText);
                 error_str = obj.non_field_errors[0].replace(/[\[\]"]/g,'');
             } catch(e) {
                 error_str = resp.responseText.replace(/[\[\]"]/g,'');
@@ -20,11 +21,11 @@ module.exports = {
         return error_str;
     },
     apiVueResourceError: function(resp){
-        var error_str = '';
+        let error_str = '';
         if (resp.status === 400) {
-            var text = resp.body[0];
+            let text = resp.body[0];
             try {
-                obj = JSON.parse(text);
+                let obj = JSON.parse(text);
                 error_str = obj.non_field_errors[0].replace(/[\[\]"]/g,'');
             } catch(e) {
                 error_str = text.replace(/[\[\]"]/g,'');
@@ -39,11 +40,11 @@ module.exports = {
         vm.$router.go(window.history.back());
     },
     getCookie: function(name) {
-        var value = null;
+        let value = null;
         if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
+            let cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
                 if (cookie.substring(0, name.length + 1).trim() === (name + '=')) {
                     value = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -61,11 +62,11 @@ module.exports = {
         });
     },
     add_endpoint_json: function ( string, addition ) {
-        var res = string.split( ".json" )
+        let res = string.split( ".json" )
         return res[ 0 ] + '/' + addition + '.json';
       },
     dtPopover: function(value,truncate_length=30,trigger='hover'){
-        var ellipsis = '...',
+        let ellipsis = '...',
         truncated = _.truncate(value, {
             length: truncate_length,
             omission: ellipsis,

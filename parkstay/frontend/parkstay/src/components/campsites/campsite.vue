@@ -12,19 +12,19 @@
                             <div class="row">
     							<div class="col-md-6">
     								<div class="form-group">
-    									<label class="control-label" >Camp Site Type</label>
-    									<select class="form-control" v-show="!campsite_classes.length > 0" >
+    									<label class="control-label" >Campsite Type</label>
+    									<select class="form-control form-select" v-show="!campsite_classes.length > 0" >
     										<option>Loading...</option>
     									</select>
-    									<select v-if="campsite_classes.length > 0" @change="onCampsiteClassChange" name="campsite_class" class="form-control" v-model="campsite.campsite_class" >
+    									<select v-if="campsite_classes.length > 0" @change="onCampsiteClassChange" name="campsite_class" class="form-control form-select" v-model="campsite.campsite_class" >
                                             <option value=""></option>
-    										<option v-for="campsite_class in campsite_classes" :value="campsite_class.url" >{{campsite_class.name}}</option>
+    										<option v-for="campsite_class in campsite_classes" :value="campsite_class.id" >{{campsite_class.name}}</option>
     									</select>
     								</div>
     							</div>
     							<div v-show="showName" class="col-md-6">
     								<div class="form-group">
-    									<label class="control-label" >Camp Site Name</label>
+    									<label class="control-label" >Campsite Name</label>
     									<input type="text" name="name" class="form-control"  v-model="campsite.name" required/>
     								</div>
     							</div>
@@ -92,7 +92,7 @@
     					</div>
     				</div>
                </form>
-               <loader :isLoading="isLoading">Saving Camp Site Data...</loader>
+               <loader :isLoading="isLoading">Saving Campsite Data...</loader>
            </div>
            <div style="margin-top:50px;">
                <!--stayHistory v-if="!createCampsite" ref="stay_dt" :object_id="myID" :datatableURL="stayHistoryURL"></stayHistory-->
@@ -339,7 +339,7 @@ export default {
             let vm = this;
             $.get(api_endpoints.campground(vm.$route.params.id), function(data) {
                 vm.campground = data;
-                vm.campsite.campground = data.url;
+                vm.campsite.campground = data.id;
             })
         },
         fetchCampsiteClasses: function() {
@@ -385,6 +385,10 @@ export default {
                     setTimeout(function () {
                         vm.isLoading = false;
                     },500);
+                },
+                error: function(error) {
+                    vm.isLoading = false
+
                 }
             });
 

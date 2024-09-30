@@ -1,6 +1,6 @@
 <template>
     <div>
-        <Carousel v-bind="carouselSettings" :breakpoints="breakpoints" ref="searchCarousel">
+        <Carousel ref="carousel" v-bind="carouselSettings" :breakpoints="breakpoints"  @slide-start="handleSlideStart">
             <Slide v-for="(slide, index) in slides" :key="index">
                 <div>
                     <div class='row' v-for="campground in slide" :key="campground.id">
@@ -101,10 +101,7 @@
 </template>
 
 <script>
-
-
 import { Carousel, Navigation, Slide } from 'vue3-carousel'
-
 import 'vue3-carousel/dist/carousel.css'
 
 export default {
@@ -117,30 +114,26 @@ export default {
     data() {
         return {
             carouselSettings: {
-                itemsToShow: 1,
+                itemsToShow: 2,
                 snapAlign: 'center',
                 wrapAround: false,
             },
             slideNumRows: 3,
             breakpoints: {
-                // 800px and up
-                800: {
-                    itemsToShow: 1,
-                    snapAlign: 'center',
-                },
                 // 1150 and up
                 1150: {
                     itemsToShow: 2,
                     snapAlign: 'start',
                 },
+                // 800px and up
+                800: {
+                    itemsToShow: 1,
+                    snapAlign: 'center',
+                },
             },
         };
     },
     props: {
-        slickcount: {
-            type: Number,
-            default: 0
-        },
         camping_distance_array: {
             type: Array,
             default: []
@@ -180,33 +173,43 @@ export default {
             return result;
         }
     },
+    watch: {
+        slides() {
+            if (this.$refs.carousel) {
+                this.$refs.carousel.slideTo(0)
+            }
+        }
+    },
     methods: {
         adjustCarouselRows() {
             let windowWidth = window.innerWidth;
             let shouldResetCarousel = false;
             if (windowWidth < 800) {
-                // this.$refs.searchCarousel.data.config
                 shouldResetCarousel = this.slideNumRows !== 1;
                 this.slideNumRows = 1;
             } else {
                 shouldResetCarousel = this.slideNumRows !== 3;
                 this.slideNumRows = 3;
             }
-            // if (shouldResetCarousel && this.$refs.searchCarousel) {
-            //     this.$refs.searchCarousel.slideTo(0``);
-            // }
+            if (shouldResetCarousel && this.$refs.carousel) {
+                this.$refs.carousel.slideTo(0)
+            }
+        },
+        handleSlideStart() {
+            // hack to fix faulty behaviour.
+            if(this.$refs.carousel) {
+                this.$refs.carousel.updateSlideWidth()
+            }
         }
     }
     ,
     mounted: function () {
-        console.log('mounted');
         this.adjustCarouselRows();
         window.addEventListener('resize', this.adjustCarouselRows);
     }
 
     ,
     unmounted: function () {
-        console.log('unmounted');
         document.removeEventListener('resize', () => { });
     }
 };
