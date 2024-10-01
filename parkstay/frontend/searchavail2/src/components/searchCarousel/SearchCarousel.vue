@@ -1,6 +1,6 @@
 <template>
     <div>
-        <Carousel ref="carousel" v-bind="carouselSettings" :breakpoints="breakpoints"  @slide-start="handleSlideStart">
+        <Carousel ref="carousel" v-bind="carouselSettings" :breakpoints="breakpoints" @slide-start="handleSlideStart">
             <Slide v-for="(slide, index) in slides" :key="index">
                 <div>
                     <div class='row' v-for="campground in slide" :key="campground.id">
@@ -104,6 +104,8 @@
 import { Carousel, Navigation, Slide } from 'vue3-carousel'
 import 'vue3-carousel/dist/carousel.css'
 
+const CAMPGROUND_REUSULT_LIMIT = 21;
+
 export default {
     name: 'SearchCarousel',
     components: {
@@ -114,7 +116,7 @@ export default {
     data() {
         return {
             carouselSettings: {
-                itemsToShow: 1,
+                itemsToShow: 2,
                 snapAlign: 'center',
                 wrapAround: false,
                 transition: 500
@@ -128,6 +130,10 @@ export default {
                 },
                 // 800px and up
                 800: {
+                    itemsToShow: 1,
+                    snapAlign: 'center',
+                },
+                480: {
                     itemsToShow: 1,
                     snapAlign: 'center',
                 },
@@ -167,7 +173,7 @@ export default {
     computed: {
         slides() {
             const result = [];
-            const campgrounds = this.camping_distance_array.slice(0, 21);
+            const campgrounds = this.camping_distance_array.slice(0, CAMPGROUND_REUSULT_LIMIT);
             for (let i = 0; i < campgrounds.length; i += this.slideNumRows) {
                 result.push(campgrounds.slice(i, i + this.slideNumRows));
             }
@@ -196,10 +202,11 @@ export default {
             if (shouldResetCarousel && this.$refs.carousel) {
                 this.$refs.carousel.slideTo(0)
             }
+            this.$refs.carousel.updateSlidesData()
         },
         handleSlideStart() {
             // hack to fix faulty behaviour.
-            if(this.$refs.carousel) {
+            if (this.$refs.carousel) {
                 this.$refs.carousel.updateSlideWidth()
             }
         }
@@ -271,7 +278,7 @@ export default {
 }
 
 .carousel {
-    
+
     .carousel__slide {
         align-items: start;
     }
@@ -463,8 +470,8 @@ export default {
         display: block;
         width: 100%;
     }
-    
-    .button.formButton1, 
+
+    .button.formButton1,
     .button.formButton1:hover {
         background-color: green;
     }
@@ -473,7 +480,7 @@ export default {
         display: block;
         width: 100%;
     }
-    
+
     .button.formButton2,
     .button.formButton2:hover {
         background-color: purple;

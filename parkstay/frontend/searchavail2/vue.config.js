@@ -5,13 +5,17 @@ const { defineConfig } = require('@vue/cli-service');
 
 process.env.PARKSTAY_API_URL =
     process.env.PARKSTAY_API_URL || 'http://localhost:9091';
+
 const port = process.env.PORT ? parseInt(process.env.PORT) : 9093;
 const webpack_devtool = process.env.WEBPACK_DEVTOOL || 'source-map';
-console.log(__dirname)
+
+const isEnvProduction = process.env.NODE_ENV === 'production';
+
 module.exports = defineConfig({
     publicPath: '/static/searchavail2/',
-    outputDir: path.resolve(__dirname, '../../static/searchavail2/'),
-    // assetsDir: path.resolve(__dirname, '/src/assets/'),
+    outputDir: isEnvProduction
+        ? path.resolve(__dirname, '../../static/searchavail2/')
+        : path.resolve(__dirname, 'dist'),
     filenameHashing: false,
 
     chainWebpack: (config) => {
@@ -57,8 +61,8 @@ module.exports = defineConfig({
     configureWebpack: {
         devtool: webpack_devtool,
         output: {
-            libraryExport: 'default'
-          },
+            libraryExport: 'default',
+        },
         plugins: [
             new webpack.DefinePlugin({
                 // Vue CLI is in maintenance mode, and probably won't merge my PR to fix this in their tooling
@@ -71,14 +75,11 @@ module.exports = defineConfig({
                 swal: 'sweetalert2',
                 _: 'lodash',
             }),
-            // new MomentLocalesPlugin(),
-            // new BundleAnalyzerPlugin(),
         ],
         devServer: {
             host: '0.0.0.0',
             allowedHosts: 'all',
             devMiddleware: {
-                //index: true,
                 writeToDisk: true,
             },
             client: {
@@ -107,9 +108,7 @@ module.exports = defineConfig({
         },
         performance: {
             hints: false,
-            
         },
-        
         // optimization: {
         //     runtimeChunk: 'single',
         // }
