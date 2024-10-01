@@ -4,7 +4,7 @@ var config = require('../config')
 var merge = require('webpack-merge')
 var baseWebpackConfig = require('./webpack.base.conf')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
-var localIP = `"http://${require('my-local-ip')()}:${config.dev.port}/"`
+var localIP = `"http://${config.dev.containerIP}:${config.dev.port}/"`
 console.log(localIP);
 //var FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 

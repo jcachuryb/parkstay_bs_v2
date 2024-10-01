@@ -68,6 +68,8 @@ def parkstay_url(request):
         'PARKSTAY_EXTERNAL_URL': settings.PARKSTAY_EXTERNAL_URL,
         'DEV_STATIC': settings.DEV_STATIC,
         'DEV_STATIC_URL': settings.DEV_STATIC_URL,
+        'DEV_STATIC_SEARCH_AVAIL': settings.DEV_STATIC_SEARCH_AVAIL,
+        'DEV_STATIC_SEARCH_AVAIL_URL': settings.DEV_STATIC_SEARCH_AVAIL_URL,
         'VERSION_NO': settings.VERSION_NO,
         'WAITING_QUEUE_ENABLED': settings.WAITING_QUEUE_ENABLED,
         'GIT_COMMIT_DATE' : settings.GIT_COMMIT_DATE,

@@ -40,9 +40,10 @@ module.exports = {
     // Set to `true` or `false` to always turn it on or off
     bundleAnalyzerReport: process.env.npm_config_report
   },
- devserver: {
+ dev: {
     env: require('./dev.env'),
-    port: 8080,
+    port: 9092,
+    containerIP: "10.17.0.10",
     autoOpenBrowser: true,
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',

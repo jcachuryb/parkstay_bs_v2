@@ -117,17 +117,17 @@ export default function (vm) {
             }
         });
 
-    $('.filter-features').on('cl', function () {
+    $('.filter-features').on('click', function () {
         console.log('UPDATE FILTERS');
         vm.updateFilter();
-        // vm.groundsSource.loadSource();
+        vm.groundsSource.loadSource();
         vm.buildDistanceArray();
     });
 
-    $('.filter-featurescs').on('cl', function () {
+    $('.filter-featurescs').on('click', function () {
         console.log('UPDATE FILTERS');
         vm.updateFilter();
-        // vm.groundsSource.loadSource();
+        vm.groundsSource.loadSource();
         vm.buildDistanceArray();
     });
 

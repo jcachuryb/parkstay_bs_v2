@@ -114,9 +114,10 @@ export default {
     data() {
         return {
             carouselSettings: {
-                itemsToShow: 2,
+                itemsToShow: 1,
                 snapAlign: 'center',
                 wrapAround: false,
+                transition: 500
             },
             slideNumRows: 3,
             breakpoints: {
@@ -177,6 +178,7 @@ export default {
         slides() {
             if (this.$refs.carousel) {
                 this.$refs.carousel.slideTo(0)
+                this.$refs.carousel.updateSlideWidth()
             }
         }
     },
@@ -269,6 +271,10 @@ export default {
 }
 
 .carousel {
+    
+    .carousel__slide {
+        align-items: start;
+    }
 
     .carousel__prev.carousel__prev--disabled,
     .carousel__next.carousel__next--disabled,
@@ -455,14 +461,22 @@ export default {
 
     .button.formButton1 {
         display: block;
-        background-color: green;
         width: 100%;
+    }
+    
+    .button.formButton1, 
+    .button.formButton1:hover {
+        background-color: green;
     }
 
     .button.formButton2 {
         display: block;
-        background-color: purple;
         width: 100%;
+    }
+    
+    .button.formButton2,
+    .button.formButton2:hover {
+        background-color: purple;
     }
 
     .button.selector {

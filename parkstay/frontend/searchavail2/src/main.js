@@ -8,9 +8,7 @@ import 'jquery-validation';
 import 'ol/ol.css';
 import 'foundation-sites';
 import './assets/styles/foundation-min.scss';
-
-
-    
+import 'awesomplete/awesomplete.css';
 // import 'sweetalert2/dist/sweetalert2.css';
 // import '@/../node_modules/@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -38,24 +36,31 @@ fetch = ((originalFetch) => {
         return result;
     };
 })(fetch);
+const containerSelector = '#parkfinder';
 
-const app = createApp(App);
+// check if app has been mounted already. This stops the warning of mounting the app twice.
+const mountPoint = document.querySelector(containerSelector);
+if (mountPoint && mountPoint.__vue_app__ !== undefined) {
+    // https://stackoverflow.com/questions/76247680/single-page-application-how-to-unmount-app-in-vue-js-3-composition-api-when-ent
+    mountPoint.__vue_app__._instance.proxy;
+} else {
+    const app = createApp(App);
 
-app.config.globalProperties.$filters = {
-    pretty(val, indent = 2) {
-        if (typeof val !== 'object') {
-            try {
-                val = JSON.parse(val);
-            } catch (err) {
-                console.warn('value is not JSON');
-                return val;
+    app.config.globalProperties.$filters = {
+        pretty(val, indent = 2) {
+            if (typeof val !== 'object') {
+                try {
+                    val = JSON.parse(val);
+                } catch (err) {
+                    console.warn('value is not JSON');
+                    return val;
+                }
             }
-        }
-        return JSON.stringify(val, null, indent);
-    },
-};
-app.component('paginate', VuePaginate);
-// app.use(resource);
-app.use(router)
-router.isReady().then(() => app.mount('#parkfinder'));
-
+            return JSON.stringify(val, null, indent);
+        },
+    };
+    app.component('paginate', VuePaginate);
+    // app.use(resource);
+    app.use(router);
+    router.isReady().then(() => app.mount(containerSelector));
+}
