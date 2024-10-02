@@ -123,7 +123,3 @@ disturbance/static/disturbance_vue/static/js/babel-polyfill.js
 # Parkstay built static files.
 parkstay/static/parkstay/js/parkstay.js
 parkstay/static/parkstay/js/vendor.js
-
-# npm locks
-*-lock.json
-parkstay/static/searchavail2_vue/app.6c6f26304cc00e8c.hot-update.js
