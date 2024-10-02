@@ -4,13 +4,12 @@ var config = require('../config')
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = JSON.parse(config.dev.env.NODE_ENV)
 }
-
 var opn = require('opn')
 var path = require('path')
 var express = require('express')
 var webpack = require('webpack')
 var proxyMiddleware = require('http-proxy-middleware')
-var webpackConfig = require('./webpack.devserver.conf')
+var webpackConfig = require('./webpack.dev.conf')
 
 // default port where dev server listens for incoming traffic
 var port = process.env.PORT || config.dev.port
@@ -42,6 +41,7 @@ compiler.plugin('compilation', function (compilation) {
     cb()
   })
 })
+app.use(hotMiddleware)
 
 // proxy api requests
 Object.keys(proxyTable).forEach(function (context) {
@@ -55,31 +55,30 @@ Object.keys(proxyTable).forEach(function (context) {
 // handle fallback for HTML5 history API
 app.use(require('connect-history-api-fallback')())
 
-// serve webpack bundle output
-app.use(devMiddleware)
 
 // enable hot-reload and state-preserving
 // compilation error display
-app.use(hotMiddleware)
+app.use(devMiddleware)
 
 // serve pure static assets
 var staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory)
 app.use(staticPath, express.static('./static'))
 
 var uri = 'http://localhost:' + port
-
+var _resolve
+var readyPromise = new Promise(resolve => {
+  _resolve = resolve
+})
 devMiddleware.waitUntilValid(function () {
   console.log('> Listening at ' + uri + '\n')
+  _resolve()
 })
 
-module.exports = app.listen(port, function (err) {
-  if (err) {
-    console.log(err)
-    return
-  }
+var server = app.listen(port)
 
-  // when env is testing, don't need open it
-  if (autoOpenBrowser && process.env.NODE_ENV !== 'testing') {
-    opn(uri)
+module.exports = {
+  ready: readyPromise,
+  close: () => {
+    server.close()
   }
-})
+}

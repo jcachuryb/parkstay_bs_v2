@@ -4,7 +4,10 @@ venv/
 venv2/
 cronjobs
 mooring/cache/*
-parkstay/frontend/searchavail/node_modules/*
+parkstay/frontend/searchavail/node_modules/
+parkstay/frontend/searchavail2/node_modules/
+parkstay/frontend/searchavail2/static/
+parkstay/frontend/searchavail2/dist/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -120,6 +123,3 @@ disturbance/static/disturbance_vue/static/js/babel-polyfill.js
 # Parkstay built static files.
 parkstay/static/parkstay/js/parkstay.js
 parkstay/static/parkstay/js/vendor.js
-
-# npm locks
-*-lock.json

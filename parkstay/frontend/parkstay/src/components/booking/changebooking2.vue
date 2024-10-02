@@ -31,9 +31,9 @@
                                                     <option v-for="c in campsites" v-bind:value="c.id">{{c.name}} - {{c.status}}</option>
                                                 </select>
                                             </div>                                           
-                                            <div class="col-md-8" v-else>
-                                                <h4>Sorry, no available campsites were found.</h4>
-                                            </div>
+                                        </div>
+                                        <div class="col-md-8" v-else>
+                                            <h4>Sorry, no available campsites were found.</h4>
                                         </div>
                                         <div class="form-group">
                                             <div class="col-md-4">

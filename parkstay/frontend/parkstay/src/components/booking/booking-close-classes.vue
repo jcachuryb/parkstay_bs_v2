@@ -23,6 +23,7 @@
                                                 <input type="text" class="form-control" name="arrival" placeholder="Arrival">
                                                 <span class="input-group-addon">
                                                     <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -78,7 +79,8 @@
                         <div class="col-sm-12">
                             <div v-show="booking.campsites.length > 0" >
                                 <div class="column table-scroll">
-                                    <table class="hover table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%"  name="campsite" v-model="selected_campsite">
+                                    <!-- v-model="selected_campsite" -->
+                                    <table class="hover table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%"  name="campsite" >
                                         <thead>
                                             <tr>
                                                 <th class="form-group">Campsite</th>
@@ -117,7 +119,8 @@
                         <div class="col-sm-12">
                             <div v-show="booking.campsite_classes.length > 0">
                                 <div class="column table-scroll">
-                                    <table class="hover table table-striped table-bordered dt-responsive nowrap"  cellspacing="0" width="100%" name="campsite-type" v-model="selected_campsite_class">
+                                    <!-- v-model="selected_campsite_class" -->
+                                    <table class="hover table table-striped table-bordered dt-responsive nowrap"  cellspacing="0" width="100%" name="campsite-type">
                                         <thead>
                                             <tr>
                                                  <th class="site">Campsite</th>
