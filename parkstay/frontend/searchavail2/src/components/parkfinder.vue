@@ -12,15 +12,11 @@
         <div id='card-preview' style='display:none'>
 
             <div v-if="camping_distance_array && camping_distance_array.length > 0">
-                <SearchCarousel 
-                    :camping_distance_array="camping_distance_array"
-                    :parkstayUrl="parkstayUrl"
+                <SearchCarousel :camping_distance_array="camping_distance_array" :parkstayUrl="parkstayUrl"
                     :booking_arrival_days="booking_arrival_days"
                     :permission_to_make_advanced_booking="permission_to_make_advanced_booking"
-                    :campgroundSiteTotal="campgroundSiteTotal"
-                    :campgroundAvailablity="campgroundAvailablity"
-                    :bookingParam="bookingParam" 
-                    />
+                    :campgroundSiteTotal="campgroundSiteTotal" :campgroundAvailablity="campgroundAvailablity"
+                    :bookingParam="bookingParam" />
 
 
             </div>
@@ -144,15 +140,15 @@
                         </div>
                         <template v-for="filt in filterList">
                             <div class="small-12 medium-12 large-4 columns">
-                                <label><input type="checkbox" class="show-for-sr" :value="'filt_'+ filt.key"
+                                <label><input type="checkbox" class="show-for-sr" :value="'filt_' + filt.key"
                                         v-model="filterParams[filt.key]" v-on:change="updateFilter()" /> <i class="symb"
                                         :class="filt.symb"></i> {{ filt.name }}</label>
                             </div>
                         </template>
                         <template v-for="filt in extraFilterList">
                             <div class="small-12 medium-12 large-4 columns"
-                                v-bind:class="{'filter-hide': hideExtraFilters}">
-                                <label><input type="checkbox" class="show-for-sr" :value="'filt_'+ filt.key"
+                                v-bind:class="{ 'filter-hide': hideExtraFilters }">
+                                <label><input type="checkbox" class="show-for-sr" :value="'filt_' + filt.key"
                                         v-model="filterParams[filt.key]" v-on:change="updateFilter()" /> <i class="symb"
                                         :class="filt.symb"></i> {{ filt.name }}</label>
                             </div>
@@ -160,17 +156,17 @@
                     </div>
                     <div class="row">
                         <div class="small-12 medium-12 large-4 columns"
-                            v-bind:class="{'filter-hide': hideExtraFilters}">
+                            v-bind:class="{ 'filter-hide': hideExtraFilters }">
                             <label><input type="checkbox" v-model="sitesOnline" v-on:change="updateFilter()" /><img
                                     v-bind:src="sitesOnlineIcon" width="24" height="24" /> Online bookings</label>
                         </div>
                         <div class="small-12 medium-12 large-4 columns"
-                            v-bind:class="{'filter-hide': hideExtraFilters}">
+                            v-bind:class="{ 'filter-hide': hideExtraFilters }">
                             <label><input type="checkbox" v-model="sitesInPerson" v-on:change="updateFilter()" /><img
                                     v-bind:src="sitesInPersonIcon" width="24" height="24" /> No online bookings</label>
                         </div>
                         <div class="small-12 medium-12 large-4 columns"
-                            v-bind:class="{'filter-hide': hideExtraFilters}">
+                            v-bind:class="{ 'filter-hide': hideExtraFilters }">
                             <label><input type="checkbox" v-model="sitesAlt" v-on:change="updateFilter()" /><img
                                     v-bind:src="sitesAltIcon" width="24" height="24" /> Third-party site</label>
                         </div>
@@ -208,7 +204,7 @@
 
 
 <script>
-// import 'foundation-sites/dist/js/foundation.min';
+import 'foundation-sites/dist/js/foundation.min';
 // import 'foundation-datepicker/js/foundation-datepicker';
 import debounce from 'debounce';
 import moment from 'moment';
@@ -348,13 +344,6 @@ export default {
                     'arrival': $('#checkin').val(),
                     'departure': $('#checkout').val()
                 };
-                //params['arrival'] = $('#checkin').val();
-                //params['departure'] = $('#checkout').val();
-
-                //if (this.arrivalDate && this.departureDate) {
-                //    params['arrival'] = this.arrivalDate.format('YYYY/MM/DD');
-                //    params['departure'] = this.departureDate.format('YYYY/MM/DD');
-                //}
                 return $.param(params);
             }
         },
@@ -362,17 +351,6 @@ export default {
     methods: {
         toggleShowFilters: function () {
             this.hideExtraFilters = !this.hideExtraFilters;
-        },
-        reInitSlides() {
-            //console.log("RELOADING SLIDER");
-            //console.log(this);
-            //console.log(this.$options.components.VueSlickCarousel);
-            // this.$slots.default = [];
-            // var vsc = this.$options.components.VueSlickCarousel;
-            // vsc = this.$slots.default = [];
-            // vsc.render();
-
-            // this.$options.components.VueSlickCarousel.render();
         },
         search: function (place) {
             if (!place) {
@@ -1045,7 +1023,6 @@ export default {
 };
 </script>
 <style lang="scss">
-
 [v-cloak] {
     display: none;
 }
@@ -1169,6 +1146,52 @@ export default {
 
     #map {
         height: 75vh;
+
+        .ol-control {
+            background-color: rgba(255, 255, 255, 0.4);
+            padding: 2px;
+
+            button.ol-zoom-in,
+            button.ol-zoom-out {
+                border-radius: 2px 2px 0 0;
+                height: 2em !important;
+                width: 2em !important;
+            }
+        }
+
+        .ol-control button {
+            display: block;
+            margin: 1px;
+            padding: 0;
+            color: white;
+            font-size: 1.14em;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            line-height: .4em;
+            background-color: rgba(0, 60, 136, 0.5);
+            border: none;
+            border-radius: 2px;
+        }
+
+        .ol-scale-line {
+            background: rgba(0, 60, 136, 0.3);
+            border-radius: 4px;
+            bottom: 8px;
+            left: 8px;
+            padding: 2px;
+            position: absolute;
+        }
+
+        .ol-scale-line-inner {
+            border: 1px solid #eee;
+            color: #eee;
+            border-top: none;
+            font-size: 10px;
+            text-align: center;
+            margin: 1px;
+            will-change: contents, width;
+        }
     }
 
     /* set on the #map element when mousing over a feature */
@@ -1272,11 +1295,5 @@ div.awesomplete {
 
 div.awesomplete>input {
     display: table-cell;
-}
-
-/* hacks to make openlayers widgets more accessible */
-.ol-control button {
-    height: 2em;
-    width: 2em;
 }
 </style>
