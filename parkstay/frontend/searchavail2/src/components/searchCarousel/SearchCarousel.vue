@@ -4,7 +4,7 @@
             <Slide v-for="(slide, index) in slides" :key="index">
                 <div>
                     <div class='row' v-for="campground in slide" :key="campground.id">
-                        <div class='slick-slide-card'>
+                        <div class='carousel-slide-card'>
                             <div class='row'>
                                 <div class='col-xs-12 col-sm-6'>
                                     <div v-if="campground.images && campground.images[0] && campground.images[0].image">
@@ -14,11 +14,12 @@
                                 </div>
                                 <div class='col-xs-12 col-sm-6'>
                                     <div>
-                                        <div class="slick-slide-card-title" :title="campground.campground_name"
+                                        <div class="carousel-slide-card-title" :title="campground.campground_name"
                                             :alt="campground.campground_name">
                                             {{ campground.campground_name }}
                                         </div>
-                                        <div class="slick-slide-card-distance" title="Distance from selected location"
+                                        <div class="carousel-slide-card-distance"
+                                            title="Distance from selected location"
                                             alt="Distance from selected location">
                                             {{ campground.distance_short }}km
                                         </div>
@@ -26,32 +27,33 @@
                                     <div>
 
                                         <div v-if="campground.park_name" v-html="campground.park_name.slice(0, 55)"
-                                            class='slick-slide-description'>
+                                            class='carousel-slide-description'>
                                         </div>
                                         <div v-if="campground.campground_type == 0">
                                             <div v-if="booking_arrival_days > campground.max_advance_booking && permission_to_make_advanced_booking == false"
-                                                class='slick-slide-card-notavailabile'>
+                                                class='carousel-slide-card-notavailabile'>
                                                 Book up to {{ campground.max_advance_booking }} days
                                             </div>
                                             <div v-else>
                                                 <div v-if="campgroundAvailablity[campground.id].total_bookable > 0"
-                                                    class='slick-slide-card-availabile'>Approximate Sites Available: {{
+                                                    class='carousel-slide-card-availabile'>Approximate Sites Available:
+                                                    {{
                                                         campgroundSiteTotal[campground.id].total_available }}</div>
-                                                <div v-else class='slick-slide-card-notavailabile'>
+                                                <div v-else class='carousel-slide-card-notavailabile'>
                                                     No availability for selected period
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class='slick-slide-card-notavailabile'
+                                        <div class='carousel-slide-card-notavailabile'
                                             v-else-if="campground.campground_type == 1">
                                             Bookings not required. Pay on arrival
                                         </div>
-                                        <div class='slick-slide-card-notavailabile'
+                                        <div class='carousel-slide-card-notavailabile'
                                             v-else-if="campground.campground_type == 2">
                                             Operated by Parks and Wildlife partner
                                         </div>
 
-                                        <div class='slick-slide-card-notavailabile'
+                                        <div class='carousel-slide-card-notavailabile'
                                             v-else-if="campground.campground_type == 4">
                                             Go to 'More Info' for booking conditions
                                         </div>
@@ -225,7 +227,7 @@ export default {
 </script>
 
 <style lang="scss">
-.slick-slide-card {
+.carousel-slide-card {
     max-width: 490px;
     min-height: 220px;
     background-color: #FFFFFF;
@@ -239,7 +241,7 @@ export default {
     text-align: left;
 }
 
-.slick-slide-card-title {
+.carousel-slide-card-title {
     font-size: 15px;
     font-weight: bold;
     height: 25px;
@@ -248,28 +250,28 @@ export default {
     overflow: hidden;
 }
 
-.slick-slide-card-distance {
+.carousel-slide-card-distance {
     font-size: 11px;
     height: 22px;
 }
 
-.slick-slide-description {
+.carousel-slide-description {
     height: 94px;
     font-size: 12px;
 }
 
-.slick-slide-card-availabile {
+.carousel-slide-card-availabile {
     font-size: 11px;
     height: 22px;
 }
 
-.slick-slide-card-notavailabile {
+.carousel-slide-card-notavailabile {
     font-size: 10.5px;
     height: 22px;
     color: red;
 }
 
-.slick-slide-noavailable-sites {
+.carousel-slide-noavailable-sites {
     color: red;
 }
 
@@ -616,11 +618,5 @@ div.awesomplete {
 
 div.awesomplete>input {
     display: table-cell;
-}
-
-/* hacks to make openlayers widgets more accessible */
-.ol-control button {
-    height: 2em;
-    width: 2em;
 }
 </style>

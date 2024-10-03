@@ -144,6 +144,8 @@ PARKS_EXTERNAL_BOOKING_URL = decouple.config('PARKS_EXTERNAL_BOOKING_URL',defaul
 PARKSTAY_EXTERNAL_URL = decouple.config('PARKSTAY_EXTERNAL_URL',default='https://parkstay.dbca.wa.gov.au')
 DEV_STATIC = decouple.config('DEV_STATIC',default=False)
 DEV_STATIC_URL = decouple.config('DEV_STATIC_URL', default='')
+DEV_STATIC_SEARCH_AVAIL = decouple.config('DEV_STATIC_SEARCH_AVAIL',default=False)
+DEV_STATIC_SEARCH_AVAIL_URL = decouple.config('DEV_STATIC_SEARCH_AVAIL_URL', default='')
 DEPT_DOMAINS = decouple.config('DEPT_DOMAINS', default=['dpaw.wa.gov.au', 'dbca.wa.gov.au'])
 #LEDGER_REFUND_EMAIL = env('LEDGER_REFUND_EMAIL', False )
 os.environ['LEDGER_REFUND_EMAIL'] = 'True'
