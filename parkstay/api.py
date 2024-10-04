@@ -2465,12 +2465,12 @@ def booking_updates(request, *args, **kwargs):
                  if v[0] == 2:
                      if entry_fee_required:
                          vehicle_entry_fee = entry_fees.motorbike
-                         if concession is True:
-                             vehicle_entry_fee = entry_fees.concession
                      vehicle_type='motorbike'
                  if v[0] == 3:
                      if entry_fee_required:
                          vehicle_entry_fee = entry_fees.campervan
+                         if concession is True:
+                             vehicle_entry_fee = entry_fees.concession
                      vehicle_type='campervan'
                  if v[0] == 4:
                      if entry_fee_required:

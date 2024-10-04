@@ -118,7 +118,7 @@ export default {
     data() {
         return {
             carouselSettings: {
-                itemsToShow: 2,
+                itemsToShow: 1,
                 snapAlign: 'center',
                 wrapAround: false,
                 transition: 500
@@ -139,6 +139,7 @@ export default {
                     itemsToShow: 1,
                     snapAlign: 'center',
                 },
+
             },
         };
     },
