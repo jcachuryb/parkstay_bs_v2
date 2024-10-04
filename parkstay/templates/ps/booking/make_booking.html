@@ -467,7 +467,7 @@
 
                                           <div class="col-md-2">
 						  
-                                            <div class="form-check form-switch" v-if="campers.concession > 0 && (vehicle[0] == 0 || vehicle[0] == 2 ) && vehicle[2] == true" >  
+                                            <div class="form-check form-switch" v-if="pricing.vehicle && campers.concession > 0 && (vehicle[0] == 0 || vehicle[0] == 3 ) && vehicle[2] == true" >  
                              <label class="form-check-label">
 						       <input class="form-check-input" v-bind:name="'form-'+Number(index).toString()+'-concession'" type="checkbox" v-model="vehicle[5]" v-on-click="updateVehiclesFees" checked/> Concession driver</label>
 
@@ -486,16 +486,16 @@
                                                 <span v-if="pricing.vehicle && !vehicle[2] && (vehicle[0] == 0 || vehicle[0] == 2 || vehicle[0] == 3) " class="vehicle-price">AUD: $0.00</span>
                                             </div>
                                             <div>
-                                                <span v-if="pricing.vehicle && (vehicle[0] == 0 || vehicle[0] == 2 ) && vehicle[2] && vehicle[5]" class="vehicle-price">AUD: ${{ pricing.vehicle_conc }}</span>
+                                                <span v-if="pricing.vehicle && (vehicle[0] == 0 || vehicle[0] == 3 ) && vehicle[2] && vehicle[5]" class="vehicle-price">AUD: ${{ pricing.vehicle_conc }}</span>
                                             </div>
                                             <div>
                                                 <span v-if="pricing.vehicle && vehicle[0] == 0 && vehicle[2] && !vehicle[5]" class="vehicle-price">AUD: ${{ pricing.vehicle }}</span>
                                             </div>
                                             <div>
-                                                <span v-if="pricing.vehicle && vehicle[0] == 2 && vehicle[2] && !vehicle[5]" class="vehicle-price">AUD: ${{ pricing.motorcycle }}<span>
+                                                <span v-if="pricing.vehicle && vehicle[0] == 2 && vehicle[2]" class="vehicle-price">AUD: ${{ pricing.motorcycle }}<span>
                                             </div>
                                             <div>
-                                                <span v-if="pricing.vehicle && vehicle[0] == 3 && vehicle[2]" class="vehicle-price">AUD: ${{ pricing.campervan }}<span>
+                                                <span v-if="pricing.vehicle && vehicle[0] == 3 && vehicle[2] && !vehicle[5]" class="vehicle-price">AUD: ${{ pricing.campervan }}<span>
                                             </div>
                                         </div>
                                       </div>
