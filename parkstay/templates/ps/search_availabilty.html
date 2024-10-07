@@ -413,7 +413,7 @@
               var parkstayUrl =
                 window.location.protocol + "//" + window.location.host;
             </script>
-            {% endblock %} {% block custom_js %}
+            {% endblock %} {% block custom_searchavail %}
             {% if not DEV_STATIC_SEARCH_AVAIL %}
             <script src="{% static 'searchavail2/js/chunk-vendors.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
             <script src="{% static 'searchavail2/js/app.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
