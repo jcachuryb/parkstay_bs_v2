@@ -341,8 +341,8 @@ export default {
                     'num_children': this.numChildren,
                     'num_infants': this.numInfants,
                     'gear_type': this.gearType,
-                    'arrival': $('#checkin').val(),
-                    'departure': $('#checkout').val()
+                    'arrival': this.arrivalDate ?? "",
+                    'departure': this.departureDate ?? ""
                 };
                 return $.param(params);
             }
@@ -374,38 +374,6 @@ export default {
                     resolution: resolution,
                     duration: 1000
                 });
-
-                // Open the popup
-                /*
-                let feature = this.groundsData.a.find(f => parseInt(f.a) == parseInt(target.properties.id));
-                if (feature) {
-                    setTimeout(() => {
-                        vm.popup.setPosition(feature.getGeometry().getCoordinates());
-                        // really want to make vue.js render this, except reactivity dies
-                        // when you pass control of the popup element to OpenLayers :(
-                        $("#mapPopupName")[0].innerHTML = feature.get('name');
-                        if (feature.get('images')) {
-                            $("#mapPopupImage").attr('src', vm.parkstayUrl+'/campground-image/146/248/?mediafile='+feature.get('images')[0].image);
-                            $("#mapPopupImage").show();
-                        } else {
-                            $("#mapPopupImage").hide();
-                        }
-                        if (feature.get('price_hint') && Number(feature.get('price_hint'))) {
-                            $("#mapPopupPrice")[0].innerHTML = '<small>From $' + feature.get('price_hint') + ' per night</small>';
-                        } else {
-                            $("#mapPopupPrice")[0].innerHTML = '';
-                        }
-                        $("#mapPopupDescription")[0].innerHTML = feature.get('description');
-
-                        // Disabled below line,as api is being used to differentiate btw offline and online site
-                        // $("#mapPopupInfo").attr('href', feature.get('info_url'));
-                        $("#mapPopupInfo").attr('href',vm.parkstayUrl+'/search-availability/campground/?site_id='+feature.getId()));
-                        // Made changes to show only one button -->
-                        $("#mapPopupBookInfo").attr('href', vm.parkstayUrl+'/search-availability/campground/?site_id='+feature.getId()+'&'+vm.bookingParam);
-
-                    }, 1000);
-                } */
-
 
                 return;
             }
@@ -489,6 +457,8 @@ export default {
         reloadMap: function () {
             console.log('RELOAD MAP');
             this.booking_arrival_days = window.search_avail.var.arrival_days;
+            this.arrivalDate = $('#checkin').val();
+            this.departureDate = $('#checkout').val();
             this.permission_to_make_advanced_booking = window.search_avail.var.permission_to_make_advanced_booking;
 
             var vm = this;
@@ -514,7 +484,7 @@ export default {
                 resolution: resolution,
                 duration: 1000
             });
-            // this.buildDistanceArray();
+            this.buildDistanceArray();
         },
         buildDistanceArray: function () {
             console.log("running buildDistanceArray");
