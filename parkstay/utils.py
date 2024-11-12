@@ -1747,6 +1747,7 @@ def checkout(request, booking, lines, invoice_text=None, vouchers=[], internal=F
         'force_redirect': True,
         'proxy': True if internal else False,
         'invoice_text': invoice_text,
+        # 'invoice_name' : "SYSTEM TEST CUSTOM NAME",
         'session_type' : 'ledger_api',
         'basket_owner' : booking.customer.id 
         #'amount_override': float('1.00')
@@ -1885,6 +1886,28 @@ def bind_booking(booking, basket):
                 old_booking.cancellation_reason = "Booking Changed Online"
                 old_booking.save()
                 logger.info(u'cancelling old booking completed {}'.format(booking.old_booking))
+
+                # start - send signal to availability cache to rebuild
+                cb = parkstay_models.CampsiteBooking.objects.filter(booking=old_booking)
+                for c in cb:
+                    try:
+                        ac = parkstay_models.AvailabilityCache.objects.filter(date=c.date, campground=c.campsite.campground)
+                        if ac.count() > 0:
+                            for a in ac:
+                                a.stale=True
+                                a.save()
+                        else:
+                            parkstay_models.AvailabilityCache.objects.create(date=c.date,campground=c.campsite.campground,stale=True)
+                    except Exception as e:
+                        print (e)
+                        logger.info(u'error updating availablity cache {}'.format(old_booking.id))
+                        print ("Error Updating campsite availablity for campsitebooking.id "+str(c.id))
+                logger.info(u'availablity cache flagged for update {}'.format(old_booking.id))
+                # end - send signal to availability cache to rebuild
+
+
+
+
         logger.info(u'booking completed {}'.format(booking.id))
 
         cb = parkstay_models.CampsiteBooking.objects.filter(booking=booking)

@@ -739,6 +739,24 @@ class CancelBookingView(TemplateView):
                     booking.cancelation_time = timezone.now()
                     booking.cancellation_reason = "Booking Cancelled Online"
                     booking.save()
+
+                    cb = parkstay_models.CampsiteBooking.objects.filter(booking=booking)
+                    for c in cb:
+                        try:
+                            ac = parkstay_models.AvailabilityCache.objects.filter(date=c.date, campground=c.campsite.campground)
+                            if ac.count() > 0:
+
+                                for a in ac:
+                                    a.stale=True
+                                    a.save()
+                            else:
+                                parkstay_models.AvailabilityCache.objects.create(date=c.date,campground=c.campsite.campground,stale=True)
+                        except Exception as e:
+                            print (e)
+                            logger.info(u'error updating availablity cache {}'.format(booking.id))
+                            print ("Error Updating campsite availablity for campsitebooking.id "+str(c.id))
+                    logger.info(u'availablity cache flagged for update {}'.format(booking.id))
+
                     jsondata['message'] = 'success'
                     jsondata['status'] = 200
                     response = HttpResponse(json.dumps(jsondata), content_type='application/json')
@@ -805,6 +823,24 @@ class CancelBookingView(TemplateView):
                         #extra_data['totalbooking'] = round(Decimal(totalbooking),2)
                         extra_data['totalbooking'] = round(total_refunded,2)
                         extra_data['fees_for_cancellation'] = round(Decimal(fees_for_cancellation),2)
+
+                        cb = parkstay_models.CampsiteBooking.objects.filter(booking=booking)
+                        for c in cb:
+                                try:
+                                    ac = parkstay_models.AvailabilityCache.objects.filter(date=c.date, campground=c.campsite.campground)
+                                    if ac.count() > 0:
+
+                                        for a in ac:
+                                            a.stale=True
+                                            a.save()
+                                    else:
+                                        parkstay_models.AvailabilityCache.objects.create(date=c.date,campground=c.campsite.campground,stale=True)
+                                except Exception as e:
+                                    print (e)
+                                    logger.info(u'error updating availablity cache {}'.format(booking.id))
+                                    print ("Error Updating campsite availablity for campsitebooking.id "+str(c.id))
+                        logger.info(u'availablity cache flagged for update {}'.format(booking.id))
+
                         emails.send_booking_cancelation(booking, extra_data)
 
                     response = HttpResponse(json.dumps(jsondata), content_type='application/json')
@@ -1004,8 +1040,7 @@ class MyBookingsView(LoginRequiredMixin, TemplateView):
                  row['old_booking'] = b.old_booking
                  row['property_cache_stale'] = b.property_cache_stale
                  row['details'] = b.details
-                 row['customer_managed_booking_disabled'] = b.customer_managed_booking_disabled 
-                 print ("YES")
+                 row['customer_managed_booking_disabled'] = b.customer_managed_booking_disabled                
                  bookings_store.append(row)
         
                  cache.set('booking_filter_upcoming:'+str(customer.id)+":"+str(lub), json.dumps(bookings_store),  86400)
