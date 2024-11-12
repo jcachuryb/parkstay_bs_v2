@@ -30,20 +30,11 @@ COPY timezone /etc/timezone
 ENV TZ=Australia/Perth
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Health checks for kubernetes 
-RUN wget https://raw.githubusercontent.com/dbca-wa/wagov_utils/main/wagov_utils/bin/health_check.sh -O /bin/health_check.sh
-RUN chmod 755 /bin/health_check.sh
+# Default Scripts
+RUN wget https://raw.githubusercontent.com/dbca-wa/wagov_utils/main/wagov_utils/bin/default_script_installer.sh -O /tmp/default_script_installer.sh
+RUN chmod 755 /tmp/default_script_installer.sh
+RUN /tmp/default_script_installer.sh
 
-# scheduler
-RUN wget https://raw.githubusercontent.com/dbca-wa/wagov_utils/main/wagov_utils/bin-python/scheduler/scheduler.py -O /bin/scheduler.py
-RUN chmod 755 /bin/scheduler.py
-
-# Add azcopy to container
-RUN mkdir /tmp/azcopy/
-RUN wget https://aka.ms/downloadazcopy-v10-linux -O /tmp/azcopy/azcopy.tar.gz
-RUN cd /tmp/azcopy/ ; tar -xzvf azcopy.tar.gz
-RUN cp /tmp/azcopy/azcopy_linux_amd64_10.26.0/azcopy /bin/azcopy
-RUN chmod 755 /bin/azcopy
 
 RUN rm -rf /var/lib/{apt,dpkg,cache,log}/ /tmp/* /var/tmp/*
 FROM builder_base_parkstay as python_libs_parkstay
