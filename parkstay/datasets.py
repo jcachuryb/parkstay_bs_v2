@@ -65,13 +65,22 @@ def build_campground_calender(params):
                        nextday_string = nextday.strftime('%Y-%m-%d')
                        campground_calender['campsites'][str(cs.id)][nextday_string] = status[1]
 
+               # campsite bookings cancelled make available
+               csbooking_cancelled = models.CampsiteBooking.objects.filter(booking__is_canceled=True, campsite__in=campground_calender['campsite_ids'], date__gte=start_date, date__lte=end_date) 
+               
+               for csb in csbooking_cancelled:
+                   date_string = csb.date.strftime('%Y-%m-%d')
+                   if str(csb.campsite.id) in campground_calender['campsites']:
+                       if date_string in campground_calender['campsites'][str(csb.campsite.id)]:
+                            campground_calender['campsites'][str(csb.campsite.id)][date_string] = status[1]
+
                # Build Campground Closure 
                cgbr_qs = models.CampgroundBookingRange.objects.filter(
                    Q(campground=c),
                    Q(status=1),
                    Q(range_start__lt=end_date) & (Q(range_end__gt=start_date) | Q(range_end__isnull=True))
                )
-
+               
                for closure in cgbr_qs:
                    closure_start = closure.range_start
                    if closure.range_end:
@@ -94,7 +103,7 @@ def build_campground_calender(params):
                    Q(status=1),
                    Q(range_start__lt=end_date) & (Q(range_end__gte=start_date) | Q(range_end__isnull=True))
                )
-
+               print (cgbr_qs)
                for closure in csbr_qs:
                    closure_start = closure.range_start
                    if closure.range_end:
@@ -109,8 +118,12 @@ def build_campground_calender(params):
                        if str(closure.campsite.id) in campground_calender['campsites']:
                            if nextday_string in campground_calender['campsites'][str(closure.campsite.id)]:
                                 campground_calender['campsites'][str(closure.campsite.id)][nextday_string] = status[3]
+
+
+
                # campsite bookings
                csbooking = models.CampsiteBooking.objects.filter(booking__is_canceled=False, campsite__in=campground_calender['campsite_ids'], date__gte=start_date, date__lte=end_date) 
+               
                for csb in csbooking:
                    date_string = csb.date.strftime('%Y-%m-%d')
                    if str(csb.campsite.id) in campground_calender['campsites']:
@@ -157,7 +170,7 @@ def build_campground_daily_calender(params):
                print ("Building daily file for "+nextday_string)
 
                data_file = settings.BASE_DIR+"/datasets/daily/"+str(nextday_string)+"-availablity.json"
-               cg = utils_cache.all_campgrounds()
+               cg = utils_cache.all_campgrounds()        
                for c in cg:
                     try:
                         cg_id = c['id']
@@ -173,6 +186,7 @@ def build_campground_daily_calender(params):
                             daily_calender['campgrounds'][cg_id] = {}
 
                             campsites = utils_cache.all_campground_campsites(c['id'])
+                           
                             for cs in campsites:
                                 cs_id = cs['id']
                                 avail_status = params['status'][1]
