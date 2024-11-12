@@ -22,7 +22,7 @@
 # Run every 2 minutes of every hour except 6am when a full rebuilt is run
 */2 0,1,2,3,4,5,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23 * * *  python /app/manage.py build_campsite_availablity2  -a table >> /app/logs/build_campsite_availablity2.log 2>&1  
 
-15 */2 * * *  python /app/manage.py build_campsite_availablity2  -a full >> /app/logs/build_campsite_availablity2.log 2>&1
+15 */4 * * *  python /app/manage.py build_campsite_availablity2  -a full >> /app/logs/build_campsite_availablity2.log 2>&1
 
 01 0 * * *  python /app/manage.py build_campsite_attributes  >> /app/logs/build_campsite_attributes.log 2>&1
 */2 17-23 * * *  python /app/manage.py send_reminder_email  >> /app/logs/send_reminder_email.log 2>&1
