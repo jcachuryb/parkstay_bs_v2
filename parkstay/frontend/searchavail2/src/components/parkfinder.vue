@@ -680,7 +680,7 @@ export default {
                 return a.distance - b.distance;
             });
         },
-        distance_between_gps: function (lat1, lon1, lat2, lon2, unit) {
+        distance_between_gps: function (lon1, lat1, lon2, lat2, unit) {
             if ((lat1 == lat2) && (lon1 == lon2)) {
                 return 0;
             }
