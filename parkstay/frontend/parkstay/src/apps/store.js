@@ -2,11 +2,16 @@ import Vuex from 'vuex'
 import Vue from 'vue'
 
 Vue.use(Vuex)
+console.log($)
 import {
     $,
     api_endpoints
 } from '../hooks'
-var store = new Vuex.Store({
+
+console.log("api_endpoints:", api_endpoints);
+console.log($)
+
+const store = new Vuex.Store({
     state: {
         alert:{
             visible:false,

@@ -239,7 +239,6 @@ import {
     from '../utils/eventBus.js';
 import imagePicker from '../utils/images/imagePicker.vue'
 import Editor from 'quill';
-import Render from 'quill-render';
 import loader from '../utils/loader.vue'
 import alert from '../utils/alert.vue'
 import { mapGetters } from 'vuex'

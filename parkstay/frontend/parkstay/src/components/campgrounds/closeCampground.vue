@@ -57,7 +57,7 @@ import {bus} from '../utils/eventBus.js'
 import { $, datetimepicker,api_endpoints, validate, helpers } from '../../hooks'
 import alert from '../utils/alert.vue'
 import reason from '../utils/reasons.vue'
-module.exports = {
+export default{
     name: 'pkCgClose',
     data: function() {
         return {

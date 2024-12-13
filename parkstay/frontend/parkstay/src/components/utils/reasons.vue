@@ -1,16 +1,17 @@
 <template lang="html">
     <div class="row" id="reasons">
         <div class="form-group">
-            <div v-bind:class="{'col-md-4':large,'col-md-2':!large}">
+            <div v-bind:class="{ 'col-md-4': large, 'col-md-2': !large }">
                 <label>Reason: </label>
             </div>
-            <div v-bind:class="{'col-md-8':large,'col-md-4':!large}">
-                <select v-if="!reasons.length > 0" class="form-control form-select" >
+            <div v-bind:class="{ 'col-md-8': large, 'col-md-4': !large }">
+                <select v-if="!reasons.length > 0" class="form-control form-select">
                     <option value="">Loading...</option>
                 </select>
-                <select v-else name="open_reason" :value="value" @change="$emit('input', $event.target.value)" class="form-control form-select">
+                <select v-else name="open_reason" :value="value" @change="$emit('input', $event.target.value)"
+                    class="form-control form-select">
                     <option value=""></option>
-                    <option v-for="reason in reasons" :value="reason.id">{{reason.text}}</option>
+                    <option v-for="reason in reasons" :value="reason.id">{{ reason.text }}</option>
                 </select>
             </div>
         </div>
@@ -19,60 +20,59 @@
 
 <script>
 import {
-    $,
-    api_endpoints,
-    bus
-}from '../../hooks.js'
+  $, api_endpoints
+} from '../../hooks.js'
+
 export default {
-    name:'reasons',
-    data:function () {
-        let vm =this;
+    name: 'reasons',
+    data: function () {
+        let vm = this;
         return {
-            reasons:[]
+            reasons: []
         }
     },
-    props:{
-        type:{
-            required:true
+    props: {
+        type: {
+            required: true
         },
-        value:{
+        value: {
 
         },
-        large:{
-            default:function () {
+        large: {
+            default: function () {
                 return false;
             }
         }
     },
-    methods:{
-        fetchClosureReasons:function () {
+    methods: {
+        fetchClosureReasons: function () {
             let vm = this;
-            $.get(api_endpoints.closureReasons(),function (data) {
+            $.get(api_endpoints.closureReasons(), function (data) {
                 vm.reasons = data;
             });
         },
-        fetchMaxStayReasons:function () {
+        fetchMaxStayReasons: function () {
             let vm = this;
-            $.get(api_endpoints.maxStayReasons(),function (data) {
+            $.get(api_endpoints.maxStayReasons(), function (data) {
                 vm.reasons = data;
             });
         },
-        fetchPriceReasons:function () {
+        fetchPriceReasons: function () {
             let vm = this;
-            $.get(api_endpoints.priceReasons(),function (data) {
+            $.get(api_endpoints.priceReasons(), function (data) {
                 vm.reasons = data;
             });
         },
-        fetchDiscountReasons:function (){
+        fetchDiscountReasons: function () {
             let vm = this;
-            $.get(api_endpoints.discountReasons(),function (data){
+            $.get(api_endpoints.discountReasons(), function (data) {
                 vm.reasons = data;
             });
 
         }
     },
-    mounted:function(){
-        let vm =this;
+    mounted: function () {
+        let vm = this;
         if (vm.type) {
             switch (vm.type.toLowerCase()) {
                 case 'close':
@@ -92,5 +92,4 @@ export default {
 }
 </script>
 
-<style lang="css">
-</style>
+<style lang="css"></style>

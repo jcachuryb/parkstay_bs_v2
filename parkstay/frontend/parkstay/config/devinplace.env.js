@@ -3,5 +3,5 @@ var prodEnv = require('./prod.env')
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
-  PARKSTAY_URL: '"http://127.0.0.1:8000"'
+  PARKSTAY_URL: '"http://localhost:9091"'
 })

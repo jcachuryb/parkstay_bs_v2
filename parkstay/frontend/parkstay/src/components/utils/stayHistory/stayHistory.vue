@@ -19,7 +19,7 @@
 import datatable from '../../utils/datatable.vue'
 import alert from '../../utils/alert.vue'
 import confirmbox from '../../utils/confirmbox.vue'
-import StayHistoryDetail from './addMaximumStayPeriod.vue'
+import * as StayHistoryDetail from './addMaximumStayPeriod.vue'
 import {bus} from '../../utils/eventBus.js'
 import {
     $,

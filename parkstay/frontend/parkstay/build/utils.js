@@ -1,6 +1,12 @@
 var path = require('path')
 var config = require('../config')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
+// var ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+
+exports.resolveFromRoot = function(dir) {
+  return path.join(__dirname, "..", dir);
+}
 
 exports.assetsPath = function (_path) {
   var assetsSubDirectory = process.env.NODE_ENV === 'production'
@@ -39,7 +45,7 @@ exports.cssLoaders = function (options) {
         })
       }
     }
-    return ['vue-style-loader'].concat(sourceLoader)
+    return ['vue-style-loader', MiniCssExtractPlugin.loader].concat(sourceLoader)
   }
 
   // http://vuejs.github.io/vue-loader/en/configurations/extract-css.html

@@ -1,55 +1,49 @@
-// module for all third party dependencies
-
 import $ from 'jquery'
-var JqueryIn = $;
-//var DataTable = require('datatables.net');
-var DataTable = require('datatables.net-bs5');
-//var DataTableBs = require('datatables.net-bs');
-var DataTableBs = require('datatables.net-bs5');
-//var DataTableRes = require('datatables.net-responsive-bs');
-var bootstrap = require('bootstrap');
-var moment = require('moment/moment.js');
-var MomentRange = require('moment-range');
-var datetimepicker = require('eonasdan-bootstrap-datetimepicker');
-var validate = require('jquery-validation');
-var slick = require('slick-carousel-browserify');
-var select2 = require('select2');
-var awesomplete = require('awesomplete');
-var daterangepicker = require('bootstrap-daterangepicker');
-var formValidate = require('./components/utils/validator.js');
-var Moment = MomentRange.extendMoment(moment);
-var swal = require('sweetalert2');
-var htmlEscape = require('html-escape');
-import api_endpoints from './apps/api.js';
 import store from './apps/store';
-import helpers from './components/utils/helpers.js';
+import { api_endpoints } from './apps/api.js';
 import {bus} from './components/utils/eventBus.js';
-var debounce = function (func, wait, immediate) {
+import { helpers } from './components/utils/helpers.js';
+import DataTable from 'datatables.net-bs5';
+import DataTableBs from 'datatables.net-bs5';
+import bootstrap from 'bootstrap';
+import moment from 'moment/moment.js';
+import { extendMoment } from 'moment-range';
+import datetimepicker from 'eonasdan-bootstrap-datetimepicker';
+import validate from 'jquery-validation';
+import slick from 'slick-carousel-browserify';
+import select2 from 'select2';
+import awesomplete from 'awesomplete';
+import daterangepicker from 'bootstrap-daterangepicker';
+import { formValidate } from './components/utils/validator.js';
+import swal from 'sweetalert2';
+import htmlEscape from 'html-escape';
+
+const Moment = extendMoment(moment);
+
+const debounce = function (func, wait, immediate) {
     // Returns a function, that, as long as it continues to be invoked, will not
     // be triggered. The function will be called after it stops being called for
     // N milliseconds. If `immediate` is passed, trigger the function on the
     // leading edge, instead of the trailing.
-    'use strict';
-    var timeout;
+    let timeout;
     return function () {
-        var context = this;
-        var args = arguments;
-        var later = function () {
+        const context = this;
+        const args = arguments;
+        const later = function () {
             timeout = null;
             if (!immediate) func.apply(context, args);
         };
-        var callNow = immediate && !timeout;
+        const callNow = immediate && !timeout;
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
         if (callNow) func.apply(context, args);
     }
 };
 
-export {
+export{
     $,
     DataTable,
     DataTableBs,
-//    DataTableRes,
     Moment,
     datetimepicker,
     api_endpoints,
@@ -65,4 +59,7 @@ export {
     htmlEscape,
     store,
     debounce
-}
+};
+
+
+export const TEST = "TEST"

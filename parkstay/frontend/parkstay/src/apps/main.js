@@ -28,7 +28,7 @@ import basePanelHeading from '../layouts/base-panel-heading.vue'
 
 import store from './store'
 import { mapGetters } from 'vuex'
-import $ from '../hooks'
+import { $ } from '../hooks'
 var css = require('../hooks-css.js');
 Vue.use(Router);
 Vue.use(resource);

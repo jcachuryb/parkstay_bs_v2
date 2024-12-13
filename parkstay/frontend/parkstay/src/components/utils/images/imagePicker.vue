@@ -54,7 +54,7 @@ import {
 }
     from '../eventBus.js'
 import loader from '../loader.vue'
-module.exports = {
+export default{
     name: '',
     props: {
         showCaption: {
@@ -250,11 +250,10 @@ module.exports = {
     color: #012531;
 }
 
-@charset 'UTF-8';
 
 /* Slider */
 .slick-loading .slick-list {
-    background: #fff url('/slick-carousel-browserify/slick/ajax-loader.gif') center center no-repeat;
+    /* background: #fff url('./ajax-loader.gif') center center no-repeat; */
 }
 
 /* Arrows */

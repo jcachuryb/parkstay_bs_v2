@@ -12,7 +12,7 @@ if (!window.$) {
 }
 
 
-var vd = module.exports = {
+const vd = {
     addError: (field, errMsg) => {
         $(field).closest('.form-group').addClass('has-error');
         $(field).focus();
@@ -85,4 +85,4 @@ var vd = module.exports = {
     errors: Array(),
     isValid: true
 }
-exports.formValidate = vd;
+export const formValidate = vd

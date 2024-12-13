@@ -100,10 +100,11 @@ import pkCgOpen from './openCampground.vue'
 import bulkClose from '../utils/closureHistory/bulk-close.vue'
 import { bus } from '../utils/eventBus.js'
 import { mapGetters } from 'vuex'
-module.exports = {
+export default {
     name: 'campgrounds',
     data: function () {
         let vm = this;
+    
         return {
             grounds: [],
             rows: [],

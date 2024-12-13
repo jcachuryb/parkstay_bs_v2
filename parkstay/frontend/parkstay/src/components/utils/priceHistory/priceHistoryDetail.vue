@@ -109,7 +109,7 @@ import bootstrapModal from '../bootstrap-modal.vue'
 import reason from '../reasons.vue'
 import { $, datetimepicker,api_endpoints, validate, helpers } from '../../../hooks'
 import alert from '../alert.vue'
-module.exports = {
+export default{
     name: 'PriceHistoryDetail',
     props: {
         priceHistory: {
