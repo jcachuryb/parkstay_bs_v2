@@ -1,7 +1,8 @@
 require("./check-versions")();
-var Webpack = require("webpack");
-const merge = require("webpack-merge");
+const Webpack = require("webpack");
+const webpackMerge = require('webpack-merge')
 
+const { merge } = webpackMerge
 const config = require("../config");
 const common = require("./webpack.common.js");
 
@@ -9,7 +10,6 @@ module.exports = merge(common, {
   mode: "production",
   output: {
     path: config.build.assetsRoot,
-    filename: "[name].js",
     publicPath: config.build.assetsPublicPath,
   },
   optimization: {

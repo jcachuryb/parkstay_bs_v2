@@ -2,14 +2,10 @@ import Vuex from 'vuex'
 import Vue from 'vue'
 
 Vue.use(Vuex)
-console.log($)
 import {
     $,
     api_endpoints
-} from '../hooks'
-
-console.log("api_endpoints:", api_endpoints);
-console.log($)
+} from '../hooks.js'
 
 const store = new Vuex.Store({
     state: {

@@ -64,7 +64,7 @@
 <script>
 import * as bootstrapModal from '../../utils/bootstrap-modal.vue';
 import * as reason from '../../utils/reasons.vue';
-import { $ } from '../../../hooks';
+import { $ } from '../../../hooks.js';
 import * as alert from '../../utils/alert.vue';
 
 export default{

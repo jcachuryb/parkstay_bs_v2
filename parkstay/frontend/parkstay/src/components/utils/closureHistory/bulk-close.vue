@@ -71,7 +71,7 @@ import modal from '../bootstrap-modal.vue'
 import reason from '../reasons.vue'
 import alert from '../alert.vue'
 import { mapGetters } from 'vuex'
-import { $, datetimepicker, api_endpoints, validate, helpers } from '../../../hooks'
+import { $, datetimepicker, api_endpoints, validate, helpers } from '../../../hooks.js'
 
 export default {
     name: "bulk-close",

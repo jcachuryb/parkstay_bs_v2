@@ -4,6 +4,7 @@ const utils = require("./utils");
 
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 const environment = (process.env.NODE_ENV || "development").trim();
 const isDev = environment === "development";
@@ -22,9 +23,9 @@ module.exports = {
       jQuery: "jquery",
       "window.jQuery": "jquery",
     }),
+    new NodePolyfillPlugin(),
   ],
   output: {
-    filename: "[name].js",
     path: path.resolve(__dirname, "dist"),
   },
   devtool: isDev ? "eval-source-map" : "source-map",
@@ -55,12 +56,13 @@ module.exports = {
         loader: "babel-loader",
         options: {
           presets: [["@babel/preset-env", { targets: "defaults" }]],
+          plugins: ['@babel/plugin-transform-runtime']
         },
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/i,
         loader: "url-loader",
-        query: {
+        options: {
           limit: 10000,
           name: utils.assetsPath("img/[name].[ext]"),
         },
@@ -68,7 +70,7 @@ module.exports = {
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/i,
         loader: "url-loader",
-        query: {
+        options: {
           limit: 100000,
           name: utils.assetsPath("fonts/[name].[ext]"),
         },
@@ -76,7 +78,7 @@ module.exports = {
       {
         test: /\.css$/,
         use: isDev
-          ? ["vue-style-loader", "css-loader"]
+          ? ["style-loader", "css-loader"]
           : [
               {
                 loader: MiniCssExtractPlugin.loader,

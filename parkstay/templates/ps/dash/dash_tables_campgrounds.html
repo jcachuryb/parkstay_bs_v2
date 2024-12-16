@@ -96,7 +96,7 @@
 {% endblock %}
 
 {% block custom_js %}
-{% if not DEV_STATIC %}
+{% if DEV_STATIC %}
     <input type='hidden' id='ledger_ui_url' value='{{ LEDGER_UI_URL }}'>
     <script type="text/javascript" src="{% static 'parkstay/js/manifest.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
     <script type="text/javascript" src="{% static 'parkstay/js/vendor.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>

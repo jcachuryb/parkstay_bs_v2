@@ -53,7 +53,7 @@
 
 <script>
 import bootstrapModal from '../bootstrap-modal.vue'
-import { $, datetimepicker,api_endpoints, validate, helpers } from '../../../hooks'
+import { $, datetimepicker,api_endpoints, validate, helpers } from '../../../hooks.js'
 import alert from '../alert.vue'
 import reason from '../reasons.vue'
 export default{

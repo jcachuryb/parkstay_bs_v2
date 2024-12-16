@@ -1,6 +1,7 @@
 // The following line loads the standalone build of Vue instead of the runtime-only build,
 // so you don't have to do: import Vue from 'vue/dist/vue'
 // This is done with the browser options. For the config, see package.json
+import { $ } from '../hooks.js'
 import Vue from 'vue'
 if (process.env.NODE_ENV == "development") {
     Vue.config.devtools = true;
@@ -26,10 +27,9 @@ import Profile from '../components/user/profile.vue'
 import alert from '../components/utils/alert.vue'
 import basePanelHeading from '../layouts/base-panel-heading.vue'
 
-import store from './store'
+import store from './store.js'
 import { mapGetters } from 'vuex'
-import { $ } from '../hooks'
-var css = require('../hooks-css.js');
+import '../hooks-css.js'
 Vue.use(Router);
 Vue.use(resource);
 

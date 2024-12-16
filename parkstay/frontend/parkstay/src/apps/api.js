@@ -1,5 +1,5 @@
 const baseApiUrl = process.env.PARKSTAY_URL;
-console.log("baseApiUrl:", baseApiUrl);
+
 export const api_endpoints = {
   regions: baseApiUrl + "/api/regions.json",
   parks: baseApiUrl + "/api/parks.json",

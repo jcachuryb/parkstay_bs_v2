@@ -48,7 +48,7 @@ import {
     $,
     slick
 }
-    from '../../../hooks'
+    from '../../../hooks.js'
 import {
     bus
 }

@@ -93,7 +93,7 @@
 import {
     $,
     api_endpoints
-} from '../../hooks'
+} from '../../hooks.js'
 import datatable from '../utils/datatable.vue'
 import pkCgClose from './closeCampground.vue'
 import pkCgOpen from './openCampground.vue'

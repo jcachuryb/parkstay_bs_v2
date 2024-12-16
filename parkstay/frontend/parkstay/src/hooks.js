@@ -5,7 +5,7 @@ import {bus} from './components/utils/eventBus.js';
 import { helpers } from './components/utils/helpers.js';
 import DataTable from 'datatables.net-bs5';
 import DataTableBs from 'datatables.net-bs5';
-import bootstrap from 'bootstrap';
+
 import moment from 'moment/moment.js';
 import { extendMoment } from 'moment-range';
 import datetimepicker from 'eonasdan-bootstrap-datetimepicker';
@@ -40,7 +40,7 @@ const debounce = function (func, wait, immediate) {
     }
 };
 
-export{
+export {
     $,
     DataTable,
     DataTableBs,
@@ -62,4 +62,4 @@ export{
 };
 
 
-export const TEST = "TEST"
+export default {}

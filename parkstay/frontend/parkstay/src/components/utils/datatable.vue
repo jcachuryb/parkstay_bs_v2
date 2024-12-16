@@ -14,7 +14,7 @@
 </template>
 <script>
     
-import {$, DataTableBs} from '../../hooks'
+import {$, DataTableBs} from '../../hooks.js'
 import ResponsiveDatatablesHelper from "./responsive_datatable_helper.js"
 export default {
    name : 'DataTable',
