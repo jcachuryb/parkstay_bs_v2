@@ -239,8 +239,12 @@ export default {
             refundsStartPicker:null,
             refundsEndPicker:null,
             datepickerOptions:{
-                showClear:true,
-                useCurrent:false
+                useCurrent:false,
+                display: {
+                    buttons: {
+                        clear: true,
+                    }
+                },
             },
             regions:[],
             region:'',

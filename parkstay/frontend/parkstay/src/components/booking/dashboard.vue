@@ -39,7 +39,7 @@
             </div>
             <div class="col-md-4">
                 <div class="form-group">
-                  <label for="">Canceled</label>
+                  <label for="">Cancelled</label>
                   <select class="form-control" v-model="filterCanceled" id="filterCanceled">
                         <option value="True">Yes</option>
                         <option value="False">No</option>
@@ -373,13 +373,6 @@ export default {
       ],
       dateFromPicker: null,
       dateToPicker: null,
-      datepickerOptions: {
-        format: "DD/MM/YYYY",
-        showClear: true,
-        useCurrent: false,
-        keepInvalid: true,
-        allowInputToggle: true
-      },
       loading: [],
       selected_booking: -1,
       filterCampground: "All",
@@ -452,12 +445,13 @@ export default {
       const datepickerOptions = {
         useCurrent: false,
           keepInvalid: true,
-          allowInputToggle: true,
-                display: {
-                      buttons: {
-                          clear: true,
-                      }
-                  }
+          display: {
+            keepOpen: true,
+            buttons: {
+              clear: true,
+            }
+          },
+
       };
       const dateFromPickerElement = $("#booking-date-from")
       vm.dateFromPicker = getDateTimePicker(dateFromPickerElement, datepickerOptions);

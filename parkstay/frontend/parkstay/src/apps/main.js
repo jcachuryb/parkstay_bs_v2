@@ -26,9 +26,11 @@ const router = new Router({
   'mode': 'history'
 });
 
-new Vue({
-    router,
-}).$mount('#menu');
+if(document.getElementById('menu')) {
+    new Vue({
+        router,
+    }).$mount('#menu');
+}
 
 Vue.component("basePanelHeading", basePanelHeading)
 

@@ -62,10 +62,10 @@
 </template>
 
 <script>
-import * as bootstrapModal from '../../utils/bootstrap-modal.vue';
-import * as reason from '../../utils/reasons.vue';
+import bootstrapModal from '../../utils/bootstrap-modal.vue';
+import reason from '../../utils/reasons.vue';
 import { $, getDateTimePicker, dateUtils } from '../../../hooks.js';
-import * as alert from '../../utils/alert.vue';
+import alert from '../../utils/alert.vue';
 
 export default{
     name: 'addMaxStayCS',
@@ -192,6 +192,10 @@ export default{
         start_picker_element.on('change.td', function(e){
             const date = vm.start_picker.dates.lastPicked
             vm.stay.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+            vm.end_picker.updateOptions({
+                restrictions: { minDate: date }
+            })
+            vm.end_picker.toggle()
         });
         end_picker_element.on('change.td', function(e){
             const date = vm.end_picker.dates.lastPicked

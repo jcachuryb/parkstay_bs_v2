@@ -5,5 +5,5 @@ const { merge } = webpackMerge
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
-  PARKSTAY_URL: '"http://localhost:9091"'
+  PARKSTAY_URL: '"http://localhost:9191"'
 })

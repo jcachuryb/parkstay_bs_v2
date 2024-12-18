@@ -182,6 +182,7 @@ export default{
         if (!vm.create){
             vm.$refs.modal.title = 'Edit Maximum Stay Period';
         }
+        vm.form = $('#addMaxStayForm');
         const start_picker_element = $('#stay_start_picker');
         const end_picker_element = $('#stay_end_picker');
         vm.start_picker = getDateTimePicker(start_picker_element);
@@ -191,12 +192,15 @@ export default{
         start_picker_element.on('change.td', function(e){
             const date = vm.start_picker.dates.lastPicked
             vm.stay.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+            vm.end_picker.updateOptions({
+                restrictions: { minDate: date }
+            })
+            vm.end_picker.toggle()
         });
         end_picker_element.on('change.td', function(e){
             const date = vm.end_picker.dates.lastPicked
             vm.stay.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
         });
-        vm.form = $('#addMaxStayForm');
         vm.addFormValidations();
     }
 };

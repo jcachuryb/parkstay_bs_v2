@@ -49,13 +49,35 @@ const debounce = function (func, wait, immediate) {
 const datetimepicker = TempusDominus;
 
 const getDateTimePicker = function (element, options = {}) {
+  
+  const { localization, display, restrictions, ...restOptions } = options;
   const defaultOptions = {
     localization: {
-      format: "DD/MM/YYYY",
+      format: "dd/MM/yyyy",
+      ...localization,
     },
-    restrictions: {},
+    display: {
+      keepOpen: false,
+      components: {
+        clock: false
+      },
+      icons: {
+        type: 'icons',
+        time: 'bi bi-clock',
+        date: 'bi bi-calendar-week',
+        up: 'bi bi-arrow-up',
+        down: 'bi bi-arrow-down',
+        previous: 'bi bi-chevron-left',
+        next: 'bi bi-chevron-right',
+        today: 'bi bi-calendar-check',
+        clear: 'bi bi-trash',
+        close: 'bi bi-x',
+      },
+      ...display,
+    },
+    restrictions: {...restrictions},
   };
-  const opts = $.extend({}, defaultOptions, options);
+  const opts = Object.assign({}, defaultOptions, restOptions)
     // If it's a jquery object
   return new TempusDominus(element.length ? element[0] : element, opts);
 };

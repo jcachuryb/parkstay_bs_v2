@@ -171,7 +171,6 @@ export default{
 
             this.errorString = '';
             this.isOpen = false;
-            this.$emit("cancel");
         },
         addHistory: function() {
             if ($(this.form).valid()){

@@ -146,8 +146,6 @@ export default {
                 reason:'',
                 details:''
             };
-            this.$refs.historyModal.close();
-            this.$refs.historyModal.isOpen = false;
         },
         deleteHistoryRecord: function(data) {
             console.log("DELETEING");
