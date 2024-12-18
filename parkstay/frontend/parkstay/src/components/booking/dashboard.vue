@@ -446,7 +446,6 @@ export default {
         useCurrent: false,
           keepInvalid: true,
           display: {
-            keepOpen: true,
             buttons: {
               clear: true,
             }
@@ -510,18 +509,6 @@ export default {
         const date = vm.dateToPicker.dates.lastPicked
         vm.filterDateTo = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
         vm.$refs.bookings_table.vmDataTable.ajax.reload();
-        vm.dateFromPicker.updateOptions({
-          restrictions: {
-            maxDate: date
-          }
-        });
-        if(date) {
-          vm.dateFromPicker.updateOptions({
-            restrictions: {
-              minDate: date
-            }
-          });
-        }
       })
 
       console.log('Date from: '+vm.filterDateFrom)
