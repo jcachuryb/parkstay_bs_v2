@@ -16,6 +16,7 @@ import {
     $,
 }
 from '../../hooks.js'
+import "quill/dist/quill.snow.css";
 import Editor from 'quill';
 
 export default {

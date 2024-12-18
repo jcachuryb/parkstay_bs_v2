@@ -61,9 +61,6 @@ const getDateTimePicker = function (element, options = {}) {
 };
 const dateUtils = { formatDate, parseDate, addDays, isWithinInterval };
 
-console.log("HOY");
-console.log(new DateTime().startOf("date"));
-
 export {
   $,
   DataTable,

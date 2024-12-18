@@ -237,6 +237,7 @@ import {
 }
     from '../utils/eventBus.js';
 import imagePicker from '../utils/images/imagePicker.vue'
+import "quill/dist/quill.snow.css";
 import Editor from 'quill';
 import loader from '../utils/loader.vue'
 import alert from '../utils/alert.vue'

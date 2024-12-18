@@ -118,7 +118,6 @@ export default{
         },
     },
     data: function() {
-        let vm = this;
         return {
             id:'',
             selected_rate: '',
@@ -274,14 +273,10 @@ export default{
         var vm = this;
         $('[data-toggle="tooltip"]').tooltip()
         vm.form = document.forms.priceForm;
-        const pickerElement = $(vm.form.period_start).closest('.date');
-        
-        const today = new Date();
-        today.setDate(today.getDate() + 1);
-        var tomorrow = new Date(today);
+        const pickerElement = $(vm.form.period_start)
         const picker = getDateTimePicker(pickerElement, {
             useCurrent: false,
-            restrictions: { minDate: tomorrow }
+            restrictions: { minDate: dateUtils.addDays(new Date(), 1) }
         });
         pickerElement.on('change.td', function(e){
             const date = picker.dates.lastPicked

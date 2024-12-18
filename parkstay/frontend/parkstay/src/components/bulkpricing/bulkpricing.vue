@@ -604,11 +604,9 @@ export default {
         vm.setPrice = vm.priceOptions[1];
         vm.form = document.forms.bulkpricingForm;
         const pickerElement = $(vm.form.period_start).closest('.date');
-
-        var tomorrow = dateUtils.addDays(new Date(), 1)
         const picker = getDateTimePicker(pickerElement, {
             useCurrent: false,
-            restrictions: { minDate: tomorrow }
+            restrictions: { minDate: dateUtils.addDays(new Date(), 1) }
         });
         pickerElement.on('change.td', function(e){
             const date = picker.dates.lastPicked

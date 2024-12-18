@@ -85,7 +85,7 @@
                         <label>Period start: </label>
                     </div>
                     <div class="col-md-4">
-                        <div class='input-group 'date>
+                        <div class='input-group date'date>
                             <input  name="period_start"  v-model="priceHistory.period_start" type='text' class="form-control" />
                             <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-calendar"></span>
@@ -242,13 +242,9 @@ export default{
         $('[data-toggle="tooltip"]').tooltip()
         vm.form = document.forms.priceForm;
         const pickerElement = $(vm.form.period_start).closest('.date');
-        
-        const today = new Date();
-        today.setDate(today.getDate()+1);
-        var tomorrow = new Date(today);
         const picker = getDateTimePicker(pickerElement, {
             useCurrent: false,
-            restrictions: { minDate: tomorrow }
+            restrictions: { minDate: dateUtils.addDays(new Date(), 1) }
         });
         pickerElement.on('change.td', function(e){
             const date = picker.dates.lastPicked

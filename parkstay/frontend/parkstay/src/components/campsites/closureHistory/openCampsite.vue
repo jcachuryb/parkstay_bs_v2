@@ -144,7 +144,7 @@ export default{
         const pickerElement = $('#open_cg_range_end');
         vm.picker = getDateTimePicker(pickerElement, {
             useCurrent: false,
-            restrictions: { minDate: tomorrow }
+            restrictions: { minDate: dateUtils.addDays(new Date(), 1) }
         });
         pickerElement.on('change.td', function(e){
             const date = vm.picker.dates.lastPicked
