@@ -53,7 +53,7 @@
 
 <script>
 import bootstrapModal from '../bootstrap-modal.vue'
-import { $, datetimepicker,api_endpoints, validate, helpers } from '../../../hooks.js'
+import { $, getDateTimePicker, dateUtils } from '../../../hooks.js'
 import alert from '../alert.vue'
 import reason from '../reasons.vue'
 export default{
@@ -117,8 +117,8 @@ export default{
             this.statusHistory.reason = '';
             this.statusHistory.closure_reason = '';
             var today = new Date();
-            this.closeEndPicker.data('DateTimePicker').clear();
-            this.closeStartPicker.data('DateTimePicker').clear();
+            this.closeEndPicker?.clear();
+            this.closeStartPicker?.clear();
         },
         addClosure: function() {
             if (this.form.valid()){
@@ -176,21 +176,26 @@ export default{
         var vm = this;
         vm.statusHistory.status=1;
         vm.statusHistory.reason='';
-        vm.closeEndPicker = $('#'+vm.close_cg_range_end);
-        vm.closeStartPicker = $('#'+vm.close_cg_range_start).datetimepicker({
-            format: 'DD/MM/YYYY',
-            minDate: new Date()
+        const closeStartPickerElement = $('#'+vm.close_cg_range_start)
+        const closeEndPickerElement = $('#'+vm.close_cg_range_end)
+        vm.closeStartPicker = getDateTimePicker(closeStartPickerElement, {
+            restrictions: {minDate: new Date()}
         });
-        vm.closeEndPicker.datetimepicker({
-            format: 'DD/MM/YYYY',
+        vm.closeEndPicker = getDateTimePicker(closeEndPickerElement,{
             useCurrent: false
         });
-        vm.closeStartPicker.on('dp.change', function(e){
-            vm.statusHistory.range_start = vm.closeStartPicker.data('DateTimePicker').date() != null ? vm.closeStartPicker.data('DateTimePicker').date().format('DD/MM/YYYY') : '';
-            e.date != null ? vm.closeEndPicker.data("DateTimePicker").minDate(e.date): '';
+        closeStartPickerElement.on('change.td', function(e){
+            const date = vm.closeStartPicker.dates.lastPicked;
+            vm.statusHistory.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+            if (date) {
+                vm.closeEndPicker.updateOptions({
+                   restrictions: { minDate: date}
+                });
+            }
         });
-        vm.closeEndPicker.on('dp.change', function(e){
-            vm.statusHistory.range_end = vm.closeEndPicker.data('DateTimePicker').date() != null  ? vm.closeEndPicker.data('DateTimePicker').date().format('DD/MM/YYYY') : '';
+        closeEndPickerElement.on('change.td', function(e){
+            const date = vm.closeEndPicker.dates.lastPicked;
+            vm.statusHistory.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
         });
         vm.form = $(document.forms.closeForm);
         vm.addFormValidations();

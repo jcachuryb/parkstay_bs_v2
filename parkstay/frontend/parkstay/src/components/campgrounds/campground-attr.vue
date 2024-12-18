@@ -229,8 +229,7 @@
 import {
     $,
     api_endpoints,
-    helpers,
-    validate
+    helpers
 }
     from '../../hooks.js'
 import {
@@ -250,7 +249,6 @@ export default {
         imagePicker
     },
     data: function () {
-        let vm = this;
         return {
             selected_price_set: this.priceSet[0],
             editor: null,

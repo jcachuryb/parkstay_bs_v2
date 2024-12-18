@@ -50,7 +50,7 @@
 import bootstrapModal from '../utils/bootstrap-modal.vue'
 import reason from '../utils/reasons.vue'
 import {bus} from '../utils/eventBus.js'
-import { $, datetimepicker,api_endpoints, validate, helpers } from '../../hooks.js'
+import { $, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../hooks.js'
 import alert from '../utils/alert.vue'
 export default{
     name: 'pkCgOpen',
@@ -98,7 +98,8 @@ export default{
         sendData: function() {
             let vm = this;
             var data = this.formdata;
-            data.range_end = this.picker.data('DateTimePicker').date().format('DD/MM/YYYY');
+            const date = vm.picker.dates.lastPicked
+            data.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
             $.ajax({
                 url: api_endpoints.campground_booking_ranges_detail(vm.id),
                 method: 'PATCH',
@@ -166,12 +167,16 @@ export default{
             vm.id = data.id;
             vm.current_closure = data.closure;
         });
-        vm.picker = $('#open_cg_range_end');
-        vm.picker.datetimepicker({
-            format: 'DD/MM/YYYY'
+        var tomorrow = dateUtils.addDays(new Date(), 1)
+
+        const pickerElement = $('#open_cg_range_end');
+        vm.picker = getDateTimePicker(pickerElement, {
+            useCurrent: false,
+            restrictions: { minDate: tomorrow }
         });
-        vm.picker.on('dp.change', function(e){
-            vm.formdata.range_end = vm.picker.data('DateTimePicker').date().format('DD/MM/YYYY');
+        pickerElement.on('change.td', function(e){
+            const date = vm.picker.dates.lastPicked
+            vm.formdata.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
         });
         vm.form = $('#openCGForm');
         vm.addFormValidations();

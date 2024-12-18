@@ -69,7 +69,7 @@
 <script>
 import modal from '../utils/bootstrap-modal.vue'
 import datatable from '../utils/datatable.vue'
-import {$,api_endpoints,helpers,datetimepicker,Moment} from "../../hooks.js"
+import {$, helpers, Moment} from "../../hooks.js"
 export default {
     name:'BookingHistory',
     components:{

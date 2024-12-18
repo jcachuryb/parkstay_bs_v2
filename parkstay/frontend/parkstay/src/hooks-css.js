@@ -1,4 +1,4 @@
-import "eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css";
+import "@eonasdan/tempus-dominus/dist/css/tempus-dominus.min.css";
 import "quill/dist/quill.snow.css";
 import "datatables.net-bs/css/dataTables.bootstrap.css";
 import "slick-carousel-browserify/slick/slick.css";

@@ -184,14 +184,12 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import booking_helpers from './booking_helpers'
 import {
     $,
-    awesomplete,
+    getDateTimePicker, dateUtils, DateTime,
     Moment,
     api_endpoints,
-    validate,
     formValidate,
     helpers,
     store
@@ -343,11 +341,18 @@ export default {
             let vm = this;
             if (vm.booking.arrival) {
                 $.each(vm.stayHistory, function(i, his) {
-                    var range = Moment.range(Moment(his.range_start, "DD/MM/YYYY"), Moment(his.range_end, "DD/MM/YYYY"));
-                    var arrival = Moment(vm.booking.arrival, "YYYY-MM-DD");
-                    if (range.contains(arrival)) {
-                         vm.departurePicker.data("DateTimePicker").maxDate(arrival.clone().add(his.max_days, 'days'));
-                         vm.departurePicker.data("DateTimePicker").date(null);
+                    const interval = { 
+                        start: dateUtils.parseDate(his.range_start, "dd/MM/yyyy", new Date()), 
+                        end: dateUtils.parseDate(his.range_end, "dd/MM/yyyy", new Date())
+                    };
+                    const arrivalDate = dateUtils.parseDate(vm.booking.arrival, 'yyyy-MM-dd', new Date());
+                    if (dateUtils.isWithinInterval(arrivalDate, interval)) {
+                        vm.departurePicker.updateOptions({
+                            restrictions: {
+                                maxDate: dateUtils.addDays(arrivalDate, his.max_days)
+                            }
+                        })
+                        vm.departurePicker.clear()
                     }
                 });
             }
@@ -527,43 +532,46 @@ export default {
         },
         addEventListeners: function() {
             let vm = this;
-            vm.arrivalPicker = $(vm.bookingForm.arrival).closest('.date');
-            vm.departurePicker = $(vm.bookingForm.departure).closest('.date');
-            vm.arrivalPicker.datetimepicker({
-                format: 'DD/MM/YYYY',
-                minDate: Moment().startOf('day'),
+            const today = new DateTime().startOf("date")
+
+            const arrivalPickerElement = $(vm.bookingForm.arrival).closest('.date');
+            const departurePickerElement = $(vm.bookingForm.departure).closest('.date');
+            vm.arrivalPicker = getDateTimePicker(arrivalPickerElement, {
+                restrictions: {
+                    minDate: today,
+                }
             });
-            vm.departurePicker.datetimepicker({
-                format: 'DD/MM/YYYY',
+            vm.departurePicker = getDateTimePicker(departurePickerElement, {
+                minDate: dateUtils.addDays(today, 1),
                 useCurrent: false,
             });
-
-            vm.arrivalPicker.on('dp.change', function(e) {
-                vm.booking.arrival = vm.arrivalPicker.data('DateTimePicker').date().format('DD/MM/YYYY');
+            arrivalPickerElement.on('change.td', function(e){
+                const date = vm.arrivalPicker.dates.lastPicked;
+                if(!date) return
+                vm.booking.arrival = date ? dateUtils.formatDate(date, 'yyyy-MM-dd') : null;
                 vm.selected_arrival = vm.booking.arrival;
-                //vm.selected_departure = "";
-                //vm.booking.departure = "";
-                var selected_date = e.date.clone(); //Object.assign({},e.date);
-                var minDate = selected_date.clone().add(1, 'days');
-
-                if(selected_date > vm.departurePicker.data('DateTimePicker').date()){
-                vm.departurePicker.data("DateTimePicker").minDate(minDate);
-                // Set the departure date to a day after the arrival date
-                vm.departurePicker.data("DateTimePicker").date(minDate);
-
+                // vm.selected_departure = "";
+                // vm.booking.departure = "";
+                var selected_date = new Date(date); 
+                var minDate = dateUtils.addDays(selected_date, 1);
+                const departureDate = vm.departurePicker.dates.lastPicked
+                if( departureDate && selected_date > date){
+                    vm.departurePicker.updateOptions({
+                        restrictions : {
+                            minDate: dateUtils.addDays(date, 1),
+                            maxDate: dateUtils.addDays(minDate, 180)
+                        }
+                    })
+                    vm.departurePicker.clear()
                 }
             });
-            vm.departurePicker.on('dp.change', function(e) {
-                if (vm.departurePicker.data('DateTimePicker').date()) {
-                    vm.booking.departure = vm.departurePicker.data('DateTimePicker').date().format('DD/MM/YYYY');
-                    vm.selected_departure = vm.booking.departure;
-                } else {
-                    vm.booking.departure = null;
-                    vm.selected_departure = vm.booking.departure;
-                }
+            departurePickerElement.on('change.td', function(e) {
+                const date = vm.departurePicker.dates.lastPicked;
+                vm.booking.departure = date ? dateUtils.formatDate(date, 'yyyy-MM-dd') : null;
+                vm.selected_departure = date ? vm.booking.departure : null;
             });
             // Set the initial minimum departure date for the booking
-            vm.departurePicker.data("DateTimePicker").minDate(Moment(vm.selected_arrival,"DD/MM/YYYY").add(1,'days'));
+            
             console.log('addEventListeners');
             vm.departurePicker.trigger( 'change' );
             vm.arrivalPicker.trigger( 'change' );

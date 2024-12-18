@@ -107,7 +107,7 @@
 <script>
 import bootstrapModal from '../bootstrap-modal.vue'
 import reason from '../reasons.vue'
-import { $, datetimepicker,api_endpoints, validate, helpers } from '../../../hooks.js'
+import { $, getDateTimePicker, dateUtils, api_endpoints } from '../../../hooks.js'
 import alert from '../alert.vue'
 export default{
     name: 'PriceHistoryDetail',
@@ -274,17 +274,18 @@ export default{
         var vm = this;
         $('[data-toggle="tooltip"]').tooltip()
         vm.form = document.forms.priceForm;
-        var picker = $(vm.form.period_start).closest('.date');
-        var today = new Date();
-        today.setDate(today.getDate()+1);
+        const pickerElement = $(vm.form.period_start).closest('.date');
+        
+        const today = new Date();
+        today.setDate(today.getDate() + 1);
         var tomorrow = new Date(today);
-        picker.datetimepicker({
-            format: 'DD/MM/YYYY',
+        const picker = getDateTimePicker(pickerElement, {
             useCurrent: false,
-            minDate: tomorrow
+            restrictions: { minDate: tomorrow }
         });
-        picker.on('dp.change', function(e){
-            vm.priceHistory.period_start = picker.data('DateTimePicker').date().format('DD/MM/YYYY');
+        pickerElement.on('change.td', function(e){
+            const date = picker.dates.lastPicked
+            vm.priceHistory.period_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
         });
         vm.addFormValidations();
         vm.fetchBookingPolicy();

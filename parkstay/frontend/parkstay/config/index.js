@@ -5,7 +5,7 @@ module.exports = {
   build: {
     env: require('./prod.env'),
     index: path.resolve(__dirname, '../dist/index.html'),
-    assetsRoot: path.resolve(__dirname, '../../../static/juanstay/'),
+    assetsRoot: path.resolve(__dirname, '../../../static/parkstay/js/wpck5/'),
     assetsSubDirectory: 'parkstay',
     assetsPublicPath: '/',
     productionSourceMap: true,

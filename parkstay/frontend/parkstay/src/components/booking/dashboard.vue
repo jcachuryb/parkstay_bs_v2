@@ -95,6 +95,7 @@
 import {
   $,
   bus,
+  getDateTimePicker, dateUtils,
   api_endpoints,
   helpers,
   Moment,
@@ -446,7 +447,28 @@ export default {
     },
 
     addEventListeners: function() {
-      let vm = this;
+      const vm = this;
+          
+      const datepickerOptions = {
+        useCurrent: false,
+          keepInvalid: true,
+          allowInputToggle: true,
+                display: {
+                      buttons: {
+                          clear: true,
+                      }
+                  }
+      };
+      const dateFromPickerElement = $("#booking-date-from")
+      vm.dateFromPicker = getDateTimePicker(dateFromPickerElement, datepickerOptions);
+      const dateToPickerElement = $("#booking-date-to")
+      vm.dateToPicker = getDateTimePicker(dateToPickerElement, {
+          ...datepickerOptions,
+          // restrictions: {
+          //   minDate: vm.dateFromPicker.dates.lastPicked
+          // }
+        }
+      );
 
       /* View History */
       vm.$refs.bookings_table.vmDataTable.on(
@@ -490,31 +512,39 @@ export default {
           vm.filterRegion = "All";
         });
 
-      vm.dateToPicker.on("dp.change", function(e) {
-        if (vm.dateToPicker.data("DateTimePicker").date()) {
-          vm.filterDateTo = e.date.format("DD/MM/YYYY");
-          vm.$refs.bookings_table.vmDataTable.ajax.reload();
-        } else if (vm.dateToPicker.data("date") === "") {
-          vm.filterDateTo = "";
-          vm.$refs.bookings_table.vmDataTable.ajax.reload();
+      dateToPickerElement.on("change.td", function(e) {
+        const date = vm.dateToPicker.dates.lastPicked
+        vm.filterDateTo = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        vm.$refs.bookings_table.vmDataTable.ajax.reload();
+        vm.dateFromPicker.updateOptions({
+          restrictions: {
+            maxDate: date
+          }
+        });
+        if(date) {
+          vm.dateFromPicker.updateOptions({
+            restrictions: {
+              minDate: date
+            }
+          });
         }
-        $('#booking-date-from').data("DateTimePicker").maxDate(e.date);
       })
 
       console.log('Date from: '+vm.filterDateFrom)
 
-      vm.dateFromPicker.on("dp.change", function(e) {
+      dateFromPickerElement.on("change.td", function(e) {
+        const date = vm.dateFromPicker.dates.lastPicked
         console.log("dateFromPicker")
-        console.log(e.date)
-        if (vm.dateFromPicker.data("DateTimePicker").date()) {
-          vm.filterDateFrom = e.date.format("DD/MM/YYYY");
-          vm.dateToPicker.data("DateTimePicker").minDate(e.date);
-          vm.$refs.bookings_table.vmDataTable.ajax.reload();
-        } else if (vm.dateFromPicker.data("date") === "") {
-          vm.filterDateFrom = "";
-          vm.$refs.bookings_table.vmDataTable.ajax.reload();
+        console.log(date)
+        vm.filterDateFrom = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        vm.$refs.bookings_table.vmDataTable.ajax.reload();
+        if(date) {
+          vm.dateToPicker.updateOptions({
+            restrictions: {
+              minDate: date
+            }
+          });
         }
-        $('#booking-date-to').data("DateTimePicker").minDate(e.date);
       })
 
       helpers.namePopover($, vm.$refs.bookings_table.vmDataTable);
@@ -788,38 +818,10 @@ export default {
   },
 
   mounted: function() {
-    let vm = this;
-    vm.dateFromPicker = $("#booking-date-from").datetimepicker(
-      {
-        format: "DD/MM/YYYY",
-        showClear: true,
-        useCurrent: false,
-        keepInvalid: true,
-        allowInputToggle: true
-      }
-    );
-
-    //$('#booking-date-to').data("DateTimePicker").minDate(e.date);
-    //vm.$refs.bookings_table.vmDataTable.ajax.reload();
-
-    vm.dateToPicker = $("#booking-date-to").datetimepicker(
-      {
-        format: "DD/MM/YYYY",
-        showClear: true,
-        useCurrent: false,
-        keepInvalid: true,
-        allowInputToggle: true,
-        minDate: vm.dateFromPicker.data("DateTimePicker").date()
-      }
-    );
+    const vm = this;
     vm.fetchCampgrounds();
     vm.fetchRegions();
-
-    this.addEventListeners();
-    /*this.$nextTick(() => {
-        this.addEventListeners();
-     }); */
-
+    vm.addEventListeners();
   }
 };
 </script>

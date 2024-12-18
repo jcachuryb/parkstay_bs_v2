@@ -69,8 +69,7 @@
 <script>
 import bootstrapModal from '../../utils/bootstrap-modal.vue'
 import reason from '../../utils/reasons.vue'
-import {bus} from '../../utils/eventBus.js'
-import { $, datetimepicker, api_endpoints, validate, helpers } from '../../../hooks.js'
+import { $, getDateTimePicker, dateUtils } from '../../../hooks.js'
 import alert from '../../utils/alert.vue'
 export default{
     name: 'bulkCloseCampsites',
@@ -189,22 +188,28 @@ export default{
     },
     mounted: function() {
         var vm = this;
+        const closeStartPickerElement = $('#close_bcs_range_start');
+        const closeEndPickerElement = $('#close_bcs_range_end');
         vm.closeStartPicker = $('#close_bcs_range_start');
         vm.closeEndPicker = $('#close_bcs_range_end');
-        vm.closeStartPicker.datetimepicker({
-            format: 'DD/MM/YYYY',
-            minDate: new Date()
+        vm.closeStartPicker = getDateTimePicker(closeStartPickerElement, {
+            restrictions: {minDate: new Date()}
         });
-        vm.closeEndPicker.datetimepicker({
-            format: 'DD/MM/YYYY',
+        vm.closeEndPicker = getDateTimePicker(closeEndPickerElement,{
             useCurrent: false
         });
-        vm.closeStartPicker.on('dp.change', function(e){
-            vm.formdata.range_start = vm.closeStartPicker.data('DateTimePicker').date().format('DD/MM/YYYY');
-            vm.closeEndPicker.data("DateTimePicker").minDate(e.date);
+        closeStartPickerElement.on('change.td', function(e){
+            const date = vm.closeStartPicker.dates.lastPicked;
+            vm.formdata.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+            if (date) {
+                vm.closeEndPicker.updateOptions({
+                   restrictions: { minDate: date}
+                });
+            }
         });
-        vm.closeEndPicker.on('dp.change', function(e){
-            vm.formdata.range_end = vm.closeEndPicker.data('DateTimePicker').date().format('DD/MM/YYYY');
+        closeEndPickerElement.on('change.td', function(e){
+            const date = vm.closeEndPicker.dates.lastPicked;
+            vm.formdata.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
         });
         vm.form = $('#closeCGForm');
         vm.addFormValidations();

@@ -10,8 +10,8 @@ import $ from 'jquery';
 const vd = {
     addError: (field, errMsg) => {
         $(field).closest('.form-group').addClass('has-error');
-        $(field).focus();
-        $(field).select();
+        $(field).trigger("focus");
+        $(field).trigger("select");
         $(field).addClass('tooltip-err');
         $(field).tooltip()
             .attr("data-original-title", errMsg)

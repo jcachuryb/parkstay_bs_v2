@@ -26,7 +26,7 @@ module.exports = merge(common, {
   },
   plugins: [
     new Webpack.DefinePlugin({
-      "process.env": config.dev.env,
+      "process.env": config.build.env,
     }),
   ],
 });
