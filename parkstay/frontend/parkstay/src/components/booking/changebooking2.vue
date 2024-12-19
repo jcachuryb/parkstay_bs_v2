@@ -923,7 +923,9 @@ export default {
             next(vm => {
                 vm.initBooking(response[1]);
             });
-        }) 
+        }).catch(err=> {
+            console.log(err);
+        });
     }
 }
 </script>

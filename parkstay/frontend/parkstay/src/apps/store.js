@@ -76,6 +76,8 @@ const store = new Vuex.Store({
                 }, (error) => {
                     reject(error);
                 });
+            }).catch((error) => {
+                console.log(error);
             });
         },
         fetchCampsiteClasses(context){

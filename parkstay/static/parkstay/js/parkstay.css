@@ -23,7 +23,7 @@
 }
 
 
-td > a{
+td>a {
     border: none;
     border-radius: 2px;
     position: relative;
@@ -42,10 +42,11 @@ td > a{
     background: transparent;
     color: #03a9f4;
 }
-td{
+td {
     word-wrap: break-word;
 }
-table.table-bordered.dataTable tbody th, table.table-bordered.dataTable tbody td {
+table.table-bordered.dataTable tbody th,
+table.table-bordered.dataTable tbody td {
     border-bottom-width: 0;
     vertical-align: middle;
     text-align: left;
@@ -54,37 +55,48 @@ table.table-bordered.dataTable tbody th, table.table-bordered.dataTable tbody td
     width: 80px;
 }
 table.dataTable thead .sorting {
-    background:none;
+    background: none;
 }
-table.dataTable thead .sorting_desc{
-    background:none;
+table.dataTable thead .sorting_desc {
+    background: none;
 }
-table.dataTable thead .sorting_asc{
-    background:none;
+table.dataTable thead .sorting_asc {
+    background: none;
 }
-.table.rowlink td:not(.rowlink-skip), .table .rowlink td:not(.rowlink-skip) {
+.table.rowlink td:not(.rowlink-skip),
+.table .rowlink td:not(.rowlink-skip) {
     cursor: pointer;
 }
-table.collapsed > tbody > tr > td > span.responsiveExpander,table.has-columns-hidden > tbody > tr > td > span.responsiveExpander {
+table.collapsed>tbody>tr>td>span.responsiveExpander,
+table.has-columns-hidden>tbody>tr>td>span.responsiveExpander {
     background: url("https://raw.githubusercontent.com/Comanche/datatables-responsive/master/files/1.10/img/plus.png") no-repeat 5px center;
     padding-left: 32px;
     cursor: pointer;
 }
-table.collapsed > tbody > tr.parent > td span.responsiveExpander,table.has-columns-hidden > tbody > tr.detail-show > td span.responsiveExpander {
+table.collapsed>tbody>tr.parent>td span.responsiveExpander,
+table.has-columns-hidden>tbody>tr.detail-show>td span.responsiveExpander {
     background: url("https://raw.githubusercontent.com/Comanche/datatables-responsive/master/files/1.10/img/minus.png") no-repeat 5px center;
 }
-table.collapsed > tbody > tr > td.child,table.has-columns-hidden > tbody > tr > td.child {
+table.collapsed>tbody>tr>td.child,
+table.has-columns-hidden>tbody>tr>td.child {
     background: #eee;
 }
-table.collapsed > tbody > tr > td > ul, table.has-columns-hidden > tbody > tr > td > ul {
+table.collapsed>tbody>tr>td>ul,
+table.has-columns-hidden>tbody>tr>td>ul {
     list-style: none;
     margin: 0;
     padding: 0;
 }
-table.collapsed > tbody > tr > td > ul > li > span.dtr-title, table.has-columns-hidden > tbody > tr > td > ul > li > span.columnTitle {
+table.collapsed>tbody>tr>td>ul>li>span.dtr-title,
+table.has-columns-hidden>tbody>tr>td>ul>li>span.columnTitle {
     font-weight: bold;
 }
-.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+.table>tbody>tr>td,
+.table>tbody>tr>th,
+.table>tfoot>tr>td,
+.table>tfoot>tr>th,
+.table>thead>tr>td,
+.table>thead>tr>th {
     vertical-align: middle;
 }
 div.dataTables_filter input {
@@ -99,14 +111,15 @@ div.dataTables_length select {
 .input-sm {
     width: auto;
 }
-@media screen and (max-width: 767px)
-{
-div.dataTables_length,div.dataTables_info {
-         float:left;
-         width: auto;
+@media screen and (max-width: 767px) {
+div.dataTables_length,
+    div.dataTables_info {
+        float: left;
+        width: auto;
 }
-div.dataTables_filter, div.dataTables_paginate {
-         float:right;
+div.dataTables_filter,
+    div.dataTables_paginate {
+        float: right;
 }
 }
 
