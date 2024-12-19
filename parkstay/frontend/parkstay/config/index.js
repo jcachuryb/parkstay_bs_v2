@@ -5,7 +5,7 @@ module.exports = {
   build: {
     env: require('./prod.env'),
     index: path.resolve(__dirname, '../dist/index.html'),
-    assetsRoot: path.resolve(__dirname, '../../../static/parkstay/js/wpck5/'),
+    assetsRoot: path.resolve(__dirname, '../../../static/parkstay/js/'),
     assetsSubDirectory: 'parkstay',
     assetsPublicPath: '/',
     productionSourceMap: true,
@@ -46,6 +46,7 @@ module.exports = {
     containerIP: "10.17.0.10",
     autoOpenBrowser: true,
     assetsSubDirectory: 'static',
+    assetsRoot: path.resolve(__dirname, '../'),
     assetsPublicPath: '/',
     proxyTable: {},
     // CSS Sourcemaps off by default because relative paths are "buggy"

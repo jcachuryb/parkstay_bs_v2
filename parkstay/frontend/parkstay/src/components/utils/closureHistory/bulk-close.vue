@@ -108,14 +108,14 @@ export default {
     },
     methods: {
         close: function () {
-            this.isModalOpen = this.$parent.showBulkClose = false;
             this.$parent.$refs.dtGrounds.vmDataTable.ajax.reload();
             this.range_start = "";
             this.range_end = "";
             this.selected_campgrounds = [];
             this.reason = "";
-            this.closeStartPicker.dates.setValue(new Date());
+            this.closeStartPicker.clear();
             this.closeEndPicker.clear();
+            this.isModalOpen = this.$parent.showBulkClose = false;
         },
         events: function () {
             let vm = this;

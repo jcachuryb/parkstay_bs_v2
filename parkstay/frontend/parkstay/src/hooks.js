@@ -9,13 +9,11 @@ import DataTableBs from "datatables.net-bs5";
 import "@popperjs/core/dist/umd/popper.min.js";
 
 import { formatDate, parse as parseDate, addDays, isWithinInterval } from "date-fns";
-// import moment from "@popperjs/core";
 import moment from "moment/moment.js";
 import { extendMoment } from "moment-range";
-// import datetimepicker from 'eonasdan-bootstrap-datetimepicker';
 import { DateTime, TempusDominus } from "@eonasdan/tempus-dominus";
 import validate from "jquery-validation";
-import bootstrap from 'bootstrap';
+import bootstrap from 'bootstrap'; // needed for datetimepicker
 import slick from "slick-carousel-browserify";
 import select2 from "select2";
 import awesomplete from "awesomplete";
