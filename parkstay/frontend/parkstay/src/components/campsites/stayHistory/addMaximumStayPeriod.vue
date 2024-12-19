@@ -64,10 +64,9 @@
 <script>
 import bootstrapModal from '../../utils/bootstrap-modal.vue'
 import reason from '../../utils/reasons.vue'
-import {bus} from '../../utils/eventBus.js'
-import { $, datetimepicker,api_endpoints, validate, helpers } from '../../../hooks'
+import { $, getDateTimePicker, dateUtils } from '../../../hooks.js'
 import alert from '../../utils/alert.vue'
-module.exports = {
+export default{
     name: 'addMaxStayCS',
     props: {
         campsite: {
@@ -183,21 +182,25 @@ module.exports = {
         if (!vm.create){
             vm.$refs.modal.title = 'Edit Maximum Stay Period';
         }
-        vm.start_picker = $('#stay_start_picker');
-        vm.end_picker = $('#stay_end_picker');
-        vm.start_picker.datetimepicker({
-            format: 'DD/MM/YYYY'
-        });
-        vm.end_picker.datetimepicker({
-            format: 'DD/MM/YYYY'
-        });
-        vm.start_picker.on('dp.change', function(e){
-            vm.stay.range_start = vm.start_picker.data('DateTimePicker').date().format('DD/MM/YYYY');
-        });
-        vm.end_picker.on('dp.change', function(e){
-            vm.stay.range_end = vm.end_picker.data('DateTimePicker').date().format('DD/MM/YYYY');
-        });
         vm.form = $('#addMaxStayForm');
+        const start_picker_element = $('#stay_start_picker');
+        const end_picker_element = $('#stay_end_picker');
+        vm.start_picker = getDateTimePicker(start_picker_element);
+        vm.end_picker = getDateTimePicker(end_picker_element, {
+            useCurrent: false,
+        });
+        start_picker_element.on('change.td', function(e){
+            const date = vm.start_picker.dates.lastPicked
+            vm.stay.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+            vm.end_picker.updateOptions({
+                restrictions: { minDate: date }
+            })
+            vm.end_picker.toggle()
+        });
+        end_picker_element.on('change.td', function(e){
+            const date = vm.end_picker.dates.lastPicked
+            vm.stay.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        });
         vm.addFormValidations();
     }
 };

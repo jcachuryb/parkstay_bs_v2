@@ -41,15 +41,11 @@ import {
     $,
     api_endpoints,
     helpers,
-    Moment,
     bus
 }
     from '../../hooks.js';
 import datatable from '../utils/datatable.vue'
 import confirmbox from '../utils/confirmbox.vue'
-import loader from '../utils/loader.vue'
-import closureHistory from '../utils/closureHistory.vue'
-import priceHistory from '../utils/priceHistory/priceHistory.vue'
 export default {
     name: 'campsite',
     components: {
@@ -89,9 +85,6 @@ export default {
                 columnDefs: [
                     // { targets: [0,1,2], responsivePriority:1 },
                     { "defaultContent": "-", "targets": "_all" },
-
-
-
                     {
                         responsivePriority: 1,
                         targets: 0,
@@ -99,7 +92,6 @@ export default {
                     {
                         responsivePriority: 2,
                         targets: 1
-
                     },
                     {
                         responsivePriority: 3,

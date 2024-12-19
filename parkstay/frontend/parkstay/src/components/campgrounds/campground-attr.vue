@@ -229,8 +229,7 @@
 import {
     $,
     api_endpoints,
-    helpers,
-    validate
+    helpers
 }
     from '../../hooks.js'
 import {
@@ -238,8 +237,8 @@ import {
 }
     from '../utils/eventBus.js';
 import imagePicker from '../utils/images/imagePicker.vue'
+import "quill/dist/quill.snow.css";
 import Editor from 'quill';
-import Render from 'quill-render';
 import loader from '../utils/loader.vue'
 import alert from '../utils/alert.vue'
 import { mapGetters } from 'vuex'
@@ -251,7 +250,6 @@ export default {
         imagePicker
     },
     data: function () {
-        let vm = this;
         return {
             selected_price_set: this.priceSet[0],
             editor: null,

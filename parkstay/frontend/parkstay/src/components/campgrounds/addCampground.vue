@@ -25,12 +25,6 @@
 
 <script>
 import campgroundAttr from './campground-attr.vue'
-import {
-    $,
-    Moment,
-    api_endpoints,
-    helpers,
-} from '../../hooks.js'
 import alert from '../utils/alert.vue'
 export default {
     name: 'addCampground',

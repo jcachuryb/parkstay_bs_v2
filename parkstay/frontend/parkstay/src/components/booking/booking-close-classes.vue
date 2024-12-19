@@ -355,7 +355,7 @@
 </template>
 
 <script>
-import {$,awesomplete,Moment,api_endpoints,validate,formValidate,helpers,debounce} from "../../hooks.js";
+import { $, getDateTimePicker, dateUtils, DateTime, Moment, api_endpoints, formValidate, helpers, debounce } from "../../hooks.js";
 import loader from '../utils/loader.vue';
 import modal from '../utils/bootstrap-modal.vue';
 import reason from '../utils/reasons.vue';
@@ -576,11 +576,18 @@ export default {
             let vm = this;
             if (vm.booking.arrival) {
                 $.each(vm.stayHistory,function (i,his) {
-                    var range = Moment.range(Moment(his.range_start,"DD/MM/YYYY"),Moment(his.range_end,"DD/MM/YYYY"));
-                    var arrival = Moment(vm.booking.arrival,"YYYY-MM-DD");
-                    if (range.contains(arrival)) {
-                        vm.departurePicker.data("DateTimePicker").maxDate(arrival.clone().add(his.max_days,'days'));
-                        vm.departurePicker.data("DateTimePicker").date(null);
+                    const interval = { 
+                        start: dateUtils.parseDate(his.range_start, "dd/MM/yyyy", new Date()), 
+                        end: dateUtils.parseDate(his.range_end, "dd/MM/yyyy", new Date())
+                    };
+                    const arrivalDate = dateUtils.parseDate(vm.booking.arrival, 'yyyy-MM-dd', new Date());
+                    if (dateUtils.isWithinInterval(arrivalDate, interval)) {
+                        vm.departurePicker.updateOptions({
+                            restrictions: {
+                                maxDate: dateUtils.addDays(arrivalDate, his.max_days)
+                            }
+                        })
+                        vm.departurePicker.clear()
                     }
                 });
             }
@@ -733,37 +740,38 @@ export default {
         },
         addEventListeners:function(){
             let vm = this;
-            vm.arrivalPicker = $(vm.bookingForm.arrival).closest('.date');
-            vm.departurePicker = $(vm.bookingForm.departure).closest('.date');
-            vm.arrivalPicker.datetimepicker({
-                format: 'DD/MM/YYYY',
-                minDate: Moment().startOf('day'),
-                maxDate: Moment().add(parseInt(vm.campground.max_advance_booking),'days')
+            const arrivalPickerElement = $(vm.bookingForm.arrival).closest('.date');
+            const departurePickerElement = $(vm.bookingForm.departure).closest('.date');
+            vm.arrivalPicker = getDateTimePicker(arrivalPickerElement, {
+                restrictions: {
+                    minDate: new DateTime().startOf("date"),
+                    maxDate: dateUtils.addDays(new Date(), parseInt(vm.campground.max_advance_booking))
+                }
             });
-            vm.departurePicker.datetimepicker({
-                format: 'DD/MM/YYYY',
+            vm.departurePicker = getDateTimePicker(departurePickerElement, {
                 useCurrent: false,
             });
-            vm.arrivalPicker.on('dp.change', function(e){
-                vm.booking.arrival = vm.arrivalPicker.data('DateTimePicker').date().format('YYYY-MM-DD');
+            arrivalPickerElement.on('change.td', function(e){
+                const date = vm.arrivalPicker.dates.lastPicked;
+                vm.booking.arrival = date ? dateUtils.formatDate(date, 'yyyy-MM-dd') : null;
                 vm.selected_arrival = vm.booking.arrival;
                 vm.selected_departure = "";
                 vm.booking.departure = "";
-                var selected_date =  e.date.clone();//Object.assign({},e.date);
-                var minDate = selected_date.clone().add(1,'days');
-                var maxDate = minDate.clone().add(180,'days');
-                vm.departurePicker.data("DateTimePicker").maxDate(maxDate);
-                vm.departurePicker.data("DateTimePicker").minDate(minDate);
-                vm.departurePicker.data("DateTimePicker").date(null);
-            });
-            vm.departurePicker.on('dp.change', function(e){
-                if (vm.departurePicker.data('DateTimePicker').date()) {
-                    vm.booking.departure = vm.departurePicker.data('DateTimePicker').date().format('YYYY-MM-DD');
-                    vm.selected_departure= vm.booking.departure;
-                }else{
-                    vm.booking.departure = null;
-                    vm.selected_departure= vm.booking.departure;
+
+                if(date) {
+                    vm.departurePicker.updateOptions({
+                        restrictions : {
+                            minDate: dateUtils.addDays(date, 1),
+                            maxDate: dateUtils.addDays(minDate, 180)
+                        }
+                    })
+                    vm.departurePicker.clear()
                 }
+            });
+            departurePickerElement.on('change.td', function(e){
+                const date = vm.departurePicker.dates.lastPicked;
+                vm.booking.departure = date ? dateUtils.formatDate(date, 'yyyy-MM-dd') : null;
+                vm.selected_departure = date ? vm.booking.departure : null;
             });
             vm.$http.get(api_endpoints.campgroundCampsites(vm.campground.id)).then((response) => {
                 var campsites = response.body;

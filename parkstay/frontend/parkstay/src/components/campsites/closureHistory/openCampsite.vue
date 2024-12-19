@@ -49,10 +49,9 @@
 <script>
 import bootstrapModal from '../../utils/bootstrap-modal.vue'
 import reason from '../../utils/reasons.vue'
-import {bus} from '../../utils/eventBus.js'
-import { $, datetimepicker,api_endpoints, validate, helpers } from '../../../hooks'
+import { $, getDateTimePicker, dateUtils } from '../../../hooks.js'
 import alert from '../../utils/alert.vue'
-module.exports = {
+export default{
     name: 'pkCsOpen',
     data: function() {
         return {
@@ -142,12 +141,14 @@ module.exports = {
     },
     mounted: function() {
         var vm = this;
-        vm.picker = $('#open_cg_range_end');
-        vm.picker.datetimepicker({
-            format: 'DD/MM/YYYY'
+        const pickerElement = $('#open_cg_range_end');
+        vm.picker = getDateTimePicker(pickerElement, {
+            useCurrent: false,
+            restrictions: { minDate: dateUtils.addDays(new Date(), 1) }
         });
-        vm.picker.on('dp.change', function(e){
-            vm.formdata.range_end = vm.picker.data('DateTimePicker').date().format('DD/MM/YYYY');
+        pickerElement.on('change.td', function(e){
+            const date = vm.picker.dates.lastPicked
+            vm.formdata.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
         });
         vm.form = $('#openCGForm');
         vm.addFormValidations();

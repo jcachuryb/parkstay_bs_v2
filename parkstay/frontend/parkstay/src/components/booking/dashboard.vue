@@ -39,7 +39,7 @@
             </div>
             <div class="col-md-4">
                 <div class="form-group">
-                  <label for="">Canceled</label>
+                  <label for="">Cancelled</label>
                   <select class="form-control" v-model="filterCanceled" id="filterCanceled">
                         <option value="True">Yes</option>
                         <option value="False">No</option>
@@ -95,13 +95,12 @@
 import {
   $,
   bus,
-  datetimepicker,
+  getDateTimePicker, dateUtils,
   api_endpoints,
   helpers,
   Moment,
   swal,
-  htmlEscape,
-  select2
+  htmlEscape
 } from "../../hooks.js";
 import loader from "../utils/loader.vue";
 import datatable from "../utils/datatable.vue";
@@ -109,6 +108,7 @@ import changebooking from "./changebooking.vue";
 import bookingHistory from "./history.vue";
 import modal from "../utils/bootstrap-modal.vue";
 import { mapGetters } from "vuex";
+
 export default {
   name: "booking-dashboard",
   components: {
@@ -319,29 +319,7 @@ export default {
               if (full.invoices.length > 0) {
                 column += "<a href='"+ledger_ui_url+"/ledger/payments/oracle/payments?invoice_no="+full.invoices[0]+"'>Ledger Payments</a><br>";
 		column += "<a href='/booking-history/"+full.id+"'>Booking History</a><br>";
-                //var invoice_string = "/ledger/payments/invoice/payment?";
-                //$.each(full.invoices, function(i, n) {
-                //  invoice_string += "invoice=" + n + "&";
-                //});
-                //invoice_string = invoice_string.slice(0, -1);
-                //var location_port = window.location.port
-                //  ? ":" + window.location.port
-                //  : "";
-                //var location_url = `${window.location.protocol}//${
-                //  window.location.hostname
-                //}${location_port}`;
-                //invoice_string += full.payment_callback_url
-                //  ? "&callback_url=" + location_url + full.payment_callback_url
-                //  : "";
-                //var payment =
-                //  full.paid || full.status == "Canceled" ? "View" : "Record";
-                //var record_payment =
-                //  "<a href='" +
-                //  invoice_string +
-                //  "' target='_blank' class='text-primary' data-rec-payment='' > " +
-                //  payment +
-                //  " Payment</a><br/>";
-                //column += record_payment;
+
               }
               if (full.editable) {
                 var change_booking =
@@ -395,13 +373,6 @@ export default {
       ],
       dateFromPicker: null,
       dateToPicker: null,
-      datepickerOptions: {
-        format: "DD/MM/YYYY",
-        showClear: true,
-        useCurrent: false,
-        keepInvalid: true,
-        allowInputToggle: true
-      },
       loading: [],
       selected_booking: -1,
       filterCampground: "All",
@@ -469,7 +440,28 @@ export default {
     },
 
     addEventListeners: function() {
-      let vm = this;
+      const vm = this;
+          
+      const datepickerOptions = {
+        useCurrent: false,
+          keepInvalid: true,
+          display: {
+            buttons: {
+              clear: true,
+            }
+          },
+
+      };
+      const dateFromPickerElement = $("#booking-date-from")
+      vm.dateFromPicker = getDateTimePicker(dateFromPickerElement, datepickerOptions);
+      const dateToPickerElement = $("#booking-date-to")
+      vm.dateToPicker = getDateTimePicker(dateToPickerElement, {
+          ...datepickerOptions,
+          // restrictions: {
+          //   minDate: vm.dateFromPicker.dates.lastPicked
+          // }
+        }
+      );
 
       /* View History */
       vm.$refs.bookings_table.vmDataTable.on(
@@ -481,8 +473,6 @@ export default {
           vm.selected_booking = selected_booking.id;
           vm.$refs.bookingHistory.booking = selected_booking;
           vm.$refs.bookingHistory.isModalOpen = true;
-
-          //vm.$refs.changebooking.fetchBooking(vm.selected_booking);
         }
       );
 
@@ -514,98 +504,28 @@ export default {
           var selected = $(e.currentTarget);
           vm.filterRegion = "All";
         });
-      /* End Region Selector*/
 
-      //vm.$refs.bookings_table.vmDataTable.on(
-      //  "click",
-      //  "a[data-change]",
-      //  function(e) {
-      //    e.preventDefault();
-      //    var selected_booking = JSON.parse($(this).attr("data-change"));
-      //    vm.selected_booking = selected_booking.id;
-      //    vm.$router.push({
-      //      name: "edit-booking",
-      //      params: {
-      //        booking_id: selected_booking.id
-      //      }
-      //    });
-      //    //vm.$refs.changebooking.fetchBooking(vm.selected_booking);
-      //  }
-      //);
-
-      //vm.$refs.bookings_table.vmDataTable.on(
-      //  "click",
-      //  "a[data-cancel]",
-      //  function(e) {
-      //    vm.selected_booking = JSON.parse($(this).attr("data-cancel"));
-      //    swal({
-      //      title: "Cancel Booking",
-      //      text: "Provide a cancellation reason",
-      //      type: "warning",
-      //      input: "textarea",
-      //      showCancelButton: true,
-      //      confirmButtonText: "Submit",
-      //      showLoaderOnConfirm: true,
-      //      preConfirm: function(reason) {
-      //        return new Promise(function(resolve, reject) {
-      //          vm.$http
-      //            .delete(
-      //              api_endpoints.booking(vm.selected_booking.id) +
-      //                "?reason=" +
-      //                reason,
-      //              {
-      //                emulateJSON: true,
-      //                headers: { "X-CSRFToken": helpers.getCookie("csrftoken") }
-      //              }
-      //            )
-      //            .then(
-      //              response => {
-      //                resolve();
-      //              },
-      //              error => {
-      //                reject(helpers.apiVueResourceError(error));
-      //              }
-      //            );
-      //        });
-      //      },
-      //      allowOutsideClick: false
-      //    }).then(function(reason) {
-      //      vm.$refs.bookings_table.vmDataTable.ajax.reload();
-      //      swal({
-      //        type: "success",
-      //        title: "Booking Canceled",
-      //        html:
-      //          "Booking PB" + vm.selected_booking.id + " has been cancelled"
-      //      });
-      //    });
-      //    //bus.$emit('showAlert', 'cancelBooking');
-      //  }
-      //);
-      vm.dateToPicker.on("dp.change", function(e) {
-        if (vm.dateToPicker.data("DateTimePicker").date()) {
-          vm.filterDateTo = e.date.format("DD/MM/YYYY");
-          vm.$refs.bookings_table.vmDataTable.ajax.reload();
-        } else if (vm.dateToPicker.data("date") === "") {
-          vm.filterDateTo = "";
-          vm.$refs.bookings_table.vmDataTable.ajax.reload();
-        }
-        $('#booking-date-from').data("DateTimePicker").maxDate(e.date);
+      dateToPickerElement.on("change.td", function(e) {
+        const date = vm.dateToPicker.dates.lastPicked
+        vm.filterDateTo = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        vm.$refs.bookings_table.vmDataTable.ajax.reload();
       })
 
       console.log('Date from: '+vm.filterDateFrom)
 
-      vm.dateFromPicker.on("dp.change", function(e) {
+      dateFromPickerElement.on("change.td", function(e) {
+        const date = vm.dateFromPicker.dates.lastPicked
         console.log("dateFromPicker")
-        console.log(e.date)
-        if (vm.dateFromPicker.data("DateTimePicker").date()) {
-          vm.filterDateFrom = e.date.format("DD/MM/YYYY");
-          vm.dateToPicker.data("DateTimePicker").minDate(e.date);
-          vm.$refs.bookings_table.vmDataTable.ajax.reload();
-        } else if (vm.dateFromPicker.data("date") === "") {
-          vm.filterDateFrom = "";
-          vm.$refs.bookings_table.vmDataTable.ajax.reload();
+        console.log(date)
+        vm.filterDateFrom = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        vm.$refs.bookings_table.vmDataTable.ajax.reload();
+        if(date) {
+          vm.dateToPicker.updateOptions({
+            restrictions: {
+              minDate: date
+            }
+          });
         }
-        $('#booking-date-to').data("DateTimePicker").minDate(e.date);
       })
 
       helpers.namePopover($, vm.$refs.bookings_table.vmDataTable);
@@ -879,38 +799,10 @@ export default {
   },
 
   mounted: function() {
-    let vm = this;
-    vm.dateFromPicker = $("#booking-date-from").datetimepicker(
-      {
-        format: "DD/MM/YYYY",
-        showClear: true,
-        useCurrent: false,
-        keepInvalid: true,
-        allowInputToggle: true
-      }
-    );
-
-    //$('#booking-date-to').data("DateTimePicker").minDate(e.date);
-    //vm.$refs.bookings_table.vmDataTable.ajax.reload();
-
-    vm.dateToPicker = $("#booking-date-to").datetimepicker(
-      {
-        format: "DD/MM/YYYY",
-        showClear: true,
-        useCurrent: false,
-        keepInvalid: true,
-        allowInputToggle: true,
-        minDate: vm.dateFromPicker.data("DateTimePicker").date()
-      }
-    );
+    const vm = this;
     vm.fetchCampgrounds();
     vm.fetchRegions();
-
-    this.addEventListeners();
-    /*this.$nextTick(() => {
-        this.addEventListeners();
-     }); */
-
+    vm.addEventListeners();
   }
 };
 </script>

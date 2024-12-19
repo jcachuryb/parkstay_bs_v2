@@ -51,7 +51,7 @@
 import {$} from '../../hooks.js'
 import {bus} from './eventBus.js'
 
-var confirmModal = module.exports = {
+var confirmModal = {
     data:function () {
         return {
             confirmModal: 'confirmModal'+this._uid,
@@ -130,7 +130,7 @@ var confirmModal = module.exports = {
 
    }
 }
-
+ export default confirmModal;
 </script>
 
 <style scoped>

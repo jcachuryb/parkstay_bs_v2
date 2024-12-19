@@ -93,17 +93,18 @@
 import {
     $,
     api_endpoints
-} from '../../hooks'
+} from '../../hooks.js'
 import datatable from '../utils/datatable.vue'
 import pkCgClose from './closeCampground.vue'
 import pkCgOpen from './openCampground.vue'
 import bulkClose from '../utils/closureHistory/bulk-close.vue'
 import { bus } from '../utils/eventBus.js'
 import { mapGetters } from 'vuex'
-module.exports = {
+export default {
     name: 'campgrounds',
     data: function () {
         let vm = this;
+    
         return {
             grounds: [],
             rows: [],

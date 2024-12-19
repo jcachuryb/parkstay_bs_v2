@@ -5,8 +5,9 @@ Vue.use(Vuex)
 import {
     $,
     api_endpoints
-} from '../hooks'
-var store = new Vuex.Store({
+} from '../hooks.js'
+
+const store = new Vuex.Store({
     state: {
         alert:{
             visible:false,

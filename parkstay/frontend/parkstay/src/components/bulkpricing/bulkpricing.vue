@@ -183,7 +183,8 @@ import {
     $,
     api_endpoints,
     helpers,
-    select2,
+    getDateTimePicker, 
+    dateUtils,
     Moment
 }
 from '../../hooks.js'
@@ -602,17 +603,14 @@ export default {
         vm.loadParks();
         vm.setPrice = vm.priceOptions[1];
         vm.form = document.forms.bulkpricingForm;
-        var picker = $(vm.form.period_start).closest('.date');
-        var today = new Date();
-        today.setDate(today.getDate()+1);
-        var tomorrow = new Date(today);
-        picker.datetimepicker({
-            format: 'DD/MM/YYYY',
+        const pickerElement = $(vm.form.period_start).closest('.date');
+        const picker = getDateTimePicker(pickerElement, {
             useCurrent: false,
-            minDate: tomorrow
+            restrictions: { minDate: dateUtils.addDays(new Date(), 1) }
         });
-        picker.on('dp.change', function(e){
-            vm.bulkpricing.period_start = picker.data('DateTimePicker').date().format('DD/MM/YYYY');
+        pickerElement.on('change.td', function(e){
+            const date = picker.dates.lastPicked
+            vm.bulkpricing.period_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
         });
         vm.addFormValidations();
         vm.fetchRates();

@@ -1,6 +1,7 @@
 import $ from 'jquery'
 import _ from 'lodash'
-module.exports = {
+
+export const helpers =  {
     apiError: function(resp){
         let error_str = '';
         if (resp.status === 400) {

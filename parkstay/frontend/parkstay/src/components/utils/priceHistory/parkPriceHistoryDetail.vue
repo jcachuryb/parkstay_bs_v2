@@ -85,7 +85,7 @@
                         <label>Period start: </label>
                     </div>
                     <div class="col-md-4">
-                        <div class='input-group 'date>
+                        <div class='input-group date'date>
                             <input  name="period_start"  v-model="priceHistory.period_start" type='text' class="form-control" />
                             <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-calendar"></span>
@@ -114,9 +114,9 @@
 <script>
 import bootstrapModal from '../bootstrap-modal.vue'
 import reason from '../reasons.vue'
-import { $, datetimepicker,api_endpoints, validate, helpers } from '../../../hooks'
+import { $, getDateTimePicker, dateUtils } from '../../../hooks.js'
 import alert from '../alert.vue'
-module.exports = {
+export default{
     name: 'ParkPriceHistoryDetail',
     props: {
         priceHistory: {
@@ -171,7 +171,6 @@ module.exports = {
 
             this.errorString = '';
             this.isOpen = false;
-            this.$emit("cancel");
         },
         addHistory: function() {
             if ($(this.form).valid()){
@@ -241,17 +240,14 @@ module.exports = {
         var vm = this;
         $('[data-toggle="tooltip"]').tooltip()
         vm.form = document.forms.priceForm;
-        var picker = $(vm.form.period_start).closest('.date');
-        var today = new Date();
-        today.setDate(today.getDate()+1);
-        var tomorrow = new Date(today);
-        picker.datetimepicker({
-            format: 'DD/MM/YYYY',
+        const pickerElement = $(vm.form.period_start).closest('.date');
+        const picker = getDateTimePicker(pickerElement, {
             useCurrent: false,
-            minDate: tomorrow
+            restrictions: { minDate: dateUtils.addDays(new Date(), 1) }
         });
-        picker.on('dp.change', function(e){
-            vm.priceHistory.period_start = picker.data('DateTimePicker').date().format('YYYY-MM-DD');
+        pickerElement.on('change.td', function(e){
+            const date = picker.dates.lastPicked
+            vm.priceHistory.period_start = date ? dateUtils.formatDate(date, 'yyyy-MM-dd') : '';
         });
         vm.addFormValidations();
     }

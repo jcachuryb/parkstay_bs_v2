@@ -7,7 +7,7 @@
 <script>
 import campgrounds from './components/campgrounds.vue'
 
-module.exports = {
+export default{
   name: 'app',
   components: {
     campgrounds

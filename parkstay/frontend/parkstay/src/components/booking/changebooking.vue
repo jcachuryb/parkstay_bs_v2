@@ -56,7 +56,7 @@
 <script>
 import modal from '../utils/bootstrap-modal.vue'
 import alert from '../utils/alert.vue'
-import {$,api_endpoints,helpers,datetimepicker,Moment} from "../../hooks.js"
+import { $, api_endpoints, helpers, getDateTimePicker, dateUtils, Moment} from "../../hooks.js"
 export default {
     name:'change-booking',
     components:{
@@ -133,7 +133,7 @@ export default {
             let vm = this;
             vm.$http.get(api_endpoints.booking(id)).then((response) => {
                 vm.booking = response.body; vm.isModalOpen = true;
-                vm.eventListerners();
+                vm.eventListeners();
             },(error) => {
                 console.log(error);
             } );
@@ -204,30 +204,50 @@ export default {
                 }
             });
        },
-       eventListerners:function () {
-           let vm = this;
-           let datepickerOptions = {
-               format: 'YYYY-MM-DD',
-               showClear:true
+       eventListeners:function () {
+           const vm = this;
+           const datepickerOptions = {
+               display: {
+                    buttons: {
+                        clear: true,
+                    }
+                }
            };
-           vm.arrivalPicker = $('.arrivalPicker');
-           vm.departurePicker = $('.departurePicker');
 
-           vm.arrivalPicker.datetimepicker(datepickerOptions);
-           vm.departurePicker.datetimepicker(datepickerOptions);
-           vm.arrivalPicker.data("DateTimePicker").minDate(Moment().add(1, 'days'));
-           vm.departurePicker.data("DateTimePicker").minDate(Moment(vm.booking.arrival).add(1, 'days'));
+           const bookingArrivalDate = dateUtils.parseDate(vm.booking.arrival, 'yyyy/MM/dd', new Date())
+           const bookingDepartureDate = dateUtils.parseDate(vm.booking.departure, 'yyyy/MM/dd', new Date())
+           const arrivalPickerElement = $('.arrivalPicker');
+           const departurePickerElement = $('.departurePicker');
+           
+           vm.arrivalPicker = getDateTimePicker(arrivalPickerElement,
+                {...datepickerOptions,
+                    defaultDate: bookingArrivalDate,
+                    restrictions: {
+                        minDate: dateUtils.addDays(new Date(), 1)
+                }}
+            );
+           vm.departurePicker = getDateTimePicker(departurePickerElement, 
+                {...datepickerOptions,
+                    defaultDate: bookingDepartureDate, 
+                    restrictions: {
+                        minDate: dateUtils.addDays(bookingArrivalDate, 1)
+                }}
+            );
 
-           vm.arrivalPicker.data("DateTimePicker").date(vm.booking.arrival);
-           vm.departurePicker.data("DateTimePicker").date(vm.booking.departure);
-
-           vm.arrivalPicker.on('dp.change', function(e){
-               vm.booking.arrival = vm.arrivalPicker.data('DateTimePicker').date().format('YYYY-MM-DD');
-               vm.departurePicker.data("DateTimePicker").minDate(e.date);
+           arrivalPickerElement.on('change.td', function(e) {
+            const date = arrivalPicker.dates.lastPicked
+            vm.booking.arrival = date ? dateUtils.formatDate(date, 'yyyy-MM-dd') : '';
+            if(date){
+                vm.departurePicker.updateOptions({
+                   restrictions: {
+                       minDate: date
+                   }
+               });
+            }
            });
-
-          vm.departurePicker.on('dp.change', function(e){
-               vm.booking.departure =  vm.departurePicker.data('DateTimePicker').date().format('YYYY-MM-DD');
+            departurePickerElement.on('change.td', function(e){
+                const date = vm.departurePicker.dates.lastPicked
+                vm.booking.departure = date ? dateUtils.formatDate(date, 'yyyy-MM-dd') : '';
            });
        }
    },

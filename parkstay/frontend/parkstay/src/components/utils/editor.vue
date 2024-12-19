@@ -16,8 +16,8 @@ import {
     $,
 }
 from '../../hooks.js'
+import "quill/dist/quill.snow.css";
 import Editor from 'quill';
-import Render from 'quill-render';
 
 export default {
     name:"editor",

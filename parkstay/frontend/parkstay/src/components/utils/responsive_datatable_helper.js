@@ -57,7 +57,7 @@
  *                                      breakpoint for datatables.
  * @param {Object} options              Object of options.
  */
-function ResponsiveDatatablesHelper(tableSelector, breakpoints, options) {
+export default function ResponsiveDatatablesHelper(tableSelector, breakpoints, options) {
     if (typeof tableSelector === 'string') {
         this.tableElement = $(tableSelector);
     } else {
@@ -650,4 +650,4 @@ ResponsiveDatatablesHelper.prototype.difference = function (a, b) {
     return arr;
 };
 
-module.exports = ResponsiveDatatablesHelper;
+

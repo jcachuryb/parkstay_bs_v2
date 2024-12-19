@@ -71,7 +71,7 @@ import modal from '../bootstrap-modal.vue'
 import reason from '../reasons.vue'
 import alert from '../alert.vue'
 import { mapGetters } from 'vuex'
-import { $, datetimepicker, api_endpoints, validate, helpers } from '../../../hooks'
+import { $, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../../hooks.js'
 
 export default {
     name: "bulk-close",
@@ -108,33 +108,38 @@ export default {
     },
     methods: {
         close: function () {
-            this.isModalOpen = this.$parent.showBulkClose = false;
             this.$parent.$refs.dtGrounds.vmDataTable.ajax.reload();
             this.range_start = "";
             this.range_end = "";
             this.selected_campgrounds = [];
             this.reason = "";
-            this.closeStartPicker.data('DateTimePicker').date(new Date());
-            this.closeEndPicker.data('DateTimePicker').clear();
+            this.closeStartPicker.clear();
+            this.closeEndPicker.clear();
+            this.isModalOpen = this.$parent.showBulkClose = false;
         },
         events: function () {
             let vm = this;
-            vm.closeEndPicker = $('#' + vm.close_cg_range_end);
-            vm.closeStartPicker = $('#' + vm.close_cg_range_start).datetimepicker({
-                format: 'DD/MM/YYYY',
-                minDate: new Date()
+            const closeStartPickerElement = $('#' + vm.close_cg_range_start)
+            const closeEndPickerElement = $('#' + vm.close_cg_range_end);
+            
+            vm.closeStartPicker = getDateTimePicker(closeStartPickerElement, {
+                restrictions: { minDate: new Date() }
             });
-            vm.closeEndPicker.datetimepicker({
-                format: 'DD/MM/YYYY',
+            vm.closeEndPicker = getDateTimePicker(closeEndPickerElement, {
                 useCurrent: false
             });
-            vm.closeStartPicker.on('dp.change', function (e) {
-                vm.range_start = vm.closeStartPicker.data('DateTimePicker').date().format('DD/MM/YYYY');
-                vm.closeEndPicker.data("DateTimePicker").minDate(e.date);
+            closeStartPickerElement.on('change.td', function (e) {
+                const date = vm.closeStartPicker.dates.lastPicked;
+                vm.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+                if (date) {
+                    vm.closeEndPicker.updateOptions({
+                    restrictions: { minDate: date}
+                    });
+                }
             });
-            vm.closeEndPicker.on('dp.change', function (e) {
-                var date = vm.closeEndPicker.data('DateTimePicker').date();
-                vm.range_end = (date) ? date.format('DD/MM/YYYY') : null;
+            closeEndPickerElement.on('change.td', function (e) {
+                const date = vm.closeEndPicker.dates.lastPicked;
+                vm.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
             });
             vm.addFormValidations();
             vm.fetchCampgrounds();

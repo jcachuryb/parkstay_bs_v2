@@ -1,65 +1,68 @@
 <template id="pkCgClose">
-<bootstrapModal title="(Temporarily) close campground" :large=true @ok="addClosure()">
+    <bootstrapModal title="(Temporarily) close campground" :large=true @ok="addClosure()">
 
-    <div class="modal-body">
-        <form id="closeCGForm" class="form-horizontal">
-            <div class="row">
-			    <alert :show.sync="showError" type="danger">{{errorString}}</alert>
-                <div class="form-group">
-                    <div class="col-md-2">
-                        <label for="open_cg_range_start">Closure start: </label>
-                    </div>
-                    <div class="col-md-4">
-                        <div class='input-group date' id='close_cg_range_start'>
-                            <input  name="closure_start" v-model="formdata.range_start" type='text' class="form-control" />
-                            <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
+        <div class="modal-body">
+            <form id="closeCGForm" class="form-horizontal">
+                <div class="row">
+                    <alert :show.sync="showError" type="danger">{{ errorString }}</alert>
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label for="open_cg_range_start">Closure start: </label>
+                        </div>
+                        <div class="col-md-4">
+                            <div class='input-group date' id='close_cg_range_start'>
+                                <input name="closure_start" v-model="formdata.range_start" type='text'
+                                    class="form-control" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <div class="col-md-2">
-                        <label for="open_cg_range_start">Reopen on: </label>
-                    </div>
-                    <div class="col-md-4">
-                        <div class='input-group date' id='close_cg_range_end'>
-                            <input name="closure_end" v-model="formdata.range_end" type='text' class="form-control" />
-                            <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label for="open_cg_range_start">Reopen on: </label>
+                        </div>
+                        <div class="col-md-4">
+                            <div class='input-group date' id='close_cg_range_end'>
+                                <input name="closure_end" v-model="formdata.range_end" type='text'
+                                    class="form-control" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <reason type="close" v-model="formdata.closure_reason" ref="reason"></reason>
-            <div v-show="requireDetails" class="row">
-                <div class="form-group">
-                    <div class="col-md-2">
-                        <label for="open_cg_details">Details: </label>
-                    </div>
-                    <div class="col-md-5">
-                        <textarea name="closure_details" v-model="formdata.details" class="form-control" id="close_cg_details"></textarea>
+                <reason type="close" v-model="formdata.closure_reason" ref="reason"></reason>
+                <div v-show="requireDetails" class="row">
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label for="open_cg_details">Details: </label>
+                        </div>
+                        <div class="col-md-5">
+                            <textarea name="closure_details" v-model="formdata.details" class="form-control"
+                                id="close_cg_details"></textarea>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
+            </form>
+        </div>
 
-</bootstrapModal>
+    </bootstrapModal>
 </template>
 
 <script>
 import bootstrapModal from '../utils/bootstrap-modal.vue'
-import {bus} from '../utils/eventBus.js'
-import { $, datetimepicker,api_endpoints, validate, helpers } from '../../hooks'
+import { bus } from '../utils/eventBus.js'
+import { $, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../hooks.js'
 import alert from '../utils/alert.vue'
 import reason from '../utils/reasons.vue'
-module.exports = {
+export default {
     name: 'pkCgClose',
-    data: function() {
+    data: function () {
         return {
             status: '',
             formdata: {
@@ -78,11 +81,11 @@ module.exports = {
         }
     },
     computed: {
-        showError: function() {
+        showError: function () {
             var vm = this;
             return vm.errors;
         },
-        isModalOpen: function() {
+        isModalOpen: function () {
             return this.$parent.isOpenCloseCG;
         },
         requireDetails: function () {
@@ -95,7 +98,7 @@ module.exports = {
         reason
     },
     methods: {
-        close: function() {
+        close: function () {
             this.$parent.isOpenCloseCG = false;
             this.formdata = {
                 campground: '',
@@ -107,22 +110,22 @@ module.exports = {
             };
             this.$refs.reason.selected = "";
         },
-        addClosure: function() {
-            if (this.form.valid()){
+        addClosure: function () {
+            if (this.form.valid()) {
                 this.sendData();
             }
         },
-        sendData: function() {
+        sendData: function () {
             let vm = this;
             var data = this.formdata;
             $.ajax({
                 url: api_endpoints.campground_booking_ranges(),
                 method: 'POST',
-                xhrFields: { withCredentials:true },
+                xhrFields: { withCredentials: true },
                 data: data,
-                headers: {'X-CSRFToken': helpers.getCookie('csrftoken')},
+                headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
                 dataType: 'json',
-                success: function(data, stat, xhr) {
+                success: function (data, stat, xhr) {
                     vm.close();
                     bus.$emit('refreshCGTable');
                 },
@@ -132,7 +135,7 @@ module.exports = {
                 }
             });
         },
-        addFormValidations: function() {
+        addFormValidations: function () {
             let vm = this;
             this.form.validate({
                 rules: {
@@ -140,7 +143,7 @@ module.exports = {
                     closure_reason: "required",
                     closure_details: {
                         required: {
-                            depends: function(el){
+                            depends: function (el) {
                                 return vm.requireDetails;
                             }
                         }
@@ -151,9 +154,9 @@ module.exports = {
                     closure_reason: "Select a closure reason from the options",
                     closure_details: "Details required if Other reason is selected"
                 },
-                showErrors: function(errorMap, errorList) {
+                showErrors: function (errorMap, errorList) {
 
-                    $.each(this.validElements(), function(index, element) {
+                    $.each(this.validElements(), function (index, element) {
                         var $element = $(element);
                         $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
                     });
@@ -173,29 +176,34 @@ module.exports = {
                     }
                 }
             });
-       }
+        }
     },
-    mounted: function() {
+    mounted: function () {
         var vm = this;
-        bus.$on('closeCG', function(data){
+        bus.$on('closeCG', function (data) {
             vm.formdata.campground = data.id;
         });
-        vm.closeStartPicker = $('#close_cg_range_start');
-        vm.closeEndPicker = $('#close_cg_range_end');
-        vm.closeStartPicker.datetimepicker({
-            format: 'DD/MM/YYYY',
-            minDate: new Date()
+        const closeStartPickerElement = $('#close_cg_range_start');
+        const closeEndPickerElement = $('#close_cg_range_end');
+
+        vm.closeStartPicker = getDateTimePicker(closeStartPickerElement, {
+            restrictions: { minDate: new Date() }
         });
-        vm.closeEndPicker.datetimepicker({
-            format: 'DD/MM/YYYY',
+        vm.closeEndPicker = getDateTimePicker(closeEndPickerElement, {
             useCurrent: false
         });
-        vm.closeStartPicker.on('dp.change', function(e){
-            vm.formdata.range_start = vm.closeStartPicker.data('DateTimePicker').date().format('DD/MM/YYYY');
-            vm.closeEndPicker.data("DateTimePicker").minDate(e.date);
+        closeStartPickerElement.on('change.td', function (e) {
+            const date = vm.closeStartPicker.dates.lastPicked
+            vm.formdata.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+            if (date) {
+                vm.closeEndPicker.updateOptions({
+                    restrictions: { minDate: date }
+                });
+            }
         });
-        vm.closeEndPicker.on('dp.change', function(e){
-            vm.formdata.range_end = vm.closeEndPicker.data('DateTimePicker').date().format('DD/MM/YYYY');
+        closeEndPickerElement.on('change.td', function (e) {
+            const date = vm.closeEndPicker.dates.lastPicked
+            vm.formdata.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
         });
         vm.form = $('#closeCGForm');
         vm.addFormValidations();

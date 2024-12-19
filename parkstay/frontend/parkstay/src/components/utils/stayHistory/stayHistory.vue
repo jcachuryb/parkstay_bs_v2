@@ -23,7 +23,6 @@ import StayHistoryDetail from './addMaximumStayPeriod.vue'
 import {bus} from '../../utils/eventBus.js'
 import {
     $,
-    Moment,
     api_endpoints,
     helpers
 }
