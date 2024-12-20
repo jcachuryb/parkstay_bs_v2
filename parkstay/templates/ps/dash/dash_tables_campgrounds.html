@@ -8,6 +8,7 @@
         }
     </style>
     <link type="text/css" href="/static/ps/css/quill.snow.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
+    <link type="text/css" href="/static/ps/css/tempus-dominus.min.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
     <link type="text/css" href="/static/parkstay/js/parkstay.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
 {% endblock %}
 
@@ -97,6 +98,8 @@
 {% endblock %}
 
 {% block custom_js %}
+    <script type="text/javascript" src="{% static 'ps/js/popper.min.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
+    <script type="text/javascript" src="{% static 'ps/js/tempus-dominus.min.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
 {% if not DEV_STATIC %}
     <input type='hidden' id='ledger_ui_url' value='{{ LEDGER_UI_URL }}'>
     <script type="text/javascript" src="{% static 'parkstay/js/vendor.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
