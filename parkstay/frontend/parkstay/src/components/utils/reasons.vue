@@ -8,7 +8,7 @@
                 <select v-if="!reasons.length > 0" class="form-control form-select">
                     <option value="">Loading...</option>
                 </select>
-                <select v-else name="open_reason" :value="value" @change="$emit('input', $event.target.value)"
+                <select v-else name="open_reason" :value="value" @change="emit('input', $event.target.value)"
                     class="form-control form-select">
                     <option value=""></option>
                     <option v-for="reason in reasons" :value="reason.id">{{ reason.text }}</option>
@@ -18,78 +18,66 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { onMounted, ref } from 'vue';
 import {
-  $, api_endpoints
+    $, api_endpoints
 } from '../../hooks.js'
 
-export default {
-    name: 'reasons',
-    data: function () {
-        let vm = this;
-        return {
-            reasons: []
-        }
+const props = defineProps({
+    type: {
+        required: true
     },
-    props: {
-        type: {
-            required: true
-        },
-        value: {
+    value: {
+    },
+    large: {
+        default: false
+    }
+})
 
-        },
-        large: {
-            default: function () {
-                return false;
-            }
-        }
-    },
-    methods: {
-        fetchClosureReasons: function () {
-            let vm = this;
-            $.get(api_endpoints.closureReasons(), function (data) {
-                vm.reasons = data;
-            });
-        },
-        fetchMaxStayReasons: function () {
-            let vm = this;
-            $.get(api_endpoints.maxStayReasons(), function (data) {
-                vm.reasons = data;
-            });
-        },
-        fetchPriceReasons: function () {
-            let vm = this;
-            $.get(api_endpoints.priceReasons(), function (data) {
-                vm.reasons = data;
-            });
-        },
-        fetchDiscountReasons: function () {
-            let vm = this;
-            $.get(api_endpoints.discountReasons(), function (data) {
-                vm.reasons = data;
-            });
+const emit = defineEmits(['input'])
 
-        }
-    },
-    mounted: function () {
-        let vm = this;
-        if (vm.type) {
-            switch (vm.type.toLowerCase()) {
-                case 'close':
-                    vm.fetchClosureReasons();
-                    break;
-                case 'stay':
-                    vm.fetchMaxStayReasons();
-                    break;
-                case 'price':
-                    vm.fetchPriceReasons();
-                    break;
-                case 'discount':
-                    vm.fetchDiscountReasons();
-            }
+const reasons = ref([])
+
+const fetchClosureReasons = function () {
+    $.get(api_endpoints.closureReasons(), function (data) {
+        reasons.value = data;
+    });
+}
+const fetchMaxStayReasons = function () {
+    $.get(api_endpoints.maxStayReasons(), function (data) {
+        reasons.value = data;
+    });
+}
+const fetchPriceReasons = function () {
+    $.get(api_endpoints.priceReasons(), function (data) {
+        reasons.value = data;
+    });
+}
+const fetchDiscountReasons = function () {
+    $.get(api_endpoints.discountReasons(), function (data) {
+        reasons.value = data;
+    });
+
+}
+
+onMounted(function () {
+    if (props.type) {
+        switch (props.type.toLowerCase()) {
+            case 'close':
+                fetchClosureReasons();
+                break;
+            case 'stay':
+                fetchMaxStayReasons();
+                break;
+            case 'price':
+                fetchPriceReasons();
+                break;
+            case 'discount':
+                fetchDiscountReasons();
         }
     }
-}
+})
 </script>
 
 <style lang="css"></style>

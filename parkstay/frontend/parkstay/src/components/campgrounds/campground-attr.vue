@@ -3,10 +3,10 @@
         <div v-show="!isLoading">
             <form id="attForm">
                 <div class="col-sm-12">
-                    <alert :show.sync="showUpdate" type="success" :duration="7000">
+                    <alert v-model:show="showUpdate" type="success" :duration="7000">
                         <p>Campground successfully updated</p>
                     </alert>
-                    <alert :show.sync="showError" type="danger">
+                    <alert v-model:show="showError" type="danger">
                         <p>{{ errorString }}</p>
                     </alert>
                     <div class="row">
@@ -23,8 +23,8 @@
                                                 <div class="col-md-6 col-lg-6">
                                                     <div class="form-group">
                                                         <label class="control-label">Campground Name</label>
-                                                        <input autofocus="true" type="text" name="name" id="name" class="form-control"
-                                                            v-model="campground.name" required />
+                                                        <input autofocus="true" type="text" name="name" id="name"
+                                                            class="form-control" v-model="campground.name" required />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4 col-lg-3">
@@ -221,11 +221,11 @@
 
             </form>
         </div>
-        <loader :isLoading.sync="isLoading">Loading...</loader>
+        <loader v-model:isLoading="isLoading">Loading...</loader>
     </div>
 </template>
 
-<script>
+<script setup>
 import {
     $,
     api_endpoints,
@@ -242,341 +242,313 @@ import Editor from 'quill';
 import loader from '../utils/loader.vue'
 import alert from '../utils/alert.vue'
 import { mapGetters } from 'vuex'
-export default {
-    name: 'cg_attr',
-    components: {
-        alert,
-        loader,
-        imagePicker
+import { computed, onMounted, onUpdated, ref, watch } from 'vue';
+import { useStore } from "../../apps/store.js";
+import { useRouter } from 'vue-router/composables';
+
+const router = useRouter()
+const store = useStore()
+const { campground, createCampground, priceSet } = defineProps({
+    createCampground: { type: Boolean, default: true },
+    priceSet: {
+        type: Array, 
+        default: () => [{
+            'val': 0,
+            name: 'Campground level'
+        }, {
+            'val': 1,
+            name: 'Campsite Type level'
+        }, {
+            'val': 2,
+            name: 'Campsite level'
+        }]
     },
-    data: function () {
-        return {
-            selected_price_set: this.priceSet[0],
-            editor: null,
-            editor_updated: false,
-            features: [],
-            selected_features_loaded: false,
-            selected_features: Array(),
-            form: null,
-            errors: false,
-            errorString: '',
-            showUpdate: false,
-            isLoading: false,
-            contacts: [],
-        }
-    },
-    props: {
-        createCampground: {
-            default: function () {
-                return true;
-            }
-        },
-        priceSet: {
-            default: function () {
-                return [{
-                    'val': 0,
-                    name: 'Campground level'
-                }, {
-                    'val': 1,
-                    name: 'Campsite Type level'
-                }, {
-                    'val': 2,
-                    name: 'Campsite level'
-                }];
-            }
-        },
-        campground: {
-            default: function () {
-                return {
-                    address: {},
-                    images: []
-                };
-            },
-            type: Object
-        },
-    },
-    computed: {
-        showError: function () {
-            var vm = this;
-            return vm.errors;
-        },
-        hasSelectedFeatures: function () {
-            return this.selected_features.length > 0;
-        },
-        allFeaturesSelected: function () {
-            return this.features.length < 1;
-        },
-        selected_contact_number: function () {
-            let id = this.campground.contact;
-            if (id != null) {
-                let contact = this.contacts.find(contact => contact.id === id);
-                return contact ? contact.phone_number : '';
-            }
-            else {
-                return '';
-            }
-        },
-        selected_contact_email: function () {
-            let id = this.campground.contact;
-            if (id != null) {
-                let contact = this.contacts.find(contact => contact.id === id);
-                return contact ? contact.email : '';
-            }
-            else {
-                return '';
-            }
-        },
-        ...mapGetters([
-            'parks'
-        ]),
-    },
-    watch: {
-        campground: {
-            handler: function () {
-                this.loadSelectedFeatures();
-            },
-            deep: true
-
-        }
-    },
-    methods: {
-        goBack: function () {
-            helpers.goBack(this);
-        },
-        validateForm: function () {
-            let vm = this;
-            var isValid = vm.validateEditor($('#editor'));
-            return vm.form.valid() && isValid;
-        },
-        create: function () {
-            if (this.validateForm()) {
-                this.sendData(api_endpoints.campgrounds, 'POST');
-            }
-        },
-        update: function () {
-            if (this.validateForm()) {
-                this.sendData(api_endpoints.campground(this.campground.id), 'PUT');
-            }
-        },
-        validateEditor: function (el) {
-            
-            let vm = this;
-            if (el.parents('.form-group').hasClass('has-error')) {
-                el.tooltip("destroy");
-                el.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            }
-            if (vm.editor.getText().trim().length == 0) {
-                // add or update tooltips
-                el.tooltip({
-                    trigger: "focus"
-                })
-                    .attr("data-original-title", 'Description is required')
-                    .parents('.form-group').addClass('has-error');
-                return false;
-            }
-            return true;
-        },
-        sendData: function (url, method) {
-            let vm = this;
-            vm.isLoading = true;
-            var featuresURL = new Array();
-            var temp_features = vm.selected_features;
-            if (vm.createCampground) {
-                vm.campground.features = vm.selected_features;
-            }
-            vm.campground.features.forEach(function (f) {
-                featuresURL.push(f.id);
-            });
-            vm.campground.features = featuresURL;
-            if (vm.campground.contact == "undefined") {
-                vm.campground.contact = '';
-            }
-            $.ajax({
-                beforeSend: function (xhrObj) {
-                    xhrObj.setRequestHeader("Content-Type", "application/json");
-                    xhrObj.setRequestHeader("Accept", "application/json");
-                },
-                url: url,
-                method: method,
-                xhrFields: {
-                    withCredentials: true
-                },
-                data: JSON.stringify(vm.campground),
-                headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
-                contentType: "application/x-www-form-urlencoded",
-                dataType: 'json',
-                success: function (data, stat, xhr) {
-                    debugger
-                    if (method == 'POST') {
-                        vm.$router.push({
-                            name: 'cg_detail',
-                            params: {
-                                id: data.id
-                            }
-                        });
-                        vm.isLoading = false;
-                    }
-                    else if (method == 'PUT') {
-                        vm.campground.features = temp_features;
-                        vm.showUpdate = true;
-                        vm.isLoading = false
-                    }
-                    vm.$store.dispatch("updateAlert", {
-                        visible: false,
-                        type: "danger",
-                        message: ""
-                    });
-                },
-                error: function (resp) {
-                    vm.isLoading = false
-                    vm.$store.dispatch("updateAlert", {
-                        visible: true,
-                        type: "danger",
-                        message: helpers.apiError(resp)
-                    });
-                }
-            });
-        },
-        showAlert: function () {
-            bus.$emit('showAlert', 'alert1');
-        },
-        loadParks: function () {
-            var vm = this;
-            if (vm.parks.length == 0) {
-                vm.$store.dispatch("fetchParks");
-            }
-
-        },
-        loadFeatures: function () {
-            var vm = this;
-            var url = api_endpoints.features;
-            $.ajax({
-                url: url,
-                dataType: 'json',
-                success: function (data, stat, xhr) {
-                    vm.features = data;
-                }
-            });
-        },
-        addSelectedFeature: function (feature, key) {
-            let vm = this;
-            vm.selected_features.push(feature);
-            vm.features.splice(key, 1);
-            vm.selected_features.sort(function (a, b) {
-                return parseInt(a.id) - parseInt(b.id)
-            });
-        },
-        removeSelectedFeature: function (feature, key) {
-            let vm = this;
-            vm.features.push(feature);
-            vm.selected_features.splice(key, 1);
-            vm.features.sort(function (a, b) {
-                return parseInt(a.id) - parseInt(b.id)
-            });
-        },
-        addFormValidations: function () {
-            this.form.validate({
-                ignore: 'div.ql-editor',
-                rules: {
-                    name: "required",
-                    park: "required",
-                    campground_type: "required",
-                    site_type: "required",
-                    street: "required",
-                    email: {
-                        required: true,
-                        email: true
-                    },
-                    telephone: "required",
-                    postcode: "required",
-                    price_level: "required"
-                },
-                messages: {
-                    name: "Enter a campground name",
-                    park: "Select a park from the options",
-                    campground_type: "Select a campground type from the options",
-                    site_type: "Select a site type from the options",
-                    price_level: "Select a price level from the options"
-                },
-                showErrors: function (errorMap, errorList) {
-                    $.each(this.validElements(), function (index, element) {
-                        var $element = $(element);
-
-                        $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-                    });
-
-                    // destroy tooltips on valid elements
-                    $("." + this.settings.validClass).tooltip("destroy");
-
-                    // add or update tooltips
-                    for (var i = 0; i < errorList.length; i++) {
-                        var error = errorList[i];
-                        $(error.element)
-                            .tooltip({
-                                trigger: "focus"
-                            })
-                            .attr("data-original-title", error.message)
-                            .parents('.form-group').addClass('has-error');
-                    }
-                }
-            });
-        },
-        loadSelectedFeatures: function () {
-            let vm = this;
-            if (vm.campground.features) {
-                if (!vm.createCampground) {
-                    vm.selected_features = vm.campground.features;
-                }
-                $.each(vm.campground.features, function (i, cgfeature) {
-                    $.each(vm.features, function (j, feat) {
-                        if (feat != null) {
-                            if (cgfeature.id == feat.id) {
-                                vm.features.splice(j, 1);
-                            }
-                        }
-                    })
-                });
-            }
-
-        }
-    },
-    mounted: function () {
-        let vm = this;
-        vm.loadParks();
-        vm.loadFeatures();
-        vm.editor = new Editor('#editor', {
-            modules: {
-                toolbar: true
-            },
-            theme: 'snow'
-        });
-        vm.editor.clipboard.dangerouslyPasteHTML(0, vm.campground.description, 'api');
-        vm.editor.on('text-change', function (delta, oldDelta, source) {
-            var text = $('#editor >.ql-editor').html();
-            vm.campground.description = text;
-            vm.validateEditor($('#editor'));
-        });
-
-        vm.form = $('#attForm');
-        vm.addFormValidations();
-        vm.$http.get(api_endpoints.contacts).then((response) => {
-            vm.contacts = response.body
-        }, (error) => {
-            console.log(error);
+    campground: {
+        type: Object,
+        default: ()=> ({
+            address: {},
+            images: []
         })
     },
-    updated: function () {
-        let vm = this;
-        var changed = false;
-        if (vm.campground.description != null && vm.editor_updated == false) {
-            vm.editor.clipboard.dangerouslyPasteHTML(0, vm.campground.description, 'api');
-            changed = true;
-        }
-        if (changed) {
-            vm.editor_updated = true;
-        }
+
+})
+
+
+const selected_price_set = ref(priceSet[0])
+const editor = ref(null)
+const editor_updated = ref(false)
+const features = ref([])
+const selected_features_loaded = ref(false)
+const selected_features = ref([])
+const form = ref(null)
+const errors = ref(false)
+const errorString = ref('')
+const showUpdate = ref(false)
+const isLoading = ref(false)
+const contacts = ref([])
+
+const showError = computed(function () {
+    return errors.value;
+})
+const hasSelectedFeatures = computed(function () {
+    return selected_features.value.length > 0;
+})
+const allFeaturesSelected = computed(function () {
+    return features.value.length < 1;
+})
+const selected_contact_number = computed(function () {
+    let id = campground.contact;
+    if (id != null) {
+        let contact = contacts.value.find(contact => contact.id === id);
+        return contact ? contact.phone_number : '';
+    }
+    else {
+        return '';
+    }
+})
+const selected_contact_email = computed(function () {
+    let id = campground.contact;
+    if (id != null) {
+        let contact = contacts.value.find(contact => contact.id === id);
+        return contact ? contact.email : '';
+    }
+    else {
+        return '';
+    }
+})
+const parks = computed(() => mapGetters(['parks']))
+
+watch(campground, function () {
+    loadSelectedFeatures();
+}, { deep: true })
+
+const goBack = function () {
+    router.go(window.history.back());
+}
+const validateForm = function () {
+    var isValid = validateEditor($('#editor'));
+    return form.value.valid() && isValid;
+}
+const create = function () {
+    if (validateForm()) {
+        sendData(api_endpoints.campgrounds, 'POST');
     }
 }
+const update = function () {
+    if (validateForm()) {
+        sendData(api_endpoints.campground(campground.id), 'PUT');
+    }
+}
+const validateEditor = function (el) {
+
+    if (el.parents('.form-group').hasClass('has-error')) {
+        el.tooltip("destroy");
+        el.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
+    }
+    if (editor.value.getText().trim().length == 0) {
+        // add or update tooltips
+        el.tooltip({
+            trigger: "focus"
+        })
+            .attr("data-original-title", 'Description is required')
+            .parents('.form-group').addClass('has-error');
+        return false;
+    }
+    return true;
+}
+const sendData = function (url, method) {
+    isLoading.value = true;
+    var featuresURL = new Array();
+    var temp_features = selected_features.value;
+    if (createCampground) {
+        campground.features = selected_features.value;
+    }
+    campground.features.forEach(function (f) {
+        featuresURL.push(f.id);
+    });
+    campground.features = featuresURL;
+    if (campground.contact == "undefined") {
+        campground.contact = '';
+    }
+    $.ajax({
+        beforeSend: function (xhrObj) {
+            xhrObj.setRequestHeader("Content-Type", "application/json");
+            xhrObj.setRequestHeader("Accept", "application/json");
+        },
+        url: url,
+        method: method,
+        xhrFields: {
+            withCredentials: true
+        },
+        data: JSON.stringify(campground),
+        headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
+        contentType: "application/x-www-form-urlencoded",
+        dataType: 'json',
+        success: function (data, stat, xhr) {
+            if (method == 'POST') {
+                router.push({
+                    name: 'cg_detail',
+                    params: {
+                        id: data.id
+                    }
+                });
+                isLoading.value = false;
+            }
+            else if (method == 'PUT') {
+                campground.features = temp_features;
+                showUpdate.value = true;
+                isLoading.value = false
+            }
+            store.dispatch("updateAlert", {
+                visible: false,
+                type: "danger",
+                message: ""
+            });
+        },
+        error: function (resp) {
+            isLoading.value = false
+            store.dispatch("updateAlert", {
+                visible: true,
+                type: "danger",
+                message: helpers.apiError(resp)
+            });
+        }
+    });
+}
+const showAlert = function () {
+    bus.$emit('showAlert', 'alert1');
+}
+const loadParks = function () {
+    if (parks.value.length == 0) {
+        store.dispatch("fetchParks");
+    }
+
+}
+const loadFeatures = function () {
+    var url = api_endpoints.features;
+    $.ajax({
+        url: url,
+        dataType: 'json',
+        success: function (data, stat, xhr) {
+            features.value = data;
+        }
+    });
+}
+const addSelectedFeature = function (feature, key) {
+    selected_features.value.push(feature);
+    features.value.splice(key, 1);
+    selected_features.value.sort(function (a, b) {
+        return parseInt(a.id) - parseInt(b.id)
+    });
+}
+const removeSelectedFeature = function (feature, key) {
+    features.value.push(feature);
+    selected_features.value.splice(key, 1);
+    features.value.sort(function (a, b) {
+        return parseInt(a.id) - parseInt(b.id)
+    });
+}
+const addFormValidations = function () {
+    form.value.validate({
+        ignore: 'div.ql-editor',
+        rules: {
+            name: "required",
+            park: "required",
+            campground_type: "required",
+            site_type: "required",
+            street: "required",
+            email: {
+                required: true,
+                email: true
+            },
+            telephone: "required",
+            postcode: "required",
+            price_level: "required"
+        },
+        messages: {
+            name: "Enter a campground name",
+            park: "Select a park from the options",
+            campground_type: "Select a campground type from the options",
+            site_type: "Select a site type from the options",
+            price_level: "Select a price level from the options"
+        },
+        showErrors: function (errorMap, errorList) {
+            $.each(this.validElements(), function (index, element) {
+                var $element = $(element);
+
+                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
+            });
+
+            // destroy tooltips on valid elements
+            $("." + this.settings.validClass).tooltip("destroy");
+
+            // add or update tooltips
+            for (var i = 0; i < errorList.length; i++) {
+                var error = errorList[i];
+                $(error.element)
+                    .tooltip({
+                        trigger: "focus"
+                    })
+                    .attr("data-original-title", error.message)
+                    .parents('.form-group').addClass('has-error');
+            }
+        }
+    });
+}
+const loadSelectedFeatures = function () {
+    if (campground.features) {
+        if (!createCampground) {
+            selected_features.value = campground.features;
+        }
+        $.each(campground.features, function (i, cgfeature) {
+            $.each(features.value, function (j, feat) {
+                if (feat != null) {
+                    if (cgfeature.id == feat.id) {
+                        features.value.splice(j, 1);
+                    }
+                }
+            })
+        });
+    }
+
+}
+
+onMounted(function () {
+    loadParks();
+    loadFeatures();
+    editor.value = new Editor('#editor', {
+        modules: {
+            toolbar: true
+        },
+        theme: 'snow'
+    });
+    editor.value.clipboard.dangerouslyPasteHTML(0, campground.description, 'api');
+    editor.value.on('text-change', function (delta, oldDelta, source) {
+        var text = $('#editor >.ql-editor').html();
+        campground.description = text;
+        validateEditor($('#editor'));
+    });
+
+    form.value = $('#attForm');
+    addFormValidations();
+    fetch(api_endpoints.contacts).then((response) => {
+        contacts.value = response.body
+    }).catch((error) => {
+        console.log(error);
+    })
+})
+
+onUpdated(function () {
+    var changed = false;
+    if (campground.description != null && editor_updated.value == false) {
+        editor.value.clipboard.dangerouslyPasteHTML(0, campground.description, 'api');
+        changed = true;
+    }
+    if (changed) {
+        editor_updated.value = true;
+    }
+}
+)
 
 </script>
 

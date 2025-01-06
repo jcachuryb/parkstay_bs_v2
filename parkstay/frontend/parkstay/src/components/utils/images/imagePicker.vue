@@ -7,7 +7,8 @@
                         @change="readURL()" />
                     Add Image
                 </span>
-                <button class="btn btn-sm btn-danger" v-show="imagesLoaded" @click.prevent="clearImages">Clear All</button>
+                <button class="btn btn-sm btn-danger" v-show="imagesLoaded" @click.prevent="clearImages">Clear
+                    All</button>
             </div>
         </div>
         <div class="form-group">
@@ -17,8 +18,8 @@
                     <div class="upload">
                         <div v-for="(img, i) in images" class="panel panel-default">
                             <div class="overlay">
-                                <button type="button" class="btn btn-danger btn-block" @click.prevent="removeImage(i)"> Remove <i
-                                        class="fa fa-w fa-trash-o"></i></button>
+                                <button type="button" class="btn btn-danger btn-block" @click.prevent="removeImage(i)">
+                                    Remove <i class="fa fa-w fa-trash-o"></i></button>
                             </div>
                             <div class="panel-body" :data-index='i'>
                                 <img :src="img.image" class="img" alt="Responsive image" />
@@ -43,7 +44,8 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, onUpdated, onBeforeUnmount, computed } from 'vue';
 import {
     $,
     slick
@@ -54,147 +56,131 @@ import {
 }
     from '../eventBus.js'
 import loader from '../loader.vue'
-export default{
-    name: '',
-    props: {
-        showCaption: {
-            type: Boolean,
-            default: false
-        },
-        images: {
-            type: Array,
-            required: true
-        }
-    },
-    data: function () {
-        let vm = this;
-        return {
-            slide: 0,
-            addingImage: false,
-            imageLoaderText: '',
-            slickCaro: null,
-            slick_options: {
-                dots: true,
-                infinite: true,
-                speed: 300,
-                adaptiveHeight: true,
-                slidesToShow: 4,
-                slidesToScroll: 4,
-                responsive: [{
-                    breakpoint: 1024,
-                    settings: {
-                        slidesToShow: 3,
-                        slidesToScroll: 3,
-                        infinite: false,
-                        dots: true
-                    }
-                }, {
-                    breakpoint: 600,
-                    settings: {
-                        slidesToShow: 2,
-                        slidesToScroll: 2
-                    }
-                }, {
-                    breakpoint: 480,
-                    settings: {
-                        slidesToShow: 1,
-                        slidesToScroll: 1
-                    }
-                }]
-            }
-        }
-    },
-    components: {
-        loader
-    },
-    methods: {
-        removeImage: function (i) {
-            let vm = this;
-            vm.imageLoaderText = 'Loading Images...'
-            vm.addingImage = true;
-            vm.images.splice(i, 1);
-            $('.upload').slick('unslick');
-            vm.slick_refresh();
-        },
-        showRemove: function () {
-            let vm = this;
 
-            var el = $('div[data-index]');
-            $(el).on('mouseover', function (e) {
-                $(this).siblings('.overlay').addClass('show').on('mouseleave', function (el) {
-                    $(this).removeClass('show');
-                });
-            });
-        },
-        clearImages: function () {
-            let vm = this;
-            vm.imageLoaderText = 'Removing Images...'
-            vm.addingImage = true;
-            vm.images.splice(0, vm.images.length);
-            $('.upload').slick('unslick');
-            vm.slick_refresh();
-        },
-        slick_init: function () {
-            let vm = this;
-            vm.slickCaro = $('.upload').slick(vm.slick_options);
-        },
-        slick_refresh: function () {
-            let vm = this;
-            setTimeout(function () {
-                vm.slick_init();
-            }, 100);
-            setTimeout(function () {
-                vm.addingImage = false;
-                $('.upload').slick('resize');
-            }, 400);
-        },
-        readURL: function () {
-            let vm = this;
-            $('.upload').slick('unslick');
-            vm.addingImage = true;
-            var input = vm.$refs.imagePicker;
-            if (input.files && input.files[0]) {
-                input.files.length > 1 ? vm.imageLoaderText = 'Adding Images...' : vm.imageLoaderText = 'Adding Image...';
-                for (var i = 0; i < input.files.length; i++) {
-                    var reader = new FileReader();
-                    reader.onload = function (e) {
-                        vm.slide++
-                        vm.images.push({
-                            image: e.target.result,
-                            caption: ''
-                        });
-                    };
-                    reader.readAsDataURL(input.files[i]);
-                }
-                $(input).val("");
-                vm.slick_refresh();
-            }
-        }
+const props = defineProps({
+    showCaption: {
+        type: Boolean,
+        default: false
     },
-    mounted: function () {
-        let vm = this;
-        vm.slick_init();
-        bus.$on('campgroundFetched', function () {
-            if (vm.images) {
-                $('.upload').slick('unslick');
-                vm.imageLoaderText = 'Loading Images...'
-                vm.addingImage = true;
-                vm.slick_refresh();
-            }
+    images: {
+        type: Array,
+        required: true
+    }
+})
+const imagePicker = ref(null)
+const slide = ref(0)
+const addingImage = ref(false)
+const imageLoaderText = ref('')
+const slickCaro = ref(null)
+const slick_options = ref({
+    dots: true,
+    infinite: true,
+    speed: 300,
+    adaptiveHeight: true,
+    slidesToShow: 4,
+    slidesToScroll: 4,
+    responsive: [{
+        breakpoint: 1024,
+        settings: {
+            slidesToShow: 3,
+            slidesToScroll: 3,
+            infinite: false,
+            dots: true
+        }
+    }, {
+        breakpoint: 600,
+        settings: {
+            slidesToShow: 2,
+            slidesToScroll: 2
+        }
+    }, {
+        breakpoint: 480,
+        settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1
+        }
+    }]
+
+})
+
+onMounted(function () {
+    slick_init();
+    bus.$on('campgroundFetched', function () {
+        if (props.images) {
+            $('.upload').slick('unslick');
+            imageLoaderText.value = 'Loading Images...'
+            addingImage.value = true;
+            slick_refresh();
+        }
+    });
+    slide.value = props.images.length;
+})
+
+const removeImage = function (i) {
+    imageLoaderText.value = 'Loading Images...'
+    addingImage.value = true;
+    props.images.splice(i, 1);
+    $('.upload').slick('unslick');
+    slick_refresh();
+}
+
+const showRemove = function () {
+    var el = $('div[data-index]');
+    $(el).on('mouseover', function (e) {
+        $(this).siblings('.overlay').addClass('show').on('mouseleave', function (el) {
+            $(this).removeClass('show');
         });
-        vm.slide = vm.images.length;
+    });
+}
+const clearImages = function () {
 
-    },
-    updated: function () {
-        let vm = this;
-        vm.showRemove();
-    },
-    computed: {
-        imagesLoaded: function () {
-            return this.images && this.images.length > 1
+    imageLoaderText.value = 'Removing Images...'
+    addingImage.value = true;
+    props.images.splice(0, props.images.length);
+    $('.upload').slick('unslick');
+    slick_refresh();
+}
+const slick_init = function () {
+    slickCaro.value = $('.upload').not('.slick-initialized').slick(slick_options.value);
+}
+const slick_refresh = function () {
+    setTimeout(function () {
+        slick_init();
+    }, 100);
+    setTimeout(function () {
+        addingImage.value = false;
+        $('.upload').slick('resize');
+    }, 400);
+}
+const readURL = function () {
+    $('.upload').slick('unslick');
+    addingImage.value = true;
+    var input = imagePicker.value;
+    if (input.files && input.files[0]) {
+        input.files.length > 1 ? imageLoaderText.value = 'Adding Images...' : imageLoaderText.value = 'Adding Image...';
+        for (var i = 0; i < input.files.length; i++) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                slide.value++
+                props.images.push({
+                    image: e.target.result,
+                    caption: ''
+                });
+            };
+            reader.readAsDataURL(input.files[i]);
         }
+        $(input).val("");
+        slick_refresh();
     }
 }
+
+const imagesLoaded = computed(function () {
+    return props.images && props.images.length > 1
+})
+
+onUpdated(function () {
+    showRemove();
+})
 
 </script>
 

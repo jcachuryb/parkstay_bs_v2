@@ -13,7 +13,7 @@
                         <div class="row">
                             <div class="col-sm-12">
                             </div>
-                            <campgroundAttr :campground.sync="campground" />
+                            <campgroundAttr v-model:campground="campground" />
                         </div>
                     </div>
                 </div>
@@ -23,31 +23,14 @@
 
 </template>
 
-<script>
+<script setup>
 import campgroundAttr from './campground-attr.vue'
-import alert from '../utils/alert.vue'
-export default {
-    name: 'addCampground',
-    components: {
-        campgroundAttr,
-        alert
-    },
-    data: function () {
-        return {
-            campground: {
-                address: {},
-                images: []
-            },
-            title: '',
-            errors: false,
-            errorString: '',
-        }
-    },
-    methods: {
-    },
-    mounted: function () {
-    }
-}
+import { ref } from 'vue'
+
+const campground = ref({
+    address: {},
+    images: []
+})
 </script>
 
 <style lang="css">

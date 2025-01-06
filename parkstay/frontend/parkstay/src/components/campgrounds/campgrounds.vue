@@ -1,7 +1,7 @@
 <template>
     <div id="groundsList">
-        <pkCgClose></pkCgClose>
-        <pkCgOpen></pkCgOpen>
+        <pkCgClose @isOpenCloseCG="handleCloseCampground"></pkCgClose>
+        <pkCgOpen @isOpenOpenCG="handleOpenCampground"></pkCgOpen>
         <div class="panel-group" id="returns-accordion" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default border p-3" id="returns">
                 <base-panel-heading :title="title">
@@ -85,11 +85,11 @@
                 </div>
             </div>
         </div>
-        <bulk-close :show="showBulkClose" ref="bulkClose" />
+        <bulk-close-component :show="showBulkClose" ref="bulkClose" @close="closeBulkClose()" />
     </div>
 </template>
 
-<script>
+<script setup>
 import {
     $,
     api_endpoints
@@ -97,232 +97,209 @@ import {
 import datatable from '../utils/datatable.vue'
 import pkCgClose from './closeCampground.vue'
 import pkCgOpen from './openCampground.vue'
-import bulkClose from '../utils/closureHistory/bulk-close.vue'
+import bulkCloseComponent from '../utils/closureHistory/bulk-close.vue'
 import { bus } from '../utils/eventBus.js'
 import { mapGetters } from 'vuex'
-export default {
-    name: 'campgrounds',
-    data: function () {
-        let vm = this;
-    
-        return {
-            grounds: [],
-            rows: [],
-            title: 'Campgrounds',
-            selected_status: 'All',
-            selected_region: 'All',
-            selected_park: 'All',
-            selected_district: 'All',
-            isOpenAddCampground: false,
-            isOpenOpenCG: false,
-            isOpenCloseCG: false,
-            showBulkClose: false,
-            dtoptions: {
+import { computed, ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router/composables';
+import { useStore } from "../../apps/store.js";
 
-                responsive: true,
+const router = useRouter()
+const store = useStore()
 
-                columnDefs: [
-                    { targets: [0, 3], responsivePriority: 1 },
-                    { "defaultContent": "-", "targets": "_all" }
-                ],
-                ajax: {
-                    "url": api_endpoints.campgrounds_datatable,
-                    "dataSrc": ''
-                },
-                columns: [{
-                    "data": "name"
-                }, {
-                    "data": "active",
-                    "mRender": function (data, type, full) {
-                        var status = (data == true) ? "Open" : "Temporarily Closed";
-                        var column = "<td >__Status__</td>";
-                        column += data ? "" : "<br/><br/>" + full.current_closure;
-                        return column.replace('__Status__', status);
-                    }
-                }, {
-                    "data": "region"
-                }, {
-                    "data": "district"
-                }, {
-                    "data": "park"
-                }, {
-                    "mRender": function (data, type, full) {
-                        var id = full.id;
-                        var addBooking = "<br/><a href='#' class='addBooking' data-campground=\"__ID__\" >Add Booking</a>";
-                        var availability_admin = "<br/><a target='_blank' href='/availability_admin/?site_id=__ID__' >Availability</a>";
-                        var column = "";
+const grounds = ref([])
+const rows = ref([])
+const title = ref('Campgrounds')
+const selected_status = ref('All')
+const selected_region = ref('All')
+const selected_park = ref('All')
+const selected_district = ref('All')
+const dtGrounds = ref(null)
+const bulkClose = ref(null)
+const isOpenAddCampground = ref(false)
+const isOpenOpenCG = ref(false)
+const isOpenCloseCG = ref(false)
+const showBulkClose = ref(false)
+const dtoptions = ref({
+    responsive: true,
 
-                        if (full.active) {
-                            var column = "<td ><a href='#' class='detailRoute' data-campground=\"__ID__\" >Edit </a><br/><a href='#' class='statusCG' data-status='close' data-campground=\"__ID__\" > Close </a>";
-                        } else {
-                            var column = "<td ><a href='#' class='detailRoute' data-campground=\"__ID__\" >Edit </a><br/><a href='#' class='statusCG' data-status='open' data-campground=\"__ID__\" data-current_closure=\"__Current_Closure__\" data-current_closure_id=\"__Current_Closure_ID__\">Open</a>";
-                        }
-
-                        // column += full.campground_type == '0' ? addBooking : "";
-                        // column += full.campground_type == '0' ? availability_admin:"";
-                        column += "</td>";
-                        column = column.replace(/__Current_Closure__/, full.current_closure);
-                        column = column.replace(/__Current_Closure_ID__/, full.current_closure_id);
-                        return column.replace(/__ID__/g, id);
-                    }
-                },],
-                processing: true
-            }
+    columnDefs: [
+        { targets: [0, 3], responsivePriority: 1 },
+        { "defaultContent": "-", "targets": "_all" }
+    ],
+    ajax: {
+        "url": api_endpoints.campgrounds_datatable,
+        "dataSrc": ''
+    },
+    columns: [{
+        "data": "name"
+    }, {
+        "data": "active",
+        "mRender": function (data, type, full) {
+            var status = (data == true) ? "Open" : "Temporarily Closed";
+            var column = "<td >__Status__</td>";
+            column += data ? "" : "<br/><br/>" + full.current_closure;
+            return column.replace('__Status__', status);
         }
-    },
-    components: {
-        pkCgClose,
-        pkCgOpen,
-        datatable,
-        "bulk-close": bulkClose,
-    },
-    computed: {
-        ...mapGetters([
-            'regions',
-            'districts',
-            'parks'
-        ]),
-    },
-    watch: {
-        showBulkClose: function () {
-            let vm = this
-            this.$refs.bulkClose.isModalOpen = vm.showBulkClose;
-            this.$refs.bulkClose.initSelectTwo();
-        },
-        selected_region: function () {
-            let vm = this;
-            if (vm.selected_region != 'All') {
-                vm.$refs.dtGrounds.vmDataTable.columns(2).search(vm.selected_region).draw();
+    }, {
+        "data": "region"
+    }, {
+        "data": "district"
+    }, {
+        "data": "park"
+    }, {
+        "mRender": function (data, type, full) {
+            var id = full.id;
+            var addBooking = "<br/><a href='#' class='addBooking' data-campground=\"__ID__\" >Add Booking</a>";
+            var availability_admin = "<br/><a target='_blank' href='/availability_admin/?site_id=__ID__' >Availability</a>";
+            var column = "";
+
+            if (full.active) {
+                var column = "<td ><a href='#' class='detailRoute' data-campground=\"__ID__\" >Edit </a><br/><a href='#' class='statusCG' data-status='close' data-campground=\"__ID__\" > Close </a>";
             } else {
-                vm.$refs.dtGrounds.vmDataTable.columns(2).search('').draw();
+                var column = "<td ><a href='#' class='detailRoute' data-campground=\"__ID__\" >Edit </a><br/><a href='#' class='statusCG' data-status='open' data-campground=\"__ID__\" data-current_closure=\"__Current_Closure__\" data-current_closure_id=\"__Current_Closure_ID__\">Open</a>";
             }
-        },
-        selected_status: function () {
-            let vm = this;
-            if (vm.selected_status != 'All') {
-                vm.$refs.dtGrounds.vmDataTable.columns(1).search(vm.selected_status).draw();
-            } else {
-                vm.$refs.dtGrounds.vmDataTable.columns(1).search('').draw();
-            }
-        },
-        selected_district: function () {
-            let vm = this;
-            if (vm.selected_district != 'All') {
-                vm.$refs.dtGrounds.vmDataTable.columns(3).search(vm.selected_district).draw();
-            } else {
-                vm.$refs.dtGrounds.vmDataTable.columns(3).search('').draw();
-            }
-        },
-        selected_park: function () {
-            let vm = this;
-            if (vm.selected_park != 'All') {
-                vm.$refs.dtGrounds.vmDataTable.columns(4).search(vm.selected_park).draw();
-            } else {
-                vm.$refs.dtGrounds.vmDataTable.columns(4).search('').draw();
-            }
+
+            // column += full.campground_type == '0' ? addBooking : "";
+            // column += full.campground_type == '0' ? availability_admin:"";
+            column += "</td>";
+            column = column.replace(/__Current_Closure__/, full.current_closure);
+            column = column.replace(/__Current_Closure_ID__/, full.current_closure_id);
+            return column.replace(/__ID__/g, id);
         }
-    },
-    methods: {
-        flagFormat: function (flag) {
-            return flag ? 'Yes' : 'No'
-        },
-        update: function () {
-            var vm = this;
-            var url = api_endpoints.regions;
-            $.ajax({
-                url: url,
-                dataType: 'json',
-                success: function (data, stat, xhr) {
-                    vm.regions = data;
-                }
-            });
-        },
-        updateTable: function () {
-            var vm = this;
-            vm.$refs.dtGrounds.vmDataTable.draw();
-        },
-        showOpenCloseCG: function () {
-            this.isOpenCloseCG = true;
-        },
-        showOpenOpenCG: function () {
-            this.isOpenOpenCG = true;
-        },
-        openDetail: function (cg_id) {
-            this.$router.push({
-                name: 'cg_detail',
-                params: {
-                    id: cg_id
-                }
-            });
-        },
-        addCampground: function (cg_id) {
-            this.$router.push({
-                name: 'cg_add',
-            });
-        },
-        fetchRegions: function () {
-            let vm = this;
-            if (vm.regions.length == 0) {
-                vm.$store.dispatch("fetchRegions");
-            }
-        },
-        fetchParks: function () {
-            let vm = this;
-            if (vm.parks.length == 0) {
-                vm.$store.dispatch("fetchParks");
-            }
-        },
-        fetchDistricts: function () {
-            let vm = this;
-            if (vm.districts.length == 0) {
-                vm.$store.dispatch("fetchDistricts");
-            }
-        }
-    },
-    mounted: function () {
-        var vm = this;
-        vm.$refs.dtGrounds.vmDataTable.on('click', '.detailRoute', function (e) {
-            e.preventDefault();
-            var id = $(this).attr('data-campground');
-            vm.openDetail(id);
-        });
-        vm.$refs.dtGrounds.vmDataTable.on('click', '.statusCG', function (e) {
-            e.preventDefault();
-            var id = $(this).attr('data-campground');
-            var status = $(this).attr('data-status');
-            var current_closure = $(this).attr('data-current_closure') ? $(this).attr('data-current_closure') : '';
-            var current_closure_id = $(this).attr('data-current_closure_id') ? $(this).attr('data-current_closure_id') : '';
-            if (status === 'open') {
-                var data = {
-                    'id': current_closure_id,
-                    'closure': current_closure
-                };
-                bus.$emit('openCG', data);
-                vm.showOpenOpenCG();
-            } else if (status === 'close') {
-                var data = {
-                    'id': id,
-                };
-                bus.$emit('closeCG', data);
-                vm.showOpenCloseCG();
-            }
-        });
-        vm.$refs.dtGrounds.vmDataTable.on('click', '.addBooking', function (e) {
-            e.preventDefault();
-            var id = $(this).attr('data-campground');
-            vm.$router.push({
-                name: 'add-booking',
-                params: {
-                    "cg": id
-                }
-            });
-        });
-        bus.$on('refreshCGTable', function () {
-            vm.$refs.dtGrounds.vmDataTable.ajax.reload();
-        });
-        vm.fetchRegions();
-        vm.fetchParks();
-        vm.fetchDistricts();
+    },],
+    processing: true
+})
+
+const regions = computed(() => mapGetters(['regions']))
+const districts = computed(() => mapGetters(['districts']))
+const parks = computed(() => mapGetters(['parks']))
+
+watch(() => showBulkClose, function (value) {
+    bulkClose.value.isModalOpen = value;
+    bulkClose.value.initSelectTwo();
+})
+watch(() => selected_region, function (value) {
+    if (value != 'All') {
+        dtGrounds.value.vmDataTable.columns(2).search(value).draw();
+    } else {
+        dtGrounds.value.vmDataTable.columns(2).search('').draw();
     }
-};
+})
+watch(() => selected_status, function (value) {
+    if (value != 'All') {
+        dtGrounds.value.vmDataTable.columns(1).search(value).draw();
+    } else {
+        dtGrounds.value.vmDataTable.columns(1).search('').draw();
+    }
+})
+watch(() => selected_district, function (value) {
+    if (value != 'All') {
+        dtGrounds.value.vmDataTable.columns(3).search(value).draw();
+    } else {
+        dtGrounds.value.vmDataTable.columns(3).search('').draw();
+    }
+})
+watch(() => selected_park, function (value) {
+    if (value != 'All') {
+        dtGrounds.value.vmDataTable.columns(4).search(value).draw();
+    } else {
+        dtGrounds.value.vmDataTable.columns(4).search('').draw();
+    }
+})
+
+const flagFormat = function (flag) {
+    return flag ? 'Yes' : 'No'
+}
+
+const closeBulkClose = function () {
+    showBulkClose.value = false;
+    dtGrounds.value.vmDataTable.ajax.reload();
+}
+const handleOpenCampground = function (value) {
+    isOpenOpenCG.value = value;
+}
+const handleCloseCampground = function (value) {
+    isOpenCloseCG.value = value;
+}
+
+const showOpenCloseCG = function () {
+    isOpenCloseCG.value = true;
+}
+const showOpenOpenCG = function () {
+    isOpenOpenCG.value = true;
+}
+const openDetail = function (cg_id) {
+    router.push({
+        name: 'cg_detail',
+        params: {
+            id: cg_id
+        }
+    });
+}
+const addCampground = function (cg_id) {
+    router.push({
+        name: 'cg_add',
+    });
+}
+const fetchRegions = function () {
+    if (regions.value.length == 0) {
+        store.dispatch("fetchRegions");
+    }
+}
+const fetchParks = function () {
+    if (parks.value.length == 0) {
+        store.dispatch("fetchParks");
+    }
+}
+const fetchDistricts = function () {
+    if (districts.value.length == 0) {
+        store.dispatch("fetchDistricts");
+    }
+}
+
+onMounted(function () {
+    dtGrounds.value.vmDataTable.on('click', '.detailRoute', function (e) {
+        e.preventDefault();
+        var id = $(this).attr('data-campground');
+        openDetail(id);
+    });
+    dtGrounds.value.vmDataTable.on('click', '.statusCG', function (e) {
+        e.preventDefault();
+        var id = $(this).attr('data-campground');
+        var status = $(this).attr('data-status');
+        var current_closure = $(this).attr('data-current_closure') ? $(this).attr('data-current_closure') : '';
+        var current_closure_id = $(this).attr('data-current_closure_id') ? $(this).attr('data-current_closure_id') : '';
+        if (status === 'open') {
+            var data = {
+                'id': current_closure_id,
+                'closure': current_closure
+            };
+            bus.$emit('openCG', data);
+            showOpenOpenCG();
+        } else if (status === 'close') {
+            var data = {
+                'id': id,
+            };
+            bus.$emit('closeCG', data);
+            showOpenCloseCG();
+        }
+    });
+    dtGrounds.value.vmDataTable.on('click', '.addBooking', function (e) {
+        e.preventDefault();
+        var id = $(this).attr('data-campground');
+        router.push({
+            name: 'add-booking',
+            params: {
+                "cg": id
+            }
+        });
+    });
+    bus.$on('refreshCGTable', function () {
+        dtGrounds.value.vmDataTable.ajax.reload();
+    });
+    fetchRegions();
+    fetchParks();
+    fetchDistricts();
+})
 </script>

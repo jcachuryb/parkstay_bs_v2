@@ -1,17 +1,10 @@
 <template>
   <div id="app">
+    <h2>HEEEY </h2>
     <campgrounds></campgrounds>
   </div>
 </template>
 
-<script>
+<script setup>
 import campgrounds from './components/campgrounds.vue'
-
-export default{
-  name: 'app',
-  components: {
-    campgrounds
-  }
-
-};
 </script>
