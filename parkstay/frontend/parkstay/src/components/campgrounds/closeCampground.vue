@@ -56,8 +56,7 @@
 
 <script setup>
 import bootstrapModal from '../utils/bootstrap-modal.vue'
-import { bus } from '../utils/eventBus.js'
-import { $, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../hooks.js'
+import { $, bus, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../hooks.js'
 import alert from '../utils/alert.vue'
 import reasonComponent from '../utils/reasons.vue'
 import { computed, ref, onMounted } from 'vue'
@@ -78,7 +77,7 @@ const isOpen = ref(false)
 const errorString = ref('')
 const form = ref('')
 const reason = ref(null)
-const emit = defineEmits(['isOpenCloseCG'])
+const emit = defineEmits(['isOpenCloseCG', 'refreshCGTable'])
 
 const showError = computed(function () {
     return errors.value;
@@ -120,7 +119,7 @@ const sendData = function () {
         dataType: 'json',
         success: function (data, stat, xhr) {
             close();
-            bus.$emit('refreshCGTable');
+            emit('refreshCGTable');
         },
         error: function (data) {
             errors.value = true;
@@ -171,7 +170,7 @@ const addFormValidations = function () {
 }
 
 onMounted(function () {
-    bus.$on('closeCG', function (data) {
+    bus.on('closeCG', function (data) {
         formdata.value.campground = data.id;
     });
     const closeStartPickerElement = $('#close_cg_range_start');

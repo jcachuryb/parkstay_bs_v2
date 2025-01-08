@@ -14,13 +14,14 @@ import Campsite_type_dash from '../components/campsites-types/campsite-types-das
 import Campsite_type from '../components/campsites-types/campsite-type.vue'
 import Bulkpricing from '../components/bulkpricing/bulkpricing.vue'
 import Profile from '../components/user/profile.vue'
+import { RouterView } from 'vue-router'
+
+
 
 export const routes = [
     {
         path: '/',
-        component: {
-            render (c) { return c('router-view') }
-        },
+        component: RouterView,
         children: [
             {
                 path: "account",
@@ -29,23 +30,19 @@ export const routes = [
             },
             {
                 path:'dashboard',
-                component: {
-                    render (c) { return c('router-view') }
-                },
+                component: RouterView,
                 children: [
                     {
                         path:'campsite-types',
                         name:'campsite-types',
-                        component: Campsite_type_dash
+                        component: RouterView
                     },
                     {
                         path:'campsite-type',
-                        component: {
-                            render (c) { return c('router-view') }
-                        },
+                        component: RouterView,
                         children: [
                             {
-                                path: '/',
+                                path: '',
                                 name: 'campsite-type',
                                 component: Campsite_type_dash
                             },
@@ -68,12 +65,10 @@ export const routes = [
                     },
                     {
                         path:'campgrounds',
-                        component: {
-                            render (c) { return c('router-view') }
-                        },
+                        component: RouterView,
                         children:[
                             {
-                                path: '/',
+                                path: '',
                                 name: 'cg_main',
                                 component: Campgrounds,
                             },
@@ -98,7 +93,7 @@ export const routes = [
                         component: BookingIndex,
                         children:[
                             {
-                                path: '/',
+                                path: '',
                                 name: 'booking-dashboard',
                                 component: bookingDashboard,
                             },
@@ -133,9 +128,7 @@ export const routes = [
             },
             {
                 path:'booking',
-                component:{
-                    render (c) { return c('router-view') }
-                },
+                component: RouterView,
                 children:[
                     {
                         path:'/',

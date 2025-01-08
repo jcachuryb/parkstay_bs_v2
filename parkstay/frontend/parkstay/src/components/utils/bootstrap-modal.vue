@@ -153,7 +153,7 @@ const clickMask = function () {
     }
 }
 
-watch(show, function (value) {
+watch(() => show, function (value) {
     if (value) {
         document.body.className += ' modal-open';
     } else {

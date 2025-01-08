@@ -100,7 +100,6 @@ const campgrounds = computed(function () {
     return store.getters.campgrounds
 })
 
-defineExpose({ isModalOpen, initSelectTwo })
 const emits = defineEmits(['close'])
 
 const close = function () {
@@ -243,6 +242,8 @@ const addFormValidations = function () {
         }
     });
 }
+
+defineExpose({ isModalOpen, initSelectTwo })
 
 onMounted(function () {
     form.value = $(document.forms.closeForm);

@@ -23,9 +23,9 @@ import datatable from '../../utils/datatable.vue'
 import alert from '../../utils/alert.vue'
 import confirmbox from '../../utils/confirmbox.vue'
 import StayHistoryDetail from './addMaximumStayPeriod.vue'
-import { bus } from '../../utils/eventBus.js'
 import {
     $,
+    bus,
     api_endpoints,
     helpers
 } from '../../../hooks.js'
@@ -189,7 +189,7 @@ const attachEventListenersMaxStayDT = function () {
         e.preventDefault();
         var id = $(this).attr('data-stay_period');
         deleteStay.value = id;
-        bus.$emit('showAlert', 'deleteStay');
+        bus.emit('showAlert', 'deleteStay');
     });
 }
 

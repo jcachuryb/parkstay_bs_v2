@@ -1,5 +1,3 @@
-import Vue from "vue";
-
 import { api_endpoints } from "../../hooks.js";
 export default {
   fetchBooking(id) {

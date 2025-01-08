@@ -5,7 +5,7 @@
         <div class="card p-3" id="applications">
             <div class="panel-heading" role="tab" id="applications-heading">
                 <h4 class="panel-title">
-                    <h3>{{ title }}</h3>
+                    {{ title }}
                 </h4>
             </div>
             <div id="applications-collapse" class="" role="tabpanel" aria-labelledby="applications-heading">
@@ -29,7 +29,7 @@
         <div class="card p-3" id="applications" style="margin-top:50px;">
             <div class="panel-heading" role="tab" id="applications-heading">
                 <h4 class="panel-title">
-                    <h3>Camp Sites</h3>
+                    Camp Sites
                 </h4>
             </div>
             <div class="" role="tabpanel" aria-labelledby="applications-heading" id="campsites">
@@ -81,7 +81,7 @@ import {
 }
 from '../../hooks.js'
 import { computed, onMounted, ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router/composables';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter()
 const route = useRoute()
@@ -368,7 +368,7 @@ const fetchCampground = function () {
         success: function (data, stat, xhr) {
             campground.value = data;
             fetchCampsites();
-            bus.$emit('campgroundFetched');
+            bus.emit('campgroundFetched');
         }
     });
 }

@@ -52,8 +52,7 @@
 <script setup>
 import bootstrapModal from '../utils/bootstrap-modal.vue'
 import reason from '../utils/reasons.vue'
-import { bus } from '../utils/eventBus.js'
-import { $, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../hooks.js'
+import { $, bus, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../hooks.js'
 import alert from '../utils/alert.vue'
 import { computed, onMounted, ref } from 'vue'
 
@@ -80,7 +79,7 @@ const requireDetails = computed(function () {
     return (formdata.value.closure_reason === '1');
 })
 
-const emit = defineEmits(['isOpenOpenCG'])
+const emit = defineEmits(['isOpenOpenCG', 'refreshCGTable'])
 
 const close = function () {
     emit('isOpenOpenCG', false);
@@ -104,7 +103,7 @@ const sendData = function () {
         dataType: 'json',
         success: function (data, stat, xhr) {
             close();
-            bus.$emit('refreshCGTable');
+            emit('refreshCGTable');
         },
         error: function (data) {
             errors.value = true;
@@ -157,7 +156,7 @@ const addFormValidations = function () {
 
 
 onMounted(function () {
-    bus.$on('openCG', function (data) {
+    bus.on('openCG', function (data) {
         id.value = data.id;
         current_closure.value = data.closure;
     });

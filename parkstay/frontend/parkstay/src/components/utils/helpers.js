@@ -1,6 +1,5 @@
 import $ from 'jquery'
 import _ from 'lodash'
-import { useRouter } from 'vue-router/composables';
 
 export const helpers =  {
     apiError: function(resp){

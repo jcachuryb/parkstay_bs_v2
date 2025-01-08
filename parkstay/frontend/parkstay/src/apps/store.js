@@ -1,18 +1,16 @@
-import Vuex from 'vuex'
-import Vue from 'vue'
+import { createStore } from 'vuex'
 
-Vue.use(Vuex)
 import {
     $,
     api_endpoints
 } from '../hooks.js'
 
-const store = new Vuex.Store({
+const store = createStore({
     state: {
         alert:{
             visible:false,
             type:"danger",
-            message: ""
+            message: "La concha"
         },
         regions:[],
         parks:[],
@@ -70,10 +68,10 @@ const store = new Vuex.Store({
         },
         fetchCampgrounds(context){
             return new Promise((resolve,reject) => {
-                Vue.http.get(api_endpoints.campgrounds).then((response) => {
+                fetch(api_endpoints.campgrounds).then((response) => {
                     context.commit('SETCAMPGROUNDS',response.body);
                     resolve(response.body);
-                }, (error) => {
+                }).catch((error) => {
                     reject(error);
                 });
             }).catch((error) => {

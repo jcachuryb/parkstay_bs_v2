@@ -94,7 +94,7 @@ const selectedCampsite = computed(function () {
 const showError = computed(function () {
     return errors.value;
 })
-watch(selectedCampground, function (value) {
+watch(() => selectedCampground, function (value) {
     if (value) {
         fetch(api_endpoints.campgroundCampsites(value)).then((response) => {
             campsites.value = response.body;

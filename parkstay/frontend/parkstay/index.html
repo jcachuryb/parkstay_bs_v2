@@ -80,7 +80,7 @@
                 <span class="icon-bar"></span>
               </button>
               <router-link class="navbar-brand" :to="{name: 'cg_main'}"
-                ><div style="inline">
+                ><div style="display: 'inline-flex'">
                   <img src="/static/ledger/images/dpaw_small.png" />Campgrounds
                 </div></router-link
               >
@@ -158,5 +158,7 @@
         <router-view></router-view>
       </div>
     </div>
+    <script type="module" src="/src/apps/main.js"></script>
+
   </body>
 </html>

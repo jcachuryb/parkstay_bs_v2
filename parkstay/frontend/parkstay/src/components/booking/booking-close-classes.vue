@@ -435,7 +435,7 @@ import loader from '../utils/loader.vue';
 import modal from '../utils/bootstrap-modal.vue';
 import reason from '../utils/reasons.vue';
 import { computed, onMounted, ref, watch } from "vue";
-import { useRouter, useRoute } from 'vue-router/composables';
+import { useRouter, useRoute } from 'vue-router';
 import { useStore } from "../../apps/store.js";
 
 const router = useRouter()
@@ -617,14 +617,14 @@ const isDisabled = computed(function () {
     });
 })
 
-watch(selected_campsite, function (value) {
+watch(() => selected_campsite, function (value) {
     updatePrices();
 })
-watch(selected_campsite_class, function (value) {
+watch(() => selected_campsite_class, function (value) {
     selected_campsite.value = booking.value.campsite_classes[value];
     updatePrices();
 })
-watch(selected_arrival, function (value) {
+watch(() => selected_arrival, function (value) {
     if (booking.value.arrival) {
         $.each(stayHistory.value, function (i, his) {
             const interval = {
@@ -645,11 +645,11 @@ watch(selected_arrival, function (value) {
     fetchSites();
     updatePrices();
 })
-watch(selected_departure, function (value) {
+watch(() => selected_departure, function (value) {
     fetchSites();
     updatePrices();
 })
-watch(booking_type, function (value) {
+watch(() => booking_type, function (value) {
     fetchSites();
 })
 

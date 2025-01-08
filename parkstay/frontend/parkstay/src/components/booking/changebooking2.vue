@@ -174,8 +174,8 @@
                                                 <div class="input-group">
                                                     <span class="input-group-addon">AUD <i class="fa fa-usd"></i></span>
                                                     <input type="text" class="form-control"
-                                                        :placeholder="0 | $filters.formatMoney(2)"
-                                                        :value="booking_price | $filters.formatMoney(2)" readonly="true">
+                                                        :placeholder="$filters.formatMoney(0, 2)"
+                                                        :value="$filters.formatMoney(booking_price, 2)" readonly="true">
                                                 </div>
                                             </div>
                                         </div>
@@ -186,8 +186,8 @@
                                                 <div class="input-group">
                                                     <span class="input-group-addon">AUD <i class="fa fa-usd"></i></span>
                                                     <input type="text" class="form-control"
-                                                        :placeholder="0 | $filters.formatMoney(2)"
-                                                        :value="booking.cost_total | $filters.formatMoney(2)"
+                                                        :placeholder="$filters.formatMoney(0, 2)"
+                                                        :value="$filters.formatMoney(booking.cost_total, 2)"
                                                         readonly="true">
                                                 </div>
                                             </div>
@@ -198,8 +198,8 @@
                                                 <div class="input-group">
                                                     <span class="input-group-addon">AUD <i class="fa fa-usd"></i></span>
                                                     <input type="text" class="form-control"
-                                                        :placeholder="0 | $filters.formatMoney(2)"
-                                                        :value="booking.amount_paid | $filters.formatMoney(2)"
+                                                        :placeholder="$filters.formatMoney(0, 2)"
+                                                        :value="$filters.formatMoney(booking.amount_paid, 2)"
                                                         readonly="true">
                                                 </div>
                                             </div>
@@ -241,7 +241,7 @@ import {
     mapGetters
 } from 'vuex'
 import { ref, computed, onMounted, nextTick, watch } from 'vue';
-import { useRouter } from 'vue-router/composables';
+import { useRouter } from 'vue-router';
 import { useStore } from "../../apps/store.js";
 
 const store = useStore()
@@ -356,10 +356,10 @@ const onlineCampgrounds = computed(() => {
 })
 const campgrounds = computed(() => mapGetters( ['campgrounds'] ))
 
-watch(selected_campsite, function () {
+watch(() => selected_campsite, function () {
     updatePrices();
 })
-watch(selected_arrival, function () {
+watch(() => selected_arrival, function () {
     if (booking.value.arrival) {
         $.each(stayHistory.value, function (i, his) {
             const interval = {
@@ -384,14 +384,14 @@ watch(selected_arrival, function () {
     addEventListeners();
     updatePrices();
 })
-watch(selected_departure, function () {
+watch(() => selected_departure, function () {
     if (initialised.value) {
     }
     fetchSites();
     initSelectTwo();
     updatePrices();
 })
-watch(booking_type, function () {
+watch(() => booking_type, function () {
     //vm.fetchSites();
 })
 

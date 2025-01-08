@@ -75,7 +75,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { $ } from '../../hooks.js'
 import loader from './loader.vue'
-import { useRouter } from 'vue-router/composables';
+import { useRouter } from 'vue-router';
 
 const router = useRouter()
 

@@ -23,9 +23,9 @@ import datatable from '../datatable.vue'
 import confirmbox from '../confirmbox.vue'
 import PriceHistoryDetail from './priceHistoryDetail.vue'
 import parkPriceHistory from './parkPriceHistoryDetail.vue'
-import { bus } from '../eventBus.js'
 import {
     $,
+    bus,
     Moment,
     api_endpoints,
     helpers
@@ -78,8 +78,6 @@ const props = defineProps({
 
 const history_dt = ref(null)
 const historyModal = ref(null)
-
-defineExpose({ history_dt, showHistory, closeHistory, deleteHistoryRecord, getTitle, addHistory, updateHistory, addParkHistory, updateParkHistory, sendData, getAddURL, getEditURL, addTableListeners })
 
 const price = ref({
     reason: ''
@@ -323,9 +321,11 @@ const addTableListeners = function () {
             deleteHistory.value = $(btn).data('rate');
         }
         console.log("DELETE PRICE END");
-        bus.$emit('showAlert', 'deleteHistory');
+        bus.emit('showAlert', 'deleteHistory');
     });
 }
+
+defineExpose({ history_dt, showHistory, closeHistory, deleteHistoryRecord, getTitle, addHistory, updateHistory, addParkHistory, updateParkHistory, sendData, getAddURL, getEditURL, addTableListeners })
 
 onMounted(function () {
     addTableListeners();

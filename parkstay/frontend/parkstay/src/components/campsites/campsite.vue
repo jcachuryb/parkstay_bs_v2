@@ -136,7 +136,7 @@ import loader from '../utils/loader.vue'
 import closureHistory from '../utils/closureHistory.vue'
 import priceHistory from '../utils/priceHistory/priceHistory.vue'
 import { computed, onMounted, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router/composables';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter()
 const route = useRoute()

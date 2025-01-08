@@ -105,7 +105,7 @@ const slick_options = ref({
 
 onMounted(function () {
     slick_init();
-    bus.$on('campgroundFetched', function () {
+    bus.on('campgroundFetched', function () {
         if (props.images) {
             $('.upload').slick('unslick');
             imageLoaderText.value = 'Loading Images...'

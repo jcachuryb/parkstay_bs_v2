@@ -3,7 +3,7 @@
         <div class="card p-3" id="applications">
             <div class="panel-heading" role="tab" id="applications-heading">
                 <h4 class="panel-title">
-                    <h3>Bulk Pricing</h3>
+                    Bulk Pricing
                 </h4>
             </div>
             <div id="applications-collapse" class="" role="tabpanel" aria-labelledby="applications-heading">
@@ -186,7 +186,7 @@
 
             <div class="panel-heading" role="tab" id="parkentry-heading">
                 <h4 class="panel-title">
-                    <h3>Park Entry</h3>
+                    Park Entry
                 </h4>
             </div>
 
@@ -346,7 +346,7 @@ const isLoading = computed(function () {
 const parks = computed(() => mapGetters(['parks']))
 const campsite_classes = computed(() => mapGetters(['campsite_classes']))
 
-watch(setPrice, function (value) {
+watch(() => setPrice, function (value) {
     if (value == priceOptions[2]) {
         setTimeout(function () {
             $(form.value.campsiteType).select2({
@@ -366,7 +366,7 @@ watch(setPrice, function (value) {
         }, 100);
     }
 })
-watch(selected_rate, function (value) {
+watch(() => selected_rate, function (value) {
     if (value != '') {
         $.each(rates.value, function (i, rate) {
             if (rate.id == value) {
@@ -384,7 +384,7 @@ watch(selected_rate, function (value) {
         bulkpricing.value.child = '';
     }
 })
-watch(campsite_classes, function (value) {
+watch(() => campsite_classes, function (value) {
     availableCampsiteClasses();
 })
 

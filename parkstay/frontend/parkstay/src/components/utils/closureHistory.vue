@@ -19,9 +19,9 @@
 import datatable from './datatable.vue'
 import confirmbox from './confirmbox.vue'
 import Close from './closureHistory/close.vue'
-import { bus } from './eventBus.js'
 import {
-    $,
+    $, 
+    bus,
     Moment,
     api_endpoints,
     helpers
@@ -227,7 +227,7 @@ const addTableListeners = function () {
         e.preventDefault();
         var id = $(this).data('range');
         deleteClosure.value = id;
-        bus.$emit('showAlert', 'deleteClosure');
+        bus.emit('showAlert', 'deleteClosure');
     });
 }
 

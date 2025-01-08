@@ -1,7 +1,7 @@
 <template>
     <div id="groundsList">
-        <pkCgClose @isOpenCloseCG="handleCloseCampground"></pkCgClose>
-        <pkCgOpen @isOpenOpenCG="handleOpenCampground"></pkCgOpen>
+        <pkCgClose @isOpenCloseCG="handleCloseCampground" @refreshCGTable="onRefreshCGTable"></pkCgClose>
+        <pkCgOpen @isOpenOpenCG="handleOpenCampground" @refreshCGTable="onRefreshCGTable"></pkCgOpen>
         <div class="panel-group" id="returns-accordion" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default border p-3" id="returns">
                 <base-panel-heading :title="title">
@@ -92,16 +92,17 @@
 <script setup>
 import {
     $,
-    api_endpoints
+    api_endpoints,
+    bus
 } from '../../hooks.js'
 import datatable from '../utils/datatable.vue'
 import pkCgClose from './closeCampground.vue'
 import pkCgOpen from './openCampground.vue'
+import basePanelHeading from "../../layouts/base-panel-heading.vue";
 import bulkCloseComponent from '../utils/closureHistory/bulk-close.vue'
-import { bus } from '../utils/eventBus.js'
 import { mapGetters } from 'vuex'
 import { computed, ref, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router/composables';
+import { useRouter } from 'vue-router';
 import { useStore } from "../../apps/store.js";
 
 const router = useRouter()
@@ -229,6 +230,11 @@ const showOpenCloseCG = function () {
 const showOpenOpenCG = function () {
     isOpenOpenCG.value = true;
 }
+
+const onRefreshCGTable =  function () {
+    dtGrounds.value.vmDataTable.ajax.reload();
+}
+
 const openDetail = function (cg_id) {
     router.push({
         name: 'cg_detail',
@@ -275,13 +281,13 @@ onMounted(function () {
                 'id': current_closure_id,
                 'closure': current_closure
             };
-            bus.$emit('openCG', data);
+            bus.emit('openCG', data);
             showOpenOpenCG();
         } else if (status === 'close') {
             var data = {
                 'id': id,
             };
-            bus.$emit('closeCG', data);
+            bus.emit('closeCG', data);
             showOpenCloseCG();
         }
     });
@@ -294,9 +300,6 @@ onMounted(function () {
                 "cg": id
             }
         });
-    });
-    bus.$on('refreshCGTable', function () {
-        dtGrounds.value.vmDataTable.ajax.reload();
     });
     fetchRegions();
     fetchParks();

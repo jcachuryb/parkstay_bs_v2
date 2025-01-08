@@ -13,7 +13,7 @@ import moment from "moment/moment.js";
 import { extendMoment } from "moment-range";
 import { DateTime, TempusDominus } from "@eonasdan/tempus-dominus";
 import validate from "jquery-validation";
-import bootstrap from 'bootstrap'; // needed for datetimepicker
+import 'bootstrap/dist/js/bootstrap.min.js'; // needed for datetimepicker
 import slick from "slick-carousel-browserify";
 import select2 from "select2";
 import awesomplete from "awesomplete";

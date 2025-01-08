@@ -46,8 +46,9 @@ import {
     from '../../hooks.js';
 import datatable from '../utils/datatable.vue'
 import confirmbox from '../utils/confirmbox.vue'
+import basePanelHeading from "../../layouts/base-panel-heading.vue";
 import { onMounted, ref, watch } from 'vue';
-import { useRouter } from 'vue-router/composables';
+import { useRouter } from 'vue-router';
 
 const router = useRouter()
 
@@ -163,7 +164,7 @@ const attachTableEventListeners = function () {
         e.preventDefault();
         var id = $(this).data('campsite-type');
         deleteCampsiteType.value = id;
-        bus.$emit('showAlert', 'deleteCampsiteType');
+        bus.emit('showAlert', 'deleteCampsiteType');
     });
 }
 onMounted(() => {

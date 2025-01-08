@@ -422,9 +422,8 @@ const fetchRegions = function () {
   }
 }
 const cancelBooking = function (booking) {
-  $http.value
-    .delete(api_endpoints.booking(booking.id), {
-      emulateJSON: true,
+  fetch(api_endpoints.booking(booking.id), {
+      method: "DELETE",
       headers: { "X-CSRFToken": helpers.getCookie("csrftoken") }
     })
     .then(
@@ -533,7 +532,7 @@ const addEventListeners = function () {
         e.keyCode == 80)
     ) {
       e.preventDefault();
-      bus.$emit("showAlert", "printBooking");
+      bus.emit("showAlert", "printBooking");
       e.stopImmediatePropagation();
     }
   });

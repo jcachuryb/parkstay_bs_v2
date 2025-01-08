@@ -113,7 +113,7 @@ import selectPanel from '../utils/select-panel.vue'
 import loader from '../utils/loader.vue'
 import priceHistory from '../utils/priceHistory/priceHistory.vue'
 import { computed, onMounted, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router/composables';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter()
 const route = useRoute()

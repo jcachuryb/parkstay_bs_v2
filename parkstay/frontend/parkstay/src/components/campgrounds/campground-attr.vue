@@ -244,7 +244,7 @@ import alert from '../utils/alert.vue'
 import { mapGetters } from 'vuex'
 import { computed, onMounted, onUpdated, ref, watch } from 'vue';
 import { useStore } from "../../apps/store.js";
-import { useRouter } from 'vue-router/composables';
+import { useRouter } from 'vue-router';
 
 const router = useRouter()
 const store = useStore()
@@ -318,7 +318,7 @@ const selected_contact_email = computed(function () {
 })
 const parks = computed(() => mapGetters(['parks']))
 
-watch(campground, function () {
+watch(() => campground, function () {
     loadSelectedFeatures();
 }, { deep: true })
 
@@ -416,7 +416,7 @@ const sendData = function (url, method) {
     });
 }
 const showAlert = function () {
-    bus.$emit('showAlert', 'alert1');
+    bus.emit('showAlert', 'alert1');
 }
 const loadParks = function () {
     if (parks.value.length == 0) {
