@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-const { title  } = defineProps({
+const props = defineProps({
     title: String
 })
 </script>
