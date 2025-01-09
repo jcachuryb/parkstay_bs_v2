@@ -112,8 +112,10 @@ watch(() => props.selected, (value) => {
 })
 
 defineExpose({
-    enabled, 
-    loadSelectedFeatures
+    enabled,
+    loadSelectedFeatures,
+    selectedRef,
+    optionsRef
 })
 </script>
 

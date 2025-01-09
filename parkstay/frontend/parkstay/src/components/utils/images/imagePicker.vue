@@ -47,8 +47,7 @@
 <script setup>
 import { ref, onMounted, onUpdated, onBeforeUnmount, computed } from 'vue';
 import {
-    $,
-    slick
+    $
 }
     from '../../../hooks.js'
 import {

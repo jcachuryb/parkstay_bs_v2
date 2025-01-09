@@ -884,7 +884,7 @@ const generateGuestCountText = function () {
     $.each(guestsPicker, function (i, g) {
         (i != guestsPicker.length - 1) ? (g.amount > 0) ? text += g.amount + " " + g.name + ",  " : "" : (g.amount > 0) ? text += g.amount + " " + g.name + " " : "";
     });
-    guestsText = text.replace(/,\s*$/, "");
+    guestsText.value = text.replace(/,\s*$/, "");
     generateBookingPrice();
 }
 const generateBookingPrice = function () {

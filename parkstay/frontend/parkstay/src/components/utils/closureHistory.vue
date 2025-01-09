@@ -27,9 +27,9 @@ import {
     helpers
 }
     from '../../hooks.js'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, toRefs, ref } from 'vue'
 
-const { datatableURL, closeCampground, object_id } = defineProps({
+const props = defineProps({
     datatableURL: {
         type: String,
         required: true
@@ -44,8 +44,10 @@ const { datatableURL, closeCampground, object_id } = defineProps({
     }
 })
 
+const { datatableURL, closeCampground, object_id } = toRefs(props)
+
 const getTitle = computed(() => {
-    if (closeCampground) {
+    if (closeCampground.value) {
         return '(Temporarily) Close Campground';
     } else {
         return '(Temporarily) Close Campsite';
@@ -88,7 +90,7 @@ const ch_options = {
     ],
 
     ajax: {
-        url: datatableURL,
+        url: datatableURL.value,
         dataSrc: ''
     },
     order: [],
@@ -155,14 +157,14 @@ const deleteClosureRecord = function (id) {
     });
 }
 const getAddURL = function () {
-    if (closeCampground) {
+    if (closeCampground.value) {
         return api_endpoints.campground_booking_ranges();
     } else {
         return api_endpoints.campsite_booking_ranges();
     }
 }
 const closureURL = function (id) {
-    if (closeCampground) {
+    if (closeCampground.value) {
         return api_endpoints.campground_status_history_detail(id);
     } else {
         return api_endpoints.campsite_status_history_detail(id);
@@ -191,10 +193,10 @@ const updateClosure = function () {
 }
 const sendData = function (url, method) {
     var data = $.extend({}, closeModal.value.statusHistory);
-    if (closeCampground) {
-        data.campground = object_id;
+    if (closeCampground.value) {
+        data.campground = object_id.value;
     } else {
-        data.campsite = object_id;
+        data.campsite = object_id.value;
     }
 
     $.ajax({

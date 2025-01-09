@@ -242,13 +242,13 @@ import Editor from 'quill';
 import loader from '../utils/loader.vue'
 import alert from '../utils/alert.vue'
 import { mapGetters } from 'vuex'
-import { computed, onMounted, onUpdated, ref, watch } from 'vue';
+import { computed, onMounted, onUpdated, ref, toRefs, watch } from 'vue';
 import { useStore } from "../../apps/store.js";
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
 const store = useStore()
-const { campground, createCampground, priceSet } = defineProps({
+const props = defineProps({
     createCampground: { type: Boolean, default: true },
     priceSet: {
         type: Array, 
@@ -273,12 +273,11 @@ const { campground, createCampground, priceSet } = defineProps({
 
 })
 
+const { campground, createCampground, priceSet } = toRefs(props)
 
-const selected_price_set = ref(priceSet[0])
-const editor = ref(null)
+let editor = null
 const editor_updated = ref(false)
 const features = ref([])
-const selected_features_loaded = ref(false)
 const selected_features = ref([])
 const form = ref(null)
 const errors = ref(false)
@@ -297,7 +296,7 @@ const allFeaturesSelected = computed(function () {
     return features.value.length < 1;
 })
 const selected_contact_number = computed(function () {
-    let id = campground.contact;
+    let id = campground.value.contact;
     if (id != null) {
         let contact = contacts.value.find(contact => contact.id === id);
         return contact ? contact.phone_number : '';
@@ -307,7 +306,7 @@ const selected_contact_number = computed(function () {
     }
 })
 const selected_contact_email = computed(function () {
-    let id = campground.contact;
+    let id = campground.value.contact;
     if (id != null) {
         let contact = contacts.value.find(contact => contact.id === id);
         return contact ? contact.email : '';
@@ -316,9 +315,9 @@ const selected_contact_email = computed(function () {
         return '';
     }
 })
-const parks = computed(() => mapGetters(['parks']))
+const parks = computed(() => store.getters.parks)
 
-watch(() => campground, function () {
+watch(() => campground.value, function () {
     loadSelectedFeatures();
 }, { deep: true })
 
@@ -336,7 +335,7 @@ const create = function () {
 }
 const update = function () {
     if (validateForm()) {
-        sendData(api_endpoints.campground(campground.id), 'PUT');
+        sendData(api_endpoints.campground(campground.value.id), 'PUT');
     }
 }
 const validateEditor = function (el) {
@@ -345,7 +344,7 @@ const validateEditor = function (el) {
         el.tooltip("destroy");
         el.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
     }
-    if (editor.value.getText().trim().length == 0) {
+    if (editor.getText().trim().length == 0) {
         // add or update tooltips
         el.tooltip({
             trigger: "focus"
@@ -360,15 +359,15 @@ const sendData = function (url, method) {
     isLoading.value = true;
     var featuresURL = new Array();
     var temp_features = selected_features.value;
-    if (createCampground) {
-        campground.features = selected_features.value;
+    if (createCampground.value) {
+        campground.value.features = selected_features.value;
     }
-    campground.features.forEach(function (f) {
+    campground.value.features.forEach(function (f) {
         featuresURL.push(f.id);
     });
-    campground.features = featuresURL;
-    if (campground.contact == "undefined") {
-        campground.contact = '';
+    campground.value.features = featuresURL;
+    if (campground.value.contact == "undefined") {
+        campground.value.contact = '';
     }
     $.ajax({
         beforeSend: function (xhrObj) {
@@ -380,7 +379,7 @@ const sendData = function (url, method) {
         xhrFields: {
             withCredentials: true
         },
-        data: JSON.stringify(campground),
+        data: JSON.stringify(campground.value),
         headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
         contentType: "application/x-www-form-urlencoded",
         dataType: 'json',
@@ -395,7 +394,7 @@ const sendData = function (url, method) {
                 isLoading.value = false;
             }
             else if (method == 'PUT') {
-                campground.features = temp_features;
+                campground.value.features = temp_features;
                 showUpdate.value = true;
                 isLoading.value = false
             }
@@ -496,11 +495,11 @@ const addFormValidations = function () {
     });
 }
 const loadSelectedFeatures = function () {
-    if (campground.features) {
-        if (!createCampground) {
-            selected_features.value = campground.features;
+    if (campground.value.features) {
+        if (!createCampground.value) {
+            selected_features.value = campground.value.features;
         }
-        $.each(campground.features, function (i, cgfeature) {
+        $.each(campground.value.features, function (i, cgfeature) {
             $.each(features.value, function (j, feat) {
                 if (feat != null) {
                     if (cgfeature.id == feat.id) {
@@ -516,16 +515,16 @@ const loadSelectedFeatures = function () {
 onMounted(function () {
     loadParks();
     loadFeatures();
-    editor.value = new Editor('#editor', {
+    editor = new Editor('#editor', {
         modules: {
             toolbar: true
         },
         theme: 'snow'
     });
-    editor.value.clipboard.dangerouslyPasteHTML(0, campground.description, 'api');
-    editor.value.on('text-change', function (delta, oldDelta, source) {
+    editor.clipboard.dangerouslyPasteHTML(0, campground.value.description, 'api');
+    editor.on('text-change', function (delta, oldDelta, source) {
         var text = $('#editor >.ql-editor').html();
-        campground.description = text;
+        campground.value.description = text;
         validateEditor($('#editor'));
     });
 
@@ -540,8 +539,8 @@ onMounted(function () {
 
 onUpdated(function () {
     var changed = false;
-    if (campground.description != null && editor_updated.value == false) {
-        editor.value.clipboard.dangerouslyPasteHTML(0, campground.description, 'api');
+    if (campground.value.description != null && editor_updated.value == false) {
+        editor.clipboard.dangerouslyPasteHTML(0, campground.value.description, 'api');
         changed = true;
     }
     if (changed) {

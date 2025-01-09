@@ -242,6 +242,7 @@ const fetchCampsiteType = function () {
         success: function (data, stat, xhr) {
             campsite_type.value = data;
             select_features.value.loadSelectedFeatures(data.features);
+            campsite_type.value.features = select_features.value.selectedRef.map(feature => feature.url)
             isLoading.value = false;
         },
         error: function (resp) {
@@ -287,6 +288,10 @@ const sendData = function (url, method) {
                     isLoading.value = false;
                 }, 500);
             }
+        },
+        error: function(error) {
+            window.alert('an error ocurred')
+            isLoading.value = false;
         }
     })
 }
@@ -297,10 +302,7 @@ onMounted(() => {
 })
 
 const onChangeSelectedFeatures = (values) => {
-    campsite_type.value.features = [];
-        $.each(values, function (i, feature) {
-            campsite_type.value.features.push(feature.url);
-        });
+    campsite_type.value.features = select_features.value.selectedRef.map(feature => feature.url)
 }
 
 </script>

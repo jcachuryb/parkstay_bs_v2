@@ -48,10 +48,10 @@ autoclose:true
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, toRefs } from 'vue';
 import { $, bus } from '../../hooks.js'
 
-const { options, id, cancelText } = defineProps({
+const props = defineProps({
     options: {
         required: true,
         type: Object
@@ -63,6 +63,8 @@ const { options, id, cancelText } = defineProps({
         default: "Cancel"
     }
 })
+
+const { options, id, cancelText } = toRefs(props)
 
 const uid = crypto.randomUUID();
 const confirmModal = 'confirmModal' + uid
@@ -87,7 +89,7 @@ const confirmBox = function (json) {
             var eventHandler = (typeof btn.eventHandler != "undefined") ? btn.eventHandler : "@click";
             $(buttonsElm).append("<button type=\"button\" data-click=" + btn.event + " class=\"btn " + btn.bsColor + "\" style='margin-bottom:10px;'>" + btn.text + "</button>");
             $(function () {
-                if (passed_id === id) {
+                if (passed_id === id.value) {
                     $('button[data-click]').on('click', function () {
 
                         if ($(this).attr('data-click') == btn.event) {
@@ -101,17 +103,17 @@ const confirmBox = function (json) {
             })
         });
     }
-    $(buttonsElm).append("<button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\" style='margin-bottom:10px;'>" + cancelText + "</button>");
+    $(buttonsElm).append("<button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\" style='margin-bottom:10px;'>" + cancelText.value + "</button>");
 }
 
 onMounted(function () {
-    confirmBox(options);
+    confirmBox(options.value);
     bus.on('showAlert', function (_id) {
         console.log("ShowAlert +1");
         console.log(confirmModal);
         console.log(_id);
         console.log($("#" + confirmModal));
-        if (_id === id) {
+        if (_id === id.value) {
             $("#" + confirmModal).modal('show');
         }
     })

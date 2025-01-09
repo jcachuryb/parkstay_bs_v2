@@ -6,6 +6,6 @@
 </template>
 
 <script setup>
+import bookingPicker from '../utils/bookingpicker.vue'
 </script>
-
 <style lang="css"></style>

@@ -354,7 +354,7 @@ const maxEntryVehicles = computed(() => {
 const onlineCampgrounds = computed(() => {
     return campgrounds.value.filter(c => c.campground_type === 0);
 })
-const campgrounds = computed(() => mapGetters( ['campgrounds'] ))
+const campgrounds = computed(() => store.getters.campgrounds)
 
 watch(() => selected_campsite, function () {
     updatePrices();

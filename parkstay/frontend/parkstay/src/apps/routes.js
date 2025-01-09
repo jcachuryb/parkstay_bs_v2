@@ -35,10 +35,6 @@ export const routes = [
                     {
                         path:'campsite-types',
                         name:'campsite-types',
-                        component: RouterView
-                    },
-                    {
-                        path:'campsite-type',
                         component: RouterView,
                         children: [
                             {
@@ -131,7 +127,7 @@ export const routes = [
                 component: RouterView,
                 children:[
                     {
-                        path:'/',
+                        path:'',
                         name:'fl-search',
                         component: firstLevelSearch
                     }

@@ -343,10 +343,10 @@ const isLoading = computed(function () {
         }, 100);
     }
 })
-const parks = computed(() => mapGetters(['parks']))
-const campsite_classes = computed(() => mapGetters(['campsite_classes']))
+const parks = computed(() => store.getters.parks)
+const campsite_classes = computed(() => store.getters.campsite_classes)
 
-watch(() => setPrice, function (value) {
+watch(() => setPrice.value, function (value) {
     if (value == priceOptions[2]) {
         setTimeout(function () {
             $(form.value.campsiteType).select2({
@@ -366,7 +366,7 @@ watch(() => setPrice, function (value) {
         }, 100);
     }
 })
-watch(() => selected_rate, function (value) {
+watch(() => selected_rate.value, function (value) {
     if (value != '') {
         $.each(rates.value, function (i, rate) {
             if (rate.id == value) {
@@ -384,7 +384,7 @@ watch(() => selected_rate, function (value) {
         bulkpricing.value.child = '';
     }
 })
-watch(() => campsite_classes, function (value) {
+watch(() => campsite_classes.value, function (value) {
     availableCampsiteClasses();
 })
 

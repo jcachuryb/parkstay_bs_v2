@@ -60,11 +60,11 @@
 import modal from '../utils/bootstrap-modal.vue'
 import alert from '../utils/alert.vue'
 import { $, api_endpoints, helpers, getDateTimePicker, dateUtils } from "../../hooks.js"
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, toRefs, watch } from 'vue';
 
 const emit = defineEmits(['loadingCallback'])
 
-const { booking_id, campgrounds } = defineProps({
+const props = defineProps({
     booking_id: Number,
     campgrounds: {
         type: Array,
@@ -72,6 +72,7 @@ const { booking_id, campgrounds } = defineProps({
     }
 })
 
+const { campgrounds } = toRefs(props)
 const isModalOpen = ref(false)
 const campsites = ref([])
 const form = ref(null)

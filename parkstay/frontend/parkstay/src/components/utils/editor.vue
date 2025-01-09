@@ -20,42 +20,39 @@ import "quill/dist/quill.snow.css";
 import Editor from 'quill';
 import { onMounted, ref } from 'vue';
 
-const props = defineProps({
-    value: {
-        type: String
-    }
-});
+const model = defineModel()
 const emit = defineEmits(['input']);
 
-const editor = ref(null)
+let editor = null
 const editor_id = 'editor' + crypto.randomUUID();
 
 const disabled = function (is_disabled) {
-    editor.value.enable(!is_disabled);
+    editor.enable(!is_disabled);
 }
 const updateContent = function (content) {
-    editor.value.setText('');
-    editor.value.clipboard.dangerouslyPasteHTML(0, content, 'api');
+    editor.setText('');
+    editor.clipboard.dangerouslyPasteHTML(0, content, 'api');
     emit('input', content);
 }
 
 defineExpose({disabled, updateContent, editor_id})
 
 onMounted(function () {
-    editor.value = new Editor('#' + editor_id, {
+    editor = new Editor('#' + editor_id, {
         modules: {
             toolbar: true
         },
 
         theme: 'snow'
     });
-    editor.value.on('text-change', function (delta, oldDelta, source) {
+    editor.on('text-change', function (delta, oldDelta, source) {
         var text = $('#' + editor_id + ' >.ql-editor').html();
-        emit('input', text);
+        // emit('input', text);
+        model.value = text
     });
     var valueReady = setInterval(function () {
-        if (typeof props.value != "undefined") {
-            editor.value.clipboard.dangerouslyPasteHTML(0, props.value, 'api');
+        if (typeof model.value != "undefined") {
+            editor.clipboard.dangerouslyPasteHTML(0, model.value, 'api');
             clearInterval(valueReady);
         }
     }, 100);

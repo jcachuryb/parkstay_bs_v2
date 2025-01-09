@@ -71,7 +71,6 @@
 import modal from '../bootstrap-modal.vue'
 import reason from '../reasons.vue'
 import alert from '../alert.vue'
-import { mapGetters } from 'vuex'
 import { $, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../../hooks.js'
 import { computed, onMounted, ref } from 'vue'
 import { useStore } from "../../../apps/store.js";

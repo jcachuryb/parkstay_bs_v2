@@ -74,9 +74,10 @@
 import modal from '../utils/bootstrap-modal.vue'
 import datatable from '../utils/datatable.vue'
 import { $, helpers, Moment } from "../../hooks.js"
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, ref, toRefs, watch } from 'vue';
 
-const { booking_id } = defineProps(['booking_id']);
+const props = defineProps(['booking_id']);
+const { booking_id } = toRefs(props)
 
 const booking_history_table = ref(null)
 const isModalOpen = ref(false)
@@ -93,7 +94,7 @@ const dtOptions = ref({
     responsive: true,
     processing: true,
     ajax: {
-        "url": `/api/booking/${booking_id}/history.json`,
+        "url": `/api/booking/${booking_id.value}/history.json`,
         "dataSrc": ''
     },
     order: [],
@@ -194,10 +195,10 @@ const dtOptions = ref({
 
 defineExpose({ booking, isModalOpen })
 
-watch(() => booking_id, function () {
+watch(() => booking_id.value, function (value) {
     nextTick(() => {
-        if (booking_id > 0) {
-            booking_history_table.value.vmDataTable.ajax.url(`/api/booking/${booking_id}/history.json`);
+        if (value > 0) {
+            booking_history_table.value.vmDataTable.ajax.url(`/api/booking/${value}/history.json`);
             booking_history_table.value.vmDataTable.ajax.reload();
             addEventListeners();
         }

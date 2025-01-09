@@ -10,7 +10,7 @@ const store = createStore({
         alert:{
             visible:false,
             type:"danger",
-            message: "La concha"
+            message: ""
         },
         regions:[],
         parks:[],

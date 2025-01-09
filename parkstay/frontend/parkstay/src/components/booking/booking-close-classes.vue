@@ -696,18 +696,18 @@ const updatePrices = function () {
     }
 }
 const fetchCountries = function () {
-    loading.push('fetching countries');
+    loading.value.push('fetching countries');
     fetch(api_endpoints.countries).then((response) => {
         countries.value = response.body;
-        loading.splice('fetching countries', 1);
+        loading.value.splice('fetching countries', 1);
     }, (response) => {
         console.log(response);
-        loading.splice('fetching countries', 1);
+        loading.value.splice('fetching countries', 1);
     });
 }
 const fetchCampsites = function () {
     if (selected_arrival.value && selected_departure.value) {
-        loading.push('fetching campsites');
+        loading.value.push('fetching campsites');
         fetch(api_endpoints.available_campsites(
             booking.value.campground,
             Moment(booking.value.arrival, "YYYY-MM-DD").format("YYYY/MM/DD"),
@@ -717,16 +717,16 @@ const fetchCampsites = function () {
             if (booking.value.campsites.length > 0) {
                 selected_campsite.value = booking.value.campsites[0].id;
             }
-            loading.splice('fetching campsites', 1);
+            loading.value.splice('fetching campsites', 1);
         }, (response) => {
             console.log(response);
-            loading.splice('fetching campsites', 1);
+            loading.value.splice('fetching campsites', 1);
         });
     }
 }
 const fetchCampsiteClasses = function () {
     if (selected_arrival.value && selected_departure.value) {
-        loading.push('fetching campsite classes');
+        loading.value.push('fetching campsite classes');
         fetch(api_endpoints.available_campsites(
             booking.value.campground,
             Moment(booking.value.arrival, "YYYY-MM-DD").format("YYYY/MM/DD"),
@@ -737,15 +737,15 @@ const fetchCampsiteClasses = function () {
                 selected_campsite.value = booking.value.campsite_classes[0].id;
                 selected_campsite_class.value = 0;
             }
-            loading.splice('fetching campsite classes', 1);
+            loading.value.splice('fetching campsite classes', 1);
         }, (response) => {
             console.log(response);
-            loading.splice('fetching campsite classes', 1);
+            loading.value.splice('fetching campsite classes', 1);
         });
     }
 }
 const fetchCampground = function () {
-    loading.push('fetching campground');
+    loading.value.push('fetching campground');
     var cgId = route.params.cg;
     fetch(api_endpoints.campground(cgId)).then((response) => {
         campground.value = response.body;
@@ -755,32 +755,32 @@ const fetchCampground = function () {
         fetchCampsites();
         fetchPark();
         addEventListeners();
-        loading.splice('fetching campground', 1);
+        loading.value.splice('fetching campground', 1);
     }).catch((error) => {
         console.log(error);
-        loading.splice('fetching campground', 1);
+        loading.value.splice('fetching campground', 1);
     });
 }
 const fetchStayHistory = function () {
-    loading.push('fetching stay history');
+    loading.value.push('fetching stay history');
     fetch(api_endpoints.campgroundStayHistory(campground.value.id)).then((response) => {
         if (response.body.length > 0) {
             stayHistory.value = response.body;
         }
-        loading.splice('fetching stay history', 1);
+        loading.value.splice('fetching stay history', 1);
     }).catch((error) => {
         console.log(error);
-        loading.splice('fetching stay history', 1);
+        loading.value.splice('fetching stay history', 1);
     });
 }
 const fetchPark = function () {
-    loading.push('fetching park');
+    loading.value.push('fetching park');
     fetch(api_endpoints.park(campground.value.park)).then((response) => {
         park.value = response.body;
-        loading.splice('fetching park', 1);
+        loading.value.splice('fetching park', 1);
     }).catch((error) => {
         console.log(error);
-        loading.splice('fetching park', 1);
+        loading.value.splice('fetching park', 1);
     });
 }
 const addEventListeners = function () {
@@ -822,10 +822,10 @@ const addEventListeners = function () {
         fetch(api_endpoints.campsite_current_price(campsites[0].id, Moment().format("YYYY-MM-DD"), Moment().add(1, 'days').format("YYYY-MM-DD"))).then((response) => {
             priceHistory = null;
             priceHistory = response.body;
-            loading.splice('updating prices', 1);
+            loading.value.splice('updating prices', 1);
         }).catch((error) => {
             console.log(error);
-            loading.splice('updating prices', 1);
+            loading.value.splice('updating prices', 1);
         });
     }).catch((error) => {
         console.log(error);
@@ -874,7 +874,7 @@ const generateGuestCountText = function () {
     $.each(guestsPicker, function (i, g) {
         (i != guestsPicker.length - 1) ? (g.amount > 0) ? text += g.amount + " " + g.name + ",  " : "" : (g.amount > 0) ? text += g.amount + " " + g.name + " " : "";
     });
-    guestsText = text.replace(/,\s*$/, "");
+    guestsText.value = text.replace(/,\s*$/, "");
     generateBookingPrice();
 }
 const generateBookingPrice = function () {
@@ -907,18 +907,18 @@ const updateParkEntryPrices = function () {
         if (booking.value.arrival && booking.value.departure) {
             $.each(parkEntryVehicles.value, function (i, entry) {
                 entry = JSON.parse(JSON.stringify(entry));
-                if (parkPrices && entry.entry_fee) {
+                if (parkPrices.value && entry.entry_fee) {
                     switch (entry.id) {
                         case 'vehicle':
-                            booking.value.entryFees.entry_fee += parseInt(parkPrices.vehicle);
+                            booking.value.entryFees.entry_fee += parseInt(parkPrices.value.vehicle);
                             booking.value.entryFees.vehicles++;
                             break;
                         case 'motorbike':
-                            booking.value.entryFees.entry_fee += parseInt(parkPrices.motorbike);
+                            booking.value.entryFees.entry_fee += parseInt(parkPrices.value.motorbike);
                             booking.value.entryFees.motorbike++;
                             break;
                         case 'concession':
-                            booking.value.entryFees.entry_fee += parseInt(parkPrices.concession);
+                            booking.value.entryFees.entry_fee += parseInt(parkPrices.value.concession);
                             booking.value.entryFees.concession++;
                             break;
                     }
@@ -942,18 +942,18 @@ const fetchParkPrices = function (calcprices) {
         fetch(api_endpoints.park_current_price(park.value.id, booking.value.arrival)).then((response) => {
             var resp = response.body;
             if (resp.constructor != Array) {
-                parkPrices = response.body;
+                parkPrices.value = response.body;
             } else {
-                parkPrices.vehicle = "0.00";
-                parkPrices.motorbike = "0.00";
-                parkPrices.concession = "0.00";
+                parkPrices.value.vehicle = "0.00";
+                parkPrices.value.motorbike = "0.00";
+                parkPrices.value.concession = "0.00";
             }
             calcprices();
         });
     } else {
-        parkPrices.vehicle = "0.00";
-        parkPrices.motorbike = "0.00";
-        parkPrices.concession = "0.00";
+        parkPrices.value.vehicle = "0.00";
+        parkPrices.value.motorbike = "0.00";
+        parkPrices.value.concession = "0.00";
         calcprices();
     }
 }
@@ -973,7 +973,7 @@ const autofillUser = function (event) {
 }
 const bookNow = function () {
     if (isFormValid()) {
-        loading.push('processing booking');
+        loading.value.push('processing booking');
         booking.value.entryFees = {
             vehicle: 0,
             motorbike: 0,
@@ -992,15 +992,15 @@ const bookNow = function () {
             }
             switch (entry.id) {
                 case 'vehicle':
-                    booking.value.entryFees.entry_fee += parseInt(parkPrices.vehicle);
+                    booking.value.entryFees.entry_fee += parseInt(parkPrices.value.vehicle);
                     booking.value.entryFees.vehicle++;
                     break;
                 case 'motorbike':
-                    booking.value.entryFees.entry_fee += parseInt(parkPrices.motorbike);
+                    booking.value.entryFees.entry_fee += parseInt(parkPrices.value.motorbike);
                     booking.value.entryFees.motorbike++;
                     break;
                 case 'concession':
-                    booking.value.entryFees.entry_fee += parseInt(parkPrices.concession);
+                    booking.value.entryFees.entry_fee += parseInt(parkPrices.value.concession);
                     booking.value.entryFees.concession++;
                     break;
             }
@@ -1012,7 +1012,7 @@ const bookNow = function () {
             campsites: selected_campsites.value,
             costs: {
                 campground: priceHistory,
-                parkEntry: parkPrices,
+                parkEntry: parkPrices.value,
                 total: booking.value.price
             },
             override_price: booking.value.override_price,
@@ -1039,7 +1039,7 @@ const bookNow = function () {
             body: booking,
             headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
         }).then((response) => {
-            loading.splice('processing booking', 1);
+            loading.value.splice('processing booking', 1);
             var frame = $('#invoice_frame');
             frame[0].src = '/ledger/payments/invoice/' + response.body.invoices[0];
             isModalOpen.value = false;
@@ -1051,7 +1051,7 @@ const bookNow = function () {
                 type: "danger",
                 message: error_str
             });
-            loading.splice('processing booking', 1);
+            loading.value.splice('processing booking', 1);
         });
     }
 }

@@ -172,9 +172,9 @@ const dtoptions = ref({
     processing: true
 })
 
-const regions = computed(() => mapGetters(['regions']))
-const districts = computed(() => mapGetters(['districts']))
-const parks = computed(() => mapGetters(['parks']))
+const regions = computed(() => store.getters.regions)
+const districts = computed(() => store.getters.districts)
+const parks = computed(() => store.getters.parks)
 
 watch(() => showBulkClose, function (value) {
     bulkClose.value.isModalOpen = value;

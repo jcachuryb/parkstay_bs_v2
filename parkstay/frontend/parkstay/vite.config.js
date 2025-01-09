@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vueDevTools from "vite-plugin-vue-devtools";
 import inject from "@rollup/plugin-inject";
@@ -8,7 +8,8 @@ import path from "path";
 import svgLoader from "vite-svg-loader";
 import conf from "./config";
 
-import $ from 'jquery'
+import $ from "jquery";
+import "select2";
 
 const applicationNameShort = "parkstay";
 const port = process.env.PORT ? parseInt(process.env.PORT) : 9092;
@@ -51,36 +52,45 @@ export default defineConfig(({ mode }) => {
         defaultImport: "url",
       }),
       inject({
-        $: 'jquery',
-        jQuery: 'jquery',
-      })
+        $: "jquery",
+        jQuery: "jquery",
+      }),
     ],
     resolve: {
       alias: {
-        "vue": "vue/dist/vue.esm-bundler.js",
+        vue: "vue/dist/vue.esm-bundler.js",
         "@": path.resolve(__dirname, "./src"),
-        "@vue-utils": path.resolve(__dirname, "src/utils/vue"),
-        "@common-utils": path.resolve(__dirname, "src/components/common/"),
-        "@campgrounds": path.resolve(__dirname, "src/components/campgrounds/"),
+        $: "jquery"
       },
     },
     build: {
       manifest: "manifest.json",
       filenameHashing: false,
-      commonjsOptions: { transformMixedEsModules: true },
-      root: path.resolve(__dirname, "./src/apps"),
-      outDir:  config.assetsRoot,      
+      commonjsOptions: {
+        transformMixedEsModules: true,
+        // include: ["/select2/"],
+        // exclude: ["jquery-validation/"],
+      },
+      root: path.resolve(__dirname, "./src/"),
+      outDir: config.assetsRoot,
       publicPath: config.assetsPublicPath,
       sourcemap: true,
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, "src/main.js"),
+          [applicationNameShort]: path.resolve(__dirname, "src/apps/main.js"),
         },
+
         output: {
-          entryFileNames: "js/[name].js",
-          chunkFileNames: "js/[name].js",
-          assetFileNames: "[ext]/[name].[ext]",
+          dir: "../../static/parkstay/js/vite/",
+          entryFileNames: "[name].js",
+          assetFileNames: `${applicationNameShort}.[ext]`,
+          manualChunks: function (id) {
+            if (id.includes("node_modules")) {
+              return "vendor";
+            }
+          },
         },
+        external: ["jquery", "lodash", "Bootstrap", "jQuery", "datatables"],
       },
       emptyOutDir: true,
     },
