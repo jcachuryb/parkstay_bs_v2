@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@eonasdan/tempus-dominus": "^6.9.11",
+    "@json2csv/plainjs": "^7.0.6",
     "@popperjs/core": "^2.11.8",
     "awesomplete": "^1.1.1",
     "bootstrap": "^3.4.1",
@@ -22,7 +23,6 @@
     "html-escape": "^2.0.0",
     "jquery": "^3.1.1",
     "jquery-validation": "^1.15.1",
-    "json2csv": "^6.0.0-alpha.2",
     "lodash": "^4.17.21",
     "mitt": "^3.0.1",
     "moment": "^2.30.1",

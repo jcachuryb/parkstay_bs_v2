@@ -52,7 +52,7 @@ export default defineConfig(({ mode }) => {
             '@': path.resolve(__dirname, './src'),
             '@vue-utils': path.resolve(__dirname, 'src/utils/vue'),
             '@common-utils': path.resolve(__dirname, 'src/components/common/'),
-            '@select2': 'select2/dist/js/select2.min.js'
+            '@select2': 'select2/dist/js/select2.min.js',
         },
     },
     build: {

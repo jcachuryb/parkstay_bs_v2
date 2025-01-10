@@ -113,6 +113,7 @@ import changebookingComponent from "./changebooking.vue";
 import bookingHistoryComponent from "./history.vue";
 import { useStore } from "../../apps/store.js";
 import { computed, ref, onMounted, nextTick, onBeforeMount, watch } from "vue";
+import { Parser } from "@json2csv/plainjs"
 
 const store = useStore()
 const exportingCSV = ref(false)
@@ -382,16 +383,16 @@ const filterDateTo = ref("")
 const filterCanceled = ref("False")
 const filterRefundStatus = ref("All")
 
-watch(() => filterCampground, function () {
+watch(() => filterCampground.value, function () {
   bookings_table.value.vmDataTable.ajax.reload();
 })
-watch(() => filterRegion, function () {
+watch(() => filterRegion.value, function () {
   bookings_table.value.vmDataTable.ajax.reload();
 })
-watch(() => filterCanceled, function () {
+watch(() => filterCanceled.value, function () {
   bookings_table.value.vmDataTable.ajax.reload();
 })
-watch(() => filterRefundStatus, function () {
+watch(() => filterRefundStatus.value, function () {
   bookings_table.value.vmDataTable.ajax.reload();
 })
 
@@ -556,11 +557,10 @@ const printParams = function () {
 const print = function () {
   exportingCSV.value = true;
 
-  fetch(api_endpoints.bookings + "?" + printParams.value()).then(
+  fetch(api_endpoints.bookings + "?" + printParams()).then(
     res => {
       var data = res.body.results;
 
-      var json2csv = require("json2csv");
       var fields = ["Created"];
       //var fields = [...dtHeaders.value];
       var fields = [...fields, ...dtHeaders.value];
@@ -593,7 +593,7 @@ const print = function () {
       };
 
       //var data = bookings_table.value.vmDataTable.ajax.json().results;
-      var bookings = [];
+      const bookings = [];
       $.each(data, function (i, booking) {
         var bk = {};
         $.each(fields, function (j, field) {
@@ -732,26 +732,28 @@ const print = function () {
         });
         bookings.push(bk);
       });
-      var csv = json2csv({ data: bookings, fields: fields });
+      const parser = new Parser({ fields: fields });
+      const csv = parser.parse(bookings);
+
       var a = document.createElement("a"),
         file = new Blob([csv], { type: "text/csv" });
-      var filterCampground =
+      const _filterCampground =
         filterCampground.value == "All"
           ? "All Campgrounds "
           : $("#filterCampground")[0].selectedOptions[0].text;
-      var filterRegion =
+      const _filterRegion =
         filterCampground.value == "All"
           ? filterRegion.value == "All"
             ? "All Regions"
             : $("#filterRegion")[0].selectedOptions[0].text
           : "";
-      var filterDates = filterDateFrom.value
+      const filterDates = filterDateFrom.value
         ? filterDateTo.value
           ? "From " + filterDateFrom.value + " To " + filterDateTo.value
           : "From " + filterDateFrom.value
         : filterDateTo.value ? " To " + filterDateTo.value : "";
-      var filename =
-        filterCampground + "_" + filterRegion + "_" + filterDates + ".csv";
+      const filename =
+        _filterCampground + "_" + _filterRegion + "_" + filterDates + ".csv";
       if (window.navigator.msSaveOrOpenBlob)
         // IE10+
         window.navigator.msSaveOrOpenBlob(file, filename);
@@ -777,7 +779,10 @@ const print = function () {
         text: helpers.apiVueResourceError(error)
       });
     }
-  );
+  ).catch(error => {
+    exportingCSV.value = false;
+    console.log(error)
+  } )
 }
 
 onMounted(function () {
