@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import $ from 'jquery'
+import { $ } from '../../hooks.js'
 import { computed, watch, ref } from 'vue';
 
 const props = defineProps({

@@ -686,8 +686,8 @@ const updatePrices = function () {
                     headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') }
                 },
             ).then((response) => {
-                priceHistory = null;
-                priceHistory = response.body;
+                priceHistory.value = null;
+                priceHistory.value = response.body;
                 generateBookingPrice();
             }).catch((error) => {
                 console.log(error);
@@ -820,8 +820,8 @@ const addEventListeners = function () {
     fetch(api_endpoints.campgroundCampsites(campground.value.id)).then((response) => {
         var campsites = response.body;
         fetch(api_endpoints.campsite_current_price(campsites[0].id, Moment().format("YYYY-MM-DD"), Moment().add(1, 'days').format("YYYY-MM-DD"))).then((response) => {
-            priceHistory = null;
-            priceHistory = response.body;
+            priceHistory.value = null;
+            priceHistory.value = response.body;
             loading.value.splice('updating prices', 1);
         }).catch((error) => {
             console.log(error);
@@ -929,7 +929,7 @@ const updateParkEntryPrices = function () {
 }
 const fetchUsers = debounce(function (event) {
     fetch(api_endpoints.usersLookup(booking.value.email)).then((response) => {
-        users = response.body;
+        users.value = response.body;
         usersEmail.value = [];
         $.each(users, function (i, u) {
             usersEmail.value.push(u.email);

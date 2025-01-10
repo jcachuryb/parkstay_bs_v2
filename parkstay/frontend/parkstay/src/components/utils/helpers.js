@@ -1,4 +1,3 @@
-import $ from 'jquery'
 import _ from 'lodash'
 
 export const helpers =  {

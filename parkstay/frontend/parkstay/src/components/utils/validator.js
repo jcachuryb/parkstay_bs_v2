@@ -5,7 +5,7 @@
  * Description : A bootsrap and jquery form validation library
  **/
 
-import $ from 'jquery';
+// import $ from 'jquery';
 
 const vd = {
     addError: (field, errMsg) => {
