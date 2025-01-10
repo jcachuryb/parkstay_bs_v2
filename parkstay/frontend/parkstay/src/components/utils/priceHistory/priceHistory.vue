@@ -133,9 +133,7 @@ const closeHistory = function () {
     historyModal.value.isOpen = false;
 }
 const deleteHistoryRecord = function (data) {
-    console.log("DELETEING");
-    console.log(data);
-    const _level = props.level.value
+    const _level = props.level
     var url = null;
     if (_level == 'park') {
         url = api_endpoints.park_entry_rate(data.rate_id);

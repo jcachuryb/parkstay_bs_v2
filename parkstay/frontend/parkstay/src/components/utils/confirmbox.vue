@@ -103,7 +103,7 @@ const confirmBox = function (json) {
             })
         });
     }
-    $(buttonsElm).append("<button type=\"button\" data-dismiss=\"modal\" class=\"btn btn-default\" style='margin-bottom:10px;'>" + cancelText.value + "</button>");
+    $(buttonsElm).append("<button type='button' data-bs-dismiss='modal' class=\"btn btn-default\" style='margin-bottom:10px;'>" + cancelText.value + "</button>");
 }
 
 onMounted(function () {
