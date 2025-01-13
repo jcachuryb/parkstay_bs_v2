@@ -23,6 +23,10 @@ export default defineConfig(({ mode }) => {
   console.log(config);
   return {
     base: ``,
+    define: {
+      "process.env.PARKSTAY_URL": JSON.stringify(env.PARKSTAY_URL),
+      "process.env.NODE_ENV": JSON.stringify(env.NODE_ENV),
+    },
     server: {
         host: host,
         port: port,
@@ -75,6 +79,7 @@ export default defineConfig(({ mode }) => {
                 chunkFileNames: 'js/[name].js',
                 assetFileNames: '[ext]/[name].[ext]',
             },
+            external: ["jquery", "bootstrap", "datatables"],
         },
         emptyOutDir: true,
     },
