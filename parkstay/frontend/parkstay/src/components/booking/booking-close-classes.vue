@@ -262,7 +262,7 @@
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <h3 class="text-primary" v-if="park.entry_fee_required">Park Entry Fees
-                                            <small>(${{ parkPrices.vehicle | formatMoney(2) }}/per vehicle)</small>
+                                            <small>(${{ $filters.formatMoney(parkPrices.vehicle) }}/per vehicle)</small>
                                         </h3>
                                         <h3 class="text-primary" v-else>Vehicle Details</h3>
                                     </div>
@@ -342,8 +342,8 @@
                                             <div class="input-group">
                                                 <span class="input-group-addon">AUD <i class="fa fa-usd"></i></span>
                                                 <input type="text" class="form-control"
-                                                    :placeholder="0 | formatMoney(2)"
-                                                    v-bind:value="booking.price | formatMoney(2)" readonly="true">
+                                                    :placeholder="$filters.formatMoney(0)"
+                                                    v-bind:value="$filters.formatMoney(booking.price)" readonly="true">
                                             </div>
                                         </div>
                                     </div>
@@ -357,7 +357,7 @@
                                             <div class="input-group" v-if="overrideCharge">
                                                 <span class="input-group-addon">AUD <i class="fa fa-usd"></i></span>
                                                 <input type="text" class="form-control" name="overridePrice"
-                                                    :placeholder="0 | formatMoney(2)" v-model="booking.override_price">
+                                                    :placeholder="$filters.formatMoney(0)" v-model="booking.override_price">
                                             </div>
                                         </div>
                                     </div>
@@ -685,9 +685,9 @@ const updatePrices = function () {
                     },
                     headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') }
                 },
-            ).then((response) => {
+            ).then((response) => response.json()).then((data) => {
                 priceHistory.value = null;
-                priceHistory.value = response.body;
+                priceHistory.value = data;
                 generateBookingPrice();
             }).catch((error) => {
                 console.log(error);
@@ -697,8 +697,8 @@ const updatePrices = function () {
 }
 const fetchCountries = function () {
     loading.value.push('fetching countries');
-    fetch(api_endpoints.countries).then((response) => {
-        countries.value = response.body;
+    fetch(api_endpoints.countries).then((response) => response.json()).then((data) => {
+        countries.value = data;
         loading.value.splice('fetching countries', 1);
     }, (response) => {
         console.log(response);
@@ -712,8 +712,8 @@ const fetchCampsites = function () {
             booking.value.campground,
             Moment(booking.value.arrival, "YYYY-MM-DD").format("YYYY/MM/DD"),
             Moment(booking.value.departure, "YYYY-MM-DD").format("YYYY/MM/DD")
-        )).then((response) => {
-            booking.value.campsites = response.body;
+        )).then((response) => response.json()).then((data) => {
+            booking.value.campsites = data;
             if (booking.value.campsites.length > 0) {
                 selected_campsite.value = booking.value.campsites[0].id;
             }
@@ -731,8 +731,8 @@ const fetchCampsiteClasses = function () {
             booking.value.campground,
             Moment(booking.value.arrival, "YYYY-MM-DD").format("YYYY/MM/DD"),
             Moment(booking.value.departure, "YYYY-MM-DD").format("YYYY/MM/DD")
-        )).then((response) => {
-            booking.value.campsite_classes = response.body;
+        )).then((response) => response.json()).then((data) => {
+            booking.value.campsite_classes = data;
             if (booking.value.campsite_classes.length > 0) {
                 selected_campsite.value = booking.value.campsite_classes[0].id;
                 selected_campsite_class.value = 0;
@@ -747,8 +747,8 @@ const fetchCampsiteClasses = function () {
 const fetchCampground = function () {
     loading.value.push('fetching campground');
     var cgId = route.params.cg;
-    fetch(api_endpoints.campground(cgId)).then((response) => {
-        campground.value = response.body;
+    fetch(api_endpoints.campground(cgId)).then((response) => response.json()).then((data) => {
+        campground.value = data;
         booking.value.campground = campground.value.id;
         booking_type.value = (campground.value.site_type == 0) ? booking_types.value.CAMPSITE : booking_types.value.CLASS;
         fetchStayHistory();
@@ -763,9 +763,9 @@ const fetchCampground = function () {
 }
 const fetchStayHistory = function () {
     loading.value.push('fetching stay history');
-    fetch(api_endpoints.campgroundStayHistory(campground.value.id)).then((response) => {
-        if (response.body.length > 0) {
-            stayHistory.value = response.body;
+    fetch(api_endpoints.campgroundStayHistory(campground.value.id)).then((response) => response.json()).then((data) => {
+        if (data.length > 0) {
+            stayHistory.value = data;
         }
         loading.value.splice('fetching stay history', 1);
     }).catch((error) => {
@@ -775,8 +775,8 @@ const fetchStayHistory = function () {
 }
 const fetchPark = function () {
     loading.value.push('fetching park');
-    fetch(api_endpoints.park(campground.value.park)).then((response) => {
-        park.value = response.body;
+    fetch(api_endpoints.park(campground.value.park)).then((response) => response.json()).then((data) => {
+        park.value = data;
         loading.value.splice('fetching park', 1);
     }).catch((error) => {
         console.log(error);
@@ -817,11 +817,11 @@ const addEventListeners = function () {
         booking.value.departure = date ? dateUtils.formatDate(date, 'yyyy-MM-dd') : null;
         selected_departure.value = date ? booking.value.departure : null;
     });
-    fetch(api_endpoints.campgroundCampsites(campground.value.id)).then((response) => {
-        var campsites = response.body;
-        fetch(api_endpoints.campsite_current_price(campsites[0].id, Moment().format("YYYY-MM-DD"), Moment().add(1, 'days').format("YYYY-MM-DD"))).then((response) => {
+    fetch(api_endpoints.campgroundCampsites(campground.value.id)).then((response) => response.json()).then((data) => {
+        var campsites = data;
+        fetch(api_endpoints.campsite_current_price(campsites[0].id, Moment().format("YYYY-MM-DD"), Moment().add(1, 'days').format("YYYY-MM-DD"))).then((response) => response.json()).then((data) => {
             priceHistory.value = null;
-            priceHistory.value = response.body;
+            priceHistory.value = data;
             loading.value.splice('updating prices', 1);
         }).catch((error) => {
             console.log(error);
@@ -928,8 +928,8 @@ const updateParkEntryPrices = function () {
     }
 }
 const fetchUsers = debounce(function (event) {
-    fetch(api_endpoints.usersLookup(booking.value.email)).then((response) => {
-        users.value = response.body;
+    fetch(api_endpoints.usersLookup(booking.value.email)).then((response) => response.json()).then((data) => {
+        users.value = data;
         usersEmail.value = [];
         $.each(users, function (i, u) {
             usersEmail.value.push(u.email);
@@ -939,10 +939,10 @@ const fetchUsers = debounce(function (event) {
 }, 100);
 const fetchParkPrices = function (calcprices) {
     if (booking.value.arrival) {
-        fetch(api_endpoints.park_current_price(park.value.id, booking.value.arrival)).then((response) => {
-            var resp = response.body;
+        fetch(api_endpoints.park_current_price(park.value.id, booking.value.arrival)).then((response) => response.json()).then((data) => {
+            var resp = data;
             if (resp.constructor != Array) {
-                parkPrices.value = response.body;
+                parkPrices.value = data;
             } else {
                 parkPrices.value.vehicle = "0.00";
                 parkPrices.value.motorbike = "0.00";
@@ -1038,10 +1038,10 @@ const bookNow = function () {
             method: "POST",
             body: booking,
             headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
-        }).then((response) => {
+        }).then((response) => response.json()).then((data) => {
             loading.value.splice('processing booking', 1);
             var frame = $('#invoice_frame');
-            frame[0].src = '/ledger/payments/invoice/' + response.body.invoices[0];
+            frame[0].src = '/ledger/payments/invoice/' + data.invoices[0];
             isModalOpen.value = false;
             router.push({ name: "booking-dashboard" });
         }).catch((error) => {

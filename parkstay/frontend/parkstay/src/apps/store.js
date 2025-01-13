@@ -67,16 +67,12 @@ const store = createStore({
             });
         },
         fetchCampgrounds(context){
-            return new Promise((resolve,reject) => {
-                fetch(api_endpoints.campgrounds).then((response) => {
-                    context.commit('SETCAMPGROUNDS',response.body);
-                    resolve(response.body);
-                }).catch((error) => {
-                    reject(error);
-                });
+            fetch(api_endpoints.campgrounds).then((response) => response.json()).then((data) => {
+                context.commit('SETCAMPGROUNDS', data);
             }).catch((error) => {
-                console.log(error);
+                console.error(error)
             });
+
         },
         fetchCampsiteClasses(context){
             $.get(api_endpoints.campsite_classes,function(data){

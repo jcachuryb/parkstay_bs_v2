@@ -1,7 +1,7 @@
 <template>
     <div id="groundsList">
-        <pkCgClose @isOpenCloseCG="handleCloseCampground" @refreshCGTable="onRefreshCGTable"></pkCgClose>
-        <pkCgOpen @isOpenOpenCG="handleOpenCampground" @refreshCGTable="onRefreshCGTable"></pkCgOpen>
+        <pkCgClose ref='pkCgCloseRef' @isOpenCloseCG="handleCloseCampground" @refreshCGTable="onRefreshCGTable"></pkCgClose>
+        <pkCgOpen ref='pkCgOpenRef' @isOpenOpenCG="handleOpenCampground" @refreshCGTable="onRefreshCGTable"></pkCgOpen>
         <div class="panel-group" id="returns-accordion" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default border p-3" id="returns">
                 <base-panel-heading :title="title">
@@ -115,11 +115,11 @@ const selected_status = ref('All')
 const selected_region = ref('All')
 const selected_park = ref('All')
 const selected_district = ref('All')
+const pkCgCloseRef = ref(null)
+const pkCgOpenRef = ref(null)
 const dtGrounds = ref(null)
 const bulkClose = ref(null)
 const isOpenAddCampground = ref(false)
-const isOpenOpenCG = ref(false)
-const isOpenCloseCG = ref(false)
 const showBulkClose = ref(false)
 const dtoptions = ref({
     responsive: true,
@@ -218,17 +218,17 @@ const closeBulkClose = function () {
     dtGrounds.value.vmDataTable.ajax.reload();
 }
 const handleOpenCampground = function (value) {
-    isOpenOpenCG.value = value;
+    pkCgOpenRef.value = value
 }
 const handleCloseCampground = function (value) {
-    isOpenCloseCG.value = value;
+    pkCgCloseRef.value.isOpen = value
 }
 
 const showOpenCloseCG = function () {
-    isOpenCloseCG.value = true;
+    pkCgCloseRef.value.isOpen = true
 }
 const showOpenOpenCG = function () {
-    isOpenOpenCG.value = true;
+    pkCgOpenRef.value = true
 }
 
 const onRefreshCGTable =  function () {

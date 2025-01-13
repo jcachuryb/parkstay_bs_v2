@@ -426,9 +426,9 @@ const cancelBooking = function (booking) {
   fetch(api_endpoints.booking(booking.id), {
       method: "DELETE",
       headers: { "X-CSRFToken": helpers.getCookie("csrftoken") }
-    })
+    }).then((response) => response.json())
     .then(
-      response => {
+      data => {
         bookings_table.value.vmDataTable.ajax.reload();
       },
       error => {
@@ -557,9 +557,9 @@ const printParams = function () {
 const print = function () {
   exportingCSV.value = true;
 
-  fetch(api_endpoints.bookings + "?" + printParams()).then(
+  fetch(api_endpoints.bookings + "?" + printParams()).then((response) => response.json()).then(
     res => {
-      var data = res.body.results;
+      var data = res.results;
 
       var fields = ["Created"];
       //var fields = [...dtHeaders.value];

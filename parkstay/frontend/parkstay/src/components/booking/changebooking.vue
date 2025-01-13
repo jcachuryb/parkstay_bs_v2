@@ -97,8 +97,8 @@ const showError = computed(function () {
 })
 watch(() => selectedCampground, function (value) {
     if (value) {
-        fetch(api_endpoints.campgroundCampsites(value)).then((response) => {
-            campsites.value = response.body;
+        fetch(api_endpoints.campgroundCampsites(value)).then((response) => response.json()).then((data) => {
+            campsites.value = data;
         }, (response) => {
             console.log(response);
         });
@@ -117,8 +117,8 @@ const close = function () {
     isModalOpen.value = false;
 }
 const fetchBooking = function (id) {
-    fetch(api_endpoints.booking(id)).then((response) => {
-        booking.value = response.body; isModalOpen.value = true;
+    fetch(api_endpoints.booking(id)).then((response) => response.json()).then((data) => {
+        booking.value = data; isModalOpen.value = true;
         eventListeners();
     }, (error) => {
         console.log(error);
@@ -138,7 +138,7 @@ const sendData = function () {
         method: "PUT",
         body: booking,
         headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
-    }).then((response) => {
+    }).then((response) => response.json()).then((data) => {
         emit('loadingCallback', {
             value: 'processing booking',
             show: false

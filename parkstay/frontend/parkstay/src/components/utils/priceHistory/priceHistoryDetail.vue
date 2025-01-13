@@ -204,7 +204,7 @@ const addHistory = function () {
 }
 const fetchRates = function () {
 
-    fetch(api_endpoints.rates, function (data) {
+    fetch(api_endpoints.rates).then((response) => response.json()).then((data) => {
         rates.value = data;
     });
 }
@@ -212,7 +212,7 @@ const fetchBookingPolicy = function () {
 
     console.log("fetchBookingPolicy 1");
     console.log(api_endpoints.booking_policy);
-    fetch(api_endpoints.booking_policy, function (data) {
+    fetch(api_endpoints.booking_policy).then((response) => response.json()).then((data) => {
         booking_policy.value = data;
         console.log("fetchBookingPolicy");
         console.log(booking_policy.value);

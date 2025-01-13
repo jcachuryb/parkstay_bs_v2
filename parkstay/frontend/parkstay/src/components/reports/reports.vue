@@ -397,7 +397,7 @@ const getBookingsReport = function () {
 }
 
 const fetchRegions = function () {
-    fetch('/ledger/payments/api/regions?format=json', function (data) {
+    fetch('/ledger/payments/api/regions?format=json').then((response) => response.json()).then((data) => {
         regions.value = data;
     });
 }

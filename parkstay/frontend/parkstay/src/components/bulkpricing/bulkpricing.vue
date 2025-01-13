@@ -384,7 +384,7 @@ watch(() => selected_rate.value, function (value) {
         bulkpricing.value.child = '';
     }
 })
-watch(() => campsite_classes.value, function (value) {
+watch(() => campsite_classes, function (value) {
     availableCampsiteClasses();
 })
 
@@ -504,7 +504,8 @@ const addHistory = function () {
 }
 const fetchRates = function () {
     loading.value.push('Loading Rates');
-    fetch(api_endpoints.rates).then((data) => {
+    fetch(api_endpoints.rates).then((response) => response.json())
+    .then((data) => {
         rates.value = data;
         loading.value.splice('Loading Rates', 1);
     }).catch(error=> {

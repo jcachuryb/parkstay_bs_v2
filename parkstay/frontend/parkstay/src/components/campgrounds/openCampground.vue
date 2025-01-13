@@ -154,6 +154,7 @@ const addFormValidations = function () {
     });
 }
 
+defineExpose({ formdata, isOpen, errors, errorString, close })
 
 onMounted(function () {
     bus.on('openCG', function (data) {

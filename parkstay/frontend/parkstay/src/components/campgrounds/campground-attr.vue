@@ -530,8 +530,8 @@ onMounted(function () {
 
     form.value = $('#attForm');
     addFormValidations();
-    fetch(api_endpoints.contacts).then((response) => {
-        contacts.value = response.body
+    fetch(api_endpoints.contacts).then((response) => response.json()).then(data => {
+        contacts.value = data
     }).catch((error) => {
         console.log(error);
     })

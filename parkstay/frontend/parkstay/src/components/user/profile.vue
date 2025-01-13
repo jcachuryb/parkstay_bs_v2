@@ -182,10 +182,10 @@ const updatePersonal = function () {
         headers: {
             'X-CSRFToken': helpers.getCookie('csrftoken')
         }
-    }).then((response) => {
+    }).then((response) => response.json()).then((data) => {
         console.log(response);
         updatingPersonal.value = false;
-        profile.value = response.body;
+        profile.value = data;
         if (profile.value.residential_address == null) { profile.value.residential_address = {}; }
     }, (error) => {
         console.log(error);
@@ -201,10 +201,10 @@ const updateContact = function () {
             'Content-Type': 'application/json',
             'X-CSRFToken': helpers.getCookie('csrftoken')
         }
-    }).then((response) => {
+    }).then((response) => response.json()).then((data) => {
         console.log(response);
         updatingContact.value = false;
-        profile.value = response.body;
+        profile.value = data;
         if (profile.value.residential_address == null) { profile.value.residential_address = {}; }
     }).catch((error) => {
         console.log(error);
@@ -219,10 +219,10 @@ const updateAddress = function () {
         headers: {
             'X-CSRFToken': helpers.getCookie('csrftoken')
         }
-    }).then((response) => {
+    }).then((response) => response.json()).then((data) => {
         console.log(response);
         updatingAddress.value = false;
-        profile.value = response.body;
+        profile.value = data;
         if (profile.value.residential_address == null) { profile.value.residential_address = {}; }
     }).catch((error) => {
         console.log(error);
@@ -231,8 +231,8 @@ const updateAddress = function () {
 }
 const fetchCountries = function () {
     loading.value.push('fetching countries');
-    fetch(api_endpoints.countries).then((response) => {
-        countries.value = response.body;
+    fetch(api_endpoints.countries).then((response) => response.json()).then((data) => {
+        countries.value = data;
         loading.value.splice('fetching countries', 1);
     }, (response) => {
         console.log(response);
@@ -259,8 +259,8 @@ const fetchUserProfileData = () => {
         headers: {
             'X-CSRFToken': helpers.getCookie('csrftoken')
         },
-    }).then((response) => {
-        profile.value = response.body
+    }).then((response) => response.json()).then((data) => {
+        profile.value = data
         if (profile.value.residential_address == null) { profile.value.residential_address = {}; }
     }).catch((error) => {
         console.log(error);

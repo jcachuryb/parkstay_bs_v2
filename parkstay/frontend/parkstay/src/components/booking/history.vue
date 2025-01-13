@@ -9,13 +9,13 @@
                             <span><strong>Confirmation #</strong> : PB{{ booking.id }}</span>
                         </div>
                         <div class="col-sm-3">
-                            <span><strong>Arrival</strong> : {{ booking.arrival | formatDate }}</span>
+                            <span><strong>Arrival</strong> : {{ $filters.formatDate(booking.arrival) }}</span>
                         </div>
                         <div class="col-sm-3">
-                            <span><strong>Departure</strong> : {{ booking.departure | formatDate }}</span>
+                            <span><strong>Departure</strong> : {{ $filters.formatDate(booking.departure) }}</span>
                         </div>
                         <div class="col-sm-3">
-                            <span><strong>Cost</strong> : {{ booking.cost_total | formatMoney }}</span>
+                            <span><strong>Cost</strong> : {{ $filters.formatMoney(booking.cost_total) }}</span>
                         </div>
                     </div>
                     <div class="row" style="margin-top:10px;">

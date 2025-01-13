@@ -260,8 +260,8 @@ const addTableListeners = function () {
         console.log(props.level);
         var bookingpolicyid = $(this).data('bookingpolicyid');
         if (props.level == 'park') {
-            fetch(api_endpoints.park_entry_rate(rate)).then((response) => {
-                parkPrice.value = response.body;
+            fetch(api_endpoints.park_entry_rate(rate)).then((response) => response.json()).then((data) => {
+                parkPrice.value = data;
                 historyModal.value.selected_rate = rate;
                 price.value.period_start = Moment(price.value.period_start).format('YYYY-MM-DD');
                 price.value.period_end != null ? price.value.period_end : '';

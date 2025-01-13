@@ -83,7 +83,8 @@
                                                                 <div class="col-sm-8">
                                                                     <span class="item">
                                                                         {{ guest.amount }} {{ guest.name }} <span
-                                                                            style="color:#888;font-weight:300;font-size:12px;">{{ guest.description }}</span>
+                                                                            style="color:#888;font-weight:300;font-size:12px;">{{
+                                                                            guest.description }}</span>
                                                                     </span>
                                                                     <br /><a href="#" class="text-info"
                                                                         v-show="guest.helpText">{{ guest.helpText }}</a>
@@ -126,7 +127,8 @@
                                                                         style="color:#888;font-weight:300;font-size:12px;"></span>
                                                                 </span>
                                                                 <br /><a href="#" class="text-info"
-                                                                    v-show="park_entry.helpText">{{ park_entry.helpText }}</a>
+                                                                    v-show="park_entry.helpText">{{ park_entry.helpText
+                                                                    }}</a>
                                                             </div>
                                                             <div class="pull-right">
                                                                 <div class="btn-group btn-group-sm">
@@ -437,9 +439,9 @@ const updatePrices = function () {
                     },
                     headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') }
                 },
-            ).then((response) => {
+            ).then((response) => response.json()).then((data) => {
                 priceHistory.value = null;
-                priceHistory.value = response.body;
+                priceHistory.value = data;
                 generateBookingPrice();
                 loading.value.splice('updating prices', 1);
             }, (error) => {
@@ -503,9 +505,9 @@ const fetchSites = function () {
         if (selected_arrival.value && selected_departure.value) {
             fetchingSites.value = true;
             loading.value.push('fetching campsites');
-            fetch(api_endpoints.available_campsites_booking(booking.value.campground, booking.value.arrival, booking.value.departure, booking.value.id)).then((response) => {
+            fetch(api_endpoints.available_campsites_booking(booking.value.campground, booking.value.arrival, booking.value.departure, booking.value.id)).then((response) => response.json()).then((data) => {
                 fetchingSites.value = false;
-                campsites.value = response.body;
+                campsites.value = data;
                 if (campsites.value.length > 0) {
                     let c_lookup = campsites.value.find(c => parseInt(c.id) === parseInt(selected_campsite.value));
                     if (c_lookup == null || c_lookup == undefined) {
@@ -523,9 +525,9 @@ const fetchSites = function () {
 }
 const fetchStayHistory = function () {
     loading.value.push('fetching stay history');
-    fetch(api_endpoints.campgroundStayHistory(campground.value.id)).then((response) => {
-        if (response.body.length > 0) {
-            stayHistory.value = response.body;
+    fetch(api_endpoints.campgroundStayHistory(campground.value.id)).then((response) => response.json()).then((data) => {
+        if (data.length > 0) {
+            stayHistory.value = data;
         }
         loading.value.splice('fetching stay history', 1);
     }).catch((error) => {
@@ -536,8 +538,8 @@ const fetchStayHistory = function () {
 }
 const fetchPark = function () {
     loading.value.push('fetching park');
-    fetch(api_endpoints.park(campground.value.park)).then((response) => {
-        park.value = response.body;
+    fetch(api_endpoints.park(campground.value.park)).then((response) => response.json()).then((data) => {
+        park.value = data;
         loading.value.splice('fetching park details', 1);
     }).catch((error) => {
         console.log(error);
@@ -670,10 +672,9 @@ const updateParkEntryPrices = function () {
 const fetchParkPrices = function (calcprices) {
     if (booking.value.arrival) {
         var arrival = Moment(booking.value.arrival, "DD/MM/YYYY").format("YYYY-MM-DD");
-        fetch(api_endpoints.park_current_price(park.value.id, arrival)).then((response) => {
-            var resp = response.body;
-            if (resp.constructor != Array) {
-                parkPrices.value = response.body;
+        fetch(api_endpoints.park_current_price(park.value.id, arrival)).then((response) => response.json()).then((data) => {
+            if (Array.isArray(data)) {
+                parkPrices.value = data;
             } else {
                 parkPrices.value.vehicle = "0.00";
                 parkPrices.value.motorbike = "0.00";
@@ -740,7 +741,7 @@ const updateNow = function () {
             headers: {
                 'X-CSRFToken': helpers.getCookie('csrftoken')
             },
-        }).then((response) => {
+        }).then((response) => response.json()).then((data) => {
             loading.value.splice('updating booking', 1);
             finishBooking();
         }, (error) => {
@@ -848,8 +849,8 @@ const removeVehicleCount = function (park_entry) {
     booking.value.price = booking.value.price + booking.value.entryFees.entry_fee;
     booking_price.value = booking.value.price;
 }
-const initBooking = function (response) {
-    booking.value = JSON.parse(JSON.stringify(response.body));
+const initBooking = function (data) {
+    booking.value = data;
     booking.value.arrival = Moment(booking.value.arrival).format('DD/MM/YYYY');
     booking.value.departure = Moment(booking.value.departure).format('DD/MM/YYYY');
     // set the campsite
@@ -921,10 +922,10 @@ const onBeforeRouteEnters = () => {
         store.dispatch('fetchCampgrounds'),
         booking_helpers.fetchBooking(to.params.booking_id)
     ]
-    Promise.all(initialisers).then((response) => {
+    Promise.all(initialisers).then((responses) => {
         store.commit('SET_LOADER_STATE', false);
         next(vm => {
-            initBooking(response[1]);
+            initBooking(responses[1]);
         });
     }).catch(err => {
         console.log(err);
