@@ -1,11 +1,11 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vueDevTools from "vite-plugin-vue-devtools";
+
+import inject from "@rollup/plugin-inject";
 import legacy from "@vitejs/plugin-legacy";
 
-// import resolve from '@rollup/plugin-node-resolve';
 import path from "path";
-// import eslint from 'vite-plugin-eslint2';
 import svgLoader from "vite-svg-loader";
 import conf from "./config";
 
@@ -41,8 +41,8 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
-      vueDevTools(),
       vue(),
+      vueDevTools(),
       // eslint(),
       svgLoader({
         defaultImport: "url",
@@ -80,7 +80,6 @@ export default defineConfig(({ mode }) => {
           chunkFileNames: "js/[name].js",
           assetFileNames: "[ext]/[name].[ext]",
         },
-        external: ["jquery", "bootstrap", "datatables"],
       },
       emptyOutDir: true,
     },

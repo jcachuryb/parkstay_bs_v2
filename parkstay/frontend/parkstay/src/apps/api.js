@@ -1,4 +1,4 @@
-const baseApiUrl = import.meta.env.PARKSTAY_URL || 'http://localhost:9191';
+const baseApiUrl = import.meta.env.PARKSTAY_URL || '';
 
 export const api_endpoints = {
   regions: baseApiUrl + "/api/regions.json",
