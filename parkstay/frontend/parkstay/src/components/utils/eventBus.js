@@ -1,5 +1,4 @@
-import Vue from 'vue';
-var bus = new Vue();
-export {
-    bus
-}
+import mitt from 'mitt'
+
+export const bus = mitt()
+

@@ -1,0 +1,25 @@
+{
+  "_vendor.css": {
+    "file": "assets/vendor.css",
+    "src": "_vendor.css"
+  },
+  "_vendor.js": {
+    "file": "vendor.js",
+    "name": "vendor",
+    "css": [
+      "assets/vendor.css"
+    ]
+  },
+  "src/apps/main.js": {
+    "file": "parkstay.js",
+    "name": "parkstay",
+    "src": "src/apps/main.js",
+    "isEntry": true,
+    "imports": [
+      "_vendor.js"
+    ],
+    "css": [
+      "assets/parkstay.css"
+    ]
+  }
+}

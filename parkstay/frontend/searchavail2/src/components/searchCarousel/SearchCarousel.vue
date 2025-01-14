@@ -90,10 +90,10 @@
             <template #addons="{ slidesCount }">
                 <navigation>
                     <template #next>
-                        <img src="../../assets/chevron-right.svg" alt="Next" />
+                        <img src="@assets/chevron-right.svg" alt="Next" />
                     </template>
                     <template #prev>
-                        <img src="../../assets/chevron-left.svg" alt="Prev" />
+                        <img src="@assets/chevron-left.svg" alt="Prev" />
 
                     </template>
                 </navigation>

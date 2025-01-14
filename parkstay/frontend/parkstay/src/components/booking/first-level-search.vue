@@ -5,23 +5,7 @@
 
 </template>
 
-<script>
+<script setup>
 import bookingPicker from '../utils/bookingpicker.vue'
-export default {
-    name:"flsearch",
-    data:function () {
-        return{
-
-        }
-    },
-    components:{
-        "booking-picker": bookingPicker
-    },
-    mounted:function () {
-
-    }
-}
 </script>
-
-<style lang="css">
-</style>
+<style lang="css"></style>

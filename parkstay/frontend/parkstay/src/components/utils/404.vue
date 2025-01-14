@@ -12,10 +12,8 @@
   </div>
 </template>
 
-<script>
-export default {
-  name:'error-404',
-}
+<script setup>
+
 </script>
 
 <style lang="css">

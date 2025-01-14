@@ -209,6 +209,10 @@ import 'foundation-sites/dist/js/foundation.min';
 import debounce from 'debounce';
 import moment from 'moment';
 import SearchCarousel from './searchCarousel/SearchCarousel.vue';
+import sitesOnlineIcon from '@assets/pin.svg';
+import sitesInPersonIcon from '@assets/pin_offline.svg';
+import sitesAltIcon from '@assets/pin_alt.svg';
+import locationIcon from '@assets/location.svg';
 import map_init_mount from '../utils/map_init_mount';
 var today = moment.utc().add(8, 'hours');
 today = moment.utc({ year: today.year(), month: today.month(), day: today.date(), hour: 0, minute: 0, millisecond: 0 })
@@ -216,10 +220,10 @@ today = moment.utc({ year: today.year(), month: today.month(), day: today.date()
 export default {
     name: 'parkfinder',
     components: { SearchCarousel },
-
+    
     data: function () {
         return {
-            parkstayUrl: process.env.PARKSTAY_URL || global.parkstayUrl,
+            parkstayUrl: (import.meta.env.VITE_PARKSTAY_URL || process.env.PARKSTAY_URL) || (typeof global != 'undefined'? global : {})?.parkstayUrl,
             defaultCenter: [13775786.985667605, -2871569.067879858], // [123.75, -24.966],
             defaultLayers: [
                 ['dpaw:mapbox_outdoors', {}],
@@ -267,10 +271,10 @@ export default {
             sitesOnline: true,
             sitesInPerson: true,
             sitesAlt: true,
-            sitesOnlineIcon: require('../assets/pin.svg'),
-            sitesInPersonIcon: require('../assets/pin_offline.svg'),
-            sitesAltIcon: require('../assets/pin_alt.svg'),
-            locationIcon: require('../assets/location.svg'),
+            sitesOnlineIcon: sitesOnlineIcon,
+            sitesInPersonIcon: sitesInPersonIcon,
+            sitesAltIcon: sitesAltIcon,
+            locationIcon: locationIcon,
             paginate: ['filterResults'],
             selectedFeature: null,
             booking_arrival_days: 0,
@@ -999,7 +1003,7 @@ export default {
 
 @font-face {
     font-family: "DPaWSymbols";
-    src: url("../assets/campicon.woff") format("woff");
+    src: url("@assets/campicon.woff") format("woff");
 }
 
 .symb {

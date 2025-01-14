@@ -1,5 +1,7 @@
-import $ from "jquery";
-const JqueryIn = $;
+
+
+import $ from "./jquery-global.js";
+
 import store from "./apps/store";
 import { api_endpoints } from "./apps/api.js";
 import { bus } from "./components/utils/eventBus.js";
@@ -12,14 +14,15 @@ import { formatDate, parse as parseDate, addDays, isWithinInterval } from "date-
 import moment from "moment/moment.js";
 import { extendMoment } from "moment-range";
 import { DateTime, TempusDominus } from "@eonasdan/tempus-dominus";
-import validate from "jquery-validation";
-import bootstrap from 'bootstrap'; // needed for datetimepicker
-import slick from "slick-carousel-browserify";
-import select2 from "select2";
+import * as select2 from "@select2";
+select2.default()
+import "jquery-validation";
+import 'bootstrap/dist/js/bootstrap.min.js'; // needed for datetimepicker
+import "slick-carousel-browserify";
 import awesomplete from "awesomplete";
 import daterangepicker from "bootstrap-daterangepicker";
 import { formValidate } from "./components/utils/validator.js";
-import swal from "sweetalert2";
+import swal from "sweetalert2/dist/sweetalert2.min.js";
 import htmlEscape from "html-escape";
 
 const Moment = extendMoment(moment);
@@ -81,6 +84,7 @@ const getDateTimePicker = function (element, options = {}) {
 };
 const dateUtils = { formatDate, parseDate, addDays, isWithinInterval };
 
+const validate = {}
 export {
   $,
   DataTable,
@@ -94,8 +98,6 @@ export {
   helpers,
   validate,
   bus,
-  slick,
-  select2,
   daterangepicker,
   awesomplete,
   formValidate,

@@ -11,60 +11,57 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import {
     $,
 }
-from '../../hooks.js'
+    from '../../hooks.js'
 import "quill/dist/quill.snow.css";
 import Editor from 'quill';
+import { onMounted, ref } from 'vue';
 
-export default {
-    name:"editor",
-    data:function () {
-        let vm = this;
-        return {
-            editor:null,
-            editor_id:'editor'+vm._uid
-        }
-    },
-    props:['value'],
-    methods:{
-        disabled: function(is_disabled){
-            this.editor.enable(!is_disabled);
-        },
-        updateContent:function (content) {
-            let vm = this;
-            vm.editor.setText('');
-            vm.editor.clipboard.dangerouslyPasteHTML(0, content, 'api');
-            vm.$emit('input',content);
-        }
-    },
-    mounted: function(){
-        let vm = this;
-        vm.editor = new Editor('#'+vm.editor_id, {
-            modules: {
-                toolbar: true
-            },
-            theme: 'snow'
-        });
-        vm.editor.on('text-change', function(delta, oldDelta, source) {
-            var text = $('#'+vm.editor_id+' >.ql-editor').html();
-            vm.$emit('input', text);
-        });
-        var valueReady = setInterval(function () {
-            if(typeof(vm.value) != "undefined"){
-                vm.editor.clipboard.dangerouslyPasteHTML(0, vm.value, 'api');
-                clearInterval(valueReady);
-            }
-        },100);
+const model = defineModel()
+const emit = defineEmits(['input']);
 
-    }
+let editor = null
+const editor_id = 'editor' + crypto.randomUUID();
+
+const disabled = function (is_disabled) {
+    editor.enable(!is_disabled);
 }
+const updateContent = function (content) {
+    editor.setText('');
+    editor.clipboard.dangerouslyPasteHTML(0, content, 'api');
+    emit('input', content);
+}
+
+defineExpose({disabled, updateContent, editor_id})
+
+onMounted(function () {
+    editor = new Editor('#' + editor_id, {
+        modules: {
+            toolbar: true
+        },
+
+        theme: 'snow'
+    });
+    editor.on('text-change', function (delta, oldDelta, source) {
+        var text = $('#' + editor_id + ' >.ql-editor').html();
+        // emit('input', text);
+        model.value = text
+    });
+    var valueReady = setInterval(function () {
+        if (typeof model.value != "undefined") {
+            editor.clipboard.dangerouslyPasteHTML(0, model.value, 'api');
+            clearInterval(valueReady);
+        }
+    }, 100);
+
+})
 </script>
 
 <style lang="css" scoped>
-    .editor{
-        height: 200px;
-    }
+.editor {
+    height: 200px;
+}
 </style>

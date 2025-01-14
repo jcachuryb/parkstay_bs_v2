@@ -13,73 +13,66 @@
     </div>
 
 </template>
-<script>
+<script setup>
 
+import { onMounted, ref } from 'vue';
 import { $ } from '../../hooks.js'
 import ResponsiveDatatablesHelper from "./responsive_datatable_helper.js"
-export default {
-    name: 'DataTable',
-    props: {
-        dtHeaders: {
-            type: Array,
-            required: true
-        },
-        dtOptions: {
-            type: Object,
-            required: true
-        },
-        id: {
-            required: true
-        }
-    },
-    data: function () {
-        return {
-            table: null,
-            vmDataTable: null,
-        }
-    },
-    computed: {
 
+const props = defineProps({
+    dtHeaders: {
+        type: Array,
+        required: true
     },
-    methods: {
-        initEvents: function () {
-            let vm = this;
-            var responsiveHelper;
-            var breakpointDefinition = {
-                //bootstrap grid values
-                tablet: 992,
-                phone: 768
-            };
-            var responsiveOptions = {
-                autoWidth: false,
-                preDrawCallback: function () {
-                    // Initialize the responsive datatables helper once.
-                    if (!responsiveHelper) {
-                        responsiveHelper = new ResponsiveDatatablesHelper(vm.table, breakpointDefinition);
-                    }
-                },
-                rowCallback: function (nRow) {
-                    responsiveHelper.createExpandIcon(nRow);
-                },
-                drawCallback: function (oSettings) {
-                    responsiveHelper.respond();
-                },
-            }
-            var options = Object.assign(vm.dtOptions, responsiveOptions)
-            vm.vmDataTable = $(vm.table).DataTable(options);
-            $(vm.table).on("resize", function (e) {
-                vm.vmDataTable.draw(true);
-            });
-        }
+    dtOptions: {
+        type: Object,
+        required: true
     },
-    mounted: function () {
-        let vm = this;
-        vm.table = $('#' + vm.id);
-        $.fn.dataTable.ext.errMode = 'throw';
-        // $.fn.dataTable.ext.classes.sPageButton = 'page-link page-item';
-        vm.initEvents();
+    id: {
+        required: true
     }
-};
+});
+
+const table = ref(null)
+const vmDataTable = ref(null)
+const initEvents = function () {
+    var responsiveHelper;
+    var breakpointDefinition = {
+        //bootstrap grid values
+        tablet: 992,
+        phone: 768
+    };
+    var responsiveOptions = {
+        autoWidth: false,
+        preDrawCallback: function () {
+            // Initialize the responsive datatables helper once.
+            if (!responsiveHelper) {
+                responsiveHelper = new ResponsiveDatatablesHelper(table.value, breakpointDefinition);
+            }
+        },
+        rowCallback: function (nRow) {
+            responsiveHelper.createExpandIcon(nRow);
+        },
+        drawCallback: function (oSettings) {
+            responsiveHelper.respond();
+        },
+    }
+    var options = Object.assign(props.dtOptions, responsiveOptions)
+    vmDataTable.value = $(table.value).DataTable(options);
+    $(table.value).on("resize", function (e) {
+        vmDataTable.value.draw(true);
+    });
+}
+
+onMounted(function () {
+    table.value = $('#' + props.id);
+    $.fn.dataTable.ext.errMode = 'throw';
+    // $.fn.dataTable.ext.classes.sPageButton = 'page-link page-item';
+    initEvents();
+})
+
+defineExpose({ vmDataTable, table })
+
 </script>
 
 <style lang="css">

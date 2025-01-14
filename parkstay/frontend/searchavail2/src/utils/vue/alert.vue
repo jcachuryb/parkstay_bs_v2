@@ -1,5 +1,5 @@
 <template>
-    <div v-show="show" v-bind:class="{
+    <div v-show="show" :class="{
         'alert': true,
         'alert-success': (type == 'success'),
         'alert-warning': (type == 'warning'),
@@ -7,7 +7,7 @@
         'alert-danger': (type == 'danger'),
         'top': (placement === 'top'),
         'top-right': (placement === 'top-right')
-    }" transition="fade" v-bind:style="{ width: width }" role="alert">
+    }" transition="fade" :style="{ width: width }" role="alert">
         <button v-show="dismissable" type="button" class="close" @click="show = false">
             <span>&times;</span>
         </button>
@@ -15,40 +15,43 @@
     </div>
 </template>
 
-<script>
-export default {
-    props: {
-        type: {
-            type: String
-        },
-        dismissable: {
-            type: Boolean,
-            default: false
-        },
-        show: {
-            type: Boolean,
-            default: true,
-        },
-        duration: {
-            type: Number,
-            default: 0
-        },
-        width: {
-            type: String
-        },
-        placement: {
-            type: String
-        }
+<script setup>
+import { watch, useRef } from 'vue'
+
+const _timeout = useRef(null)
+const props = defineProps({
+    type: {
+        type: String
     },
-    watch: {
-        show(val) {
-            if (this._timeout) clearTimeout(this._timeout)
-            if (val && Boolean(this.duration)) {
-                this._timeout = setTimeout(() => { this.show = false }, this.duration)
-            }
+    dismissable: {
+        type: Boolean,
+        default: false
+    },
+    show: {
+        type: Boolean,
+        default: false,
+    },
+    duration: {
+        type: Number,
+        default: 0
+    },
+    width: {
+        type: String
+    },
+    placement: {
+        type: String
+    }
+})
+
+watch(
+    () => props.show,
+    (val) => {
+        if (_timeout.value) clearTimeout(_timeout.value)
+        if (val && Boolean(props.duration)) {
+            _timeout.value = setTimeout(() => { props.show = false }, props.duration)
         }
     }
-}
+)
 </script>
 
 <style scoped>

@@ -415,12 +415,9 @@
             </script>
             {% endblock %} {% block custom_searchavail %}
             {% if not DEV_STATIC_SEARCH_AVAIL %}
-            <script src="{% static 'searchavail2/js/chunk-vendors.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
-            <script src="{% static 'searchavail2/js/app.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
+            <script type="module" src="{% static 'searchavail2_vue/js/main.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
             {% else %}
-            <script type="text/javascript" src="{{ DEV_STATIC_SEARCH_AVAIL_URL }}/js/chunk-vendors.js?ver={{ GIT_COMMIT_HASH }}"></script>
-            <script type="text/javascript" src="{{ DEV_STATIC_SEARCH_AVAIL_URL }}/js/app.js?ver={{ GIT_COMMIT_HASH }}"></script>
-            <script type="text/javascript" src="{{ DEV_STATIC_SEARCH_AVAIL_URL }}/js/runtime.js?ver={{ GIT_COMMIT_HASH }}"></script>
+            <script type="module" src="{{ DEV_STATIC_SEARCH_AVAIL_URL }}?ver={{ GIT_COMMIT_HASH }}"></script>
             {% endif %} {% endblock %}
           </div>
         </div>
