@@ -15,10 +15,6 @@ export default defineConfig(({ mode }) => {
 
     return {
         base: ``,
-        // define: {
-        //   "process.env.PARKSTAY_URL": process.env.PARKSTAY_API_URL || 'http://localhost:9091',
-        //   "process.env.NODE_ENV": isProduction ? "production" : "development",
-        // },
         server: {
             host: host,
             port: port,
