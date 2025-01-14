@@ -1,11 +1,15 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
-var path = require('path')
+import path from 'path'
+import prod_env from './prod.env';
+import devinplace_env from './devinplace.env';
+import dev_env from './dev.env';
 
-module.exports = {
+
+export default {
   build: {
-    env: require('./prod.env'),
+    env: prod_env,
     index: path.resolve(__dirname, '../dist/index.html'),
-    assetsRoot: path.resolve(__dirname, '../../../static/parkstay/js/'),
+    assetsRoot: path.resolve(__dirname, '../../../static/parkstay/js/vite/'),
     assetsSubDirectory: 'parkstay',
     assetsPublicPath: '/',
     productionSourceMap: true,
@@ -22,7 +26,7 @@ module.exports = {
     bundleAnalyzerReport: process.env.npm_config_report
   },
   devinplace: {
-    env: require('./devinplace.env'),
+    env: devinplace_env,
     index: path.resolve(__dirname, '../dist/index.html'),
     assetsRoot: path.resolve(__dirname, '../../../static/'),
     assetsSubDirectory: 'parkstay',
@@ -41,12 +45,12 @@ module.exports = {
     bundleAnalyzerReport: process.env.npm_config_report
   },
  dev: {
-    env: require('./dev.env'),
+    env: dev_env,
     port: 9092,
     containerIP: "10.17.0.10",
     autoOpenBrowser: true,
     assetsSubDirectory: 'static',
-    assetsRoot: path.resolve(__dirname, '../'),
+    assetsRoot: path.resolve(__dirname, './dist'),
     assetsPublicPath: '/',
     proxyTable: {},
     // CSS Sourcemaps off by default because relative paths are "buggy"

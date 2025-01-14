@@ -1,4 +1,3 @@
-import $ from 'jquery'
 import _ from 'lodash'
 
 export const helpers =  {
@@ -36,9 +35,6 @@ export const helpers =  {
             error_str = 'The resource you are looking for does not exist.';
         }
         return error_str;
-    },
-    goBack:function(vm){
-        vm.$router.go(window.history.back());
     },
     getCookie: function(name) {
         let value = null;

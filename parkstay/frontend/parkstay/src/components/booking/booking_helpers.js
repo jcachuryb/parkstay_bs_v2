@@ -1,23 +1,15 @@
-import Vue from 'vue'
-
-import {
-    $,
-    awesomplete,
-    Moment,
-    api_endpoints,
-    validate,
-    formValidate,
-    helpers,
-    store
-} from "../../hooks.js";
+import { api_endpoints } from "../../hooks.js";
 export default {
-    fetchBooking(id){
-        return new Promise((resolve,reject) => {
-            Vue.http.get(api_endpoints.booking(id)).then((response) => {
-                resolve(response);
-            }, (error) => {
-                reject(error);
-            });
+  fetchBooking(id) {
+    return new Promise((resolve, reject) => {
+      fetch(api_endpoints.booking(id))
+      .then((response) => response.json())
+        .then((data) => {
+          resolve(data);
+        })
+        .catch((error) => {
+          reject(error);
         });
-    }
-}
+    });
+  },
+};

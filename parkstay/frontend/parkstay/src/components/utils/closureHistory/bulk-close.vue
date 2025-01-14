@@ -11,7 +11,8 @@
                                 <label for="Campgrounds">Campgrounds</label>
                             </div>
                             <div class="col-md-8">
-                                <select  class="form-control" name="campgrounds" placeholder="" multiple v-model="selected_campgrounds">
+                                <select class="form-control" name="campgrounds" placeholder="" multiple
+                                    v-model="selected_campgrounds">
                                     <option v-for="c in campgrounds" :value="c.id">{{ c.name }}</option>
                                 </select>
                             </div>
@@ -48,7 +49,7 @@
                             </div>
                         </div>
                     </div>
-                    <reason type="close" v-model="reason" :large="true"></reason>
+                    <reason type="close" v-model="reasonValue" :large="true"></reason>
                     <div v-show="requireDetails" class="row">
                         <div class="form-group">
                             <div class="col-md-4">
@@ -66,208 +67,195 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import modal from '../bootstrap-modal.vue'
 import reason from '../reasons.vue'
 import alert from '../alert.vue'
-import { mapGetters } from 'vuex'
 import { $, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../../hooks.js'
+import { computed, onMounted, ref } from 'vue'
+import { useStore } from "../../../apps/store.js";
 
-export default {
-    name: "bulk-close",
-    data: function () {
-        let vm = this;
-        return {
-            isModalOpen: false,
-            closeEndPicker: null,
-            closeStartPicker: null,
-            reason: '',
-            range_start: '',
-            range_end: '',
-            details: '',
-            errorString: '',
-            close_cg_range_end: 'close_cg_range_end' + vm._uid,
-            close_cg_range_start: 'close_cg_range_start' + vm._uid,
-            selected_campgrounds: [],
-            form: null
-        }
-    },
-    computed: {
-        requireDetails: function () {
-            return (this.reason === '1')
-        },
-        ...mapGetters({
-            campgrounds: 'campgrounds'
-        })
+const store = useStore()
 
-    },
-    components: {
-        modal,
-        reason,
-        alert
-    },
-    methods: {
-        close: function () {
-            this.$parent.$refs.dtGrounds.vmDataTable.ajax.reload();
-            this.range_start = "";
-            this.range_end = "";
-            this.selected_campgrounds = [];
-            this.reason = "";
-            this.closeStartPicker.clear();
-            this.closeEndPicker.clear();
-            this.isModalOpen = this.$parent.showBulkClose = false;
-        },
-        events: function () {
-            let vm = this;
-            const closeStartPickerElement = $('#' + vm.close_cg_range_start)
-            const closeEndPickerElement = $('#' + vm.close_cg_range_end);
-            
-            vm.closeStartPicker = getDateTimePicker(closeStartPickerElement, {
-                restrictions: { minDate: new Date() }
-            });
-            vm.closeEndPicker = getDateTimePicker(closeEndPickerElement, {
-                useCurrent: false
-            });
-            closeStartPickerElement.on('change.td', function (e) {
-                const date = vm.closeStartPicker.dates.lastPicked;
-                vm.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
-                if (date) {
-                    vm.closeEndPicker.updateOptions({
-                    restrictions: { minDate: date}
-                    });
-                }
-            });
-            closeEndPickerElement.on('change.td', function (e) {
-                const date = vm.closeEndPicker.dates.lastPicked;
-                vm.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
-            });
-            vm.addFormValidations();
-            vm.fetchCampgrounds();
-            vm.initSelectTwo();
-        },
-        fetchCampgrounds: function () {
-            let vm = this;
-            if (vm.campgrounds.length == 0) {
-                vm.$store.dispatch("fetchCampgrounds");
-            }
-        },
-        initSelectTwo: function () {
-            let vm = this;
-            setTimeout(function () {
-                $('#bc-campgrounds').select2({
-                    theme: 'bootstrap',
-                    allowClear: true,
-                    placeholder: "Select Campgrounds",
-                    tags: false,
-                }).
-                    on("select2:select", function (e) {
-                        vm.selected_campgrounds = $(e.currentTarget).val();
-                    }).
-                    on("select2:unselect", function (e) {
-                        vm.selected_campgrounds = $(e.currentTarget).val();
-                    });
-            }, 100)
-        },
-        closeCampgrounds: function () {
-            let vm = this;
+const uid = crypto.randomUUID();
+const close_cg_range_end = 'close_cg_range_end' + uid
+const close_cg_range_start = 'close_cg_range_start' + uid
 
-            if (vm.form.valid() && vm.selected_campgrounds.length > 0) {
-                let vm = this;
-                let data = {
-                    range_start: vm.range_start,
-                    range_end: vm.range_end,
-                    campgrounds: vm.selected_campgrounds,
-                    closure_reason: vm.reason,
-                    status: '1'
-                }
-                if (vm.reason == '1') {
-                    data.details = vm.details
-                }
-                $.ajax({
-                    url: api_endpoints.bulk_close,
-                    method: 'POST',
-                    xhrFields: { withCredentials: true },
-                    data: data,
-                    headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
-                    dataType: 'json',
-                    success: function (data, stat, xhr) {
-                        vm.$store.dispatch("updateAlert", {
-                            visible: true,
-                            type: "success",
-                            message: data
-                        });
-                        vm.close();
-                    },
-                    error: function (resp) {
-                        vm.$store.dispatch("updateAlert", {
-                            visible: true,
-                            type: "danger",
-                            message: helpers.apiError(resp)
-                        });
-                        vm.close();
-                    }
-                });
-            }
+const isModalOpen = ref(false)
+const closeEndPicker = ref(null)
+const closeStartPicker = ref(null)
+const reasonValue = ref('')
+const range_start = ref('')
+const range_end = ref('')
+const details = ref('')
+const errorString = ref('')
+const selected_campgrounds = ref([])
+const form = ref(null)
 
-        },
-        addFormValidations: function () {
-            let vm = this;
-            vm.form.validate({
-                rules: {
-                    closure_start: "required",
-                    closure_status: "required",
-                    open_reason: "required",
-                    closure_details: {
-                        required: {
-                            depends: function (el) {
-                                return vm.requireDetails;
-                            }
-                        }
-                    }
-                },
-                messages: {
-                    closure_start: "Enter a start date",
-                    closure_status: "Select a closure reason from the options",
-                    closure_details: "Details required if Other reason is selected"
-                },
-                showErrors: function (errorMap, errorList) {
+const requireDetails = computed(function () {
+    return (reasonValue.value === '1')
+})
+const campgrounds = computed(function () {
+    return store.getters.campgrounds
+})
 
-                    $.each(this.validElements(), function (index, element) {
-                        var $element = $(element);
-                        $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-                    });
+const emits = defineEmits(['close'])
 
-                    // destroy tooltips on valid elements
-                    $("." + this.settings.validClass).tooltip("destroy");
+const close = function () {
+    emits('close')
+    range_start.value = "";
+    range_end.value = "";
+    selected_campgrounds.value = [];
+    reasonValue.value = "";
+    closeStartPicker.value.clear();
+    closeEndPicker.value.clear();
+    isModalOpen.value = false;
+}
+const events = function () {
+    const closeStartPickerElement = $('#' + close_cg_range_start)
+    const closeEndPickerElement = $('#' + close_cg_range_end);
 
-                    // add or update tooltips
-                    for (var i = 0; i < errorList.length; i++) {
-                        var error = errorList[i];
-                        $(error.element)
-                            .tooltip({
-                                trigger: "focus"
-                            })
-                            .attr("data-original-title", error.message)
-                            .parents('.form-group').addClass('has-error');
-                    }
-                }
+    closeStartPicker.value = getDateTimePicker(closeStartPickerElement, {
+        restrictions: { minDate: new Date() }
+    });
+    closeEndPicker.value = getDateTimePicker(closeEndPickerElement, {
+        useCurrent: false
+    });
+    closeStartPickerElement.on('change.td', function (e) {
+        const date = closeStartPicker.value.dates.lastPicked;
+        range_start.value = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        if (date) {
+            closeEndPicker.value.updateOptions({
+                restrictions: { minDate: date }
             });
         }
-    },
-    mounted: function () {
-        let vm = this;
-        vm.form = $(document.forms.closeForm);
-        vm.events();
+    });
+    closeEndPickerElement.on('change.td', function (e) {
+        const date = closeEndPicker.value.dates.lastPicked;
+        range_end.value = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+    });
+    addFormValidations();
+    fetchCampgrounds();
+    initSelectTwo();
+}
+const fetchCampgrounds = function () {
+    if (campgrounds.value.length == 0) {
+        store.dispatch("fetchCampgrounds");
     }
 }
+const initSelectTwo = function () {
+    setTimeout(function () {
+        $('#bc-campgrounds').select2({
+            theme: 'bootstrap',
+            allowClear: true,
+            placeholder: "Select Campgrounds",
+            tags: false,
+        }).
+            on("select2:select", function (e) {
+                selected_campgrounds.value = $(e.currentTarget).val();
+            }).
+            on("select2:unselect", function (e) {
+                selected_campgrounds.value = $(e.currentTarget).val();
+            });
+    }, 100)
+}
+const closeCampgrounds = function () {
 
+    if (form.value.valid() && selected_campgrounds.value.length > 0) {
+        let data = {
+            range_start: range_start.value,
+            range_end: range_end.value,
+            campgrounds: selected_campgrounds.value,
+            closure_reason: reasonValue.value,
+            status: '1'
+        }
+        if (reasonValue.value == '1') {
+            data.details = details.value;
+        }
+        $.ajax({
+            url: api_endpoints.bulk_close,
+            method: 'POST',
+            xhrFields: { withCredentials: true },
+            data: data,
+            headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
+            dataType: 'json',
+            success: function (data, stat, xhr) {
+                store.dispatch("updateAlert", {
+                    visible: true,
+                    type: "success",
+                    message: data
+                });
+                close();
+            },
+            error: function (resp) {
+                store.dispatch("updateAlert", {
+                    visible: true,
+                    type: "danger",
+                    message: helpers.apiError(resp)
+                });
+                close();
+            }
+        });
+    }
+
+}
+const addFormValidations = function () {
+    form.value.validate({
+        rules: {
+            closure_start: "required",
+            closure_status: "required",
+            open_reason: "required",
+            closure_details: {
+                required: {
+                    depends: function (el) {
+                        return requireDetails.value;
+                    }
+                }
+            }
+        },
+        messages: {
+            closure_start: "Enter a start date",
+            closure_status: "Select a closure reason from the options",
+            closure_details: "Details required if Other reason is selected"
+        },
+        showErrors: function (errorMap, errorList) {
+
+            $.each(this.validElements(), function (index, element) {
+                var $element = $(element);
+                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
+            });
+
+            // destroy tooltips on valid elements
+            $("." + this.settings.validClass).tooltip("destroy");
+
+            // add or update tooltips
+            for (var i = 0; i < errorList.length; i++) {
+                var error = errorList[i];
+                $(error.element)
+                    .tooltip({
+                        trigger: "focus"
+                    })
+                    .attr("data-original-title", error.message)
+                    .parents('.form-group').addClass('has-error');
+            }
+        }
+    });
+}
+
+defineExpose({ isModalOpen, initSelectTwo })
+
+onMounted(function () {
+    form.value = $(document.forms.closeForm);
+    events();
+})
 </script>
 
 <style lang="css">
 .body {
     padding: 0 20px;
 }
-.select2-container{
-    z-index:100000;
+
+.select2-container {
+    z-index: 100000;
 }
 </style>

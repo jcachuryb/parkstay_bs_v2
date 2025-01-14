@@ -7,13 +7,8 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: "BasePanelHeading",
-    props: {
-        title: {
-            type: String,
-        },
-    },
-}
+<script setup>
+const props = defineProps({
+    title: String
+})
 </script>

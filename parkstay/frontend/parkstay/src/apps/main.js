@@ -1,60 +1,41 @@
 // The following line loads the standalone build of Vue instead of the runtime-only build,
 // so you don't have to do: import Vue from 'vue/dist/vue'
 // This is done with the browser options. For the config, see package.json
-import { $ } from '../hooks.js'
-import Vue from 'vue'
-if (process.env.NODE_ENV == "development") {
-    Vue.config.devtools = true;
-}
-import resource from 'vue-resource'
-import Router from 'vue-router'
+import "vite/modulepreload-polyfill";
+import { createApp } from "vue";
+import { createRouter, createWebHistory } from "vue-router";
+import { $ } from "../hooks.js";
 
-import alert from '../components/utils/alert.vue'
-import basePanelHeading from '../layouts/base-panel-heading.vue'
+import alert from "../components/utils/alert.vue";
+import store from "./store.js";
+import { routes } from "./routes.js";
+import filters from "../components/utils/filters.js";
+import { mapGetters } from "vuex";
+import "../hooks-css.js";
 
-import store from './store.js'
-import { routes } from './routes.js'
-import { mapGetters } from 'vuex'
-import '../hooks-css.js'
-Vue.use(Router);
-Vue.use(resource);
+const router = createRouter({
+  history: createWebHistory(),
 
-global.$ = $
-
-const router = new Router({
-  'routes' : routes,
-  'mode': 'history'
+  routes: routes,
 });
 
-if(document.getElementById('menu')) {
-    new Vue({
-        router,
-    }).$mount('#menu');
+if (document.getElementById("menu")) {
+  const menuApp = createApp({});
+  menuApp.use(router);
+  menuApp.mount("#menu");
 }
 
-Vue.component("basePanelHeading", basePanelHeading)
+const app = createApp({
+  computed: {
+    ...mapGetters(["showAlert", "alertType", "alertMessage"]),
+  },
+});
+app.component("alert", alert);
+app.use(store);
+app.use(router);
 
-new Vue({
-  'router':router,
-  store,
-  components:{
-      alert
-  },
-  watch:{
-      $route:function () {
-          let vm =this;
-          vm.$store.dispatch("updateAlert",{
-              visible:false,
-              type:"danger",
-              message: ""
-          });
-      }
-  },
-  computed:{
-      ...mapGetters([
-          "showAlert",
-          "alertType",
-          "alertMessage"
-      ])
-  }
-}).$mount('#app');
+app.config.globalProperties.$filters = {
+  ...filters,
+};
+
+app.mount("#app");

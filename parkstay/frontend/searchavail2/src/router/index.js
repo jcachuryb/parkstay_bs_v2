@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 // import Account from '@/components/user/account.vue';
 // import external_routes from '@/components/external/routes';
 // import internal_routes from '@/components/internal/routes';
-import ParkFinder from '@/components/parkfinder';
+import ParkFinder from '@components/parkfinder.vue';
 
 var NotFoundComponent = null;
 

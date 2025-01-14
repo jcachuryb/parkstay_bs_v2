@@ -1,13 +1,11 @@
-import Vuex from 'vuex'
-import Vue from 'vue'
+import { createStore } from 'vuex'
 
-Vue.use(Vuex)
 import {
     $,
     api_endpoints
 } from '../hooks.js'
 
-const store = new Vuex.Store({
+const store = createStore({
     state: {
         alert:{
             visible:false,
@@ -69,16 +67,12 @@ const store = new Vuex.Store({
             });
         },
         fetchCampgrounds(context){
-            return new Promise((resolve,reject) => {
-                Vue.http.get(api_endpoints.campgrounds).then((response) => {
-                    context.commit('SETCAMPGROUNDS',response.body);
-                    resolve(response.body);
-                }, (error) => {
-                    reject(error);
-                });
+            fetch(api_endpoints.campgrounds).then((response) => response.json()).then((data) => {
+                context.commit('SETCAMPGROUNDS', data);
             }).catch((error) => {
-                console.log(error);
+                console.error(error)
             });
+
         },
         fetchCampsiteClasses(context){
             $.get(api_endpoints.campsite_classes,function(data){
@@ -121,3 +115,4 @@ const store = new Vuex.Store({
 });
 
 export default store;
+export const useStore = () => store

@@ -1,7 +1,7 @@
 <template>
   <div
     v-show="show"
-    v-bind:class="{
+    :class="{
       'alert':      true,
       'alert-success':(type == 'success'),
       'alert-warning':(type == 'warning'),
@@ -11,7 +11,7 @@
       'top-right':  (placement === 'top-right')
     }"
     transition="fade"
-    v-bind:style="{width:width}"
+    :style="{width:width}"
     role="alert">
     <button v-show="dismissable" type="button" class="close"
       @click="show = false">
@@ -21,9 +21,9 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
+<script setup>
+import { watch } from 'vue'
+const props = defineProps({
     type: {
       type: String
     },
@@ -33,7 +33,7 @@ export default {
     },
     show: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     duration: {
       type: Number,
@@ -45,16 +45,16 @@ export default {
     placement: {
       type: String
     }
-  },
-  watch: {
-    show (val) {
-      if (this._timeout) clearTimeout(this._timeout)
-      if (val && Boolean(this.duration)) {
-        this._timeout = setTimeout(() => { this.show = false }, this.duration)
+  })
+
+  watch(
+    () => props.show,
+    (val) => {
+      if (val && Boolean(props.duration)) {
+        setTimeout(() => { props.show = false }, props.duration)
       }
     }
-  }
-}
+  )
 </script>
 
 <style>

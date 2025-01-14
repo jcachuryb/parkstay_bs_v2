@@ -13,17 +13,13 @@
   </div>
 </template>
 
-<script>
-export default {
-  name:'spinnerLoader',
-  props:{
-      isLoading:{
-          default:function () {
-              return false;
-          }
-      }
+<script setup>
+const props = defineProps({
+  isLoading: {
+    type: Boolean,
+    default: false
   }
-}
+})
 </script>
 
 <style lang="css">

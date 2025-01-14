@@ -1,10 +1,10 @@
 <template id="pkCgClose">
-    <bootstrapModal title="(Temporarily) close campground" :large=true @ok="addClosure()">
+    <bootstrapModal title="(Temporarily) close campground" :large=true @ok="addClosure()" @cancel="close()" :isModalOpen='isModalOpen'>
 
         <div class="modal-body">
             <form id="closeCGForm" class="form-horizontal">
                 <div class="row">
-                    <alert :show.sync="showError" type="danger">{{ errorString }}</alert>
+                    <alert v-model:show="showError" type="danger">{{ errorString }}</alert>
                     <div class="form-group">
                         <div class="col-md-2">
                             <label for="open_cg_range_start">Closure start: </label>
@@ -36,7 +36,7 @@
                         </div>
                     </div>
                 </div>
-                <reason type="close" v-model="formdata.closure_reason" ref="reason"></reason>
+                <reason-component type="close" v-model="formdata.closure_reason" ref="reason"></reason-component>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
@@ -54,159 +54,149 @@
     </bootstrapModal>
 </template>
 
-<script>
+<script setup>
 import bootstrapModal from '../utils/bootstrap-modal.vue'
-import { bus } from '../utils/eventBus.js'
-import { $, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../hooks.js'
+import { $, bus, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../hooks.js'
 import alert from '../utils/alert.vue'
-import reason from '../utils/reasons.vue'
-export default {
-    name: 'pkCgClose',
-    data: function () {
-        return {
-            status: '',
-            formdata: {
-                campground: '',
-                range_start: '',
-                range_end: '',
-                closure_reason: '',
-                status: '1',
-                details: ''
-            },
-            closeStartPicker: '',
-            closeEndPicker: '',
-            errors: false,
-            errorString: '',
-            form: ''
-        }
-    },
-    computed: {
-        showError: function () {
-            var vm = this;
-            return vm.errors;
-        },
-        isModalOpen: function () {
-            return this.$parent.isOpenCloseCG;
-        },
-        requireDetails: function () {
-            return (this.formdata.closure_reason === '1');
-        },
-    },
-    components: {
-        bootstrapModal,
-        alert,
-        reason
-    },
-    methods: {
-        close: function () {
-            this.$parent.isOpenCloseCG = false;
-            this.formdata = {
-                campground: '',
-                range_start: '',
-                range_end: '',
-                closure_reason: '',
-                status: '1',
-                details: ''
-            };
-            this.$refs.reason.selected = "";
-        },
-        addClosure: function () {
-            if (this.form.valid()) {
-                this.sendData();
-            }
-        },
-        sendData: function () {
-            let vm = this;
-            var data = this.formdata;
-            $.ajax({
-                url: api_endpoints.campground_booking_ranges(),
-                method: 'POST',
-                xhrFields: { withCredentials: true },
-                data: data,
-                headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
-                dataType: 'json',
-                success: function (data, stat, xhr) {
-                    vm.close();
-                    bus.$emit('refreshCGTable');
-                },
-                error: function (data) {
-                    vm.errors = true;
-                    vm.errorString = helpers.apiError(data);
-                }
-            });
-        },
-        addFormValidations: function () {
-            let vm = this;
-            this.form.validate({
-                rules: {
-                    closure_start: "required",
-                    closure_reason: "required",
-                    closure_details: {
-                        required: {
-                            depends: function (el) {
-                                return vm.requireDetails;
-                            }
-                        }
-                    }
-                },
-                messages: {
-                    closure_start: "Enter a start date",
-                    closure_reason: "Select a closure reason from the options",
-                    closure_details: "Details required if Other reason is selected"
-                },
-                showErrors: function (errorMap, errorList) {
+import reasonComponent from '../utils/reasons.vue'
+import { computed, ref, onMounted } from 'vue'
 
-                    $.each(this.validElements(), function (index, element) {
-                        var $element = $(element);
-                        $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-                    });
+const status = ref('')
+const formdata = ref({
+    campground: '',
+    range_start: '',
+    range_end: '',
+    closure_reason: '',
+    status: '1',
+    details: ''
+})
+const closeStartPicker = ref('')
+const closeEndPicker = ref('')
+const errors = ref(false)
+const isOpen = ref(false)
+const errorString = ref('')
+const form = ref('')
+const reason = ref(null)
+const emit = defineEmits(['isOpenCloseCG', 'refreshCGTable'])
 
-                    // destroy tooltips on valid elements
-                    $("." + this.settings.validClass).tooltip("destroy");
-
-                    // add or update tooltips
-                    for (var i = 0; i < errorList.length; i++) {
-                        var error = errorList[i];
-                        $(error.element)
-                            .tooltip({
-                                trigger: "focus"
-                            })
-                            .attr("data-original-title", error.message)
-                            .parents('.form-group').addClass('has-error');
-                    }
-                }
-            });
-        }
-    },
-    mounted: function () {
-        var vm = this;
-        bus.$on('closeCG', function (data) {
-            vm.formdata.campground = data.id;
-        });
-        const closeStartPickerElement = $('#close_cg_range_start');
-        const closeEndPickerElement = $('#close_cg_range_end');
-
-        vm.closeStartPicker = getDateTimePicker(closeStartPickerElement, {
-            restrictions: { minDate: new Date() }
-        });
-        vm.closeEndPicker = getDateTimePicker(closeEndPickerElement, {
-            useCurrent: false
-        });
-        closeStartPickerElement.on('change.td', function (e) {
-            const date = vm.closeStartPicker.dates.lastPicked
-            vm.formdata.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
-            if (date) {
-                vm.closeEndPicker.updateOptions({
-                    restrictions: { minDate: date }
-                });
-            }
-        });
-        closeEndPickerElement.on('change.td', function (e) {
-            const date = vm.closeEndPicker.dates.lastPicked
-            vm.formdata.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
-        });
-        vm.form = $('#closeCGForm');
-        vm.addFormValidations();
+const showError = computed(function () {
+    return errors.value;
+})
+const isModalOpen = computed(function () {
+    return isOpen.value;
+})
+const requireDetails = computed(function () {
+    return (formdata.value.closure_reason === '1');
+})
+const close = function () {
+    emit(
+        'isOpenCloseCG', false
+    )
+    formdata.value = {
+        campground: '',
+        range_start: '',
+        range_end: '',
+        closure_reason: '',
+        status: '1',
+        details: ''
+    };
+    isOpen.value = false
+    reason.value.selected = "";
+}
+const addClosure = function () {
+    if (form.value.valid()) {
+        sendData();
     }
-};
+}
+const sendData = function () {
+    var data = formdata.value;
+    $.ajax({
+        url: api_endpoints.campground_booking_ranges(),
+        method: 'POST',
+        xhrFields: { withCredentials: true },
+        data: data,
+        headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
+        dataType: 'json',
+        success: function (data, stat, xhr) {
+            close();
+            emit('refreshCGTable');
+        },
+        error: function (data) {
+            errors.value = true;
+            errorString.value = helpers.apiError(data);
+        }
+    });
+}
+const addFormValidations = function () {
+    form.value.validate({
+        rules: {
+            closure_start: "required",
+            closure_reason: "required",
+            closure_details: {
+                required: {
+                    depends: function (el) {
+                        return requireDetails.value;
+                    }
+                }
+            }
+        },
+        messages: {
+            closure_start: "Enter a start date",
+            closure_reason: "Select a closure reason from the options",
+            closure_details: "Details required if Other reason is selected"
+        },
+        showErrors: function (errorMap, errorList) {
+
+            $.each(this.validElements(), function (index, element) {
+                var $element = $(element);
+                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
+            });
+
+            // destroy tooltips on valid elements
+            $("." + this.settings.validClass).tooltip("destroy");
+
+            // add or update tooltips
+            for (var i = 0; i < errorList.length; i++) {
+                var error = errorList[i];
+                $(error.element)
+                    .tooltip({
+                        trigger: "focus"
+                    })
+                    .attr("data-original-title", error.message)
+                    .parents('.form-group').addClass('has-error');
+            }
+        }
+    });
+}
+defineExpose({ formdata, isOpen, errors, errorString, close })
+
+onMounted(function () {
+    bus.on('closeCG', function (data) {
+        formdata.value.campground = data.id;
+    });
+    const closeStartPickerElement = $('#close_cg_range_start');
+    const closeEndPickerElement = $('#close_cg_range_end');
+
+    closeStartPicker.value = getDateTimePicker(closeStartPickerElement, {
+        restrictions: { minDate: new Date() }
+    });
+    closeEndPicker.value = getDateTimePicker(closeEndPickerElement, {
+        useCurrent: false
+    });
+    closeStartPickerElement.on('change.td', function (e) {
+        const date = closeStartPicker.value.dates.lastPicked
+        formdata.value.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        if (date) {
+            closeEndPicker.value.updateOptions({
+                restrictions: { minDate: date }
+            });
+        }
+    });
+    closeEndPickerElement.on('change.td', function (e) {
+        const date = closeEndPicker.value.dates.lastPicked
+        formdata.value.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+    });
+    form.value = $('#closeCGForm');
+    addFormValidations();
+})
 </script>
