@@ -3,6 +3,15 @@
     "file": "woff/campicon.woff",
     "src": "src/assets/campicon.woff"
   },
+  "src/main-legacy.js": {
+    "file": "js/main-legacy.js",
+    "name": "main",
+    "src": "src/main-legacy.js",
+    "isEntry": true,
+    "assets": [
+      "woff/campicon.woff"
+    ]
+  },
   "src/main.js": {
     "file": "js/main.js",
     "name": "main",
@@ -14,5 +23,11 @@
     "assets": [
       "woff/campicon.woff"
     ]
+  },
+  "vite/legacy-polyfills-legacy": {
+    "file": "js/polyfills-legacy.js",
+    "name": "polyfills",
+    "src": "vite/legacy-polyfills-legacy",
+    "isEntry": true
   }
 }

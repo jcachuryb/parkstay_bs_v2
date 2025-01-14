@@ -1,9 +1,24 @@
 {
+  "node_modules/@popperjs/core/lib/index-legacy.js": {
+    "file": "js/index-legacy.js",
+    "name": "index",
+    "src": "node_modules/@popperjs/core/lib/index-legacy.js",
+    "isDynamicEntry": true
+  },
   "node_modules/@popperjs/core/lib/index.js": {
     "file": "js/index.js",
     "name": "index",
     "src": "node_modules/@popperjs/core/lib/index.js",
     "isDynamicEntry": true
+  },
+  "src/apps/main-legacy.js": {
+    "file": "js/main-legacy.js",
+    "name": "main",
+    "src": "src/apps/main-legacy.js",
+    "isEntry": true,
+    "dynamicImports": [
+      "node_modules/@popperjs/core/lib/index-legacy.js"
+    ]
   },
   "src/apps/main.js": {
     "file": "js/main.js",
@@ -16,5 +31,11 @@
     "css": [
       "css/main.css"
     ]
+  },
+  "vite/legacy-polyfills-legacy": {
+    "file": "js/polyfills-legacy.js",
+    "name": "polyfills",
+    "src": "vite/legacy-polyfills-legacy",
+    "isEntry": true
   }
 }
