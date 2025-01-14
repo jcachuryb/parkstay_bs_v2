@@ -1,0 +1,18 @@
+{
+  "src/assets/campicon.woff": {
+    "file": "woff/campicon.woff",
+    "src": "src/assets/campicon.woff"
+  },
+  "src/main.js": {
+    "file": "js/main.js",
+    "name": "main",
+    "src": "src/main.js",
+    "isEntry": true,
+    "css": [
+      "css/main.css"
+    ],
+    "assets": [
+      "woff/campicon.woff"
+    ]
+  }
+}

@@ -189,6 +189,9 @@ export default function (vm) {
             vm.groundsData.extend(features);
             vm.groundsSource.loadSource();
         },
+        error: function(error) { 
+            console.log(error)
+        }
     });
 
     vm.groundsSource = new ol.source.Vector({

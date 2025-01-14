@@ -1,14 +1,19 @@
+import "vite/modulepreload-polyfill";
+import $ from '@utils/jquery-global.js';
+
 import { createApp } from 'vue';
 import router from './router';
-import App from './App';
+import App from './App.vue';
 import helpers from '@/utils/helpers';
 import VuePaginate from 'vue-paginate';
 
 import 'jquery-validation';
 import 'ol/ol.css';
 import 'foundation-sites';
-import './assets/styles/foundation-min.scss';
+import '@assets/styles/foundation-min.scss';
 import 'awesomplete/awesomplete.css';
+import * as daterangepicker from "@daterangepicker";
+import "bootstrap-daterangepicker/daterangepicker.css";
 
 // Add CSRF Token to every request
 const customHeaders = new Headers({
@@ -35,19 +40,6 @@ fetch = ((originalFetch) => {
 
 const app = createApp(App);
 
-app.config.globalProperties.$filters = {
-    pretty(val, indent = 2) {
-        if (typeof val !== 'object') {
-            try {
-                val = JSON.parse(val);
-            } catch (err) {
-                console.warn('value is not JSON');
-                return val;
-            }
-        }
-        return JSON.stringify(val, null, indent);
-    },
-};
 app.component('paginate', VuePaginate);
 app.use(router);
 router.isReady().then(() => app.mount('#parkfinder'));
