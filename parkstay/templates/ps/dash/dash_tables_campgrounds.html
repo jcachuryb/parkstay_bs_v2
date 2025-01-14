@@ -8,7 +8,9 @@
         }
     </style>
     <link type="text/css" href="/static/ps/css/quill.snow.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
+    <link type="text/css" href="/static/ps/css/tempus-dominus.min.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
     <link type="text/css" href="/static/parkstay_vue/css/main.css?ver={{ GIT_COMMIT_HASH }}" rel="stylesheet">
+
 {% endblock %}
 
 {% include 'ps/menu.html' %}
@@ -97,6 +99,8 @@
 {% endblock %}
 
 {% block custom_js %}
+    <script type="text/javascript" src="{% static 'ps/js/popper.min.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
+    <script type="text/javascript" src="{% static 'ps/js/tempus-dominus.min.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
 {% if not DEV_STATIC %}
     <input type='hidden' id='ledger_ui_url' value='{{ LEDGER_UI_URL }}'>
     <script type="module" src="{% static 'parkstay_vue/js/index.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
