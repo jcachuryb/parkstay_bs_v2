@@ -40,11 +40,11 @@
                                                 <div class="col-md-10 col-lg-6">
                                                     <div class="form-group ">
                                                         <label class="control-label">Park</label>
-                                                        <select name="park" v-show="!parks.length > 0"
+                                                        <select  v-show="!parks.length > 0"
                                                             class="form-control">
                                                             <option>Loading...</option>
                                                         </select>
-                                                        <select name="park" v-if="parks.length > 0"
+                                                        <select name="park" v-show="parks.length > 0"
                                                             class="form-control form-select" v-model="campground.park">
                                                             <option v-for="park in parks" :value="park.id">{{ park.name
                                                                 }}
@@ -241,7 +241,6 @@ import "quill/dist/quill.snow.css";
 import Editor from 'quill';
 import loader from '../utils/loader.vue'
 import alert from '../utils/alert.vue'
-import { mapGetters } from 'vuex'
 import { computed, onMounted, onUpdated, ref, toRefs, watch } from 'vue';
 import { useStore } from "../../apps/store.js";
 import { useRouter } from 'vue-router';
@@ -265,7 +264,7 @@ const props = defineProps({
     },
     campground: {
         type: Object,
-        default: ()=> ({
+        default: () => ({
             address: {},
             images: []
         })
@@ -325,8 +324,8 @@ const goBack = function () {
     router.go(-1);
 }
 const validateForm = function () {
-    var isValid = validateEditor($('#editor'));
-    return form.value.valid() && isValid;
+    const isValidEditor = validateEditor($('#editor'));
+    return form.value.valid() && isValidEditor;
 }
 const create = function () {
     if (validateForm()) {
@@ -338,19 +337,10 @@ const update = function () {
         sendData(api_endpoints.campground(campground.value.id), 'PUT');
     }
 }
-const validateEditor = function (el) {
-
-    if (el.parents('.form-group').hasClass('has-error')) {
-        el.tooltip("destroy");
-        el.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-    }
+const validateEditor = function (element) {
+    helpers.formUtils.removeErrorMessage(element)
     if (editor.getText().trim().length == 0) {
-        // add or update tooltips
-        el.tooltip({
-            trigger: "focus"
-        })
-            .attr("data-original-title", 'Description is required')
-            .parents('.form-group').addClass('has-error');
+        helpers.formUtils.appendErrorMessage(element, 'Description is required')
         return false;
     }
     return true;
@@ -468,27 +458,7 @@ const addFormValidations = function () {
             site_type: "Select a site type from the options",
             price_level: "Select a price level from the options"
         },
-        showErrors: function (errorMap, errorList) {
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     });
 }
 const loadSelectedFeatures = function () {

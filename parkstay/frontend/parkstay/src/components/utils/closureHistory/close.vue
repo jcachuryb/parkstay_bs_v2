@@ -55,11 +55,11 @@
 </template>
 
 <script setup>
-import { $, getDateTimePicker, dateUtils } from '../../../hooks.js'
+import { $, getDateTimePicker, dateUtils, helpers } from '../../../hooks.js'
 import bootstrapModal from '../bootstrap-modal.vue'
 import alert from '../alert.vue'
 import reason from '../reasons.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const props = defineProps({
     statusHistory: {
@@ -99,8 +99,13 @@ const closure_id = computed(function () {
     return statusHistory.value.id ? statusHistory.value.id : '';
 })
 const requireDetails = computed(function () {
-    return statusHistory.value.closure_reason === '1';
+    return statusHistory.value.closure_reason === 1;
 })
+
+watch(() => isOpen.value, (val) => {
+    helpers.formUtils.resetFormValidation(form.value)
+})
+
 const close = function () {
     errors.value = false;
     errorString.value = '';
@@ -143,27 +148,7 @@ const addFormValidations = function () {
             closure_status: "Select a closure reason from the options",
             closure_details: "Details required if Other reason is selected"
         },
-        showErrors: function (errorMap, errorList) {
-
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     });
 }
 

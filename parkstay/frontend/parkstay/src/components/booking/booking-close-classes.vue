@@ -653,7 +653,9 @@ watch(() => booking_type.value, function (value) {
     fetchSites();
 })
 
-
+watch(() => isModalOpen.value, (val) => {
+    helpers.formUtils.resetFormValidation($(bookingForm.value))
+})
 
 const fetchSites = function () {
     if (booking_type.value == booking_types.value.CAMPSITE) {
@@ -1105,24 +1107,7 @@ const addFormValidations = function () {
         messages: {
             firstname: "Fill in all details",
         },
-        showErrors: function (errorMap, errorList) {
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     };
     for (var i = 0; i < booking.value.parkEntry.vehicles; i++) {
         options.rules['vehicleRego_' + i] = {

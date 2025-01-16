@@ -6,7 +6,9 @@
     'alert-info': (type == 'info'),
     'alert-danger': (type == 'danger'),
     'top': (placement === 'top'),
-    'top-right': (placement === 'top-right')
+    'top-right': (placement === 'top-right'),
+    'alert-dismissible': dismissable === true,
+    'fade show': true
   }" transition="fade" :style="{ width: width }" role="alert">
     <button v-show="dismissable" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"@click="showError = false"></button>
     <slot></slot>

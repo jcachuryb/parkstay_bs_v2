@@ -2,7 +2,7 @@
     <bootstrapModal title="(Temporarily) close campground" :large=true @ok="addClosure()" @cancel="close()" :isModalOpen='isModalOpen'>
 
         <div class="modal-body">
-            <form id="closeCGForm" class="form-horizontal">
+            <form id="closeCampgroundForm" class="form-horizontal">
                 <div class="row">
                     <alert v-model:show="showError" type="danger">{{ errorString }}</alert>
                     <div class="form-group">
@@ -36,7 +36,7 @@
                         </div>
                     </div>
                 </div>
-                <reason-component type="close" v-model="formdata.closure_reason" ref="reason"></reason-component>
+                <reason-component type="close" v-model="formdata.closure_reason" name="closure_reason" ref="reason"></reason-component>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
@@ -60,6 +60,7 @@ import { $, bus, getDateTimePicker, dateUtils, api_endpoints, helpers } from '..
 import alert from '../utils/alert.vue'
 import reasonComponent from '../utils/reasons.vue'
 import { computed, ref, onMounted } from 'vue'
+import { watch } from 'vue'
 
 const status = ref('')
 const formdata = ref({
@@ -86,8 +87,13 @@ const isModalOpen = computed(function () {
     return isOpen.value;
 })
 const requireDetails = computed(function () {
-    return (formdata.value.closure_reason === '1');
+    return (formdata.value.closure_reason === 1);
 })
+
+watch(() => isOpen.value, (val) => {
+    helpers.formUtils.resetFormValidation(form.value)
+})
+
 const close = function () {
     emit(
         'isOpenCloseCG', false
@@ -145,27 +151,7 @@ const addFormValidations = function () {
             closure_reason: "Select a closure reason from the options",
             closure_details: "Details required if Other reason is selected"
         },
-        showErrors: function (errorMap, errorList) {
-
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     });
 }
 defineExpose({ formdata, isOpen, errors, errorString, close })
@@ -196,7 +182,7 @@ onMounted(function () {
         const date = closeEndPicker.value.dates.lastPicked
         formdata.value.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
     });
-    form.value = $('#closeCGForm');
+    form.value = $('#closeCampgroundForm');
     addFormValidations();
 })
 </script>

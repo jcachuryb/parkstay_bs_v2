@@ -49,7 +49,7 @@
                             </div>
                         </div>
                     </div>
-                    <reason type="close" v-model="reasonValue" :large="true"></reason>
+                    <reason type="close" v-model="reasonValue" :large="true" name="open_reason"></reason>
                     <div v-show="requireDetails" class="row">
                         <div class="form-group">
                             <div class="col-md-4">
@@ -94,7 +94,7 @@ const selected_campgrounds = ref([])
 const form = ref(null)
 
 const requireDetails = computed(function () {
-    return (reasonValue.value === '1')
+    return (reasonValue.value === 1)
 })
 const campgrounds = computed(function () {
     return store.getters.campgrounds
@@ -157,8 +157,13 @@ const initSelectTwo = function () {
     }, 100)
 }
 const closeCampgrounds = function () {
-
-    if (form.value.valid() && selected_campgrounds.value.length > 0) {
+    const validCampgrounds = selected_campgrounds.value.length > 0
+    const cgElement = $('#bc-campgrounds')
+    helpers.formUtils.removeErrorMessage(cgElement)
+    if (!validCampgrounds) {
+        helpers.formUtils.appendErrorMessage(cgElement, 'Select the campgrounds to be closed')
+    }
+    if (form.value.valid() && validCampgrounds) {
         alertRef.value.onShow(false)
         let data = {
             range_start: range_start.value,
@@ -194,9 +199,6 @@ const closeCampgrounds = function () {
                 close();
             }
         });
-    } else {
-        errorString.value = "Please, fill in all the fields in the form"
-        alertRef.value.onShow(true)
     }
 
 }
@@ -217,29 +219,9 @@ const addFormValidations = function () {
         messages: {
             closure_start: "Enter a start date",
             closure_status: "Select a closure reason from the options",
-            closure_details: "Details required if Other reason is selected"
+            closure_details: "Please, provide details"
         },
-        showErrors: function (errorMap, errorList) {
-
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     });
 }
 
@@ -255,6 +237,7 @@ const clearValues = () => {
 watch(()=> isModalOpen.value, (val) => {
     if(val) {
         clearValues()
+        helpers.formUtils.resetFormValidation(form.value)
     }
 })
 

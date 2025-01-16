@@ -6,7 +6,7 @@
                 <div class="panel-body">
                     <div class="col-lg-12">
                         <div class="row">
-                            <form v-show="!isLoading">
+                            <form v-show="!isLoading" id="campsiteForm">
                                 <div class="panel panel-primary">
                                     <div class="panel-heading">
                                         <h3 class="panel-title">{{ createCampsiteType ? 'New' : 'Edit' }} Campsite Type
@@ -24,7 +24,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label class="control-label">Maximum Number of Vehicles</label>
-                                                    <input type="number" name="max_vehicles" class="form-control"
+                                                    <input type="number" name="max_vehicles" class="form-control" min="0"
                                                         v-model="campsite_type.max_vehicles" required />
                                                 </div>
                                             </div>
@@ -33,14 +33,14 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label class="control-label">Minimum Number of People</label>
-                                                    <input type="number" name="name" class="form-control"
+                                                    <input type="number" name="min_people" class="form-control" min="0"
                                                         v-model="campsite_type.min_people" required />
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label class="control-label">Maximum Number of People</label>
-                                                    <input type="number" name="name" class="form-control"
+                                                    <input type="number" name="max_people" class="form-control"
                                                         v-model="campsite_type.max_people" required />
                                                 </div>
                                             </div>
@@ -50,17 +50,17 @@
                                                 <div class="form-group">
                                                     <div class="checkbox">
                                                         <label class="checkbox-inline">
-                                                            <input type="checkbox"
+                                                            <input type="checkbox" name="tent"
                                                                 v-model="campsite_type.tent" />Tent</label>
                                                     </div>
                                                     <div class="checkbox">
                                                         <label class="checkbox-inline">
-                                                            <input type="checkbox"
+                                                            <input type="checkbox" name="campervan"
                                                                 v-model="campsite_type.campervan" />Campervan</label>
                                                     </div>
                                                     <div class="checkbox">
                                                         <label class="checkbox-inline">
-                                                            <input type="checkbox"
+                                                            <input type="checkbox" name="caravan"
                                                                 v-model="campsite_type.caravan" />Caravan</label>
                                                     </div>
                                                 </div>
@@ -117,8 +117,10 @@ import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter()
 const route = useRoute()
+const form = ref(null)
 const isLoading = ref(false)
 const campsite = ref(null)
+const descriptionEditor = ref(null)
 const campsite_type = ref({})
 const features = ref([])
 const selected_features = ref([])
@@ -204,6 +206,8 @@ const priceHistoryDeleteURL = computed(
 
 
 const init = function () {
+    form.value = $("#campsiteForm")
+    addFormValidations();
     loadFeatures();
     if (route.params.campsite_type_id) {
         createCampsiteType.value = false;
@@ -224,11 +228,50 @@ const loadFeatures = function () {
         }
     });
 }
+
+const addFormValidations = function () {
+    form.value.validate({
+        ignore: 'div.ql-editor',
+        rules: {
+            name: "required",
+            max_vehicles: "required",
+            min_people: "required",
+            max_people: "required",
+        },
+        messages: {
+            name: "Enter a valid name",
+            max_vehicles: "Enter a valid number",
+            min_people: "Enter a valid number",
+            max_people: "Enter a valid number",
+        },
+        showErrors: helpers.formUtils.utilShowFormErrors
+    });
+}
+
+const validateForm = function () {
+    const isValidEditor = validateEditor();
+    return form.value.valid() && isValidEditor;
+}
+
+const validateEditor = function () {
+    const element = $(`#${descriptionEditor.value.editor_id}`)
+    helpers.formUtils.removeErrorMessage(element)
+    if (descriptionEditor.value.validate()) {
+        helpers.formUtils.appendErrorMessage(element, 'Description is required')
+        return false;
+    }    
+    return true;
+}
+
 const addCampsiteType = function () {
-    sendData(api_endpoints.campsite_classes, 'POST');
+    if (validateForm()) {
+        sendData(api_endpoints.campsite_classes, 'POST');
+    }
 }
 const updateCampsiteType = function () {
-    sendData(api_endpoints.campsite_class(campsite_type.value.id), 'PUT');
+    if (validateForm()) {
+        sendData(api_endpoints.campsite_class(campsite_type.value.id), 'PUT');
+    }
 }
 const fetchCampsiteType = function () {
     $.ajax({

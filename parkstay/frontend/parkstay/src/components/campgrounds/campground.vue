@@ -38,7 +38,7 @@
                         <div class="row">
                             <div class="well">
                                 <div class="col-sm-offset-8 col-sm-4">
-                                    <button @click="showBulkCloseCampsites = true"
+                                    <button @click="openBulkCloseCG()"
                                         class="btn btn-primary table_btn">Close Campsites</button>
                                     <router-link :to="{ name: 'add_campsite', params: { id: campground_id } }"
                                         class="btn btn-primary table_btn" style="margin-right: 1em;">Add
@@ -53,8 +53,8 @@
             </div>
         </div>
         <confirmbox id="deleteRange" :options="deletePrompt"></confirmbox>
-        <bulk-close-campsites v-on:bulkCloseCampsites="onBulkCloseCampsites" :isModalOpen="showBulkCloseCampsites"
-            @cancel="showBulkCloseCampsites = false" ref="bulkCloseCampsitesRef" v-bind:campsites="campsites" />
+        <bulk-close-campsites v-on:bulkCloseCampsites="onBulkCloseCampsites"
+            @cancel="closeBulkCloseCG" ref="bulkCloseCampsitesRef" v-bind:campsites="campsites" />
     </div>
 
 </template>
@@ -290,6 +290,13 @@ const deleteBookingRange = function (id) {
 const showCloseCS = function () {
     closeCampsiteRef.value.isOpen = true;
 }
+const openBulkCloseCG = () => {
+    bulkCloseCampsitesRef.value.isOpen = true
+}
+const closeBulkCloseCG = () => {
+    bulkCloseCampsitesRef.value.isOpen = false
+}
+
 const openCampsite = function () {
     var data = openCampsiteRef.value.formdata;
     $.ajax({

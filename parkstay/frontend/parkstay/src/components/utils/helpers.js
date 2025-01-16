@@ -92,6 +92,44 @@ export const helpers =  {
                 e.preventDefault();
                 return true;
             });
-    }
+    },
+    formUtils:{
+        markFormAsSubmitted: function(formSelector) {
+            if(!formSelector) return
+            $(formSelector).addClass('was-validated')
+        },
+        resetFormValidation: function(formSelector) {
+            if(!formSelector) return
+            $(formSelector).removeClass('was-validated')
+            $(formSelector).addClass('needs-validation')
+            $(formSelector).find('.invalid-form-field').remove()
+        },
+        
+        utilShowFormErrors: function (errorMap, errorList) {
+            $.each(this.validElements(), function (index, element) {
+                helpers.formUtils.removeErrorMessage(element)
+            });
 
+            for (var i = 0; i < errorList.length; i++) {
+                const {element, message} = errorList[i];
+                helpers.formUtils.appendErrorMessage(element, message)
+            }
+        },
+        removeErrorMessage: function (element) {
+            $(element).siblings('.invalid-form-field').remove()
+        },
+        appendErrorMessage: function (element, message) {
+            $(element).siblings('.invalid-form-field').remove()
+            const errorDiv = document.createElement('div')
+            errorDiv.setAttribute('class', 'invalid-form-field')
+            errorDiv.textContent = message
+            $(element).parent().append(errorDiv);
+        },
+        destroyTooltipsInSelector: function(selector) {
+            document.querySelectorAll(selector).forEach(element => {
+                const tooltip = bootstrap.Tooltip.getInstance(element)
+                if (tooltip) tooltip.dispose()
+            })
+        },
+    }
 };

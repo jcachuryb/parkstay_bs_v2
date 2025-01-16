@@ -2,11 +2,11 @@
     <bootstrapModal title="(Temporarily) bulk close campsites" :large=true @ok="addClosure()" @cancel="close()" :isModalOpen='isModalOpen'>
 
         <div class="modal-body">
-            <form id="closeCGForm" class="form-horizontal">
+            <form id="bulkCloseCGForm" class="form-horizontal">
                 <div class="row">
                     <alert v-model:show="showError" type="danger">{{ errorString }}</alert>
                     <div class="form-group">
-                        <div class="col-md-2">
+                        <div class="col-md-8">
                             <label for="bcs-campsites">Campsites affected:</label>
                         </div>
                         <div class="col-md-4">
@@ -50,11 +50,11 @@
                         </div>
                     </div>
                 </div>
-                <reason-component type="close" ref="reason" v-model="reason"></reason-component>
+                <reason-component type="close" ref="reason" name="closure_reason" v-model="reason"></reason-component>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label for="close_bcs_details">Details: </label>
+                            <label for="close_bcs_details">Detailsdfgsdfg: </label>
                         </div>
                         <div class="col-md-5">
                             <textarea name="closure_details" v-model="formdata.details" class="form-control"
@@ -73,7 +73,7 @@
 <script setup>
 import bootstrapModal from '../../utils/bootstrap-modal.vue'
 import reasonComponent from '../../utils/reasons.vue'
-import { $, getDateTimePicker, dateUtils } from '../../../hooks.js'
+import { $, getDateTimePicker, dateUtils, helpers } from '../../../hooks.js'
 import alert from '../../utils/alert.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 
@@ -103,7 +103,7 @@ const showError = computed(function () {
     return errors.value;
 })
 const requireDetails = computed(function () {
-    return (formdata.value.closure_reason === '1');
+    return formdata.value.closure_reason === 1;
 })
 const isModalOpen = computed(function () {
     return isOpen.value;
@@ -113,14 +113,24 @@ watch(() => reason.value, (value) => {
     formdata.value.closure_reason = value;
 })
 
+watch(() => isOpen.value, (val) => {
+    helpers.formUtils.resetFormValidation(form.value)
+})
+
 const addClosure = function () {
-    if (form.value.valid()) {
+    
+    const validNumCampsites = formdata.value.campsites > 0
+    const element = $('#bcs-campsites')
+    helpers.formUtils.removeErrorMessage(element)
+    if (!validNumCampsites) {
+        helpers.formUtils.appendErrorMessage(element, 'Select the campsites to be closed')
+    }
+    if (form.value.valid() && validNumCampsites ) {
         emit('bulkCloseCampsites');
     }
 }
 const close = function () {
     emit('close');
-    isOpen.value = false
 }
 const initSelectTwo = function () {
     setTimeout(function () {
@@ -156,29 +166,11 @@ const addFormValidations = function () {
             closure_reason: "Select a closure reason from the options",
             closure_details: "Details required if Other reason is selected"
         },
-        showErrors: function (errorMap, errorList) {
-
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     });
 }
+
+defineExpose({ isOpen })
 
 onMounted(function () {
     const closeStartPickerElement = $('#close_bcs_range_start');
@@ -204,7 +196,7 @@ onMounted(function () {
         const date = closeEndPicker.value.dates.lastPicked;
         formdata.value.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
     });
-    form.value = $('#closeCGForm');
+    form.value = $('#bulkCloseCGForm');
     addFormValidations();
     initSelectTwo();
 })

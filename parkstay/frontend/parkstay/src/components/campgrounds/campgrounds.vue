@@ -100,7 +100,6 @@ import pkCgClose from './closeCampground.vue'
 import pkCgOpen from './openCampground.vue'
 import basePanelHeading from "../../layouts/base-panel-heading.vue";
 import bulkCloseComponent from '../utils/closureHistory/bulk-close.vue'
-import { mapGetters } from 'vuex'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router';
 import { useStore } from "../../apps/store.js";

@@ -1,3 +1,4 @@
+import "@assets/styles/app.css"
 import "@eonasdan/tempus-dominus/dist/css/tempus-dominus.min.css";
 import "datatables.net-bs/css/dataTables.bootstrap.css";
 import "slick-carousel-browserify/slick/slick.css";
