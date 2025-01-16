@@ -346,10 +346,10 @@ const goBack = function () {
     router.go(-1);
 }
 const addCampsite = function () {
-    sendData.value(api_endpoints.campsites, 'POST')
+    sendData(api_endpoints.campsites, 'POST')
 }
 const updateCampsite = function () {
-    sendData.value(api_endpoints.campsite(campsite_id.value), 'PUT')
+    sendData(api_endpoints.campsite(campsite_id.value), 'PUT')
 }
 const sendData = function (url, method) {
     isLoading.value = true;
