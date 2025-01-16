@@ -125,11 +125,5 @@ export const helpers =  {
             errorDiv.textContent = message
             $(element).parent().append(errorDiv);
         },
-        destroyTooltipsInSelector: function(selector) {
-            document.querySelectorAll(selector).forEach(element => {
-                const tooltip = bootstrap.Tooltip.getInstance(element)
-                if (tooltip) tooltip.dispose()
-            })
-        },
     }
 };
