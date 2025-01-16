@@ -617,14 +617,14 @@ const isDisabled = computed(function () {
     });
 })
 
-watch(() => selected_campsite, function (value) {
+watch(() => selected_campsite.value, function (value) {
     updatePrices();
 })
-watch(() => selected_campsite_class, function (value) {
+watch(() => selected_campsite_class.value, function (value) {
     selected_campsite.value = booking.value.campsite_classes[value];
     updatePrices();
 })
-watch(() => selected_arrival, function (value) {
+watch(() => selected_arrival.value, function (value) {
     if (booking.value.arrival) {
         $.each(stayHistory.value, function (i, his) {
             const interval = {
@@ -645,15 +645,17 @@ watch(() => selected_arrival, function (value) {
     fetchSites();
     updatePrices();
 })
-watch(() => selected_departure, function (value) {
+watch(() => selected_departure.value, function (value) {
     fetchSites();
     updatePrices();
 })
-watch(() => booking_type, function (value) {
+watch(() => booking_type.value, function (value) {
     fetchSites();
 })
 
-
+watch(() => isModalOpen.value, (val) => {
+    helpers.formUtils.resetFormValidation($(bookingForm.value))
+})
 
 const fetchSites = function () {
     if (booking_type.value == booking_types.value.CAMPSITE) {
@@ -1105,24 +1107,7 @@ const addFormValidations = function () {
         messages: {
             firstname: "Fill in all details",
         },
-        showErrors: function (errorMap, errorList) {
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     };
     for (var i = 0; i < booking.value.parkEntry.vehicles; i++) {
         options.rules['vehicleRego_' + i] = {

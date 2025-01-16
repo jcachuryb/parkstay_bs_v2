@@ -1,5 +1,6 @@
 <template id="PriceHistoryDetail">
-    <bootstrapModal :title="title" :large=true @ok="addHistory()" @close="close()" :isModalOpen="isModalOpen" @cancel="close()">
+    <bootstrapModal :title="title" :large=true @ok="addHistory()" @close="close()" :isModalOpen="isModalOpen"
+        @cancel="close()">
 
         <div class="modal-body">
             <form name="priceForm" class="form-horizontal">
@@ -12,7 +13,7 @@
                                 Rate: </label>
                         </div>
                         <div class="col-md-4">
-                            <select name="rate" v-model="selected_rate" class="form-control">
+                            <select name="rate" v-model="selected_rate" class="form-select">
                                 <option value="">Manual Entry</option>
                                 <option v-for="r in rates" :value="r.id">{{ r.name }}</option>
                             </select>
@@ -80,7 +81,7 @@
                     </div>
                 </div>
 
-                <reason type="price" v-model="priceHistory.reason"></reason>
+                <reason type="price" name="reason" v-model="priceHistory.reason"></reason>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
@@ -114,7 +115,7 @@
 <script setup>
 import bootstrapModal from '../bootstrap-modal.vue'
 import reason from '../reasons.vue'
-import { $, getDateTimePicker, dateUtils, api_endpoints } from '../../../hooks.js'
+import { $, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../../hooks.js'
 import alert from '../alert.vue'
 import { computed, onMounted, ref, watch } from 'vue';
 
@@ -151,10 +152,10 @@ const closure_id = computed(function () {
     return props.priceHistory.id ? props.priceHistory.id : '';
 })
 const requireDetails = computed(function () {
-    return props.priceHistory.closure_reason === '1';
+    return props.priceHistory.closure_reason === 1;
 })
 
-watch(() => selected_rate, function (value) {
+watch(() => selected_rate.value, function (value) {
     if (value != '') {
         $.each(rates.value, function (i, rate) {
             if (rate.id == value) {
@@ -181,16 +182,30 @@ watch(() => selected_rate, function (value) {
     }
 })
 
+watch(() => isOpen.value, (val) => {
+    helpers.formUtils.resetFormValidation(form.value)
+    resetFields()
+})
 
 const close = function () {
+    resetFields()
+    isOpen.value = false;
+}
+
+const resetFields = () => {
     delete priceHistory.value.original;
     errors.value = false;
     selected_rate.value = '';
     priceHistory.value.period_start = '';
     priceHistory.value.details = '';
+    priceHistory.value.adult = '';
+    priceHistory.value.concession = '';
+    priceHistory.value.child = '';
+    priceHistory.value.infant = '';
+    priceHistory.value.booking_policy = '';
+    priceHistory.value.reason = ""
 
     errorString.value = '';
-    isOpen.value = false;
 }
 
 const addHistory = function () {
@@ -227,10 +242,11 @@ const addFormValidations = function () {
             child: "required",
             infant: "required",
             period_start: "required",
+            reason: "required",
             details: {
                 required: {
                     depends: function (el) {
-                        return priceHistory.value.reason === '1';
+                        return priceHistory.value.reason === 1;
                     }
                 }
             }
@@ -241,29 +257,10 @@ const addFormValidations = function () {
             child: "Enter a child rate",
             infant: "Enter a infant rate",
             period_start: "Enter a start date",
+            reason: "Select a reason from the list",
             details: "Details required if Other reason is selected"
         },
-        showErrors: function (errorMap, errorList) {
-
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     });
 }
 
@@ -285,6 +282,6 @@ onMounted(function () {
     fetchRates();
 })
 
-defineExpose({ title, isOpen, errorString, errors, selected_rate})
+defineExpose({ title, isOpen, errorString, errors, selected_rate })
 </script>
 <style lang="css" scoped></style>

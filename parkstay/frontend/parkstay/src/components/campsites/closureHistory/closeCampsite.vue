@@ -36,7 +36,7 @@
                         </div>
                     </div>
                 </div>
-                <reason-component type="close"  v-model="reason"></reason-component>
+                <reason-component type="close" name="closure_reason" v-model="reason"></reason-component>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
@@ -57,9 +57,9 @@
 <script setup>
 import bootstrapModal from '../../utils/bootstrap-modal.vue'
 import reasonComponent from '../../utils/reasons.vue'
-import { $, getDateTimePicker, dateUtils } from '../../../hooks.js'
+import { $, getDateTimePicker, dateUtils, helpers } from '../../../hooks.js'
 import alert from '../../utils/alert.vue'
-import { computed, onMounted, ref, unref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const reason = ref('')
 const formdata = ref({
@@ -86,12 +86,17 @@ const isModalOpen = computed(function () {
     return isOpen.value;
 })
 const requireDetails = computed(function () {
-    return (formdata.value.closure_reason === '1');
+    return (formdata.value.closure_reason === 1);
 })
 
 watch(()=> reason, (value) => {
     formdata.value.closure_reason = value ? value.value : undefined;
 }, { deep: true})
+
+watch(() => isOpen.value, (val) => {
+    helpers.formUtils.resetFormValidation(form.value)
+})
+
 
 const close = function () {
     isOpen.value = false;
@@ -127,27 +132,7 @@ const addFormValidations = function () {
             closure_reason: "Select a closure reason from the options",
             closure_details: "Details required if Other reason is selected"
         },
-        showErrors: function (errorMap, errorList) {
-
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     });
 }
 

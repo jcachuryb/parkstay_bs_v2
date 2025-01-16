@@ -1,5 +1,6 @@
 <template id="ParkPriceHistoryDetail">
-    <bootstrapModal title="Add Park Price History" :large=true @ok="addHistory()" @cancel="close()" @close="close()" :isModalOpen='isModalOpen'>
+    <bootstrapModal title="Add Park Price History" :large=true @ok="addHistory()" @cancel="close()" @close="close()"
+        :isModalOpen='isModalOpen'>
 
         <div class="modal-body">
             <form name="priceForm" class="form-horizontal">
@@ -44,7 +45,7 @@
                             <label>Campervan : </label>
                         </div>
                         <div class="col-md-4">
-                            <input name="motorbike" v-model="priceHistory.campervan" type='number'
+                            <input name="campervan" v-model="priceHistory.campervan" type='number'
                                 class="form-control" />
                         </div>
                     </div>
@@ -67,7 +68,7 @@
                             <label>Trailer : </label>
                         </div>
                         <div class="col-md-4">
-                            <input name="motorbike" v-model="priceHistory.trailer" type='number' class="form-control" />
+                            <input name="trailer" v-model="priceHistory.trailer" type='number' class="form-control" />
                         </div>
                     </div>
                 </div>
@@ -85,15 +86,15 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Period start: </label>
+                            <label><span class="input-group-addon">
+                                    <span class="bi bi-calendar3 me-2"></span>
+                                </span>Period start: </label>
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' date>
                                 <input name="period_start" v-model="priceHistory.period_start" type='text'
                                     class="form-control" />
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
+
                             </div>
                         </div>
                     </div>
@@ -118,9 +119,9 @@
 <script setup>
 import bootstrapModal from '../bootstrap-modal.vue'
 import reason from '../reasons.vue'
-import { $, getDateTimePicker, dateUtils } from '../../../hooks.js'
+import { $, getDateTimePicker, dateUtils, helpers } from '../../../hooks.js'
 import alert from '../alert.vue'
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
     priceHistory: {
@@ -171,7 +172,7 @@ const close = function () {
         gst: true,
         period_start: '',
         reason: '',
-        details: ''        
+        details: ''
     }
 
     errorString.value = '';
@@ -194,7 +195,7 @@ const addFormValidations = function () {
             details: {
                 required: {
                     depends: function (el) {
-                        return priceHistory.value.reason === '1';
+                        return priceHistory.value.reason === 1;
                     }
                 }
             }
@@ -209,32 +210,15 @@ const addFormValidations = function () {
             period_start: "Enter a start date",
             details: "Details required if Other reason is selected"
         },
-        showErrors: function (errorMap, errorList) {
-
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     });
 }
 
+watch(() => isOpen.value, (val) => {
+    helpers.formUtils.resetFormValidation(form.value)
+})
+
 onMounted(() => {
-    $('[data-toggle="tooltip"]').tooltip()
     form.value = document.forms.priceForm;
     const pickerElement = $(form.value.period_start).closest('.date');
     const picker = getDateTimePicker(pickerElement, {

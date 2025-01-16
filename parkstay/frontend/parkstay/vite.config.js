@@ -55,6 +55,7 @@ export default defineConfig(({ mode }) => {
       alias: {
         vue: "vue/dist/vue.esm-bundler.js",
         "@": path.resolve(__dirname, "./src"),
+        "@assets": path.resolve(__dirname, "./src/assets"),
         "@vue-utils": path.resolve(__dirname, "src/utils/vue"),
         "@common-utils": path.resolve(__dirname, "src/components/common/"),
         "@select2": "select2/dist/js/select2.min.js",

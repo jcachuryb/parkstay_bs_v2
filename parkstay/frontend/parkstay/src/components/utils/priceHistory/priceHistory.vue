@@ -208,15 +208,15 @@ const addHistory = function (prices) {
     if (props.level == 'campsite') {
         price.value.campsite = props.object_id;
     }
-    sendData(getAddURL(), 'POST', JSON.stringify(price));
+    sendData(getAddURL(), 'POST', JSON.stringify(prices));
 }
 const updateHistory = function (prices) {
     if (props.level == 'campsite') {
         price.value.campsite = props.object_id;
-        sendData(getEditURL(), 'PUT', JSON.stringify(price));
+        sendData(getEditURL(), 'PUT', JSON.stringify(prices));
     }
     else {
-        sendData(getEditURL(), 'POST', JSON.stringify(price));
+        sendData(getEditURL(), 'POST', JSON.stringify(prices));
     }
 }
 const addParkHistory = function (prices) {

@@ -18,7 +18,7 @@ import {
     from '../../hooks.js'
 import "quill/dist/quill.snow.css";
 import Editor from 'quill';
-import { onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
 
 const model = defineModel()
 const emit = defineEmits(['input']);
@@ -35,7 +35,11 @@ const updateContent = function (content) {
     emit('input', content);
 }
 
-defineExpose({disabled, updateContent, editor_id})
+const validate = function () {
+    return model.value != ''
+}
+
+defineExpose({ editor_id, disabled, updateContent, validate })
 
 onMounted(function () {
     editor = new Editor('#' + editor_id, {

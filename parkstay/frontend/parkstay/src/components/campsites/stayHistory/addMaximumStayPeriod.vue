@@ -45,7 +45,7 @@
                         </div>
                     </div>
                 </div>
-                <reason type="stay" v-model="stay.reason" ref="reason"></reason>
+                <reason type="stay" v-model="stay.reason" ref="reason" name="stay_reason"></reason>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
@@ -66,9 +66,9 @@
 <script setup>
 import bootstrapModal from '../../utils/bootstrap-modal.vue'
 import reason from '../../utils/reasons.vue'
-import { $, getDateTimePicker, dateUtils } from '../../../hooks.js'
+import { $, getDateTimePicker, dateUtils, helpers } from '../../../hooks.js'
 import alert from '../../utils/alert.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const props = defineProps({
     campsite: {
@@ -106,6 +106,9 @@ const requireDetails = computed(function () {
     return (stay.value.reason == 1) ? true : false;
 })
 
+watch(() => isOpen.value, (val) => {
+    helpers.formUtils.resetFormValidation(form.value)
+})
 
 const close = function () {
     stay.value.max_days = '';
@@ -149,27 +152,7 @@ const addFormValidations = function () {
             stay_reason: "Select an open reason from the options",
             open_details: "Details required if Other reason is selected"
         },
-        showErrors: function (errorMap, errorList) {
-
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     });
 }
 

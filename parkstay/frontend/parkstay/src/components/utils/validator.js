@@ -5,22 +5,18 @@
  * Description : A bootsrap and jquery form validation library
  **/
 
+import { helpers } from "./helpers";
 // import $ from 'jquery';
 
 const vd = {
     addError: (field, errMsg) => {
-        $(field).closest('.form-group').addClass('has-error');
+        helpers.formUtils.appendErrorMessage(field, errMsg)
         $(field).trigger("focus");
-        $(field).trigger("select");
-        $(field).addClass('tooltip-err');
-        $(field).tooltip()
-            .attr("data-original-title", errMsg)
         vd.errors.push(errMsg);
     },
 
     removeError: (field) => {
-        $(field).removeClass('tooltip-err');
-        $(field).closest('.form-group').removeClass('has-error');
+        helpers.formUtils.removeErrorMessage(field)
     },
 
     isNotEmpty: (field) => {

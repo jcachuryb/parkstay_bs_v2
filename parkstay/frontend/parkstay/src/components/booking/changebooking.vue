@@ -95,6 +95,7 @@ const selectedCampsite = computed(function () {
 const showError = computed(function () {
     return errors.value;
 })
+
 watch(() => selectedCampground, function (value) {
     if (value) {
         fetch(api_endpoints.campgroundCampsites(value)).then((response) => response.json()).then((data) => {
@@ -106,6 +107,11 @@ watch(() => selectedCampground, function (value) {
         campsites.value = [];
     }
 })
+
+watch(() => isModalOpen.value, (val) => {
+    helpers.formUtils.resetFormValidation(form.value)
+})
+
 const ok = function () {
     if ($(form.value).valid()) {
         sendData();
@@ -176,27 +182,7 @@ const addFormValidations = function () {
             campground: "field is required",
             campsite: "field is required"
         },
-        showErrors: function (errorMap, errorList) {
-
-            $.each(this.validElements(), function (index, element) {
-                var $element = $(element);
-                $element.attr("data-original-title", "").parents('.form-group').removeClass('has-error');
-            });
-
-            // destroy tooltips on valid elements
-            $("." + this.settings.validClass).tooltip("destroy");
-
-            // add or update tooltips
-            for (var i = 0; i < errorList.length; i++) {
-                var error = errorList[i];
-                $(error.element)
-                    .tooltip({
-                        trigger: "focus"
-                    })
-                    .attr("data-original-title", error.message)
-                    .parents('.form-group').addClass('has-error');
-            }
-        }
+        showErrors: helpers.formUtils.utilShowFormErrors
     });
 }
 const eventListeners = function () {

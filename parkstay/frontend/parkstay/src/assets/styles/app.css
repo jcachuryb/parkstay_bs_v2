@@ -1,0 +1,11 @@
+.invalid-form-field:empty {
+  display: none;
+}
+
+.invalid-form-field:not(:empty) {
+  display: block;
+  color: #c90000;
+  font-weight: 500;
+  font-size: 12px;
+  width: 100%;
+}
