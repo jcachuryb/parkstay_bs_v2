@@ -223,7 +223,7 @@ export default {
     
     data: function () {
         return {
-            parkstayUrl: (import.meta.env.VITE_PARKSTAY_URL || process.env.PARKSTAY_URL) || (typeof global != 'undefined'? global : {})?.parkstayUrl,
+            parkstayUrl: (import.meta.env.VITE_PARKSTAY_URL  || (typeof global != 'undefined'? global : {})?.parkstayUrl) || "",
             defaultCenter: [13775786.985667605, -2871569.067879858], // [123.75, -24.966],
             defaultLayers: [
                 ['dpaw:mapbox_outdoors', {}],

@@ -11,10 +11,11 @@
           search_avail.var.permission_to_make_advanced_booking = true;
      {% endif %}
 
+     const dateParams = search_avail.get_dates_from_params();
      search_avail.get_search_locations();
      search_avail.get_locations();
      search_avail.get_places();
-     search_avail.init_dateselection();
+     search_avail.init_dateselection(dateParams.arrival, dateParams.departure);
      search_avail.init_cg();
      console.log('loaded');
   }
