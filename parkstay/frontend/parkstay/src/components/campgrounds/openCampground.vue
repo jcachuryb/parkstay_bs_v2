@@ -18,15 +18,15 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label for="open_cg_range_end">Reopen on: </label>
+                            <label class="form-label" for="open_cg_range_end">
+                                <span class="bi bi-calendar3"></span>
+                                Reopen on: 
+                            </label>
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' id='open_cg_range_end'>
                                 <input name="open_start" v-model="formdata.range_end" type='text'
                                     class="form-control" />
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
                             </div>
                         </div>
                     </div>

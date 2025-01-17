@@ -18,14 +18,14 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label for="stay_start_picker">Period Start: </label>
+                            <label class="form-label required" for="stay_start_picker">
+                                <span class="bi bi-calendar3"></span>
+                                Period Start: 
+                            </label>
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' id="stay_start_picker">
                                 <input name="stay_start" v-model="stay.range_start" type='text' class="form-control" />
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -33,23 +33,23 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label for="stay_end_picker">Period End: </label>
+                            <label class="form-label" for="stay_end_picker">
+                                <span class="bi bi-calendar3"></span>
+                                Period End: 
+                            </label>
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' id='stay_end_picker'>
                                 <input name="stay_end" v-model="stay.range_end" type='text' class="form-control" />
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <reason type="stay" v-model="stay.reason" ref="reason" name="stay_reason"></reason>
+                <reason type="stay" v-model="stay.reason" ref="reason" name="stay_reason" :required="true"></reason>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label for="stay_details">Details: </label>
+                            <label class="form-label required" for="stay_details">Details: </label>
                         </div>
                         <div class="col-md-5">
                             <textarea name="stay_details" v-model="stay.details" class="form-control"

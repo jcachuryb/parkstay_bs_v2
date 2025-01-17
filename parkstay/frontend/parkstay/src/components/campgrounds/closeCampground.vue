@@ -7,15 +7,15 @@
                     <alert v-model:show="showError" type="danger">{{ errorString }}</alert>
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label for="open_cg_range_start">Closure start: </label>
+                            <label class="form-label required" for="close_cg_range_start">
+                                <span class="bi bi-calendar3"></span>
+                                Closure start: 
+                            </label>
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' id='close_cg_range_start'>
                                 <input name="closure_start" v-model="formdata.range_start" type='text'
                                     class="form-control" />
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -23,24 +23,24 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label for="open_cg_range_start">Reopen on: </label>
+                            <label class="form-label" for="open_cg_range_start">
+                                <span class="bi bi-calendar3"></span>
+                                Reopen on: 
+                            </label>
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' id='close_cg_range_end'>
                                 <input name="closure_end" v-model="formdata.range_end" type='text'
                                     class="form-control" />
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <reason-component type="close" v-model="formdata.closure_reason" name="closure_reason" ref="reason"></reason-component>
+                <reason-component type="close" v-model="formdata.closure_reason" name="closure_reason" ref="reason" :required="true"></reason-component>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label for="open_cg_details">Details: </label>
+                            <label class="form-label required" for="open_cg_details">Details: </label>
                         </div>
                         <div class="col-md-5">
                             <textarea name="closure_details" v-model="formdata.details" class="form-control"

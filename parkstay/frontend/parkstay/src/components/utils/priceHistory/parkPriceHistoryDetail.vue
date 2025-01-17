@@ -8,7 +8,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Car : </label>
+                            <label class="form-label required">Car : </label>
                         </div>
                         <div class="col-md-4">
                             <input name="vehicle" v-model="priceHistory.vehicle" type='number' class="form-control" />
@@ -18,7 +18,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Concession : </label>
+                            <label class="form-label required">Concession : </label>
                         </div>
                         <div class="col-md-4">
                             <input name="concession" v-model="priceHistory.concession" type='number'
@@ -29,7 +29,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Motorbike : </label>
+                            <label class="form-label required">Motorbike : </label>
                         </div>
                         <div class="col-md-4">
                             <input name="motorbike" v-model="priceHistory.motorbike" type='number'
@@ -42,7 +42,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Campervan : </label>
+                            <label class="form-label required">Campervan : </label>
                         </div>
                         <div class="col-md-4">
                             <input name="campervan" v-model="priceHistory.campervan" type='number'
@@ -65,7 +65,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Trailer : </label>
+                            <label class="form-label required">Trailer : </label>
                         </div>
                         <div class="col-md-4">
                             <input name="trailer" v-model="priceHistory.trailer" type='number' class="form-control" />
@@ -73,22 +73,19 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group">
-                        <div class="col-md-2">
-                            <label>GST : </label>
-                        </div>
-                        <div class="col-md-4">
-                            <input name="gst" id="gst" v-model="priceHistory.gst" type='checkbox' checked class="" />
-                        </div>
+                    <div class="form-check m-2">
+                        <input name="gst" id="gst" v-model="priceHistory.gst" type='checkbox' checked class="form-check-input" />
+                        <label class="form-check-label" for="gst">GST</label>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label><span class="input-group-addon">
-                                    <span class="bi bi-calendar3 me-2"></span>
-                                </span>Period start: </label>
+                            <label class="form-label required">
+                                <span class="bi bi-calendar3"></span>
+                                Period start: 
+                            </label>
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' date>
@@ -103,7 +100,7 @@
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Details: </label>
+                            <label class="form-label required">Details: </label>
                         </div>
                         <div class="col-md-5">
                             <textarea name="details" v-model="priceHistory.details" class="form-control"></textarea>

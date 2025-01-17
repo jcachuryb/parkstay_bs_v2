@@ -52,21 +52,21 @@
         </div>
         <div class="row" style="margin-bottom:10px;">
           <div class="col-md-4">
-            <label for="">Date From</label>
+            <label class="form-label">
+                <span class="bi bi-calendar3"></span>
+                Date from: 
+            </label>
             <div class="input-group date" id="booking-date-from">
-              <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterDateFrom">
-              <span class="input-group-addon">
-                <span class="glyphicon glyphicon-calendar"></span>
-              </span>
+              <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterDateFrom" />
             </div>
           </div>
           <div class="col-md-4">
-            <label for="">Date To</label>
+            <label class="form-label">
+                <span class="bi bi-calendar3"></span>
+                Date to: 
+            </label>
             <div class="input-group date" id="booking-date-to">
-              <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterDateTo">
-              <span class="input-group-addon">
-                <span class="glyphicon glyphicon-calendar"></span>
-              </span>
+              <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterDateTo" />
             </div>
           </div>
           <div class="col-md-4" v-if="filterCanceled == 'True'">

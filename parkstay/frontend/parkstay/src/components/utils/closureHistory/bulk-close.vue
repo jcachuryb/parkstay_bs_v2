@@ -8,7 +8,7 @@
                     <div class="row">
                     <div class="form-group">
                             <div class="col-md-4">
-                                <label for="bc-campgrounds">Campgrounds</label>
+                                <label class="form-label required" for="bc-campgrounds">Campgrounds</label>
                             </div>
                             <div class="col-md-8">
                                 <select id="bc-campgrounds" class="form-control" name="campgrounds" placeholder="" multiple
@@ -21,15 +21,15 @@
                     <div class="row">
                         <div class="form-group">
                             <div class="col-md-4">
-                                <label for="open_cg_range_start">Closure start: </label>
+                                <label class="form-label required">
+                                    <span class="bi bi-calendar3"></span>
+                                    Closure start: 
+                                </label>
                             </div>
                             <div class="col-md-8">
                                 <div class='input-group date' :id='close_cg_range_start'>
                                     <input name="closure_start" v-model="range_start" type='text'
                                         class="form-control" autocomplete="false" />
-                                    <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -37,23 +37,23 @@
                     <div class="row">
                         <div class="form-group">
                             <div class="col-md-4">
-                                <label for="open_cg_range_start">Reopen on: </label>
+                                <label class="form-label">
+                                    <span class="bi bi-calendar3"></span>
+                                    Reopen on: 
+                                </label>
                             </div>
                             <div class="col-md-8">
                                 <div class='input-group date' :id='close_cg_range_end'>
                                     <input name="closure_end" v-model="range_end" type='text' class="form-control" autocomplete="false" />
-                                    <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <reason type="close" v-model="reasonValue" :large="true" name="open_reason"></reason>
+                    <reason type="close" v-model="reasonValue" :large="true" name="open_reason" :required="true"></reason>
                     <div v-show="requireDetails" class="row">
                         <div class="form-group">
                             <div class="col-md-4">
-                                <label>Details: </label>
+                                <label class="form-label required">Details: </label>
                             </div>
                             <div class="col-md-8">
                                 <textarea name="closure_details" v-model="details" class="form-control"

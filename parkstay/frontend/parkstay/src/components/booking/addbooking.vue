@@ -7,7 +7,8 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="col-md-6">
-                                    <h3 class="text-primary pull-left">Add internal booking for {{ campground.name }}</h3>
+                                    <h3 class="text-primary pull-left">Add internal booking for {{ campground.name }}
+                                    </h3>
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -17,31 +18,30 @@
                             </div>
                             <div class="col-md-12" v-if="(campground.site_type == 1) || (campground.site_type == 2)">
                                 <p>To book closed sites, you must allocate specific site numbers/names - switch to the
-                                    <router-link :to="{ name: 'booking-close-classes' }">full camp site list.</router-link>
+                                    <router-link :to="{ name: 'booking-close-classes' }">full camp site
+                                        list.</router-link>
                                     The allocated site number/name is for management purposes only - it will not be
-                                    visible to the public.</p>
+                                    visible to the public.
+                                </p>
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <div class="col-md-12">
-                                            <label class="control-label pull-left required" for="Dates">Dates: </label>
+                                            <label class="form-label required">
+                                                <span class="bi bi-calendar3"></span>
+                                                Dates: 
+                                            </label>
                                             <div class="col-md-3">
                                                 <div class="input-group date" id="dateArrival">
                                                     <input type="text" class="form-control" name="arrival"
-                                                        placeholder="Arrival">
-                                                    <span class="input-group-addon">
-                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                    </span>
+                                                        placeholder="Arrival" />
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="input-group date" id="datedeparture">
                                                     <input type="text" class="form-control" name="departure"
                                                         placeholder="Departure">
-                                                    <span class="input-group-addon">
-                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                    </span>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
@@ -59,11 +59,14 @@
                                                                     <div class="row">
                                                                         <div class="col-sm-4">
                                                                             <span class="item">
-                                                                                {{ guest.amount }} {{ guest.name }} <span
-                                                                                    style="color:#888;font-weight:300;font-size:12px;">{{ guest.description }}</span>
+                                                                                {{ guest.amount }} {{ guest.name }}
+                                                                                <span
+                                                                                    style="color:#888;font-weight:300;font-size:12px;">{{
+                                                                                    guest.description }}</span>
                                                                             </span>
                                                                             <br /><a href="#" class="text-info"
-                                                                                v-show="guest.helpText">{{ guest.helpText }}</a>
+                                                                                v-show="guest.helpText">{{
+                                                                                guest.helpText }}</a>
                                                                         </div>
                                                                         <div class="pull-right">
                                                                             <div class="btn-group btn-group-sm">
@@ -288,7 +291,8 @@
                                                                         style="color:#888;font-weight:300;font-size:12px;"></span>
                                                                 </span>
                                                                 <br /><a href="#" class="text-info"
-                                                                    v-show="park_entry.helpText">{{ park_entry.helpText }}</a>
+                                                                    v-show="park_entry.helpText">{{
+                                                                    park_entry.helpText }}</a>
                                                             </div>
                                                             <div class="pull-right">
                                                                 <div class="btn-group btn-group-sm">
@@ -662,7 +666,7 @@ watch(() => booking_type.value, function (value) {
 })
 
 watch(() => isModalOpen.value, (val) => {
-    helpers.formUtils.resetFormValidation( $(bookingForm.value))
+    helpers.formUtils.resetFormValidation($(bookingForm.value))
 })
 
 const fetchSites = function () {
@@ -723,7 +727,7 @@ const fetchCampsites = function () {
             Moment(booking.value.arrival, "YYYY-MM-DD").format("YYYY/MM/DD"),
             Moment(booking.value.departure, "YYYY-MM-DD").format("YYYY/MM/DD")
         )).then((response) => response.json()).then((data) => {
-            
+
             booking.value.campsites = data;
             if (booking.value.campsites.length > 0) {
                 selected_campsite.value = booking.value.campsites[0].id;
@@ -834,14 +838,14 @@ const addEventListeners = function () {
     fetch(api_endpoints.campgroundCampsites(campground.value.id)).then((response) => response.json()).then((_campsites) => {
         const campsites = _campsites;
         fetch(api_endpoints.campsite_current_price(campsites[0].id, Moment().format("YYYY-MM-DD"), Moment().add(1, 'days').format("YYYY-MM-DD")))
-        .then((response) => response.json()).then((data) => {
-            priceHistory.value = null;
-            priceHistory.value = data;
-            loading.value.splice('updating prices', 1);
-        }).catch((error) => {
-            console.log(error);
-            loading.value.splice('updating prices', 1);
-        });
+            .then((response) => response.json()).then((data) => {
+                priceHistory.value = null;
+                priceHistory.value = data;
+                loading.value.splice('updating prices', 1);
+            }).catch((error) => {
+                console.log(error);
+                loading.value.splice('updating prices', 1);
+            });
     }, (error) => {
         console.log(error);
     });
@@ -956,16 +960,16 @@ const fetchParkPrices = function (calcprices) {
     if (booking.value.arrival) {
         fetch(api_endpoints.park_current_price(park.value.id, booking.value.arrival)).then((response) => response.json())
             .then((data) => {
-            var resp = data;
-            if (resp.constructor != Array) {
-                parkPrices.value = data;
-            } else {
-                parkPrices.value.vehicle = "0.00";
-                parkPrices.value.motorbike = "0.00";
-                parkPrices.value.concession = "0.00";
-            }
-            calcprices();
-        });
+                var resp = data;
+                if (resp.constructor != Array) {
+                    parkPrices.value = data;
+                } else {
+                    parkPrices.value.vehicle = "0.00";
+                    parkPrices.value.motorbike = "0.00";
+                    parkPrices.value.concession = "0.00";
+                }
+                calcprices();
+            });
     } else {
         parkPrices.value.vehicle = "0.00";
         parkPrices.value.motorbike = "0.00";

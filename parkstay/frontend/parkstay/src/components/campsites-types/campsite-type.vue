@@ -16,14 +16,14 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label class="control-label">Name</label>
+                                                    <label class="form-label required">Name</label>
                                                     <input type="text" name="name" class="form-control"
                                                         v-model="campsite_type.name" required />
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label class="control-label">Maximum Number of Vehicles</label>
+                                                    <label class="form-label required">Maximum Number of Vehicles</label>
                                                     <input type="number" name="max_vehicles" class="form-control" min="0"
                                                         v-model="campsite_type.max_vehicles" required />
                                                 </div>
@@ -32,14 +32,14 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label class="control-label">Minimum Number of People</label>
+                                                    <label class="form-label required">Minimum Number of People</label>
                                                     <input type="number" name="min_people" class="form-control" min="0"
                                                         v-model="campsite_type.min_people" required />
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label class="control-label">Maximum Number of People</label>
+                                                    <label class="form-label required">Maximum Number of People</label>
                                                     <input type="number" name="max_people" class="form-control"
                                                         v-model="campsite_type.max_people" required />
                                                 </div>
@@ -68,7 +68,7 @@
                                         </div>
                                         <select-panel ref="select_features" :options="features"
                                             :selected="selected_features" id="select-features" @onChange="onChangeSelectedFeatures"></select-panel>
-                                        <editor ref="descriptionEditor" v-model="campsite_type.description"></editor>
+                                        <editor ref="descriptionEditor" v-model="campsite_type.description" :required="true"></editor>
                                         <div class="row">
                                             <div class="col-sm-12">
                                                 <div class="form-group pull-right">
