@@ -123,3 +123,4 @@ disturbance/static/disturbance_vue/static/js/babel-polyfill.js
 # Parkstay built static files.
 parkstay/static/parkstay/js/parkstay.js
 parkstay/static/parkstay/js/vendor.js
+parkstay/frontend/searchavail2/.env.local.dev

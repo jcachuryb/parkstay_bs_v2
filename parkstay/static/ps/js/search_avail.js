@@ -1267,7 +1267,7 @@ var search_avail = {
 	 //       search_avail.init_dateselection($('#checkin').val(), date_split[2]+"/"+date_split[1]+"/"+date_split[0])
          //});
 
-         $(document).click(function(event) {
+         $(document).on("click", function(event) {
 		  var closedropdowns = true;
          	  var $target = $(event.target);
 		  enodes = [];
@@ -1297,7 +1297,7 @@ var search_avail = {
 		  }
          });
 
-         $( "#multiple-campsite-selection" ).click(function() {
+         $( "#multiple-campsite-selection" ).on("click", function() {
                search_avail.var.mcs_enabled = $(this).is(':checked');
 	       if (search_avail.var.mcs_enabled == true ) {
 		   $('#proceed-booking').show(); 
@@ -1310,15 +1310,26 @@ var search_avail = {
          });
 
 
-        $( "#date-override" ).click(function() {
+        $( "#date-override" ).on("click", function() {
             var dateoverride = $('#date-override').is(':checked');
             search_avail.var.date_override = dateoverride;
             search_avail.init_dateselection(search_avail.var.arrival,search_avail.var.departure);
         });
+    },
 
-
-
-
-
+    get_dates_from_params: function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const dates = {
+             arrival: undefined, departure: undefined
+        }
+        try {
+            const arrival = urlParams.get('arrival');
+            const departure = urlParams.get('departure');
+            dates.arrival = isNaN(Date.parse(arrival)) ? undefined : arrival
+            dates.departure = isNaN(Date.parse(departure)) ? undefined : departure
+        } catch (error) {
+            console.log(error)
+        }
+        return dates        
     }
 }
