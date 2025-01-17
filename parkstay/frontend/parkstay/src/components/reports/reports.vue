@@ -38,25 +38,25 @@
                         <div class="row" v-show="!region">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="">Start Date</label>
+                                    <label class="form-label required">
+                                        <span class="bi bi-calendar3"></span>
+                                        Start Date: 
+                                    </label>
                                     <div class="input-group date" id="accountsDateStartPicker">
                                         <input type="text" class="form-control" name="start" placeholder="DD/MM/YYYY"
-                                            required>
-                                        <span class="input-group-addon">
-                                            <span class="glyphicon glyphicon-calendar"></span>
-                                        </span>
+                                            required />
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="">End Date</label>
+                                    <label class="form-label required">
+                                        <span class="bi bi-calendar3"></span>
+                                        End Date: 
+                                    </label>
                                     <div class="input-group date" id="accountsDateEndPicker">
                                         <input type="text" class="form-control" name="end" placeholder="DD/MM/YYYY"
-                                            required>
-                                        <span class="input-group-addon">
-                                            <span class="glyphicon glyphicon-calendar"></span>
-                                        </span>
+                                            required />
                                     </div>
                                 </div>
                             </div>
@@ -64,25 +64,25 @@
                         <div class="row" style="margin-top:20px;">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="">Bank Start Date</label>
+                                    <label class="form-label required">
+                                        <span class="bi bi-calendar3"></span>
+                                        Bank Start Date: 
+                                    </label>
                                     <div class="input-group date" id="flatDateStartPicker">
                                         <input type="text" class="form-control" name="banked_start"
-                                            placeholder="DD/MM/YYYY" required>
-                                        <span class="input-group-addon">
-                                            <span class="glyphicon glyphicon-calendar"></span>
-                                        </span>
+                                            placeholder="DD/MM/YYYY" required />
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="">Bank End Date</label>
+                                    <label class="form-label required">
+                                        <span class="bi bi-calendar3"></span>
+                                        Bank End Date: 
+                                    </label>
                                     <div class="input-group date" id="flatDateEndPicker">
                                         <input type="text" class="form-control" name="banked_end"
-                                            placeholder="DD/MM/YYYY" required>
-                                        <span class="input-group-addon">
-                                            <span class="glyphicon glyphicon-calendar"></span>
-                                        </span>
+                                            placeholder="DD/MM/YYYY" required />
                                     </div>
                                 </div>
                             </div>
@@ -111,25 +111,25 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="">Start Date</label>
+                                <label class="form-label required">
+                                    <span class="bi bi-calendar3"></span>
+                                    Start Date: 
+                                </label>
                                 <div class="input-group date" id="refundsStartPicker">
                                     <input type="text" class="form-control" name="refund_start_date"
-                                        placeholder="DD/MM/YYYY">
-                                    <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
+                                        placeholder="DD/MM/YYYY" />
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="">End Date</label>
+                                <label class="form-label required">
+                                    <span class="bi bi-calendar3"></span>
+                                    End Date: 
+                                </label>
                                 <div class="input-group date" id="refundsEndPicker">
                                     <input type="text" class="form-control" name="refund_end_date"
-                                        placeholder="DD/MM/YYYY">
-                                    <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
+                                        placeholder="DD/MM/YYYY" />
                                 </div>
                             </div>
                         </div>
@@ -155,14 +155,14 @@
                                     <form ref="booking_settlements_form">
                                         <h3 style="margin-bottom:20px;">Settlement Report</h3>
                                         <div class="form-group">
-                                            <label for="">Date</label>
+                                        <label class="form-label required">
+                                            <span class="bi bi-calendar3"></span>
+                                            Date: 
+                                        </label>
                                             <div class="input-group date" ref="bookingSettlementsDatePicker"
                                                 id="bookingSettlementsDatePickerElement">
                                                 <input type="text" class="form-control" name="booking_settlement_date"
-                                                    placeholder="DD/MM/YYYY" required>
-                                                <span class="input-group-addon">
-                                                    <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
+                                                    placeholder="DD/MM/YYYY" required />
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -175,14 +175,14 @@
                                     <form ref="bookings_form">
                                         <h3 style="margin-bottom:20px;">Bookings Report</h3>
                                         <div class="form-group">
-                                            <label for="">Date</label>
+                                        <label class="form-label required">
+                                            <span class="bi bi-calendar3"></span>
+                                            Date: 
+                                        </label>
                                             <div class="input-group date" ref="bookingsDatePicker"
                                                 id="bookingsDatePickerElement">
                                                 <input type="text" class="form-control" name="bookings_date"
-                                                    placeholder="DD/MM/YYYY" required>
-                                                <span class="input-group-addon">
-                                                    <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
+                                                    placeholder="DD/MM/YYYY" required />
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -208,14 +208,14 @@
                             <div class="col-lg-12">
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label for="">Date</label>
+                                        <label class="form-label required">
+                                            <span class="bi bi-calendar3"></span>
+                                            Date: 
+                                        </label>
                                         <div class="input-group date" ref="oracleDatePicker"
                                             id="oracleDatePickerElement">
                                             <input type="text" class="form-control" name="oracle_date"
-                                                placeholder="DD/MM/YYYY" required>
-                                            <span class="input-group-addon">
-                                                <span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
+                                                placeholder="DD/MM/YYYY" required />
                                         </div>
                                     </div>
                                     <div class="form-group">

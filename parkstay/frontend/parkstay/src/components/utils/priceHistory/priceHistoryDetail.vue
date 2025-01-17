@@ -23,7 +23,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Adult Price: </label>
+                            <label class="form-label required">Adult Price: </label>
                         </div>
                         <div class="col-md-4">
                             <input :readonly="selected_rate != ''" name="adult" v-model="priceHistory.adult" type='text'
@@ -34,7 +34,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Concession Price: </label>
+                            <label class="form-label required">Concession Price: </label>
                         </div>
                         <div class="col-md-4">
                             <input :readonly="selected_rate != ''" name="concession" v-model="priceHistory.concession"
@@ -45,7 +45,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Child Price: </label>
+                            <label class="form-label required">Child Price: </label>
                         </div>
                         <div class="col-md-4">
                             <input :readonly="selected_rate != ''" name="child" v-model="priceHistory.child" type='text'
@@ -56,7 +56,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Infant Price: </label>
+                            <label class="form-label required">Infant Price: </label>
                         </div>
                         <div class="col-md-4">
                             <input :readonly="selected_rate != ''" name="infant" v-model="priceHistory.infant"
@@ -67,25 +67,25 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Period start: </label>
+                            <label class="form-label required">
+                                <span class="bi bi-calendar3"></span>
+                                Period start: 
+                            </label>
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date'>
                                 <input name="period_start" v-model="priceHistory.period_start" type='text'
                                     class="form-control" />
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <reason type="price" name="reason" v-model="priceHistory.reason"></reason>
+                <reason type="price" name="reason" v-model="priceHistory.reason" :required="true"></reason>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Details: </label>
+                            <label class="form-label required">Details: </label>
                         </div>
                         <div class="col-md-5">
                             <textarea name="details" v-model="priceHistory.details" class="form-control"></textarea>

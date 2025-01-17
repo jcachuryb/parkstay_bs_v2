@@ -18,24 +18,24 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label for="open_cg_range_end">Reopen on: </label>
+                            <label class="form-label reqired" for="open_cg_range_end">
+                                <span class="bi bi-calendar3"></span>
+                                Reopen on: 
+                            </label>
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' id='open_cg_range_end'>
                                 <input name="open_start" v-model="formdata.range_end" type='text'
                                     class="form-control" />
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <reason type="close" name="open_reason" v-model="formdata.closure_reason"></reason>
+                <reason type="close" name="open_reason" v-model="formdata.closure_reason" :required="true"></reason>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label for="open_cg_details">Details: </label>
+                            <label class="form-label required" for="open_cg_details">Details: </label>
                         </div>
                         <div class="col-md-5">
                             <textarea name="open_details" v-model="formdata.details" class="form-control"

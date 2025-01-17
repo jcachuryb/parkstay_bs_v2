@@ -115,7 +115,7 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="col-md-2">
-                                            <label>Adult Price: </label>
+                                            <label class="form-label required">Adult Price: </label>
                                         </div>
                                         <div class="col-md-4">
                                             <input :readonly="selected_rate != ''" name="adult"
@@ -125,7 +125,7 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="col-md-2">
-                                            <label>Concession Price: </label>
+                                            <label class="form-label required">Concession Price: </label>
                                         </div>
                                         <div class="col-md-4">
                                             <input :readonly="selected_rate != ''" name="concession"
@@ -135,7 +135,7 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="col-md-2">
-                                            <label>Child Price: </label>
+                                            <label class="form-label required">Child Price: </label>
                                         </div>
                                         <div class="col-md-4">
                                             <input :readonly="selected_rate != ''" name="child"
@@ -145,23 +145,23 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="col-md-2">
-                                            <label>Period start: </label>
+                                            <label class="form-label">
+                                                <span class="bi bi-calendar3"></span>
+                                                Period start: 
+                                            </label>
                                         </div>
                                         <div class="col-md-4">
                                             <div class='input-group date'>
                                                 <input name="period_start" v-model="bulkpricing.period_start"
                                                     type='text' class="form-control" required="true" />
-                                                <span class="input-group-addon">
-                                                    <span class="glyphicon glyphicon-calendar"></span>
-                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <reason name="open_reason" type="price" v-model="bulkpricing.reason" required="true"></reason>
+                                    <reason name="open_reason" type="price" v-model="bulkpricing.reason" :required="true"></reason>
                                     <div v-show="requireDetails">
                                         <div class="form-group">
                                             <div class="col-md-2">
-                                                <label>Details: </label>
+                                                <label class="form-label required">Details: </label>
                                             </div>
                                             <div class="col-md-5">
                                                 <textarea name="details" v-model="bulkpricing.details"

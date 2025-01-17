@@ -3,7 +3,7 @@
         <div class="col-md-12">
             <div class="form-group">
                 <slot name="label">
-                    <label class="control-label">Description</label>
+                    <label :class="{'form-label': true, 'required': required === true}">Description</label>
                 </slot>
                 <div :id="editor_id" class="form-control editor"></div>
             </div>
@@ -21,6 +21,11 @@ import Editor from 'quill';
 import { onMounted } from 'vue';
 
 const model = defineModel()
+const props = defineProps({
+    required: {
+        default: false
+    }
+})
 const emit = defineEmits(['input']);
 
 let editor = null

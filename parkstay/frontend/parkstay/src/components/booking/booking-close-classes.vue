@@ -19,23 +19,20 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <div class="col-md-12">
-                                            <label class="control-label pull-left required" for="Dates">Dates: </label>
+                                            <label class="form-label required">
+                                                <span class="bi bi-calendar3"></span>
+                                                Dates: 
+                                            </label>
                                             <div class="col-md-3">
                                                 <div class="input-group date" id="dateArrival">
                                                     <input type="text" class="form-control" name="arrival"
-                                                        placeholder="Arrival">
-                                                    <span class="input-group-addon">
-                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                    </span>
+                                                        placeholder="Arrival" />
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="input-group date" id="datedeparture">
                                                     <input type="text" class="form-control" name="departure"
-                                                        placeholder="Departure">
-                                                    <span class="input-group-addon">
-                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                    </span>
+                                                        placeholder="Departure" />
                                                 </div>
                                             </div>
                                             <div class="col-md-4">

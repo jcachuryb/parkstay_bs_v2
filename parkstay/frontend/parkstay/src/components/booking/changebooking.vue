@@ -7,21 +7,18 @@
                     <alert :show="success" type="success"><strong>{{ successString }}</strong></alert>
                     <div class="col-lg-12">
                         <div class="form-group">
-                            <label class="col-md-2 control-label pull-left" for="Dates">Dates: </label>
+                            <label class="form-label required">
+                                <span class="bi bi-calendar3"></span>
+                                Dates: 
+                            </label>
                             <div class="col-md-4">
                                 <div class="input-group arrivalPicker date">
-                                    <input type="text" class="form-control" name="arrival" placeholder="DD/MM/YYYY">
-                                    <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar "></span>
-                                    </span>
+                                    <input type="text" class="form-control" name="arrival" placeholder="DD/MM/YYYY" />
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="input-group departurePicker date">
-                                    <input type="text" class="form-control" name="departure" placeholder="DD/MM/YYYY">
-                                    <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
+                                    <input type="text" class="form-control" name="departure" placeholder="DD/MM/YYYY" />
                                 </div>
                             </div>
                         </div>

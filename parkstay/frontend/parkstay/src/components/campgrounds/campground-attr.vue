@@ -22,14 +22,14 @@
                                             <div class="row">
                                                 <div class="col-md-6 col-lg-6">
                                                     <div class="form-group">
-                                                        <label class="control-label">Campground Name</label>
+                                                        <label class="form-label required">Campground Name</label>
                                                         <input autofocus="true" type="text" name="name" id="name"
                                                             class="form-control" v-model="campground.name" required />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4 col-lg-3">
                                                     <div class="form-group">
-                                                        <label class="control-label">Oracle Code</label>
+                                                        <label class="form-label">Oracle Code</label>
                                                         <input type="text" name="oracle_code" id="oracle_code"
                                                             class="form-control" v-model="campground.oracle_code"
                                                             required />
@@ -39,7 +39,7 @@
                                             <div class="row">
                                                 <div class="col-md-10 col-lg-6">
                                                     <div class="form-group ">
-                                                        <label class="control-label">Park</label>
+                                                        <label class="form-label required">Park</label>
                                                         <select  v-show="!parks.length > 0"
                                                             class="form-control">
                                                             <option>Loading...</option>
@@ -57,7 +57,7 @@
                                             <div class="row">
                                                 <div class="col-md-6 col-lg-3">
                                                     <div class="form-group ">
-                                                        <label class="control-label">Type</label>
+                                                        <label class="form-label required">Type</label>
                                                         <select id="campground_type" name="campground_type"
                                                             class="form-control form-select"
                                                             v-model="campground.campground_type">
@@ -70,7 +70,7 @@
                                                 </div>
                                                 <div class="col-md-4 col-lg-3">
                                                     <div class="form-group ">
-                                                        <label class="control-label">Booking Configuration</label>
+                                                        <label class="form-label">Booking Configuration</label>
                                                         <select id="site_type" name="site_type"
                                                             class="form-control form-select"
                                                             v-model="campground.site_type">
@@ -82,7 +82,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4 col-lg-3">
-                                                    <label class="control-label">Price set at: </label>
+                                                    <label class="form-label required">Price set at: </label>
                                                     <select id="price_level" name="price_level"
                                                         class="form-control form-select"
                                                         v-model="campground.price_level">
@@ -111,7 +111,7 @@
                                                 <div class="panel-body">
                                                     <div class="row">
                                                         <div class="form-group">
-                                                            <label class="col-md-4 control-label">Customer
+                                                            <label class="col-md-4 form-label">Customer
                                                                 Contact</label>
                                                             <div class="col-md-8">
                                                                 <select class="form-control form-select" name="contact"
@@ -125,13 +125,13 @@
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-3">
-                                                            <label class="control-label">Phone Number</label>
+                                                            <label class="form-label">Phone Number</label>
                                                             <input type="text" disabled name="contact_number"
                                                                 id="contact_number" class="form-control"
                                                                 v-model="selected_contact_number" required />
                                                         </div>
                                                         <div class="col-md-5">
-                                                            <label class="control-label">Email</label>
+                                                            <label class="form-label">Email</label>
                                                             <input type="text" disabled name="contact_email"
                                                                 id="contact_email" class="form-control"
                                                                 v-model="selected_contact_email" required />
@@ -187,7 +187,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label class="control-label">Description</label>
+                                                <label class="form-label required">Description</label>
                                                 <div id="editor" class="form-control"></div>
                                             </div>
                                         </div>
@@ -195,9 +195,9 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label class="control-label">Additional confirmation information</label>
+                                                <label class="form-label">Additional confirmation information</label>
                                                 <textarea id="additional_info" class="form-control"
-                                                    v-model="campground.additional_info" />
+                                                    v-model="campground.additional_info"></textarea>
                                             </div>
                                         </div>
                                     </div>

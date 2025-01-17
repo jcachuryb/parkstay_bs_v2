@@ -2,7 +2,7 @@
     <div class="row" id="reasons">
         <div class="form-group">
             <div v-bind:class="{ 'col-md-4': large, 'col-md-2': !large }">
-                <label>Reason: </label>
+                <label :class="{'form-label': true, 'required': required === true}">Reason: </label>
             </div>
             <div v-bind:class="{ 'col-md-8': large, 'col-md-4': !large }">
                 <select v-if="!reasons.length > 0" class="form-control form-select">
@@ -33,6 +33,9 @@ const props = defineProps({
     },
     name: {
         default: "open_reason"
+    },
+    required: {
+        default: false
     }
 })
 
