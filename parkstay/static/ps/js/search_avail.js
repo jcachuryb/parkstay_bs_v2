@@ -298,13 +298,16 @@ var search_avail = {
     },
     select_dates: function(start, end) {
         $('#when-date-range #when-dates').html("<b>Arrive:</b> "+start.format('ddd D MMM YY') + ' <b>Depart:</b> ' + end.format('ddd D MMM YY'));
-        $('#checkin').val(start.format('YYYY/MM/DD'));
-        $('#checkout').val(end.format('YYYY/MM/DD'));
-        search_avail.var.camping_period['checkin'] = start.format('YYYY/MM/DD')
-	    search_avail.var.camping_period['checkout'] = end.format('YYYY/MM/DD')
+        const fStartDate = start.format('YYYY/MM/DD')
+        const fEndDate = end.format('YYYY/MM/DD')
+        $('#checkin').val(fStartDate);
+        $('#checkout').val(fEndDate);
+        search_avail.update_dates_search_params(fStartDate, fEndDate)
+        search_avail.var.camping_period['checkin'] = fStartDate
+	    search_avail.var.camping_period['checkout'] = fEndDate
 
-        var whennights = search_avail.calculate_nights(start.format("YYYY-MM-DD"),end.format("YYYY-MM-DD"));
-	    var arrival_days = search_avail.calculate_arrival_days(start.format("YYYY-MM-DD"));
+        var whennights = search_avail.calculate_nights(fStartDate,fEndDate);
+	    var arrival_days = search_avail.calculate_arrival_days(fStartDate);
 
         $('#when-nights').html(whennights);
 	if (search_avail.var.page == 'campground') { 
@@ -1316,7 +1319,12 @@ var search_avail = {
             search_avail.init_dateselection(search_avail.var.arrival,search_avail.var.departure);
         });
     },
-
+    update_dates_search_params: function(arrival, departure) {
+        const url = new URL(window.location)
+        url.searchParams.set("arrival", arrival)
+        url.searchParams.set("departure", departure)
+        history.pushState(null, '', url);
+    },
     get_dates_from_params: function() {
         const urlParams = new URLSearchParams(window.location.search);
         const dates = {

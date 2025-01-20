@@ -99,7 +99,7 @@
 		 {% endif %}
 
         <div class="col-12 " >                
-                <div class="col-md-12"><p>{% if change_booking %}{% else %}<a href="/search-availability/information/?campground_id={{ cg.campground.id }}&arrival={{ cg.arrival }}&departure={{ cg.departure}}" class="btn btn-warning">BACK</a>{% endif %} <a href="/booking-session/abort-redirect" class="btn btn-danger">QUIT</a></p></div>       
+                <div class="col-md-12"><p>{% if change_booking %}{% else %}<button onclick="navigateGoBack()" class="btn btn-warning">BACK</button>{% endif %} <a href="/booking-session/abort-redirect" class="btn btn-danger">QUIT</a></p></div>       
         </div>
 
         {% if cg.campground.campground_type == 0 %}
@@ -732,7 +732,7 @@
      </div>
 
      <div class="col-12 " >                
-        <div class="col-md-12"><p>{% if change_booking %}{% else %}<a href="/search-availability/information/?campground_id={{ cg.campground.id }}&arrival={{ cg.arrival }}&departure={{ cg.departure}}" class="btn btn-warning">BACK</a>{% endif %} <a href="/booking-session/abort-redirect" class="btn btn-danger">QUIT</a></p></div>       
+        <div class="col-md-12"><p>{% if change_booking %}{% else %}<button onclick="navigateGoBack()" class="btn btn-warning">BACK</button>{% endif %} <a href="/booking-session/abort-redirect" class="btn btn-danger">QUIT</a></p></div>       
     </div>
 </div>
 <br>
@@ -805,8 +805,15 @@ window.addEventListener( "pageshow", function ( event ) {
 
    console.log('loaded');
 
-
-
+window.navigateGoBack = () => {
+   const currentParams = new URLSearchParams(window.location.search);
+   const searchParams = new URLSearchParams("");
+   const cg_id = '{{ cg.campground.id }}'
+   searchParams.append('campground_id', cg_id)
+   searchParams.append('arrival', currentParams.get("arrival"))
+   searchParams.append('departure', currentParams.get("departure"))
+   window.location.replace('/search-availability/information/?' + searchParams.toString())
+}
 }
 </script>
 
