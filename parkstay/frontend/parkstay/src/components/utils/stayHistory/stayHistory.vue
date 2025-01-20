@@ -75,9 +75,6 @@ const msh_options = ref({
     processing: true,
     deferRender: true,
     order: [],
-    language: {
-        processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
-    },
     columnDefs: [
         { "defaultContent": "-", "targets": "_all" },
     ],

@@ -222,9 +222,6 @@ const ph_options = ref({
             }
         }
     }],
-    language: {
-        processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
-    },
 })
 const closureHistoryURL = computed(function () {
     return api_endpoints.campsite_status_history(campsite_id.value);

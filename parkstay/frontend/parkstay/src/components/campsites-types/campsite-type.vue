@@ -190,9 +190,6 @@ const ph_options = ref({
             }
         }
     }],
-    language: {
-        processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
-    },
 })
 const campsiteTypeId = computed(
     () => parseInt(campsite_type_id.value)

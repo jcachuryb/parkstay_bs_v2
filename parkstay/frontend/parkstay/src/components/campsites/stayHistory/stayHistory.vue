@@ -76,9 +76,6 @@ const msh_options = ref({
     responsive: true,
     processing: true,
     deferRender: true,
-    language: {
-        processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
-    },
     order: [
         [0, 'desc']
     ],

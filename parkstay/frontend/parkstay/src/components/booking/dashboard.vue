@@ -124,9 +124,6 @@ const changebooking = ref(null)
 const bookingHistory = ref(null)
 
 const dtOptions = ref({
-  language: {
-    processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
-  },
   responsive: false,
   serverSide: true,
   processing: true,

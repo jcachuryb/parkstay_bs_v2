@@ -88,9 +88,6 @@ const booking = ref({
 const firstTimeTableLoad = ref(true)
 const dtHeaders = ["Change Date", "Arrival", "Departure", "Campground", "Camp Site", "Updated By", "Details"]
 const dtOptions = ref({
-    language: {
-        processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
-    },
     responsive: true,
     processing: true,
     ajax: {

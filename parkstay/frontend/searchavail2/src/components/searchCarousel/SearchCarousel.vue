@@ -21,9 +21,13 @@
                                         <div class="carousel-slide-card-distance"
                                             title="Distance from selected location"
                                             alt="Distance from selected location">
-                                            {{ campground.distance_short }}km
+                                            {{ campground.distance_short }}km&nbsp;
+                                            <i class="bi bi-question-circle" data-bs-toggle="tooltip"
+                                                data-bs-placement="right"
+                                                data-bs-title="Straight-line distance from searched place."></i>
                                         </div>
                                     </div>
+
                                     <div>
 
                                         <div v-if="campground.park_name" v-html="campground.park_name.slice(0, 55)"
@@ -188,6 +192,8 @@ export default {
             if (this.$refs.carousel) {
                 this.$refs.carousel.slideTo(0)
                 this.$refs.carousel.updateSlideWidth()
+                const tooltipTriggerList = document.querySelectorAll('.carousel-slide-card [data-bs-toggle="tooltip"]')
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
             }
         }
     },

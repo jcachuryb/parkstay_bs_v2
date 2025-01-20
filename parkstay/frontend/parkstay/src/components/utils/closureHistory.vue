@@ -138,9 +138,6 @@ const ch_options = {
         },
         orderable: false
     }],
-    language: {
-        processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
-    }
 }
 
 const showClose = function () {

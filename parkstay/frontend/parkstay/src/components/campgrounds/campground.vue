@@ -170,9 +170,6 @@ const ph_options = ref({
             }
         }
     }],
-    language: {
-        processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
-    },
 })
 const cs_options = ref({
     responsive: true,
@@ -236,9 +233,6 @@ const cs_options = ref({
             return column.replace(/__ID__/g, id);
         }
     }],
-    language: {
-        processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
-    },
 })
 const title = 'Campground'
 const cs_headers = ['Name', 'Type', 'Status', 'Price', 'Action']
