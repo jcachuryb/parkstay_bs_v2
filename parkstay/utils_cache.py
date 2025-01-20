@@ -56,7 +56,7 @@ def get_campground(campground_id):
         if campground_query.campground_map:
             campground['campground_map'] = campground_query.campground_map.url
         campground['max_advance_booking'] = campground_query.max_advance_booking
-
+        campground['release_time'] = campground_query.release_time.strftime("%H:%M:%S")
         campground['campground_image'] = ""
         if campground_query.campground_image:
             campground['campground_image'] = campground_query.campground_image.image_size(1200,800)

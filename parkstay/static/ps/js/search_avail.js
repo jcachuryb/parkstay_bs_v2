@@ -778,21 +778,25 @@ var search_avail = {
 	    $("#campsite-availablity-results").html("<center><img style='padding-top: 20px;' height='70' src='/static/ps/img/parkstay_loader_bar_white_500.gif'></center>");
 
             if (search_avail.var.arrival_days > search_avail.var.max_advance_booking) {
-		   if (search_avail.var.permission_to_make_advanced_booking == true ) {
+		        if (search_avail.var.permission_to_make_advanced_booking == true ) {
                           // permission granted 
-		   } else {
-		          $("#campsite-availablity-results").html("<center style='color:red'>Please choose a shorter arrival date.</center>");
-		          return;
-	           }
-	    }
+		        } else {
+		             $("#campsite-availablity-results").html("<center style='color:red'>Please choose a shorter arrival date.</center>");
+		             return;
+	            }
+	        }
 
             $.ajax({
-            	  url: "/api/campsite_availablity_view/"+search_avail.var.campground_id+"/?arrival="+search_avail.var.camping_period['checkin']+"&departure="+search_avail.var.camping_period['checkout']+"&num_adult="+search_avail.var.campers['adult']+"&num_child="+search_avail.var.campers['children']+"&num_concession="+search_avail.var.campers['concession']+"&num_infant="+search_avail.var.campers['infant']+"&gear_type=all"+change_query,
-            	  cache: false,
-		  error: function (request, status, error) {
+            	    url: "/api/campsite_availablity_view/"+search_avail.var.campground_id+"/?arrival="+search_avail.var.camping_period['checkin']+"&departure="+search_avail.var.camping_period['checkout']+"&num_adult="+search_avail.var.campers['adult']+"&num_child="+search_avail.var.campers['children']+"&num_concession="+search_avail.var.campers['concession']+"&num_infant="+search_avail.var.campers['infant']+"&gear_type=all"+change_query,
+            	    cache: false,
+		            error: function (request, status, error) {
                         $("#campsite-availablity-results").html("<center><span style='color:red; font-weight:bold;'>Sorry, there was an error loading campsite information.</span></center>");
-		  },
-            	  success: function(data) {
+		            },
+            	    success: function(data) {
+                        if (data.booking_time_open == false) {
+                            $("#campsite-availablity-results").html("<div class='alert alert-primary' role='alert'>Booking availability for this campground have not yet open for bookings.  Please try booking after "+data["release_time_friendly"]+"</div>");
+                            return
+                        }
 
                           var tents = $('#filter-checkbox-tent').is(':checked');
                           var campervan = $('#filter-checkbox-campervan').is(':checked');
