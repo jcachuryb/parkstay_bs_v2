@@ -10,6 +10,34 @@ from django.db.models import Max
 from ledger_api_client import utils as ledger_api_utils
 import json
 
+
+def get_campground(campground_id):
+     cg_hash = {} 
+     cached_data = cache.get('api.get_campground('+str(campground_id)+')')   
+     if cached_data is None:
+         ground = models.Campground.objects.get(id=campground_id)
+         if ground:              
+                cg_hash['id'] = ground.id
+                cg_hash['name'] = ground.name
+                cg_hash['campground_type'] = ground.campground_type
+                cg_hash['site_type'] = ground.site_type
+                cg_hash['long_description']  = ground.long_description
+                cg_hash['campground_map_url'] = ''
+                cg_hash['campground_map'] = ''
+                cg_hash['release_time'] = ground.release_time.strftime("%H:%M:%S")
+                cg_hash['release_time_friendly'] = ground.release_time.strftime("%I:%M %p")
+                cg_hash['max_advance_booking'] = ground.max_advance_booking
+
+                if ground.campground_map:
+                   cg_hash['campground_map_url'] = ground.campground_map.url
+                   cg_hash['campground_map'] = {'path': ground.campground_map.path}
+                cache.set('api.get_campground('+campground_id+')', json.dumps(cg_hash),  86400)
+                
+     else:         
+         cg_hash = json.loads(cached_data)         
+     return cg_hash
+
+
 def get_features():
     cached_data = cache.get('booking_availability.get_features()')
     features_array = {}
@@ -332,6 +360,9 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     change_booking_id_obj = None
     nowtime = datetime.now()
     parkstay_officers = False
+    print (ground_id)
+    gca = get_campground(ground_id)
+    print (gca["release_time"])
 
     if user:
         if models.ParkstayPermission.objects.filter(email=user.email,permission_group=5).count() > 0:
@@ -501,14 +532,29 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
 
     # strike out days after the max_advance_booking
     if user == None or (not can_make_advanced_booking):
-        for site in sites_array:
-            stop = today + timedelta(days=site['data']['campground__max_advance_booking'])
+        
+        for site in sites_array:            
+            stop = today + timedelta(days=site['data']['campground__max_advance_booking'])            
             stop_mark = min(max(stop, start_date), end_date)
             if start_date > stop:
                 for i in range((end_date - stop_mark).days):
                     results[site['pk']][stop_mark + timedelta(days=i)][0] = 'toofar'
+
+            # add to restrict the 180 days (max advance open times to a specific open time)       
+            if start_date == stop:
+                nowtime = datetime.now()
+                nowdatetime_string = nowtime.strftime("%Y-%m-%d")
+                campground_opentime = datetime.strptime(nowdatetime_string+' '+gca["release_time"], '%Y-%m-%d %H:%M:%S')
+                
+                if nowtime >= campground_opentime:
+                    pass
+                else:
+                    for i in range((end_date - stop_mark).days):
+                        results[site['pk']][stop_mark + timedelta(days=i)][0] = 'toofar'
+                                          
+
     # Added this section to allow officers to book camp dated after the max_advance_booking
-    elif user != None and can_make_advanced_booking:
+    elif user != None and can_make_advanced_booking:        
         pass
 
     # Get the current stay history
@@ -574,26 +620,4 @@ def campground_booking_information(context, campground_id):
 
 
 
-def get_campground(campground_id):
-
-     cg_hash = {}
-     cached_data = cache.get('api.get_campground('+campground_id+')')
-     if cached_data is None:
-         ground = models.Campground.objects.get(id=campground_id)
-         if ground:
-                cg_hash['id'] = ground.id
-                cg_hash['name'] = ground.name
-                cg_hash['campground_type'] = ground.campground_type
-                cg_hash['site_type'] = ground.site_type
-                cg_hash['long_description']  = ground.long_description
-                cg_hash['campground_map_url'] = ''
-                cg_hash['campground_map'] = ''
-
-                if ground.campground_map:
-                   cg_hash['campground_map_url'] = ground.campground_map.url
-                   cg_hash['campground_map'] = {'path': ground.campground_map.path}
-                cache.set('api.get_campground('+campground_id+')', json.dumps(cg_hash),  86400)
-     else:
-         cg_hash = json.loads(cached_data)
-     return cg_hash
 

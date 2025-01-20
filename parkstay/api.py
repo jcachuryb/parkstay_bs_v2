@@ -1155,6 +1155,7 @@ def campsite_availablity_view(request,  *args, **kwargs):
     """Fetch full campsite availability for a campground."""
     # check if the user has an ongoing booking
     user_logged_in = None
+    today = date.today()
     if request.user.is_authenticated:
            user_logged_in = request.user
 
@@ -1262,8 +1263,27 @@ def campsite_availablity_view(request,  *args, **kwargs):
         'sites': [],
         'classes': {},
         'current_booking_campsite_id': current_booking_campsite_id,
-        'current_booking_campsite_class_id': current_booking_campsite_class_id
+        'current_booking_campsite_class_id': current_booking_campsite_class_id,
+        'result' : True,
+        'release_time_friendly' : ground['release_time_friendly']
     }
+
+
+    # check if date if max advance booking date and after opentime
+    stop = today + timedelta(days=ground['max_advance_booking'])  
+    booking_time_open = True
+    if start_date == stop:
+        nowtime = datetime.now()
+        nowdatetime_string = nowtime.strftime("%Y-%m-%d")
+        campground_opentime = datetime.strptime(nowdatetime_string+' '+ground["release_time"], '%Y-%m-%d %H:%M:%S')
+        
+        if nowtime >= campground_opentime:
+            booking_time_open = True
+        else:
+            booking_time_open = False
+ 
+    result['booking_time_open'] = booking_time_open
+
     # group results by campsite class
     if ground['site_type'] in (1, 2):
         
@@ -1454,7 +1474,8 @@ def campsite_availablity_view(request,  *args, **kwargs):
                 'max_people': si['max_people'],
                 'max_vehicles': si['max_vehicles'],
                 'description': si['description'],
-                'short_description': si['short_description']
+                'short_description': si['short_description'],
+                
             }
             result['sites'].append(site)
             bookings_map[si['name']] = site
