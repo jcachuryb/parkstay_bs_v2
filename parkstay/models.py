@@ -224,6 +224,7 @@ class Campground(models.Model):
     oracle_code = models.CharField(max_length=50, null=True, blank=True)
     campground_map = models.FileField(upload_to=update_campground_map_filename, null=True, blank=True)
     campground_image = models.ForeignKey("CampgroundImage", on_delete=models.PROTECT, blank=True, null=True, related_name='campground_primary_image')
+    release_time = models.TimeField(auto_now=False, auto_now_add=False, default="10:00:00")
 
     def __str__(self):
         return self.name
@@ -242,7 +243,7 @@ class Campground(models.Model):
            cache.delete('booking_availability.get_campsites_for_campground:'+str(self.id))
            cache.delete('utils_cache.all_campground_campsites('+str(self.id)+')')
            cache.delete('utils_cache.get_campground('+str(self.id)+')')
-           cache.delete('booking_availability.get_campground_booking_range'+str(self.id))
+           cache.delete('booking_availability.get_campground_booking_range'+str(self.id))           
            
         super(Campground, self).save(*args, **kwargs)
 
