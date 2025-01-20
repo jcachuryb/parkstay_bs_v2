@@ -307,9 +307,6 @@ const priceHistoryDt = ref({
             }
         }
     }],
-    language: {
-        processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
-    },
 })
 
 const emit = defineEmits(['updatePriceHistory', 'addPriceHistory'])

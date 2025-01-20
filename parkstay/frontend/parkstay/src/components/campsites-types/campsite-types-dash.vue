@@ -70,9 +70,6 @@ const deleteCampsiteTypePrompt = ref({
 })
 const dt_headers = ["Name", "Status", "Action"]
 const dt_options = ref({
-    language: {
-        processing: "<i class='fa fa-4x fa-spinner fa-spin'></i>"
-    },
     responsive: true,
     processing: true,
     columnDefs: [
