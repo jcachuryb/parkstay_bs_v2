@@ -793,11 +793,14 @@ var search_avail = {
                         $("#campsite-availablity-results").html("<center><span style='color:red; font-weight:bold;'>Sorry, there was an error loading campsite information.</span></center>");
 		            },
             	    success: function(data) {
-                        if (data.booking_time_open == false) {
-                            $("#campsite-availablity-results").html("<div class='alert alert-primary' role='alert'>Booking availability for this campground have not yet open for bookings.  Please try booking after "+data["release_time_friendly"]+"</div>");
-                            return
-                        }
+                        if (search_avail.var.permission_to_make_advanced_booking == true ) {
 
+                        } else {    
+                            if (data.booking_time_open == false) {
+                                $("#campsite-availablity-results").html("<div class='alert alert-primary' role='alert'>Booking availability for this campground have not yet open for bookings.  Please try booking after "+data["release_time_friendly"]+"</div>");
+                                return
+                            }
+                        }
                           var tents = $('#filter-checkbox-tent').is(':checked');
                           var campervan = $('#filter-checkbox-campervan').is(':checked');
                           var campertrailer = $('#filter-checkbox-campertrailer').is(':checked');
