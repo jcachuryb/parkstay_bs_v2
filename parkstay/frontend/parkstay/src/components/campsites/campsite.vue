@@ -1,4 +1,12 @@
 <template lang="html">
+    <nav v-if="campground?.name" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <router-link class="breadcrumb-item" :to="{name: 'cg_detail', params: {id: campground.id}}">
+                  {{ campground.name }}
+            </router-link>
+            <li class="breadcrumb-item active" aria-current="page">{{ createCampsite ? 'New Campsite' : 'Campsite'   }}</li>
+        </ol>
+    </nav>
     <div id="campsite">
         <pkCsClose ref="closeCampsite" @closeCampsite="showCloseCS()"></pkCsClose>
         <div class="col-lg-12 card p-3">
@@ -395,6 +403,7 @@ const sendData = function (url, method) {
 }
 
 onMounted(function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     campsiteForm.value = document.forms.campsiteForm;
     fetchCampsiteClasses();
     fetchCampground();

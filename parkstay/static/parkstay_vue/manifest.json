@@ -1,33 +1,15 @@
 {
-  "node_modules/@popperjs/core/lib/index-legacy.js": {
-    "file": "js/index-legacy.js",
-    "name": "index",
-    "src": "node_modules/@popperjs/core/lib/index-legacy.js",
-    "isDynamicEntry": true
-  },
-  "node_modules/@popperjs/core/lib/index.js": {
-    "file": "js/index.js",
-    "name": "index",
-    "src": "node_modules/@popperjs/core/lib/index.js",
-    "isDynamicEntry": true
-  },
   "src/apps/main-legacy.js": {
     "file": "js/main-legacy.js",
     "name": "main",
     "src": "src/apps/main-legacy.js",
-    "isEntry": true,
-    "dynamicImports": [
-      "node_modules/@popperjs/core/lib/index-legacy.js"
-    ]
+    "isEntry": true
   },
   "src/apps/main.js": {
     "file": "js/main.js",
     "name": "main",
     "src": "src/apps/main.js",
     "isEntry": true,
-    "dynamicImports": [
-      "node_modules/@popperjs/core/lib/index.js"
-    ],
     "css": [
       "css/main.css"
     ]

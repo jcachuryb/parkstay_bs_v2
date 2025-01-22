@@ -101,7 +101,7 @@ def create_confirmation(confirmation_buffer, booking):
         for key, value in result.items():
             campsite = ', '.join(['%sx %s' % (value, key) for (key, value) in result.items()])
 
-    table_data.append([Paragraph('Camp Site', styles['BoldLeft']), Paragraph(campsite, styles['Left'])])
+    table_data.append([Paragraph('Campsite', styles['BoldLeft']), Paragraph(campsite, styles['Left'])])
 
     table_data.append([Paragraph('Dates', styles['BoldLeft']), Paragraph(booking.stay_dates, styles['Left'])])
     table_data.append([Paragraph('Number of guests', styles['BoldLeft']), Paragraph(booking.stay_guests, styles['Left'])])
