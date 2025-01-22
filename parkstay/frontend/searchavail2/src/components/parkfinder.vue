@@ -186,11 +186,8 @@
                             <p><i id="mapPopupPrice"></i></p>
                             <img class="thumbnail" id="mapPopupImage" />
                             <div id="mapPopupDescription" style="font-size: 0.75rem;" />
-                            <a id="mapPopupBook" class="button_cg_type_0 button formButton1" style="margin-bottom: 0; margin-top: 1em;"
-                                target="_self">See availability now</a>
-                            <a id="mapPopupBookUnavailable" class="button_cg_type_0 button formButton4" style="margin-bottom: 0; margin-top: 1em;"
-                                target="_self">See availability now</a>
-                            <a id="mapPopupInfo" class="button formButton" style="margin-bottom: 0;" target="_self">More information</a>
+                            <a id="mapPopupButton" class="button" style="margin-bottom: 0; margin-top: 1em;"
+                                target="_self">See availability</a>
                         </div>
                     </div>
                 </div>

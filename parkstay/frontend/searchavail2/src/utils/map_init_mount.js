@@ -425,16 +425,16 @@ export default function (vm) {
 
                 // This portion needs to be modified to accomodate the new button
                 // Online/Offline sites is determined by the backend api
+                const isMatch = feature.get('match') === true;
+                if(isMatch) {
+                    $('#mapPopupButton')[0].className = 'button';
+                } else {
+                    $('#mapPopupButton').html("More information")
+                    $('#mapPopupButton')[0].className = 'button formButton5';
+                }
+
                 if (feature.get('campground_type') == 0) {
-                    if (feature.get('available')) {
-                        $('#mapPopupBookUnavailable').hide()
-                        $('#mapPopupBook').show()
-                    } else {
-                        $('#mapPopupBook').hide()
-                        $('#mapPopupBookUnavailable').show()
-                    }
-                    $('#mapPopupInfo').hide();
-                    $('.button_cg_type_0').attr(
+                    $('#mapPopupButton').attr(
                         'href',
                         vm.parkstayUrl +
                             '/search-availability/campground/?site_id=' +
@@ -442,22 +442,32 @@ export default function (vm) {
                             '&' +
                             vm.bookingParam
                     );
+                    if(isMatch) {
+                        $('#mapPopupButton').html('See availability');
+                        if (feature.get('available')) {
+                            $('#mapPopupButton')[0].className = 'button formButton1';
+                        } else {
+                            $('#mapPopupButton')[0].className = 'button formButton4';
+                        }                            
+                    }
                 } else if (feature.get('campground_type') == 1) {
-                    $('.button_cg_type_0').hide();
-                    $('#mapPopupInfo').show();
-                    // $("#mapPopupInfo").attr('href', feature.get('info_url'));
-                    $('#mapPopupInfo').attr(
+                    $('#mapPopupButton').attr(
                         'href',
                         vm.parkstayUrl +
                             '/search-availability/campground/?site_id=' +
                             feature.getId()
                     );
+                    if(isMatch) {
+                        $('#mapPopupButton').html('More information');
+                        $('#mapPopupButton')[0].className = 'button formButton';
+                    }
                 } else {
                     // Now,this section is used for the partner accommodation
-                    $('.button_cg_type_0').hide();
-                    $('#mapPopupInfo').show();
-                    // $("#mapPopupInfo").attr('href', feature.get('info_url'));
-                    $('#mapPopupInfo').attr(
+                    if(isMatch) {
+                        $("#mapPopupButton").html('More Information<i class="bi bi-box-arrow-up-right ms-2">' );
+                        $('#mapPopupButton')[0].className = 'button formButton2';
+                    }
+                    $('#mapPopupButton').attr(
                         'href',
                         vm.parkstayUrl +
                             '/search-availability/campground/?site_id=' +

@@ -75,7 +75,7 @@
                                                     'formButton1': campgroundAvailablity[campground.id].total_bookable > 0,
                                                     'formButton4': campgroundAvailablity[campground.id].total_bookable == 0 }" 
                                             style="width:100%;" v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
-                                            target="_self">See availability ya</a>
+                                            target="_self">See availability</a>
                                         <a v-else-if="campground.campground_type == 1 || campground.campground_type == 4"
                                             class="button formButton" style="width:100%;"
                                             v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
@@ -471,22 +471,13 @@ export default {
         color: #2199e8;
     }
 
-    .button.formButton {
-        display: block;
-        width: 100%;
-    }
-
-    .button.formButton1 {
-        display: block;
-        width: 100%;
-    }
-
     .button.formButton1,
     .button.formButton1:hover {
         background-color: green;
     }
 
-    .button.formButton2 {
+    .button.formButton, .button.formButton1, .button.formButton2, 
+    .button.formButton5, .button.formButton4  {
         display: block;
         width: 100%;
     }
@@ -496,14 +487,14 @@ export default {
         background-color: purple;
     }
 
-    .button.formButton4 {
-        display: block;
-        width: 100%;
-    }
-
     .button.formButton4,
     .button.formButton4:hover {
         background-color: #bb1010;
+    }
+
+    .button.formButton5,
+    .button.formButton5:hover {
+        background-color: #b3b1b1;
     }
 
     .button.selector {
