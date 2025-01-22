@@ -18,7 +18,7 @@
                             </div>
                             <div class="col-md-12" v-if="(campground.site_type == 1) || (campground.site_type == 2)">
                                 <p>To book closed sites, you must allocate specific site numbers/names - switch to the
-                                    <router-link :to="{ name: 'booking-close-classes' }">full camp site
+                                    <router-link :to="{ name: 'booking-close-classes' }">full campsite
                                         list.</router-link>
                                     The allocated site number/name is for management purposes only - it will not be
                                     visible to the public.

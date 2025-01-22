@@ -6,7 +6,7 @@
 
 {% if request.session.user_obj.is_staff %}
 <li class="nav-item"><a class="nav-link " href="{% url 'dash-campgrounds'%}">Campgrounds</a></li>
-<li class="nav-item"><a class="nav-link " href="{% url 'dash-campsite-types'%}">Camp Site Types</a></li>
+<li class="nav-item"><a class="nav-link " href="{% url 'dash-campsite-types'%}">Campsite Types</a></li>
 <li class="nav-item"><a class="nav-link " href="{% url 'dash-bulkpricing'%}">Bulk Pricing</a></li>
 
 {% else %}

@@ -8,9 +8,12 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label><i class="fa fa-question-circle" data-toggle="tooltip" data-placement="bottom"
-                                    title="Select a rate to prefill the price fields otherwise use the manual entry"></i>Select
-                                Rate: </label>
+                            <label class="form-label">
+                                Select Rate: 
+                                <i class="bi bi-question-circle" data-bs-toggle="tooltip"
+                                data-bs-placement="bottom"
+                                data-bs-title="Select a rate to prefill the price fields otherwise use the manual entry" />
+                            </label>
                         </div>
                         <div class="col-md-4">
                             <select name="rate" v-model="selected_rate" class="form-select">
@@ -224,13 +227,9 @@ const fetchRates = function () {
     });
 }
 const fetchBookingPolicy = function () {
-
-    console.log("fetchBookingPolicy 1");
     console.log(api_endpoints.booking_policy);
     fetch(api_endpoints.booking_policy).then((response) => response.json()).then((data) => {
         booking_policy.value = data;
-        console.log("fetchBookingPolicy");
-        console.log(booking_policy.value);
     });
 
 }
@@ -266,7 +265,7 @@ const addFormValidations = function () {
 
 
 onMounted(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    [...(document.querySelectorAll('[data-bs-toggle="tooltip"]') || [])].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     form.value = document.forms.priceForm;
     const pickerElement = $(form.value.period_start)
     const picker = getDateTimePicker(pickerElement, {

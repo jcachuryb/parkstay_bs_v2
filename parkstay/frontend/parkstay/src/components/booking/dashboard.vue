@@ -363,7 +363,7 @@ const dtHeaders = ref([
   "Region",
   "Person",
   "Confirmation #",
-  " Camp Site(Type)",
+  " Campsite(Type)",
   "Status",
   "From",
   "To",

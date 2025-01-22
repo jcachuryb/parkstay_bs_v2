@@ -103,7 +103,6 @@
     <script type="text/javascript" src="{% static 'ps/js/tempus-dominus.min.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
 {% if not DEV_STATIC %}
     <input type='hidden' id='ledger_ui_url' value='{{ LEDGER_UI_URL }}'>
-    <script type="module" src="{% static 'parkstay_vue/js/index.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
     <script type="module" src="{% static 'parkstay_vue/js/main.js' %}?ver={{ GIT_COMMIT_HASH }}"></script>
 {% else %}
     <script type="module" src="{{ DEV_STATIC_URL }}"></script>
