@@ -312,7 +312,7 @@ var search_avail = {
         $('#when-nights').html(whennights);
 	if (search_avail.var.page == 'campground') { 
 	   // search_avail.load_campground_availabilty();
-	   $('#map-reload').click();
+	   $('#map-reload').trigger('click');
 	}
 	if (search_avail.var.page == 'campsite-availablity') {
 	   search_avail.load_campsite_availabilty();
@@ -401,11 +401,12 @@ var search_avail = {
               if (tab == 'campgrounds') {
                    $('#card-preview').show();
 	           $('#card-preview-tab').addClass('active');
+               $('#mapPopupClose').trigger('click');
 	      }
 
 	      if (tab == 'map') {
 	           $('#map-preview').show();
-	           $('#map-reload').click();
+	           $('#map-reload').trigger('click');
 	           $('#map-preview-tab').addClass('active');
 	      }
 

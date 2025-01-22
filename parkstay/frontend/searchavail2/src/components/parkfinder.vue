@@ -651,7 +651,7 @@ export default {
 
                 for (var x of legit) {
                     if (!feats.has(x)) {
-                        console.log("Skipping Campsite");
+                        // console.log("Skipping Campsite");
                         skip_cg = true;
                     }
                 }
