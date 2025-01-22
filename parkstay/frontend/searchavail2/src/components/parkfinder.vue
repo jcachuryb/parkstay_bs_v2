@@ -186,10 +186,8 @@
                             <p><i id="mapPopupPrice"></i></p>
                             <img class="thumbnail" id="mapPopupImage" />
                             <div id="mapPopupDescription" style="font-size: 0.75rem;" />
-                            <a id="mapPopupBook" class="button formButton1" style="margin-bottom: 0; margin-top: 1em;"
-                                target="_self">Book now</a>
-                            <a id="mapPopupInfo" class="button formButton" style="margin-bottom: 0;" target="_self">More
-                                Info</a>
+                            <a id="mapPopupButton" class="button" style="margin-bottom: 0; margin-top: 1em;"
+                                target="_self">See availability</a>
                         </div>
                     </div>
                 </div>
@@ -210,6 +208,8 @@ import debounce from 'debounce';
 import moment from 'moment';
 import SearchCarousel from './searchCarousel/SearchCarousel.vue';
 import sitesOnlineIcon from '@assets/pin.svg';
+import sitesOnlineNotAvailIcon from '@assets/pin_red.svg';
+import sitesNoMatchIcon from '@assets/pin_grey.svg';
 import sitesInPersonIcon from '@assets/pin_offline.svg';
 import sitesAltIcon from '@assets/pin_alt.svg';
 import locationIcon from '@assets/location.svg';
@@ -272,6 +272,8 @@ export default {
             sitesInPerson: true,
             sitesAlt: true,
             sitesOnlineIcon: sitesOnlineIcon,
+            sitesNoMatchIcon: sitesNoMatchIcon,
+            sitesOnlineNotAvailIcon: sitesOnlineNotAvailIcon,
             sitesInPersonIcon: sitesInPersonIcon,
             sitesAltIcon: sitesAltIcon,
             locationIcon: locationIcon,
@@ -279,7 +281,9 @@ export default {
             selectedFeature: null,
             booking_arrival_days: 0,
             screen_width: 0,
-            permission_to_make_advanced_booking: false
+            permission_to_make_advanced_booking: false,
+            groundsFilter: [],
+            _updateViewport: undefined
         }
     },
     computed: {
@@ -647,7 +651,7 @@ export default {
 
                 for (var x of legit) {
                     if (!feats.has(x)) {
-                        console.log("Skipping Campsite");
+                        // console.log("Skipping Campsite");
                         skip_cg = true;
                     }
                 }
@@ -838,92 +842,42 @@ export default {
 
             this.groundsFilter.clear();
             this.groundsData.forEach(function (el) {
-                // first pass filter against the list of IDs returned by search
-                // console.log("GROUND LOOP");
-                // console.log(el);
-                // console.log("GROUND IDS");
-                // console.log(vm.groundsIds);
                 var campgroundType = el.get('campground_type');
                 var campground_id = el.getId();
-                switch (campgroundType) {
-                    case 0:
-                        if (!vm.sitesOnline) {
-                            //return;
-                        }
-                        break;
-                    case 1:
-                        if (!vm.sitesInPerson) {
-                            //return;
-                        }
-                        break;
-                    case 2:
-                        if (!vm.sitesAlt) {
-                            // return;
-                        }
-                        break;
-                    default:
-                        break;
-                }
 
-                // console.log("CAMPSITES");
-                var tents = $('#filter-checkbox-tent').is(':checked');
-                var campervan = $('#filter-checkbox-campervan').is(':checked');
-                var campertrailer = $('#filter-checkbox-campertrailer').is(':checked');
+                const tents = $('#filter-checkbox-tent').is(':checked');
+                const campervan = $('#filter-checkbox-campervan').is(':checked');
+                const campertrailer = $('#filter-checkbox-campertrailer').is(':checked');
+                const filtersOn = tents || campervan || campertrailer || featurescs.size > 0 || legit.size > 0
+               
+                el.set('match', true)
+                let campsites = el.get('campsites');
+                let cs_tent = false;
+                let cs_campervan = false;
+                let cs_caravan = false;
+                let cs_features = false;
 
-
-                var campsites = el.get('campsites');
-                var cs_tent = false;
-                var cs_campervan = false;
-                var cs_caravan = false;
-                var cs_features = false;
-
-                for (var cs of campsites) {
-                    if (cs.tent == true) {
-                        // because there is more than one site,  if more more than one site supports tents then set true.
-                        cs_tent = true;
-                    }
-
-                    if (cs.campervan == true) {
-                        cs_campervan = true;
-                    }
-
-                    if (cs.caravan == true) {
-                        cs_caravan = true;
-                    }
-                    // console.log("LOOP cs");
+                for (let cs of campsites) {
+                    // because there is more than one site,  if more more than one site supports tents then set true.
+                    if (cs.tent == true) cs_tent = true;
+                    if (cs.campervan == true) cs_campervan = true;
+                    if (cs.caravan == true) cs_caravan = true;
                     if (cs['features'].length > 0) {
-                        //console.log(cs);
-                        //console.log(cs['features']);
-
                         for (var x of featurescs) {
                             for (var c of cs['features']) {
                                 if (c.id == x) {
-                                    // console.log("TRUE");
-                                    // console.log(campground_id); 
                                     cs_features = true;
                                 }
-                                // console.log(c.id);
                             }
                         }
                     }
                 }
 
-                if (cs_features == false && featurescs.size > 0) {
-                    return;
-
-                }
-
-
-                if (tents == true && cs_tent == false) {
-                    return
-                }
-
-                if (campervan == true && cs_campervan == false) {
-                    return
-                }
-
-                if (campertrailer == true && cs_caravan == false) {
-                    return
+                if ((!cs_features && featurescs.size > 0) ||
+                    (tents == true && !cs_tent) ||
+                    (campervan == true && !cs_campervan) ||
+                    (campertrailer == true && !cs_caravan)) {
+                    if (filtersOn) el.set('match', false)
                 }
 
                 if (vm.groundsIds.has(el.getId())) {
@@ -932,40 +886,19 @@ export default {
                         var feats = new Set(el.get('features').map(function (x) {
                             return x.id;
                         }));
-
                         for (var x of legit) {
-
                             if (!feats.has(x)) {
-                                return;     // missing a feature!
+                                if (filtersOn) el.set('match', false)
                             }
                         }
-
-                        vm.groundsFilter.push(el);
-
-                    } else {  // no features, return all results
-                        vm.groundsFilter.push(el);
-                    }
+                    } 
+                    el.set('available', true)
+                }else {
+                    el.set('available', false)
                 }
-                // console.log("GROUNDS");
-                // console.log(vm.groundsFilter);
+                // always insert cg in results.
+                vm.groundsFilter.push(el);
             });
-            //console.log("GROUND DATA");
-            //console.log(this.groundsData);
-
-            //this.updateViewport(true);
-            //console.log("Creating New GLider");
-            //$('.glider-track').remove();
-            //new Glider(document.querySelector('.glider'), {  slidesToShow: 5,
-            //  slidesToScroll: 5,
-            //  draggable: true,
-            //  dots: '.dots',
-            //  arrows: {
-            //    prev: '.glider-prev',
-            //    next: '.glider-next'
-            //  }
-            //});
-
-
         },
         load_site_queue: function () {
             console.log("load_site_queue");
