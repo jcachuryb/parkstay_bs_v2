@@ -1,6 +1,6 @@
 {
 	"name": "Parkstay V2 Development",
-	"image": "dbcawa/docker_app_dev:parkstay_v2_latest",
+	"image": "ghcr.io/dbca-wa/docker_app_dev:parkstay_v2_latest",
 	"remoteUser": "container",
 	"workspaceFolder": "/data/data/projects/parkstay_bs_v2",
 	"mounts": ["type=bind,source=/data/,target=/data/",
