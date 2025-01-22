@@ -40,26 +40,25 @@
                                             </div>
                                             <div v-else>
                                                 <div v-if="campgroundAvailablity[campground.id].total_bookable > 0"
-                                                    class='carousel-slide-card-availabile'>Approximate Sites Available:
-                                                    {{
-                                                        campgroundSiteTotal[campground.id].total_available }}</div>
+                                                    class='carousel-slide-card-availabile'>&nbsp;
+                                                </div>
                                                 <div v-else class='carousel-slide-card-notavailabile'>
-                                                    No availability for selected period
+                                                    No/limited availability!
                                                 </div>
                                             </div>
                                         </div>
                                         <div class='carousel-slide-card-notavailabile'
                                             v-else-if="campground.campground_type == 1">
-                                            Bookings not required. Pay on arrival
+                                            No bookings
                                         </div>
                                         <div class='carousel-slide-card-notavailabile'
                                             v-else-if="campground.campground_type == 2">
-                                            Operated by Parks and Wildlife partner
+                                            Partner-operated facility
                                         </div>
 
                                         <div class='carousel-slide-card-notavailabile'
                                             v-else-if="campground.campground_type == 4">
-                                            Go to 'More Info' for booking conditions
+                                            Booking by application
                                         </div>
 
 
@@ -71,17 +70,19 @@
                                                         campground.price_hint
                                                     }} per night</small></i></p>
 
-                                        <a v-if="(campground.campground_type == 0 && campgroundAvailablity[campground.id].total_bookable) > 0 && (booking_arrival_days <= campground.max_advance_booking || permission_to_make_advanced_booking == true)"
-                                            class="button formButton1" style="width:100%;"
-                                            v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
-                                            target="_self">Book now</a>
+                                        <a v-if="campground.campground_type == 0 && (booking_arrival_days <= campground.max_advance_booking || permission_to_make_advanced_booking == true)"
+                                            :class="{'button':true,  
+                                                    'formButton1': campgroundAvailablity[campground.id].total_bookable > 0,
+                                                    'formButton4': campgroundAvailablity[campground.id].total_bookable == 0 }" 
+                                            style="width:100%;" v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
+                                            target="_self">See availability ya</a>
                                         <a v-else-if="campground.campground_type == 1 || campground.campground_type == 4"
                                             class="button formButton" style="width:100%;"
                                             v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
-                                            target="_self">More Info</a>
+                                            target="_self">More Information</a>
                                         <a v-else class="button formButton2"
                                             v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
-                                            style="width:100%;" target="_self">More info</a>
+                                            style="width:100%;" target="_self">More information<i class="bi bi-box-arrow-up-right ms-2"></i> </a>
                                     </div>
                                 </div>
                             </div>
@@ -493,6 +494,16 @@ export default {
     .button.formButton2,
     .button.formButton2:hover {
         background-color: purple;
+    }
+
+    .button.formButton4 {
+        display: block;
+        width: 100%;
+    }
+
+    .button.formButton4,
+    .button.formButton4:hover {
+        background-color: #bb1010;
     }
 
     .button.selector {

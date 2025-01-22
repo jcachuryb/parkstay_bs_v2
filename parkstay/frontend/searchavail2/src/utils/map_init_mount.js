@@ -248,35 +248,44 @@ export default function (vm) {
         });
     };
 
+    function getOLIcon(vm, campgroundId, campgroundType, is_match) {
+        let icon = is_match ? vm.sitesInPersonIcon : vm.sitesNoMatchIcon;
+        switch (campgroundType) {
+            case 0:
+                const hasBookings = vm.campgroundAvailablity[campgroundId].total_bookable > 0
+                icon = is_match ? hasBookings ? vm.sitesOnlineIcon : vm.sitesOnlineNotAvailIcon : vm.sitesNoMatchIcon
+                break;
+            case 2:
+                icon = is_match ? vm.sitesAltIcon : vm.sitesNoMatchIcon;
+                break;
+            default:
+                break;
+        }
+        return new ol.style.Icon({
+            src: icon,
+            imgSize: [32, 32],
+            snapToPixel: true,
+            anchor: [0.5, 1.0],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'fraction',
+        })
+    }
+
     vm.grounds = new ol.layer.Vector({
         source: vm.groundsSource,
         style: function (feature) {
             var style = feature.get('style');
+            const is_match = feature.get('match') ?? true;
+            const campgroundType = feature.get('campground_type');
+            const campgroundId = feature.getId()
             if (!style) {
-                var icon = vm.sitesInPersonIcon;
-                var campgroundType = feature.get('campground_type');
-                switch (campgroundType) {
-                    case 0:
-                        icon = vm.sitesOnlineIcon;
-                        break;
-                    case 2:
-                        icon = vm.sitesAltIcon;
-                        break;
-                    default:
-                        break;
-                }
                 style = new ol.style.Style({
-                    image: new ol.style.Icon({
-                        src: icon,
-                        imgSize: [32, 32],
-                        snapToPixel: true,
-                        anchor: [0.5, 1.0],
-                        anchorXUnits: 'fraction',
-                        anchorYUnits: 'fraction',
-                    }),
+                    image: getOLIcon(vm, campgroundId, campgroundType, is_match),
                     zIndex: -feature.getGeometry().getCoordinates()[1],
                 });
                 feature.set('style', style);
+            } else {
+                style.setImage(getOLIcon(vm, campgroundId, campgroundType, is_match))
             }
             return style;
         },
@@ -417,9 +426,15 @@ export default function (vm) {
                 // This portion needs to be modified to accomodate the new button
                 // Online/Offline sites is determined by the backend api
                 if (feature.get('campground_type') == 0) {
-                    $('#mapPopupBook').show();
+                    if (feature.get('available')) {
+                        $('#mapPopupBookUnavailable').hide()
+                        $('#mapPopupBook').show()
+                    } else {
+                        $('#mapPopupBook').hide()
+                        $('#mapPopupBookUnavailable').show()
+                    }
                     $('#mapPopupInfo').hide();
-                    $('#mapPopupBook').attr(
+                    $('.button_cg_type_0').attr(
                         'href',
                         vm.parkstayUrl +
                             '/search-availability/campground/?site_id=' +
@@ -428,7 +443,7 @@ export default function (vm) {
                             vm.bookingParam
                     );
                 } else if (feature.get('campground_type') == 1) {
-                    $('#mapPopupBook').hide();
+                    $('.button_cg_type_0').hide();
                     $('#mapPopupInfo').show();
                     // $("#mapPopupInfo").attr('href', feature.get('info_url'));
                     $('#mapPopupInfo').attr(
@@ -439,7 +454,7 @@ export default function (vm) {
                     );
                 } else {
                     // Now,this section is used for the partner accommodation
-                    $('#mapPopupBook').hide();
+                    $('.button_cg_type_0').hide();
                     $('#mapPopupInfo').show();
                     // $("#mapPopupInfo").attr('href', feature.get('info_url'));
                     $('#mapPopupInfo').attr(

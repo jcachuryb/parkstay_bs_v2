@@ -382,7 +382,7 @@ watch(() => selected_rate.value, function (value) {
         bulkpricing.value.child = '';
     }
 })
-watch(() => campsite_classes, function (value) {
+watch(() => campsite_classes.value, function (value) {
     availableCampsiteClasses();
 })
 

@@ -253,7 +253,7 @@ const validateForm = function () {
 const validateEditor = function () {
     const element = $(`#${descriptionEditor.value.editor_id}`)
     helpers.formUtils.removeErrorMessage(element)
-    if (descriptionEditor.value.validate()) {
+    if (!descriptionEditor.value.validate()) {
         helpers.formUtils.appendErrorMessage(element, 'Description is required')
         return false;
     }    
