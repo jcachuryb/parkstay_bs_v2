@@ -530,8 +530,6 @@ export default {
                     }
                 }
             });
-            console.log({cg_data: JSON.parse(JSON.stringify(this.campground_data))});
-            console.log({cg_availability: JSON.parse(JSON.stringify(this.campgroundAvailablity))});
             this.campground_data.forEach(function (el) {
                 var skip_cg = false;
                 var geo = el.geometry.coordinates;
