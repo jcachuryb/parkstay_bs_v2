@@ -492,7 +492,6 @@ export default {
                 resolution: resolution,
                 duration: 1000
             });
-            this.buildDistanceArray();
         },
         buildDistanceArray: function () {
             console.log("running buildDistanceArray");
