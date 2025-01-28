@@ -1209,7 +1209,7 @@ onMounted(function () {
     width: 100%;
 }
 
-.dropdown-menu:before {
+#addBooking .dropdown-menu:before {
     position: absolute;
     top: -12px;
     left: 12px;
@@ -1221,7 +1221,7 @@ onMounted(function () {
     content: '';
 }
 
-.dropdown-menu {
+#addBooking .dropdown-menu {
     top: 120%;
     width: 300px;
 }

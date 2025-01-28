@@ -919,7 +919,8 @@ onBeforeRouteEnters()
     width: 100%;
 }
 
-.dropdown-menu:before {
+#changeBooking {
+    .dropdown-menu:before {
     position: absolute;
     top: -12px;
     left: 12px;
@@ -934,7 +935,7 @@ onBeforeRouteEnters()
 .dropdown-menu {
     top: 120%;
     width: 300px;
-}
+}}
 
 .guests li {
     padding: 10px;
