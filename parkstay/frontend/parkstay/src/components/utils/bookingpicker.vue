@@ -29,7 +29,7 @@
                                 <div class="form-group">
                                     <div class="dropdown">
                                         <input type="text" class="form-control dropdown-toggle" name="guests"
-                                            placeholder="Guest" data-toggle="dropdown" aria-haspopup="true"
+                                            placeholder="Guest" data-bs-toggle="dropdown" aria-haspopup="true"
                                             aria-expanded="true" v-model="guestsText">
                                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                                             <li v-for="guest in guestsPicker">
@@ -243,7 +243,7 @@ onMounted(function () {
     background-size: 100% 2px, 100% 1px;
 }
 
-.dropdown-menu:before {
+#booking-picker .dropdown-menu:before {
     position: absolute;
     top: -12px;
     left: 12px;
@@ -255,22 +255,22 @@ onMounted(function () {
     content: '';
 }
 
-.dropdown-menu {
+#booking-picker .dropdown-menu {
     top: 120%;
     width: 300px;
 }
 
-.dropdown-menu li {
+#booking-picker .dropdown-menu li {
     padding: 10px;
     margin-right: 10px;
     border-bottom: 1px solid #ccc;
 }
 
-.dropdown-menu li:last-child {
+#booking-picker .dropdown-menu li:last-child {
     border-bottom: 0;
 }
 
-.dropdown-menu .item {
+#booking-picker .dropdown-menu .item {
     line-height: 2;
 }
 

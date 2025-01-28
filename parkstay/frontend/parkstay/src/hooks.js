@@ -17,7 +17,7 @@ import { DateTime, TempusDominus } from "@eonasdan/tempus-dominus";
 import * as select2 from "@select2";
 select2.default()
 import "jquery-validation";
-import 'bootstrap/dist/js/bootstrap.min.js'; // needed for datetimepicker
+// import 'bootstrap/dist/js/bootstrap.js'; // needed for datetimepicker // not needed
 import "slick-carousel-browserify";
 import awesomplete from "awesomplete";
 import daterangepicker from "bootstrap-daterangepicker";
