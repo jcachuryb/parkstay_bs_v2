@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <h2>HEEEY </h2>
     <campgrounds></campgrounds>
   </div>
 </template>
