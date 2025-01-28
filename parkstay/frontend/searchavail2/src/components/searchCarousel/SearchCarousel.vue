@@ -22,8 +22,8 @@
                                             title="Distance from selected location"
                                             alt="Distance from selected location">
                                             {{ campground.distance_short }}km&nbsp;
-                                            <i class="bi bi-question-circle" data-bs-toggle="tooltip"
-                                                data-bs-placement="right"
+                                            <i class="bi bi-info-circle-fill distance-info-icon"
+                                                data-bs-toggle="tooltip" data-bs-placement="right"
                                                 data-bs-title="Straight-line distance from searched place."></i>
                                         </div>
                                     </div>
@@ -71,10 +71,13 @@
                                                     }} per night</small></i></p>
 
                                         <a v-if="campground.campground_type == 0 && (booking_arrival_days <= campground.max_advance_booking || permission_to_make_advanced_booking == true)"
-                                            :class="{'button':true,  
-                                                    'formButton1': campgroundAvailablity[campground.id].total_bookable > 0,
-                                                    'formButton4': campgroundAvailablity[campground.id].total_bookable == 0 }" 
-                                            style="width:100%;" v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
+                                            :class="{
+                                                'button': true,
+                                                'formButton1': campgroundAvailablity[campground.id].total_bookable > 0,
+                                                'formButton4': campgroundAvailablity[campground.id].total_bookable == 0
+                                            }"
+                                            style="width:100%;"
+                                            v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
                                             target="_self">See availability</a>
                                         <a v-else-if="campground.campground_type == 1 || campground.campground_type == 4"
                                             class="button formButton" style="width:100%;"
@@ -82,7 +85,8 @@
                                             target="_self">More Information</a>
                                         <a v-else class="button formButton2"
                                             v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
-                                            style="width:100%;" target="_self">More information<i class="bi bi-box-arrow-up-right ms-2"></i> </a>
+                                            style="width:100%;" target="_self">More information<i
+                                                class="bi bi-box-arrow-up-right ms-2"></i> </a>
                                     </div>
                                 </div>
                             </div>
@@ -193,9 +197,12 @@ export default {
             if (this.$refs.carousel) {
                 this.$refs.carousel.slideTo(0)
                 this.$refs.carousel.updateSlideWidth()
-                const tooltipTriggerList = document.querySelectorAll('.carousel-slide-card [data-bs-toggle="tooltip"]')
-                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
             }
+            this.$nextTick(() => {
+
+                const tooltipTriggerList = document.querySelectorAll('.carousel-slide-card [data-bs-toggle="tooltip"]')
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => bootstrap.Tooltip.getOrCreateInstance(tooltipTriggerEl))
+            })
         }
     },
     methods: {
@@ -329,6 +336,10 @@ export default {
         color: #012531;
         padding: 7px;
         padding-right: 0px;
+    }
+
+    .distance-info-icon {
+        color: #0081df;
     }
 }
 
@@ -476,8 +487,11 @@ export default {
         background-color: green;
     }
 
-    .button.formButton, .button.formButton1, .button.formButton2, 
-    .button.formButton5, .button.formButton4  {
+    .button.formButton,
+    .button.formButton1,
+    .button.formButton2,
+    .button.formButton5,
+    .button.formButton4 {
         display: block;
         width: 100%;
     }
