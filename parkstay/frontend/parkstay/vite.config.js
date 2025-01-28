@@ -82,7 +82,7 @@ export default defineConfig(({ mode }) => {
         
       },
       optimizeDeps: {
-        exclude: ["bootstrap", "jquery"],
+        exclude: ["bootstrap", "jquery", "popper.js", "popper"],
       },
       emptyOutDir: true,
     },
