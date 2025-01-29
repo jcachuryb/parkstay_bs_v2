@@ -171,12 +171,8 @@ const dtOptions = ref({
       searchable: false,
       mRender: function (data, type, full) {
         return full.status != "Canceled"
-          ? "<a href='/booking-history/" +
-          full.id +
-          "' target='_blank' class='text-primary'>PB" +
-          data +
-          "</a><br/>"
-          : "PB" + full.id;
+          ? `<a href="/booking-history/${full.id}" class='text-primary'>PB${full.id}</a><br/>`
+          : `PB${full.id}`;
       }
     },
     {
