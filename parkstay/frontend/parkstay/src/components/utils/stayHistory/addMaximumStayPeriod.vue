@@ -10,7 +10,7 @@
                             <label for="stay_maximum">Maximum Stay: </label>
                         </div>
                         <div class="col-md-4">
-                            <input placeholder="Default = 28" id='stay_maximum' v-model="stay.max_days" type='text'
+                            <input placeholder="Default = 28" id='stay_maximum' v-model="stayRef.max_days" type='text'
                                 class="form-control" />
                         </div>
                     </div>
@@ -25,7 +25,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' id="stay_start_picker">
-                                <input name="stay_start" v-model="stay.range_start" type='text' class="form-control" />
+                                <input name="stay_start" v-model="stayRef.range_start" type='text' class="form-control" />
                             </div>
                         </div>
                     </div>
@@ -40,19 +40,19 @@
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' id='stay_end_picker'>
-                                <input name="stay_end" v-model="stay.range_end" type='text' class="form-control" />
+                                <input name="stay_end" v-model="stayRef.range_end" type='text' class="form-control" />
                             </div>
                         </div>
                     </div>
                 </div>
-                <reason-component type="stay" v-model="stay.reason" ref="reason" name="stay_reason" :required="true"></reason-component>
+                <reason-component type="stay" v-model="stayRef.reason" ref="reason" name="stay_reason" :required="true"></reason-component>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
                             <label class="form-label required" for="stay_details">Details: </label>
                         </div>
                         <div class="col-md-5">
-                            <textarea name="stay_details" v-model="stay.details" class="form-control"
+                            <textarea name="stay_details" v-model="stayRef.details" class="form-control"
                                 id="stay_details"></textarea>
                         </div>
                     </div>
@@ -85,7 +85,7 @@ const emits = defineEmits(['addCgStayHistory', 'updateStayHistory']);
 
 const reason = ref(null)
 const modal = ref(null)
-const stay = ref(props.stay)
+const stayRef = ref(props.stay)
 const start_picker = ref('')
 const end_picker = ref('')
 const errors = ref(false)
@@ -105,19 +105,32 @@ const getTitle = computed(function () {
     return create.value ? 'Add New Maximum Stay Period' : 'Edit Maximum Stay Period';
 })
 const requireDetails = computed(function () {
-    return (stay.value.reason == 1) ? true : false;
+    return (stayRef.value.reason == 1) ? true : false;
 })
 
 watch(() => isOpen.value, (val) => {
+    stayRef.value = props.stay;
+    if (val) {
+        if (stayRef.value.range_start) {
+            start_picker.value.updateOptions({
+                defaultDate: moment(stayRef.value.range_start, "DD/MM/YYYY").toDate(),
+            });
+        }
+        if (stayRef.value.range_end) {
+            end_picker.value.updateOptions({
+                defaultDate: moment(stayRef.value.range_end, "DD/MM/YYYY").toDate(),
+            });
+        }
+    }
     helpers.formUtils.resetFormValidation(form.value)
 })
 
 const close = function () {
-    stay.value.max_days = '';
-    stay.value.range_start = '';
-    stay.value.range_end = '';
-    stay.value.reason = '';
-    stay.value.details = '';
+    stayRef.value.max_days = '';
+    stayRef.value.range_start = '';
+    stayRef.value.range_end = '';
+    stayRef.value.reason = '';
+    stayRef.value.details = '';
 
     isOpen.value = false;
     errors.value = false;
@@ -125,11 +138,11 @@ const close = function () {
     status.value = '';
 }
 const updateReason = function (id) {
-    stay.value.reason = id;
+    stayRef.value.reason = id;
 }
 const addMaxStay = function () {
     if ($(form.value).valid()) {
-        if (!stay.value.id) {
+        if (!stayRef.value.id) {
             emits('addCgStayHistory');
         } else {
             emits('updateStayHistory');
@@ -144,7 +157,7 @@ const addFormValidations = function () {
             stay_details: {
                 required: {
                     depends: function (el) {
-                        return stay.value.reason == 1;
+                        return stayRef.value.reason == 1;
                     }
                 }
             }
@@ -170,7 +183,7 @@ onMounted(function () {
     });
     start_picker_element.on('change.td', function (e) {
         const date = start_picker.value.dates.lastPicked
-        stay.value.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        stayRef.value.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
         end_picker.value.updateOptions({
             restrictions: { minDate: date }
         })
@@ -178,7 +191,7 @@ onMounted(function () {
     });
     end_picker_element.on('change.td', function (e) {
         const date = end_picker.value.dates.lastPicked
-        stay.value.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        stayRef.value.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
     });
     form.value = $('#addMaxStayForm');
     addFormValidations();
