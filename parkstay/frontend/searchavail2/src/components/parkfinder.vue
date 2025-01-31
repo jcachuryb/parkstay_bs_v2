@@ -673,11 +673,9 @@ export default {
                 row['park_name'] = park_name;
 
                 row['campground_name'] = campground_name;
+                row['filters_match'] = skip_cg === false;
                 if (campground_name) {
-                    if (skip_cg == false) {
-                        vm.camping_distance_array.push(row);
-                        // vm.groundsFilter.push(el);
-                    }
+                    vm.camping_distance_array.push(row);
                 }
 
                 vm.campgroundSiteTotal[campground_id]['total_available'] = vm.campgroundSiteTotal[campground_id]['sites'].length;
@@ -879,22 +877,19 @@ export default {
                     if (filtersOn) el.set('match', false)
                 }
 
-                if (vm.groundsIds.has(el.getId())) {
-                    if (legit.size) { // if we have a feature filter list
-                        // check that all parameters are present
-                        var feats = new Set(el.get('features').map(function (x) {
-                            return x.id;
-                        }));
-                        for (var x of legit) {
-                            if (!feats.has(x)) {
-                                if (filtersOn) el.set('match', false)
-                            }
+                el.set('available', vm.groundsIds.has(el.getId()))
+                if (legit.size) { // if we have a feature filter list
+                    // check that all parameters are present
+                    var feats = new Set(el.get('features').map(function (x) {
+                        return x.id;
+                    }));
+                    for (var x of legit) {
+                        if (!feats.has(x)) {
+                            if (filtersOn) el.set('match', false)
                         }
-                    } 
-                    el.set('available', true)
-                }else {
-                    el.set('available', false)
-                }
+                    }
+                } 
+               
                 // always insert cg in results.
                 vm.groundsFilter.push(el);
             });
