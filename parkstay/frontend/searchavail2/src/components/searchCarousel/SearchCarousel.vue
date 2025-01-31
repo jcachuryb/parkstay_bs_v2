@@ -33,7 +33,11 @@
                                         <div v-if="campground.park_name" v-html="campground.park_name.slice(0, 55)"
                                             class='carousel-slide-description'>
                                         </div>
-                                        <div v-if="campground.campground_type == 0">
+                                        <div class='carousel-slide-card-notavailabile'
+                                            v-if="!!!campground.filters_match">
+                                            Filter does not match
+                                        </div>
+                                        <div v-else-if="campground.campground_type == 0">
                                             <div v-if="booking_arrival_days > campground.max_advance_booking && permission_to_make_advanced_booking == false"
                                                 class='carousel-slide-card-notavailabile'>
                                                 Book up to {{ campground.max_advance_booking }} days
@@ -60,8 +64,8 @@
                                             v-else-if="campground.campground_type == 4">
                                             Booking by application
                                         </div>
-
-
+                                        
+                                        
                                         <div v-else>
                                             <div>&nbsp;</div>
                                         </div>
@@ -74,16 +78,17 @@
                                             :class="{
                                                 'button': true,
                                                 'formButton1': campgroundAvailablity[campground.id].total_bookable > 0,
-                                                'formButton4': campgroundAvailablity[campground.id].total_bookable == 0
+                                                'formButton4': campgroundAvailablity[campground.id].total_bookable == 0,
+                                                'formButton5': !!!campground.filters_match
                                             }"
                                             style="width:100%;"
                                             v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
                                             target="_self">See availability</a>
                                         <a v-else-if="campground.campground_type == 1 || campground.campground_type == 4"
-                                            class="button formButton" style="width:100%;"
+                                            :class="{'button':true, 'formButton': !!campground.filters_match,'formButton5': !!!campground.filters_match}" style="width:100%;"
                                             v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
                                             target="_self">More Information</a>
-                                        <a v-else class="button formButton2"
+                                        <a v-else :class="{'button':true, 'formButton2': !!campground.filters_match,'formButton5': !!!campground.filters_match}"
                                             v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
                                             style="width:100%;" target="_self">More information<i
                                                 class="bi bi-box-arrow-up-right ms-2"></i> </a>

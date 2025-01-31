@@ -7,7 +7,7 @@
                 <alert v-model:show="showError" type="danger">{{ errorString }}</alert>
                 <div class="row">
                     <div class="form-group">
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label class="form-label">
                                 Select Rate: 
                                 <i class="bi bi-question-circle" data-bs-toggle="tooltip"
@@ -25,51 +25,51 @@
                 </div>
                 <div class="row">
                     <div class="form-group">
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label class="form-label required">Adult Price: </label>
                         </div>
                         <div class="col-md-4">
-                            <input :readonly="selected_rate != ''" name="adult" v-model="priceHistory.adult" type='text'
+                            <input :readonly="selected_rate != ''" name="adult" v-model="priceHistoryRef.adult" type='text'
                                 class="form-control" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group">
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label class="form-label required">Concession Price: </label>
                         </div>
                         <div class="col-md-4">
-                            <input :readonly="selected_rate != ''" name="concession" v-model="priceHistory.concession"
+                            <input :readonly="selected_rate != ''" name="concession" v-model="priceHistoryRef.concession"
                                 type='text' class="form-control" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group">
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label class="form-label required">Child Price: </label>
                         </div>
                         <div class="col-md-4">
-                            <input :readonly="selected_rate != ''" name="child" v-model="priceHistory.child" type='text'
+                            <input :readonly="selected_rate != ''" name="child" v-model="priceHistoryRef.child" type='text'
                                 class="form-control" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group">
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label class="form-label required">Infant Price: </label>
                         </div>
                         <div class="col-md-4">
-                            <input :readonly="selected_rate != ''" name="infant" v-model="priceHistory.infant"
+                            <input :readonly="selected_rate != ''" name="infant" v-model="priceHistoryRef.infant"
                                 type='text' class="form-control" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group">
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label class="form-label required">
                                 <span class="bi bi-calendar3"></span>
                                 Period start: 
@@ -77,21 +77,21 @@
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date'>
-                                <input name="period_start" v-model="priceHistory.period_start" type='text'
+                                <input name="period_start" v-model="priceHistoryRef.period_start" type='text'
                                     class="form-control" />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <reason type="price" name="reason" v-model="priceHistory.reason" :required="true"></reason>
+                <reason type="price" name="reason" v-model="priceHistoryRef.reason" :required="true"></reason>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label class="form-label required">Details: </label>
                         </div>
                         <div class="col-md-5">
-                            <textarea name="details" v-model="priceHistory.details" class="form-control"></textarea>
+                            <textarea name="details" v-model="priceHistoryRef.details" class="form-control"></textarea>
                         </div>
                     </div>
                 </div>
@@ -99,11 +99,11 @@
 
                 <div class="row">
                     <div class="form-group">
-                        <div class="col-md-2">
-                            <label>Booking Policy: {{ priceHistory.booking_policy }}</label>
+                        <div class="col-md-6">
+                            <label>Booking Policy: {{ priceHistoryRef.booking_policy }}</label>
                         </div>
                         <div class="col-md-4">
-                            <select name="rate" v-model="priceHistory.booking_policy" class="form-control">
+                            <select name="rate" v-model="priceHistoryRef.booking_policy" class="form-control">
                                 <option value="">Select Booking Policy</option>
                                 <option v-for="p in booking_policy.dataitems" :value="p.id">{{ p.policy_name }}</option>
                             </select>
@@ -118,9 +118,9 @@
 <script setup>
 import bootstrapModal from '../bootstrap-modal.vue'
 import reason from '../reasons.vue'
-import { $, getDateTimePicker, dateUtils, api_endpoints, helpers } from '../../../hooks.js'
+import { $, getDateTimePicker, dateUtils, api_endpoints, helpers, Moment } from '../../../hooks.js'
 import alert from '../alert.vue'
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, unref, watch } from 'vue';
 
 const emit = defineEmits(['addPriceHistory', 'updatePriceHistory'])
 
@@ -135,11 +135,17 @@ const selected_rate = ref('')
 const title = ref('')
 const rates = ref([])
 const booking_policy = ref([])
-const priceHistory = ref(props.priceHistory)
+const priceHistoryRef = ref({
+    adult: '',
+        concession: '',
+        child: '',
+        infant: '',
+        booking_policy: '',
+})
 const current_closure = ref('')
 const closeStartPicker = ref('')
 const showDetails = ref(false)
-const closeEndPicker = ref('')
+const datePicker = ref(null)
 const errors = ref(false)
 const errorString = ref('')
 const form = ref('')
@@ -152,10 +158,10 @@ const isModalOpen = computed(function () {
     return isOpen.value;
 })
 const closure_id = computed(function () {
-    return props.priceHistory.id ? props.priceHistory.id : '';
+    return priceHistoryRef.value.id ? priceHistoryRef.value.id : '';
 })
 const requireDetails = computed(function () {
-    return props.priceHistory.closure_reason === 1;
+    return priceHistoryRef.value.reason === 1;
 })
 
 watch(() => selected_rate.value, function (value) {
@@ -164,30 +170,41 @@ watch(() => selected_rate.value, function (value) {
             if (rate.id == value) {
                 console.log("SELECTED RATE");
                 console.log(rate);
-                priceHistory.value.rate = rate.id;
-                priceHistory.value.adult = rate.adult;
-                priceHistory.value.concession = rate.concession;
-                priceHistory.value.child = rate.child;
-                priceHistory.value.infant = rate.infant;
+                priceHistoryRef.value.rate = rate.id;
+                priceHistoryRef.value.adult = rate.adult;
+                priceHistoryRef.value.concession = rate.concession;
+                priceHistoryRef.value.child = rate.child;
+                priceHistoryRef.value.infant = rate.infant;
                 console.log("RATE POLICY");
-                // console.log(rate.booking_policy_id);
-                // vm.priceHistory.booking_policy = rate.bookingpolicyid;
+                return;
             }
         });
     }
     else {
-        delete priceHistory.value.rate;
-        priceHistory.value.adult = '';
-        priceHistory.value.concession = '';
-        priceHistory.value.child = '';
-        priceHistory.value.infant = '';
-        priceHistory.value.booking_policy = '';
+        delete priceHistoryRef.value.rate;
+        priceHistoryRef.value.adult = '';
+        priceHistoryRef.value.concession = '';
+        priceHistoryRef.value.child = '';
+        priceHistoryRef.value.infant = '';
+        priceHistoryRef.value.booking_policy = '';
     }
 })
 
 watch(() => isOpen.value, (val) => {
-    helpers.formUtils.resetFormValidation(form.value)
-    resetFields()
+    if (val) {
+        const { original } = props.priceHistory;
+        priceHistoryRef.value = original ? unref(original) : { ...props.priceHistory }
+        priceHistoryRef.value.period_start = priceHistoryRef.value.period_start ? dateUtils.formatDate(priceHistoryRef.value.period_start, 'dd/MM/yyyy') : '';
+        selected_rate.value = priceHistoryRef.value.rate_id ?? '';
+        if (priceHistoryRef.value.period_start) {
+            datePicker.value.updateOptions({
+                defaultDate: moment(priceHistoryRef.value.period_start, "DD/MM/YYYY").toDate(),
+            });
+        }
+    } else {
+        helpers.formUtils.resetFormValidation(form.value)
+        resetFields()
+    }
 })
 
 const close = function () {
@@ -196,27 +213,28 @@ const close = function () {
 }
 
 const resetFields = () => {
-    delete priceHistory.value.original;
+    delete priceHistoryRef.value.original;
     errors.value = false;
     selected_rate.value = '';
-    priceHistory.value.period_start = '';
-    priceHistory.value.details = '';
-    priceHistory.value.adult = '';
-    priceHistory.value.concession = '';
-    priceHistory.value.child = '';
-    priceHistory.value.infant = '';
-    priceHistory.value.booking_policy = '';
-    priceHistory.value.reason = ""
+    priceHistoryRef.value.rate_id = ''
+    priceHistoryRef.value.period_start = '';
+    priceHistoryRef.value.details = '';
+    priceHistoryRef.value.adult = '';
+    priceHistoryRef.value.concession = '';
+    priceHistoryRef.value.child = '';
+    priceHistoryRef.value.infant = '';
+    priceHistoryRef.value.booking_policy = '';
+    priceHistoryRef.value.reason = ""
 
     errorString.value = '';
 }
 
 const addHistory = function () {
     if ($(form.value).valid()) {
-        if (priceHistory.value.id || priceHistory.value.original) {
-            emit('updatePriceHistory', priceHistory.value);
+        if (priceHistoryRef.value.id || priceHistoryRef.value.original) {
+            emit('updatePriceHistory', priceHistoryRef.value);
         } else {
-            emit('addPriceHistory', priceHistory.value);
+            emit('addPriceHistory', priceHistoryRef.value);
         }
     }
 }
@@ -245,7 +263,7 @@ const addFormValidations = function () {
             details: {
                 required: {
                     depends: function (el) {
-                        return priceHistory.value.reason === 1;
+                        return priceHistoryRef.value.reason === 1;
                     }
                 }
             }
@@ -267,14 +285,14 @@ const addFormValidations = function () {
 onMounted(function () {
     [...(document.querySelectorAll('[data-bs-toggle="tooltip"]') || [])].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     form.value = document.forms.priceForm;
-    const pickerElement = $(form.value.period_start)
-    const picker = getDateTimePicker(pickerElement, {
+    const pickerElement = $(form.value.period_start);
+    datePicker.value = getDateTimePicker(pickerElement, {
         useCurrent: false,
         restrictions: { minDate: dateUtils.addDays(new Date(), 1) }
     });
     pickerElement.on('change.td', function (e) {
-        const date = picker.dates.lastPicked
-        priceHistory.value.period_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        const date = datePicker.value.dates.lastPicked
+        priceHistoryRef.value.period_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
     });
     addFormValidations();
     fetchBookingPolicy();

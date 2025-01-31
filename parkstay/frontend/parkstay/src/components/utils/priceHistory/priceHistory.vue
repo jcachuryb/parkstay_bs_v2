@@ -277,12 +277,13 @@ const addTableListeners = function () {
             var reason = $(this).data('reason');
             var details = $(this).data('details');
             var bookingpolicyid = $(this).data('bookingpolicyid');
-            historyModal.value.selected_rate = rate;
+            
             price.value.period_start = Moment(start).format('D/MM/YYYY');
             price.value.booking_policy = bookingpolicyid;
             price.value.original = {
                 'date_start': start,
                 'rate_id': rate,
+                'period_start': Moment(start).format('D/MM/YYYY'),
                 'reason': reason,
                 'details': details,
                 'booking_policy': bookingpolicyid
