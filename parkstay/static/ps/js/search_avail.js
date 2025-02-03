@@ -474,6 +474,8 @@ var search_avail = {
     $("#region-park").val("");
     $("#region-park").show();
     $("#notice_div").show();
+
+    $("#mapPopupClose").trigger("click");
   },
   select_region: function (value_id, value_name, coord_1, coord_2, zoom_level) {
     $("#coord_1").val(coord_1);
@@ -491,6 +493,8 @@ var search_avail = {
     $("#ps_search_dropdown").remove();
     $("#region-park").hide();
     $("#notice_div").hide();
+
+    $("#mapPopupClose").trigger("click");
   },
   select_filter_tab: function (tab) {
     $("#card-preview").hide();
@@ -501,7 +505,7 @@ var search_avail = {
     if (tab == "campgrounds") {
       $("#card-preview").show();
       $("#card-preview-tab").addClass("active");
-      $("#mapPopupClose").trigger("click");
+      // $("#mapPopupClose").trigger("click");
     }
 
     if (tab == "map") {
