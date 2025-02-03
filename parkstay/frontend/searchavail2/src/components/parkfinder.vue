@@ -478,7 +478,7 @@ export default {
             var coord = [];
             coord[0] = parseFloat(coord_1);
             coord[1] = parseFloat(coord_2);
-            var fromLonLat = vm.ol.proj.fromLonLat(coord);
+            let fromLonLat = vm.ol.proj.fromLonLat(coord);
             var view = this.olmap.getView();
             // zoom slightly closer in for campgrounds
             var resolution = vm.resolutions[10];
@@ -487,6 +487,9 @@ export default {
             }
 
             // pan to the spot, zoom slightly closer in for campgrounds
+            if (vm.selectedFeature) {
+                fromLonLat = vm.selectedFeature.getGeometry().getCoordinates()
+            }
             view.animate({
                 center: fromLonLat,
                 resolution: resolution,
