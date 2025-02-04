@@ -504,7 +504,7 @@ export default function (vm) {
                         duration: 1000,
                     });
                     return true;
-                }, 100)
+                }, 300)
             },
             {
                 layerFilter: function (layer) {

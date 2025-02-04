@@ -629,7 +629,7 @@ export default {
                 }
                 if (featurescs.size > 0) {
                     if (cs_features == true) {
-                        return;
+                        skip_cg = true;
                     }
                 }
                 // END Remove CG
