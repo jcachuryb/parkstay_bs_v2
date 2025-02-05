@@ -873,8 +873,9 @@ class Campsite(models.Model):
                         for attr in ['tent', 'campervan', 'caravan', 'min_people', 'max_people', 'description']:
                             if attr not in data:
                                 setattr(c, attr, getattr(c.campsite_class, attr))
-                        c.features = c.campsite_class.features.all()
                         c.save()
+                        c.features.set(c.campsite_class.features.all())
+
                     created_campsites.append(c)
             return created_campsites
         except Exception:
@@ -1766,7 +1767,7 @@ class Booking(models.Model):
             #    'Fee': r.entry_fee,
             #    'vehicle_type_name': vehicle_map[r.type]
             #}
-            booking_vehicles.append({'Rego': rego_number, 'Type': vehicle_map[v.type]})
+            booking_vehicles.append({'Rego': rego_number, 'Type': vehicle_map[v.type], 'EntryFee': v.entry_fee, 'ParkEntryFee': v.park_entry_fee})
         return booking_vehicles
 
 

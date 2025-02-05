@@ -53,8 +53,8 @@
         <div class="row" style="margin-bottom:10px;">
           <div class="col-md-4">
             <label class="form-label">
-                <span class="bi bi-calendar3"></span>
-                Date from: 
+              <span class="bi bi-calendar3"></span>
+              Date from:
             </label>
             <div class="input-group date" id="booking-date-from">
               <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterDateFrom" />
@@ -62,8 +62,8 @@
           </div>
           <div class="col-md-4">
             <label class="form-label">
-                <span class="bi bi-calendar3"></span>
-                Date to: 
+              <span class="bi bi-calendar3"></span>
+              Date to:
             </label>
             <div class="input-group date" id="booking-date-to">
               <input type="text" class="form-control" placeholder="DD/MM/YYYY" v-model="filterDateTo" />
@@ -166,70 +166,19 @@ const dtOptions = ref({
   ],
   columns: [
     {
-      data: "campground_name",
-      orderable: false,
-      searchable: false
-    },
-    {
-      data: "campground_region",
-      orderable: false,
-      searchable: false
-    },
-    {
-      mRender: function (data, type, full) {
-        //var name = full.firstname +" "+full.lastname;
-        var first_name = full.firstname ? full.firstname : "";
-        var last_name = full.lastname ? full.lastname : "";
-        var name = first_name + " " + last_name;
-        var max_length = 25;
-        var short_name =
-          name.length > max_length
-            ? name.substring(0, max_length - 1) + "..."
-            : name;
-
-        var popover =
-          name.length > max_length ? 'class="name_popover"' : "";
-        var contact_details = '';
-        //if (full.customer_account_phone != full.customer_account_mobile || full.customer_account_phone  != full.customer_booking_phone) {
-        if (full.customer_account_phone) {
-          contact_details += full.customer_account_phone + "<BR>";
-        }
-        //}
-        if (full.customer_account_mobile != full.customer_account_phone && full.customer_account_mobile != full.customer_booking_phone) {
-          if (full.customer_account_mobile.length > 1) {
-            contact_details += full.customer_account_mobile + "<BR>";
-          }
-        }
-        if (full.customer_booking_phone != full.customer_account_mobile && full.customer_booking_phone != full.customer_account_phone) {
-          if (full.customer_booking_phone.length > 1) {
-            contact_details += full.customer_booking_phone + "<BR>";
-          }
-        }
-        var column =
-          "<td ><div " +
-          popover +
-          ' tabindex="0" data-toggle="popover" data-placement="top" data-content="__NAME__">' +
-          short_name + "<BR>" + contact_details;
-        "</div></td>";
-        column.replace(/__SHNAME__/g, short_name);
-        return column.replace(/__NAME__/g, name);
-      },
-      orderable: false,
-      searchable: false
-    },
-    {
       data: "id",
       orderable: false,
       searchable: false,
       mRender: function (data, type, full) {
         return full.status != "Canceled"
-          ? "<a href='/api/get_confirmation/" +
-          full.id +
-          "' target='_blank' class='text-primary'>PB" +
-          data +
-          "</a><br/>"
-          : "PB" + full.id;
+          ? `<a href="/booking-history/${full.id}" class='text-primary'>PB${full.id}</a><br/>`
+          : `PB${full.id}`;
       }
+    },
+    {
+      data: "campground_name",
+      orderable: false,
+      searchable: false
     },
     {
       data: "campground_site_type",
@@ -254,14 +203,13 @@ const dtOptions = ref({
         if (resultList.length == 1) {
           var max_length = 15;
           var name = (resultList[0] > max_length) ? resultList[0].substring(0, max_length - 1) : resultList[0];
-          var column = '<td> <div class="name_popover" tabindex="0" data-toggle="popover" data-placement="top" data-content="__NAME__" >' + name + '</div></td>';
+          var column = '<td> <div tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="__NAME__" >' + name + '</div></td>';
           return column.replace('__NAME__', resultList[0]);
         }
         else if (data.length > 1) {
-          var resultString = resultList.join(", ");
-          var max_length = 15;
-          var name = "Multiple";
-          var column = '<td><span class="name_popover" tabindex="0" data-toggle="popover" data-placement="top" data-content="__NAME__" >' + name + "</span></td>";
+          const resultString = resultList.join(", ");
+          const name = "Multiple";
+          const column = '<td><span tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="__NAME__" >' + name + "</span></td>";
           return column.replace("__NAME__", resultString);
         }
         return "<td></td>";
@@ -270,17 +218,24 @@ const dtOptions = ref({
       searchable: false
     },
     {
-      data: "status",
+      data: "firstname",
       orderable: false,
       searchable: false,
       mRender: function (data, type, full) {
-        if (data === "Canceled" && full.cancellation_reason != null) {
-          let val = helpers.dtPopover(full.cancellation_reason);
-          return `<span>${data}</span><br/><br/>${val}`;
-        }
-        return data;
+        const first_name = full?.firstname ?? "";
+        const last_name = full?.lastname ?? "";
+        const name = first_name + " " + last_name;
+        const max_length = 25;
+        const short_name =
+          name.length > max_length
+            ? name.substring(0, max_length - 1) + "..."
+            : name;
+        const column =
+          "<td ><div class='d-inline-block text-truncate'" + 'tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="__NAME__">' +
+          short_name;
+        "</div></td>";
+        return column.replace(/__NAME__/g, name);
       },
-      createdCell: helpers.dtPopoverCellFn
     },
     {
       data: "arrival",
@@ -299,75 +254,70 @@ const dtOptions = ref({
       }
     },
     {
-      mRender: function (data, type, full) {
-        var status = data == true ? "Open" : "Temporarily Closed";
-        var booking = JSON.stringify(full);
-        var invoices = "";
-        var invoice =
-          "/ledger-toolkit-api/invoice-pdf/" + full.invoice_reference;
-        var invoice_link = full.invoice_reference
-          ? "<a href='" +
-          invoice +
-          "' target='_blank' class='text-primary'>Invoice</a><br/>"
-          : "";
-        var column = "<td >";
-        var ledger_ui_url = $('#ledger_ui_url').val();
-        console.log(ledger_ui_url);
-
-        if (full.invoices.length > 0) {
-          column += "<a href='" + ledger_ui_url + "/ledger/payments/oracle/payments?invoice_no=" + full.invoices[0] + "'>Ledger Payments</a><br>";
-          column += "<a href='/booking-history/" + full.id + "'>Booking History</a><br>";
-
-        }
-        if (full.editable) {
-          var change_booking =
-            "<a href='/booking/change/" +
-            full.id +
-            "/' class='text-primary' data-change = '" +
-            htmlEscape(booking) +
-            "' > Change</a><br/>";
-          // column += change_booking;
-        }
-        var cancel_booking =
-          "<a href='/booking/cancel/" + full.id + "/' class='text-primary' data-cancel='" +
-          htmlEscape(booking) +
-          "' > Cancel</a><br/>";
-        // column += cancel_booking;
-
-        full.has_history
-          ? (column +=
-            "<a href='edit/" + full.id +
-            "' class='text-primary' data-history = '" +
-            htmlEscape(booking) +
-            "' > View History</a><br/>")
-          : "";
-        $.each(full.active_invoices, (i, v) => {
-          invoices +=
-            "<a href='/ledger-toolkit-api/invoice-pdf/" +
-            v +
-            "' target='_blank' class='text-primary'><i style='color:red;' class='fa fa-file-pdf-o'></i>&nbsp #" +
-            v +
-            "</a><br/>";
-        });
-        column += invoices;
-        column += "</td>";
-        return column.replace("__Status__", status);
-      },
+      data: "guests",
       orderable: false,
-      searchable: false
-    }
-  ]
+      searchable: false,
+      mRender: function (data, type, full) {
+        const { adults, children, concession } = data;
+        const text = [{ label: "Ad", value: adults }, { label: "Co", value: concession }, { label: "Ch", value: children }].filter(i => i.value > 0).map(i => `${i.label}: ${i.value}`).join("<br/>");
+        var column =
+          "<td ><div tabindex='0' >" + text + "</div></td>";
+        return column;
+      }
+    },
+    {
+      data: "vehicle_payment_status",
+      orderable: false,
+      searchable: false,
+      width: "10%",
+      mRender: function (data, type, full) {
+        const validTypes = ['Car/Ute', 'Motorcycle', 'Campervan'];
+        const vehicles = data ?? []
+
+        const regos = full?.regos ?? []
+        const isPaid = full.status === 'Paid'
+        const regoText = vehicles.filter(v => validTypes.find(t => t === v.Type)).map(r => {
+          const objIncludesFees = Object.keys(r).includes('EntryFee') || Object.keys(r).includes('ParkEntryFee')
+          const feePaid = objIncludesFees ? (r.EntryFee || r.ParkEntryFee) : isPaid ? true : false
+          const rego = regos.find(rego => ((Object.keys((rego ?? { 'vehicle': "" }))).filter(k => rego[k] !== '').find(k => (rego[k].toLowerCase() === r.Rego.toLowerCase())))) ?? {}
+          const regoText = `${Object.keys((rego)).filter(k => rego[k] != '').map(k => `<span class='text-vehicle-rego'>${rego[k].toUpperCase()}</span><br/>`).join('') ?? ''}`
+          const paidIcon = feePaid ? `<i class='bi bi-check-circle-fill'> </i>` : `<i class='bi bi-x-circle-fill'></i>`
+          const vehicleFeeText = `<span class='lh-1 text-muted text-vehicle-type'>${r.Type}&nbsp;- <span class='${feePaid ? 'text-success' : 'text-danger '}'>${paidIcon}</span></span>`
+          return `<div class=''>${regoText}${vehicleFeeText}</div>`;
+        }).join("")
+
+        var column =
+          "<td ><div tabindex='0' style='line-height: 16px' >" + regoText + "</div></td>";
+        return column;
+      }
+    },
+    {
+      data: "status",
+      orderable: false,
+      searchable: false,
+      mRender: function (data, type, full) {
+        if (data === "Canceled" && full.cancellation_reason != null) {
+          let val = helpers.dtPopover(full.cancellation_reason);
+          return `<span>${data}</span><br/><br/>${val}`;
+        }
+        return data;
+      },
+      createdCell: helpers.dtPopoverCellFn
+    },
+
+  ],
+
 })
 const dtHeaders = ref([
+  "Booking number",
   "Campground",
-  "Region",
-  "Person",
-  "Confirmation #",
-  " Camp Site(Type)",
-  "Status",
-  "From",
-  "To",
-  "Action"
+  "Campsite",
+  "Customer",
+  "Arrival",
+  "Departure",
+  "Campers",
+  "Rego",
+  "Payment status",
 ])
 const dateFromPicker = ref(null)
 const dateToPicker = ref(null)
@@ -396,8 +346,8 @@ watch(() => filterRefundStatus.value, function () {
 const isLoading = computed(function () {
   return loading.value.length > 0;
 })
-const regions = computed(function() {return store.getters.regions})
-const campgrounds = computed(function() {return store.getters.campgrounds})
+const regions = computed(function () { return store.getters.regions })
+const campgrounds = computed(function () { return store.getters.campgrounds })
 
 const changeBookingLoading = function (val) {
   const { value, show } = val
@@ -421,9 +371,9 @@ const fetchRegions = function () {
 }
 const cancelBooking = function (booking) {
   fetch(api_endpoints.booking(booking.id), {
-      method: "DELETE",
-      headers: { "X-CSRFToken": helpers.getCookie("csrftoken") }
-    }).then((response) => response.json())
+    method: "DELETE",
+    headers: { "X-CSRFToken": helpers.getCookie("csrftoken") }
+  }).then((response) => response.json())
     .then(
       data => {
         bookings_table.value.vmDataTable.ajax.reload();
@@ -468,6 +418,14 @@ const addEventListeners = function () {
     }
   );
 
+  bookings_table.value.vmDataTable.on(
+    "draw",
+    function (e) {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => bootstrap.Tooltip.getOrCreateInstance(tooltipTriggerEl))
+    }
+  );
+
   /* Campground Selector*/
   $(campgroundSelector.value)
     .select2({
@@ -507,8 +465,6 @@ const addEventListeners = function () {
 
   dateFromPickerElement.on("change.td", function (e) {
     const date = dateFromPicker.value.dates.lastPicked
-    console.log("dateFromPicker")
-    console.log(date)
     filterDateFrom.value = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
     bookings_table.value.vmDataTable.ajax.reload();
     if (date) {
@@ -779,7 +735,7 @@ const print = function () {
   ).catch(error => {
     exportingCSV.value = false;
     console.log(error)
-  } )
+  })
 }
 
 onMounted(function () {
@@ -801,6 +757,11 @@ onBeforeMount(() => {
 <style lang="css">
 .text-warning {
   color: #f0ad4e;
+}
+
+.text-vehicle-type,
+.text-vehicle-rego {
+  font-size: 0.8rem;
 }
 
 @media print {

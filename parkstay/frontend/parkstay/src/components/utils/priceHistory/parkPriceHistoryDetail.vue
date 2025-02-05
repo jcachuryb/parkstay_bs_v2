@@ -11,7 +11,7 @@
                             <label class="form-label required">Car : </label>
                         </div>
                         <div class="col-md-4">
-                            <input name="vehicle" v-model="priceHistory.vehicle" type='number' class="form-control" />
+                            <input name="vehicle" v-model="priceHistoryRef.vehicle" type='number' class="form-control" />
                         </div>
                     </div>
                 </div>
@@ -21,7 +21,7 @@
                             <label class="form-label required">Concession : </label>
                         </div>
                         <div class="col-md-4">
-                            <input name="concession" v-model="priceHistory.concession" type='number'
+                            <input name="concession" v-model="priceHistoryRef.concession" type='number'
                                 class="form-control" />
                         </div>
                     </div>
@@ -32,7 +32,7 @@
                             <label class="form-label required">Motorbike : </label>
                         </div>
                         <div class="col-md-4">
-                            <input name="motorbike" v-model="priceHistory.motorbike" type='number'
+                            <input name="motorbike" v-model="priceHistoryRef.motorbike" type='number'
                                 class="form-control" />
                         </div>
                     </div>
@@ -45,7 +45,7 @@
                             <label class="form-label required">Campervan : </label>
                         </div>
                         <div class="col-md-4">
-                            <input name="campervan" v-model="priceHistory.campervan" type='number'
+                            <input name="campervan" v-model="priceHistoryRef.campervan" type='number'
                                 class="form-control" />
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                             <label>Caravan : </label>
                         </div>
                         <div class="col-md-4">
-                            <input name="caravan" v-model="priceHistory.caravan" type='number' class="form-control" />
+                            <input name="caravan" v-model="priceHistoryRef.caravan" type='number' class="form-control" />
                         </div>
                     </div>
                 </div>
@@ -68,13 +68,13 @@
                             <label class="form-label required">Trailer : </label>
                         </div>
                         <div class="col-md-4">
-                            <input name="trailer" v-model="priceHistory.trailer" type='number' class="form-control" />
+                            <input name="trailer" v-model="priceHistoryRef.trailer" type='number' class="form-control" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-check m-2">
-                        <input name="gst" id="gst" v-model="priceHistory.gst" type='checkbox' checked class="form-check-input" />
+                        <input name="gst" id="gst" v-model="priceHistoryRef.gst" type='checkbox' checked class="form-check-input" />
                         <label class="form-check-label" for="gst">GST</label>
                     </div>
                 </div>
@@ -89,21 +89,21 @@
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' date>
-                                <input name="period_start" v-model="priceHistory.period_start" type='text'
+                                <input name="period_start" v-model="priceHistoryRef.period_start" type='text'
                                     class="form-control" />
 
                             </div>
                         </div>
                     </div>
                 </div>
-                <reason type="price" v-model="priceHistory.reason"></reason>
+                <reason type="price" v-model="priceHistoryRef.reason"></reason>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
                         <div class="col-md-2">
                             <label class="form-label required">Details: </label>
                         </div>
                         <div class="col-md-5">
-                            <textarea name="details" v-model="priceHistory.details" class="form-control"></textarea>
+                            <textarea name="details" v-model="priceHistoryRef.details" class="form-control"></textarea>
                         </div>
                     </div>
                 </div>
@@ -133,7 +133,7 @@ const current_closure = ref('')
 const closeStartPicker = ref('')
 const showDetails = ref(false)
 const closeEndPicker = ref(null)
-const priceHistory = ref(props.priceHistory)
+const priceHistoryRef = ref(props.priceHistory)
 const errors = ref(false)
 const errorString = ref('')
 const form = ref('')
@@ -149,17 +149,17 @@ const isModalOpen = computed(function () {
     return isOpen.value;
 })
 const closure_id = computed(function () {
-    return priceHistory.value.id ? priceHistory.value.id : '';
+    return priceHistoryRef.value.id ? priceHistoryRef.value.id : '';
 })
 const requireDetails = computed(function () {
-    return priceHistory.value.reason == '1';
+    return priceHistoryRef.value.reason == '1';
 })
 
 const close = function () {
-    delete priceHistory.value.original;
+    delete priceHistoryRef.value.original;
     errors.value = false;
     selected_rate.value = '';
-    priceHistory.value = {
+    priceHistoryRef.value = {
         vehicle: '',
         concession: '',
         motorbike: '',
@@ -177,7 +177,7 @@ const close = function () {
 }
 const addHistory = function () {
     if ($(form.value).valid()) {
-        emit(priceHistory.value.id ? 'updateParkPriceHistory' : 'addParkPriceHistory', priceHistory.value);
+        emit(priceHistoryRef.value.id ? 'updateParkPriceHistory' : 'addParkPriceHistory', priceHistoryRef.value);
     }
 }
 const addFormValidations = function () {
@@ -192,7 +192,7 @@ const addFormValidations = function () {
             details: {
                 required: {
                     depends: function (el) {
-                        return priceHistory.value.reason === 1;
+                        return priceHistoryRef.value.reason === 1;
                     }
                 }
             }
@@ -224,7 +224,7 @@ onMounted(() => {
     });
     pickerElement.on('change.td', function (e) {
         const date = picker.dates.lastPicked
-        priceHistory.value.period_start = date ? dateUtils.formatDate(date, 'yyyy-MM-dd') : '';
+        priceHistoryRef.value.period_start = date ? dateUtils.formatDate(date, 'yyyy-MM-dd') : '';
     });
     addFormValidations();
 });

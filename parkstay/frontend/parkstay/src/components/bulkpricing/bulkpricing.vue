@@ -99,10 +99,12 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="col-md-2">
-                                            <label><i class="fa fa-question-circle" data-toggle="tooltip"
-                                                    data-placement="bottom"
-                                                    title="Select a rate to prefill the price fields otherwise use the manual entry">&nbsp;</i>Select
-                                                Rate: </label>
+                                            <label class="form-label">
+                                                Select Rate: 
+                                                <i class="bi bi-question-circle" data-bs-toggle="tooltip"
+                                                data-bs-placement="bottom"
+                                                data-bs-title="Select a rate to prefill the price fields otherwise use the manual entry" />
+                                            </label>
 
                                         </div>
                                         <div class="col-sm-4">
@@ -382,7 +384,7 @@ watch(() => selected_rate.value, function (value) {
         bulkpricing.value.child = '';
     }
 })
-watch(() => campsite_classes, function (value) {
+watch(() => campsite_classes.value, function (value) {
     availableCampsiteClasses();
 })
 
@@ -570,7 +572,7 @@ const addFormValidations = function () {
 
 
 onMounted(function () {
-    $("i.fa").tooltip();
+    [...(document.querySelectorAll('[data-bs-toggle="tooltip"]') || [])].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     form.value = document.forms.bulkpricingForm;
     loadParks();
     setPrice.value = priceOptions[1];

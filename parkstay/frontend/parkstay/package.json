@@ -13,7 +13,7 @@
     "@json2csv/plainjs": "^7.0.6",
     "@popperjs/core": "^2.11.8",
     "awesomplete": "^1.1.1",
-    "bootstrap": "^3.4.1",
+    "bootstrap": "^5.3.3",
     "bootstrap-daterangepicker": "^2.1.24",
     "datatables.net": "^1.11.3",
     "datatables.net-bs5": "^1.11.3",
@@ -52,6 +52,7 @@
     "npm": ">= 3.0.0"
   },
   "browserslist": [
+    "defaults",
     "> 1%",
     "last 2 versions"
   ],

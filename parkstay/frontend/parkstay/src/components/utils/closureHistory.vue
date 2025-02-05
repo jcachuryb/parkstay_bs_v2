@@ -189,7 +189,7 @@ const updateClosure = function () {
     sendData(closureURL(closeModal.value.closure_id), 'PUT');
 }
 const sendData = function (url, method) {
-    var data = $.extend({}, closeModal.value.statusHistory);
+    var data = $.extend({}, closeModal.value.statusHistoryRef);
     if (closeCampground.value) {
         data.campground = object_id.value;
     } else {

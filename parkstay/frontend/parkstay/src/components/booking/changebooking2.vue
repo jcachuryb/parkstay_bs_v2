@@ -27,7 +27,7 @@
                                         <div class="form-group"
                                             v-if="booking.campground != null || booking.campground != ''">
                                             <div class="col-md-4">
-                                                <label class="control-label pull-left required" for="Dates">Camp Site:
+                                                <label class="control-label pull-left required" for="Dates">Campsite:
                                                 </label>
                                             </div>
                                             <div class="col-md-8" v-if="campsites.length > 0"></div>
@@ -919,7 +919,8 @@ onBeforeRouteEnters()
     width: 100%;
 }
 
-.dropdown-menu:before {
+#changeBooking {
+    .dropdown-menu:before {
     position: absolute;
     top: -12px;
     left: 12px;
@@ -934,7 +935,7 @@ onBeforeRouteEnters()
 .dropdown-menu {
     top: 120%;
     width: 300px;
-}
+}}
 
 .guests li {
     padding: 10px;

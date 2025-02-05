@@ -47,9 +47,7 @@ export default defineConfig(({ mode }) => {
       svgLoader({
         defaultImport: "url",
       }),
-      legacy({
-        targets: ["defaults", "> 1%", "last 2 versions", "not ie <= 8"],
-      }),
+      legacy({}),
     ],
     resolve: {
       alias: {
@@ -81,6 +79,10 @@ export default defineConfig(({ mode }) => {
           chunkFileNames: "js/[name].js",
           assetFileNames: "[ext]/[name].[ext]",
         },
+        
+      },
+      optimizeDeps: {
+        exclude: ["bootstrap", "jquery", "popper.js", "popper"],
       },
       emptyOutDir: true,
     },

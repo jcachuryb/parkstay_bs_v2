@@ -15,8 +15,9 @@
                             <campgroundAttr :createCampground=false :campground="campground">
                             </campgroundAttr>
                         </div>
+                        <hr style="margin: 30px 0px;" />
                         <stay-history :object_id="ID" :datatableURL="stayHistoryURL"
-                            style="margin-top:100px;"></stay-history>
+                            ></stay-history>
                         <priceHistory ref="price_dt" level="campground" :dt_options="ph_options"
                             :historyDeleteURL="priceHistoryDeleteURL" :showAddBtn="hasCampsites"
                             v-show="campground.price_level == 0" :object_id="ID"></priceHistory>
@@ -29,7 +30,7 @@
         <div class="card p-3" id="applications" style="margin-top:50px;">
             <div class="panel-heading" role="tab" id="applications-heading">
                 <h4 class="panel-title">
-                    Camp Sites
+                    Campsites
                 </h4>
             </div>
             <div class="" role="tabpanel" aria-labelledby="applications-heading" id="campsites">
@@ -39,7 +40,7 @@
                             <div class="well">
                                 <div class="col-sm-offset-8 col-sm-4">
                                     <button @click="openBulkCloseCG()"
-                                        class="btn btn-primary table_btn">Close Campsites</button>
+                                        class="btn btn-outline-primary table_btn me-2">Close Campsites</button>
                                     <router-link :to="{ name: 'add_campsite', params: { id: campground_id } }"
                                         class="btn btn-primary table_btn" style="margin-right: 1em;">Add
                                         Campsite</router-link>
@@ -375,6 +376,7 @@ const fetchCampground = function () {
 }
 
 onMounted(function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     cg_campsites_dt.value.vmDataTable.on('click', '.detailRoute', function (e) {
         e.preventDefault();
         var id = $(this).attr('data-campsite');

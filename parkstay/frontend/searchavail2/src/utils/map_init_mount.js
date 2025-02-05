@@ -189,9 +189,9 @@ export default function (vm) {
             vm.groundsData.extend(features);
             vm.groundsSource.loadSource();
         },
-        error: function(error) { 
-            console.log(error)
-        }
+        error: function (error) {
+            console.log(error);
+        },
     });
 
     vm.groundsSource = new ol.source.Vector({
@@ -248,35 +248,56 @@ export default function (vm) {
         });
     };
 
+    function getOLIcon(vm, campgroundId, campgroundType, is_match) {
+        let icon = is_match ? vm.sitesInPersonIcon : vm.sitesNoMatchIcon;
+        switch (campgroundType) {
+            case 0:
+                const hasBookings =
+                    vm.campgroundAvailablity[campgroundId].total_bookable > 0;
+                icon = is_match
+                    ? hasBookings
+                        ? vm.sitesOnlineIcon
+                        : vm.sitesOnlineNotAvailIcon
+                    : vm.sitesNoMatchIcon;
+                break;
+            case 2:
+                icon = is_match ? vm.sitesAltIcon : vm.sitesNoMatchIcon;
+                break;
+            default:
+                break;
+        }
+        return new ol.style.Icon({
+            src: icon,
+            imgSize: [32, 32],
+            snapToPixel: true,
+            anchor: [0.5, 1.0],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'fraction',
+        });
+    }
+
     vm.grounds = new ol.layer.Vector({
         source: vm.groundsSource,
         style: function (feature) {
             var style = feature.get('style');
+            const is_match = feature.get('match') ?? true;
+            const campgroundType = feature.get('campground_type');
+            const campgroundId = feature.getId();
             if (!style) {
-                var icon = vm.sitesInPersonIcon;
-                var campgroundType = feature.get('campground_type');
-                switch (campgroundType) {
-                    case 0:
-                        icon = vm.sitesOnlineIcon;
-                        break;
-                    case 2:
-                        icon = vm.sitesAltIcon;
-                        break;
-                    default:
-                        break;
-                }
                 style = new ol.style.Style({
-                    image: new ol.style.Icon({
-                        src: icon,
-                        imgSize: [32, 32],
-                        snapToPixel: true,
-                        anchor: [0.5, 1.0],
-                        anchorXUnits: 'fraction',
-                        anchorYUnits: 'fraction',
-                    }),
+                    image: getOLIcon(
+                        vm,
+                        campgroundId,
+                        campgroundType,
+                        is_match
+                    ),
                     zIndex: -feature.getGeometry().getCoordinates()[1],
                 });
                 feature.set('style', style);
+            } else {
+                style.setImage(
+                    getOLIcon(vm, campgroundId, campgroundType, is_match)
+                );
             }
             return style;
         },
@@ -374,9 +395,13 @@ export default function (vm) {
     vm.olmap.on('singleclick', function (ev) {
         var result = ev.map.forEachFeatureAtPixel(
             ev.pixel,
-            function (feature, layer) {
+            async function (feature, layer) {
+                vm.popup.setPosition(undefined); // resets popup
                 vm.selectedFeature = feature;
-                vm.popup.setPosition(feature.getGeometry().getCoordinates());
+
+                const coord = feature.getGeometry().getCoordinates();
+                const view = vm.olmap.getView();
+                let resolution = view.getResolution();
                 // really want to make vue.js render this, except reactivity dies
                 // when you pass control of the popup element to OpenLayers :(
                 $('#mapPopupName')[0].innerHTML = feature.get('name');
@@ -416,10 +441,16 @@ export default function (vm) {
 
                 // This portion needs to be modified to accomodate the new button
                 // Online/Offline sites is determined by the backend api
+                const isMatch = feature.get('match') === true;
+                if (isMatch) {
+                    $('#mapPopupButton')[0].className = 'button';
+                } else {
+                    $('#mapPopupButton').html('More information');
+                    $('#mapPopupButton')[0].className = 'button formButton5';
+                }
+
                 if (feature.get('campground_type') == 0) {
-                    $('#mapPopupBook').show();
-                    $('#mapPopupInfo').hide();
-                    $('#mapPopupBook').attr(
+                    $('#mapPopupButton').attr(
                         'href',
                         vm.parkstayUrl +
                             '/search-availability/campground/?site_id=' +
@@ -427,29 +458,53 @@ export default function (vm) {
                             '&' +
                             vm.bookingParam
                     );
+                    if (isMatch) {
+                        $('#mapPopupButton').html('See availability');
+                        if (feature.get('available')) {
+                            $('#mapPopupButton')[0].className =
+                                'button formButton1';
+                        } else {
+                            $('#mapPopupButton')[0].className =
+                                'button formButton4';
+                        }
+                    }
                 } else if (feature.get('campground_type') == 1) {
-                    $('#mapPopupBook').hide();
-                    $('#mapPopupInfo').show();
-                    // $("#mapPopupInfo").attr('href', feature.get('info_url'));
-                    $('#mapPopupInfo').attr(
+                    $('#mapPopupButton').attr(
                         'href',
                         vm.parkstayUrl +
                             '/search-availability/campground/?site_id=' +
                             feature.getId()
                     );
+                    if (isMatch) {
+                        $('#mapPopupButton').html('More information');
+                        $('#mapPopupButton')[0].className = 'button formButton';
+                    }
                 } else {
                     // Now,this section is used for the partner accommodation
-                    $('#mapPopupBook').hide();
-                    $('#mapPopupInfo').show();
-                    // $("#mapPopupInfo").attr('href', feature.get('info_url'));
-                    $('#mapPopupInfo').attr(
+                    if (isMatch) {
+                        $('#mapPopupButton').html(
+                            'More Information<i class="bi bi-box-arrow-up-right ms-2">'
+                        );
+                        $('#mapPopupButton')[0].className =
+                            'button formButton2';
+                    }
+                    $('#mapPopupButton').attr(
                         'href',
                         vm.parkstayUrl +
                             '/search-availability/campground/?site_id=' +
                             feature.getId()
                     );
                 }
-                return true;
+                // makes sure the 
+                setTimeout(()=> {
+                    vm.popup.setPosition(coord);
+                    view.animate({
+                        center: coord,
+                        resolution: resolution,
+                        duration: 1000,
+                    });
+                    return true;
+                }, 300)
             },
             {
                 layerFilter: function (layer) {

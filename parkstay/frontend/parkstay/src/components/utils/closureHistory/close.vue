@@ -6,15 +6,15 @@
                 <div class="row">
                     <alert v-model:show="showError" type="danger">{{ errorString }}</alert>
                     <div class="form-group">
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label class="form-label required">
                                 <span class="bi bi-calendar3"></span>
-                                Closure start: 
+                                Closure start:
                             </label>
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' :id='close_cg_range_start'>
-                                <input name="closure_start" v-model="statusHistory.range_start" type='text'
+                                <input name="closure_start" v-model="statusHistoryRef.range_start" type='text'
                                     class="form-control" />
                             </div>
                         </div>
@@ -22,28 +22,28 @@
                 </div>
                 <div class="row">
                     <div class="form-group">
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label class="form-label">
                                 <span class="bi bi-calendar3"></span>
-                                Reopen on: 
+                                Reopen on:
                             </label>
                         </div>
                         <div class="col-md-4">
                             <div class='input-group date' :id='close_cg_range_end'>
-                                <input name="closure_end" v-model="statusHistory.range_end" type='text'
+                                <input name="closure_end" v-model="statusHistoryRef.range_end" type='text'
                                     class="form-control" />
                             </div>
                         </div>
                     </div>
                 </div>
-                <reason type="close" v-model="statusHistory.closure_reason" :required="true"></reason>
+                <reason type="close" v-model="statusHistoryRef.closure_reason" :required="true"></reason>
                 <div v-show="requireDetails" class="row">
                     <div class="form-group">
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label class="form-label required">Details: </label>
                         </div>
                         <div class="col-md-4">
-                            <textarea name="closure_details" v-model="statusHistory.details" class="form-control"
+                            <textarea name="closure_details" v-model="statusHistoryRef.details" class="form-control"
                                 id="close_cg_details"></textarea>
                         </div>
                     </div>
@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { $, getDateTimePicker, dateUtils, helpers } from '../../../hooks.js'
+import { $, getDateTimePicker, dateUtils, helpers, Moment } from '../../../hooks.js'
 import bootstrapModal from '../bootstrap-modal.vue'
 import alert from '../alert.vue'
 import reason from '../reasons.vue'
@@ -83,7 +83,15 @@ const showDetails = ref(false)
 const errors = ref(false)
 const errorString = ref('')
 const form = ref(null);
-const statusHistory = ref(props.statusHistory)
+const statusHistoryRef = ref({
+    id: '',
+    range_start: '',
+    range_end: '',
+    status: '',
+    details: '',
+    reason: '',
+    closure_reason: '',
+})
 const isOpen = ref(false)
 const closeStartPicker = ref(null)
 const closeEndPicker = ref(null)
@@ -96,13 +104,26 @@ const isModalOpen = computed(function () {
     return isOpen.value;
 })
 const closure_id = computed(function () {
-    return statusHistory.value.id ? statusHistory.value.id : '';
+    return statusHistoryRef.value.id ? statusHistoryRef.value.id : '';
 })
 const requireDetails = computed(function () {
-    return statusHistory.value.closure_reason === 1;
+    return statusHistoryRef.value.closure_reason === 1;
 })
 
 watch(() => isOpen.value, (val) => {
+    if (val) {
+        statusHistoryRef.value = props.statusHistory
+        if (statusHistoryRef.value.range_start) {
+            closeStartPicker.value.updateOptions({
+                defaultDate: moment(statusHistoryRef.value.range_start, "DD/MM/YYYY").toDate(),
+            });
+        }
+        if (statusHistoryRef.value.range_end) {
+            closeEndPicker.value.updateOptions({
+                defaultDate: moment(statusHistoryRef.value.range_end, "DD/MM/YYYY").toDate(),
+            });
+        }
+    }
     helpers.formUtils.resetFormValidation(form.value)
 })
 
@@ -110,13 +131,13 @@ const close = function () {
     errors.value = false;
     errorString.value = '';
     isOpen.value = false;
-    statusHistory.value.id = '';
-    statusHistory.value.range_start = '';
-    statusHistory.value.range_end = '';
-    statusHistory.value.status = '1';
-    statusHistory.value.details = '';
-    statusHistory.value.reason = '';
-    statusHistory.value.closure_reason = '';
+    statusHistoryRef.value.id = '';
+    statusHistoryRef.value.range_start = '';
+    statusHistoryRef.value.range_end = '';
+    statusHistoryRef.value.status = '1';
+    statusHistoryRef.value.details = '';
+    statusHistoryRef.value.reason = '';
+    statusHistoryRef.value.closure_reason = '';
 
     closeEndPicker.value.clear();
     closeStartPicker.value.clear();
@@ -153,8 +174,8 @@ const addFormValidations = function () {
 }
 
 onMounted(() => {
-    statusHistory.value.status = 1;
-    statusHistory.value.reason = '';
+    statusHistoryRef.value.status = 1;
+    statusHistoryRef.value.reason = '';
 
     form.value = $(document.forms.closeForm)
     const closeStartPickerElement = $('#' + close_cg_range_start)
@@ -167,7 +188,7 @@ onMounted(() => {
     });
     closeStartPickerElement.on('change.td', function (e) {
         const date = closeStartPicker.value.dates.lastPicked;
-        statusHistory.value.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        statusHistoryRef.value.range_start = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
         if (date) {
             closeEndPicker.value.updateOptions({
                 restrictions: { minDate: date }
@@ -176,13 +197,13 @@ onMounted(() => {
     });
     closeEndPickerElement.on('change.td', function (e) {
         const date = closeEndPicker.value.dates.lastPicked;
-        statusHistory.value.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
+        statusHistoryRef.value.range_end = date ? dateUtils.formatDate(date, 'dd/MM/yyyy') : '';
     });
 
     addFormValidations();
 
 })
 
-defineExpose({ close, closure_id, statusHistory, isOpen, errors, errorString })
+defineExpose({ close, closure_id, statusHistoryRef, isOpen, errors, errorString })
 
 </script>

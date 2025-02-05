@@ -1,4 +1,12 @@
 <template lang="html">
+    <nav v-if="campground?.name" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <router-link class="breadcrumb-item" :to="{name: 'cg_detail', params: {id: campground.id}}">
+                  {{ campground.name }}
+            </router-link>
+            <li class="breadcrumb-item active" aria-current="page">{{ createCampsite ? 'New Campsite' : 'Campsite'   }}</li>
+        </ol>
+    </nav>
     <div id="campsite">
         <pkCsClose ref="closeCampsite" @closeCampsite="showCloseCS()"></pkCsClose>
         <div class="col-lg-12 card p-3">
@@ -39,7 +47,7 @@
                                         <label class="control-label">Minimum Number of People</label>
                                         <input type="number" name="name" class="form-control"
                                             v-model="campsite.min_people" required
-                                            :disabled="selected_campsite_class_url() != ''" />
+                                            :disabled="selected_campsite_class_url != ''" />
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -47,7 +55,7 @@
                                         <label class="control-label">Maximum Number of People</label>
                                         <input type="number" name="name" class="form-control"
                                             v-model="campsite.max_people" required
-                                            :disabled="selected_campsite_class_url() != ''" />
+                                            :disabled="selected_campsite_class_url != ''" />
                                     </div>
                                 </div>
                             </div>
@@ -56,15 +64,15 @@
                                     <div class="form-group">
                                         <div class="checkbox">
                                             <label><input type="checkbox" v-model="campsite.tent"
-                                                    :disabled="selected_campsite_class_url() != ''" />Tent</label>
+                                                    :disabled="selected_campsite_class_url != ''" />Tent</label>
                                         </div>
                                         <div class="checkbox">
                                             <label><input type="checkbox" v-model="campsite.campervan"
-                                                    :disabled="selected_campsite_class_url() != ''" />Campervan</label>
+                                                    :disabled="selected_campsite_class_url != ''" />Campervan</label>
                                         </div>
                                         <div class="checkbox">
                                             <label><input type="checkbox" v-model="campsite.caravan"
-                                                    :disabled="selected_campsite_class_url() != ''" />Caravan</label>
+                                                    :disabled="selected_campsite_class_url != ''" />Caravan</label>
                                         </div>
                                     </div>
                                 </div>
@@ -73,30 +81,27 @@
                                         <label class="control-label">Maximum Number of Vehicles</label>
                                         <input type="number" name="max_vehicles" class="form-control"
                                             v-model="campsite.max_vehicles" required
-                                            :disabled="selected_campsite_class_url() != ''" />
+                                            :disabled="selected_campsite_class_url != ''" />
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-6">
-
-                                </div>
-                                <div class="col-sm-6">
+                                <div class="col-xs-12">
                                     <div class="row">
-                                        <div class="form-group">
-                                            <div class="col-sm-6 col-xs-8">
-                                                <button @click.prevent="addCampsite" type="button"
-                                                    v-show="createCampsite"
-                                                    class="btn btn-primary btn-create">Create</button>
-                                            </div>
-                                            <div class="col-sm-2 col-xs-4  pull-right">
+                                        <div class="d-flex flex-row-reverse">
+
+                                            <button @click.prevent="addCampsite" type="button" v-show="createCampsite"
+                                                class="btn btn-primary ms-4">Create</button>
+
+                                            <div class="form-group">
                                                 <input type="number" v-show="createCampsite" class="form-control"
-                                                    name="number" v-model="campsite.number" value="">
+                                                    name="number" v-model="campsite.number" value="" min="1">
                                             </div>
+
                                         </div>
                                     </div>
                                     <div class="row" style="margin-top:10px;">
-                                        <div class="col-sm-6 pull-right">
+                                        <div class="col-sm- pull-right">
                                             <div class="pull-right">
                                                 <button type="button" v-show="!createCampsite" style="margin-right:5px"
                                                     @click="updateCampsite" class="btn btn-primary">Update</button>
@@ -145,7 +150,8 @@ const price_dt = ref(null)
 const cg_closure_dt = ref(null)
 const closeCampsite = ref(null)
 const campsiteForm = ref(null)
-const campsite_id = ref(null)
+const campsite_id = ref(route.params.campsite_id)
+const campground_id = ref(route.params.id)
 const isLoading = ref(false)
 const createCampsite = ref(true)
 const temp_campsite = ref({})
@@ -167,7 +173,7 @@ const ph_options = ref({
     processing: true,
     deferRender: true,
     ajax: {
-        url: api_endpoints.campsites_price_history(route.params.id),
+        url: api_endpoints.campsites_price_history(campground_id.value),
         dataSrc: ''
     },
     columnDefs: [
@@ -239,14 +245,14 @@ const showName = computed(function () {
     return (createCampsite.value && campsite.value.number == 1) || !createCampsite.value;
 })
 
-const selected_campsite_class_url = function () {
+const selected_campsite_class_url = computed(function () {
     return (campsite.value.campsite_class != null) ? campsite.value.campsite_class : '';
-}
+})
 const onCampsiteClassChange = function () {
     if (campsite_classes.value.length > 0) {
-        if (selected_campsite_class_url()) {
+        if (selected_campsite_class_url.value) {
             var sel_class = campsite_classes.value.find(function (el) {
-                return el.url == campsite.value.campsite_class;
+                return el.id == campsite.value.campsite_class;
             });
 
             if (sel_class) {
@@ -329,7 +335,7 @@ const fetchCampsite = function () {
     });
 }
 const fetchCampground = function () {
-    $.get(api_endpoints.campground(campsite_id.value), function (data) {
+    $.get(api_endpoints.campground(campground_id.value), function (data) {
         campground.value = data;
         campsite.value.campground = data.id;
     })
@@ -363,18 +369,29 @@ const sendData = function (url, method) {
         method: method,
         data: JSON.stringify(data),
         headers: { 'X-CSRFToken': helpers.getCookie('csrftoken') },
-        success: function (data) {
+        success: async function (data) {
             if (Array.isArray(data)) {
                 data = data[data.length - 1];
             }
-            temp_campsite.value = data;
-            campsite.value = JSON.parse(JSON.stringify(data));
-            if (data.campsite_class) {
-                onCampsiteClassChange();
+            if (method === "POST") {
+                await router.push({
+                    name: 'view_campsite',
+                    params: {
+                        id: campground_id.value,
+                        campsite_id: data.id
+                    }
+                });
+                router.go(0)
+            } else {
+                temp_campsite.value = data;
+                campsite.value = JSON.parse(JSON.stringify(data));
+                if (data.campsite_class) {
+                    onCampsiteClassChange();
+                }
+                setTimeout(function () {
+                    isLoading.value = false;
+                }, 500);
             }
-            setTimeout(function () {
-                isLoading.value = false;
-            }, 500);
         },
         error: function (error) {
             isLoading.value = false
@@ -386,8 +403,8 @@ const sendData = function (url, method) {
 }
 
 onMounted(function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     campsiteForm.value = document.forms.campsiteForm;
-    campsite_id.value = route.params.id
     fetchCampsiteClasses();
     fetchCampground();
     if (campsite_id.value) {
@@ -402,33 +419,5 @@ onMounted(function () {
 .table_btn {
     margin-top: 25px;
     margin-right: -14px;
-}
-
-@media(max-width: 768px) {
-    .btn-create {
-        position: absolute;
-        left: 13px;
-    }
-}
-
-@media(min-width: 768px) {
-    .btn-create {
-        position: absolute;
-        left: 220px;
-    }
-}
-
-@media(min-width: 992px) {
-    .btn-create {
-        position: absolute;
-        left: 300px;
-    }
-}
-
-@media(min-width: 1200px) {
-    .btn-create {
-        position: absolute;
-        left: 390px;
-    }
 }
 </style>

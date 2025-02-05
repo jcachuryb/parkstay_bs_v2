@@ -57,7 +57,6 @@ const vd = {
     validate: (form) => {
         vd.errors = [];
         vd.isValid = true;
-        $('.tooltip-err').tooltip("destroy");
         var fields = $(form).find(':input');
         $.each(fields, function(i, field) {
             if ($(field).attr('required') == 'required' || $(field).attr('required') == 'true') {

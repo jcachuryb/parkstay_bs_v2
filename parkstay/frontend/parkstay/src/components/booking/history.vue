@@ -37,7 +37,7 @@
                             <span><strong>Campground</strong> : {{ booking.campground_name }}</span>
                         </div>
                         <div class="col-sm-8">
-                            <label>Camp Site (Type): {{ CampSiteType }} </label>
+                            <label>Campsite (Type): {{ CampSiteType }} </label>
                         </div>
                     </div>
                     <div class="row" style="margin-top:10px;">
@@ -86,7 +86,7 @@ const booking = ref({
     campground_site_type: ""
 })
 const firstTimeTableLoad = ref(true)
-const dtHeaders = ["Change Date", "Arrival", "Departure", "Campground", "Camp Site", "Updated By", "Details"]
+const dtHeaders = ["Change Date", "Arrival", "Departure", "Campground", "Campsite", "Updated By", "Details"]
 const dtOptions = ref({
     responsive: true,
     processing: true,

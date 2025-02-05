@@ -22,8 +22,8 @@
                                             title="Distance from selected location"
                                             alt="Distance from selected location">
                                             {{ campground.distance_short }}km&nbsp;
-                                            <i class="bi bi-question-circle" data-bs-toggle="tooltip"
-                                                data-bs-placement="right"
+                                            <i class="bi bi-info-circle-fill distance-info-icon"
+                                                data-bs-toggle="tooltip" data-bs-placement="right"
                                                 data-bs-title="Straight-line distance from searched place."></i>
                                         </div>
                                     </div>
@@ -33,36 +33,39 @@
                                         <div v-if="campground.park_name" v-html="campground.park_name.slice(0, 55)"
                                             class='carousel-slide-description'>
                                         </div>
-                                        <div v-if="campground.campground_type == 0">
+                                        <div class='carousel-slide-card-notavailabile'
+                                            v-if="!!!campground.filters_match">
+                                            Filter does not match
+                                        </div>
+                                        <div v-else-if="campground.campground_type == 0">
                                             <div v-if="booking_arrival_days > campground.max_advance_booking && permission_to_make_advanced_booking == false"
                                                 class='carousel-slide-card-notavailabile'>
                                                 Book up to {{ campground.max_advance_booking }} days
                                             </div>
                                             <div v-else>
                                                 <div v-if="campgroundAvailablity[campground.id].total_bookable > 0"
-                                                    class='carousel-slide-card-availabile'>Approximate Sites Available:
-                                                    {{
-                                                        campgroundSiteTotal[campground.id].total_available }}</div>
+                                                    class='carousel-slide-card-availabile'>&nbsp;
+                                                </div>
                                                 <div v-else class='carousel-slide-card-notavailabile'>
-                                                    No availability for selected period
+                                                    No/limited availability!
                                                 </div>
                                             </div>
                                         </div>
                                         <div class='carousel-slide-card-notavailabile'
                                             v-else-if="campground.campground_type == 1">
-                                            Bookings not required. Pay on arrival
+                                            No bookings
                                         </div>
                                         <div class='carousel-slide-card-notavailabile'
                                             v-else-if="campground.campground_type == 2">
-                                            Operated by Parks and Wildlife partner
+                                            Partner-operated facility
                                         </div>
 
                                         <div class='carousel-slide-card-notavailabile'
                                             v-else-if="campground.campground_type == 4">
-                                            Go to 'More Info' for booking conditions
+                                            Booking by application
                                         </div>
-
-
+                                        
+                                        
                                         <div v-else>
                                             <div>&nbsp;</div>
                                         </div>
@@ -71,17 +74,24 @@
                                                         campground.price_hint
                                                     }} per night</small></i></p>
 
-                                        <a v-if="(campground.campground_type == 0 && campgroundAvailablity[campground.id].total_bookable) > 0 && (booking_arrival_days <= campground.max_advance_booking || permission_to_make_advanced_booking == true)"
-                                            class="button formButton1" style="width:100%;"
+                                        <a v-if="campground.campground_type == 0 && (booking_arrival_days <= campground.max_advance_booking || permission_to_make_advanced_booking == true)"
+                                            :class="{
+                                                'button': true,
+                                                'formButton1': campgroundAvailablity[campground.id].total_bookable > 0,
+                                                'formButton4': campgroundAvailablity[campground.id].total_bookable == 0,
+                                                'formButton5': !!!campground.filters_match
+                                            }"
+                                            style="width:100%;"
                                             v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
-                                            target="_self">Book now</a>
+                                            target="_self">See availability</a>
                                         <a v-else-if="campground.campground_type == 1 || campground.campground_type == 4"
-                                            class="button formButton" style="width:100%;"
+                                            :class="{'button':true, 'formButton': !!campground.filters_match,'formButton5': !!!campground.filters_match}" style="width:100%;"
                                             v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
-                                            target="_self">More Info</a>
-                                        <a v-else class="button formButton2"
+                                            target="_self">More Information</a>
+                                        <a v-else :class="{'button':true, 'formButton2': !!campground.filters_match,'formButton5': !!!campground.filters_match}"
                                             v-bind:href="parkstayUrl + '/search-availability/campground/?site_id=' + campground.id + '&' + bookingParam"
-                                            style="width:100%;" target="_self">More info</a>
+                                            style="width:100%;" target="_self">More information<i
+                                                class="bi bi-box-arrow-up-right ms-2"></i> </a>
                                     </div>
                                 </div>
                             </div>
@@ -192,9 +202,12 @@ export default {
             if (this.$refs.carousel) {
                 this.$refs.carousel.slideTo(0)
                 this.$refs.carousel.updateSlideWidth()
-                const tooltipTriggerList = document.querySelectorAll('.carousel-slide-card [data-bs-toggle="tooltip"]')
-                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
             }
+            this.$nextTick(() => {
+
+                const tooltipTriggerList = document.querySelectorAll('.carousel-slide-card [data-bs-toggle="tooltip"]')
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => bootstrap.Tooltip.getOrCreateInstance(tooltipTriggerEl))
+            })
         }
     },
     methods: {
@@ -328,6 +341,10 @@ export default {
         color: #012531;
         padding: 7px;
         padding-right: 0px;
+    }
+
+    .distance-info-icon {
+        color: #0081df;
     }
 }
 
@@ -470,22 +487,16 @@ export default {
         color: #2199e8;
     }
 
-    .button.formButton {
-        display: block;
-        width: 100%;
-    }
-
-    .button.formButton1 {
-        display: block;
-        width: 100%;
-    }
-
     .button.formButton1,
     .button.formButton1:hover {
         background-color: green;
     }
 
-    .button.formButton2 {
+    .button.formButton,
+    .button.formButton1,
+    .button.formButton2,
+    .button.formButton5,
+    .button.formButton4 {
         display: block;
         width: 100%;
     }
@@ -493,6 +504,16 @@ export default {
     .button.formButton2,
     .button.formButton2:hover {
         background-color: purple;
+    }
+
+    .button.formButton4,
+    .button.formButton4:hover {
+        background-color: #bb1010;
+    }
+
+    .button.formButton5,
+    .button.formButton5:hover {
+        background-color: #717070;
     }
 
     .button.selector {

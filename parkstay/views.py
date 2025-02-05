@@ -511,7 +511,7 @@ class MakeBookingsView(TemplateView):
 
 
         if booking.num_guests_no_infant > max_people_accumulated_campsites:
-               form.add_error(None, 'Number of people exceeded for the current camp site.')
+               form.add_error(None, 'Number of people exceeded for the current campsite.')
                return self.render_page(request, booking, form, vehicles, show_errors=True)
 
         # Prevent booking if less than min people 
