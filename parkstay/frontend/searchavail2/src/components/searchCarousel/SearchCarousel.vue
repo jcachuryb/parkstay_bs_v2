@@ -513,7 +513,7 @@ export default {
 
     .button.formButton5,
     .button.formButton5:hover {
-        background-color: #b3b1b1;
+        background-color: #717070;
     }
 
     .button.selector {
