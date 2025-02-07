@@ -311,9 +311,13 @@ export default function (vm) {
     vm.popupContent = document.getElementById('mapPopupContent');
     vm.popup = new ol.Overlay({
         element: document.getElementById('mapPopup'),
-        autoPan: true,
-        autoPanAnimation: {
-            duration: 250,
+        offset: [0, 0],
+        positioning: 'center-center',
+        autoPan: {
+            margin: 8,
+            animation: {
+                duration: 1000,
+            },
         },
     });
 
@@ -398,10 +402,14 @@ export default function (vm) {
             async function (feature, layer) {
                 vm.popup.setPosition(undefined); // resets popup
                 vm.selectedFeature = feature;
+                var zoom_level = $('#zoom_level').val();
 
                 const coord = feature.getGeometry().getCoordinates();
                 const view = vm.olmap.getView();
-                let resolution = view.getResolution();
+                let resolution = vm.resolutions[10];
+                if (zoom_level > 0) {
+                    resolution = vm.resolutions[zoom_level];
+                }
                 // really want to make vue.js render this, except reactivity dies
                 // when you pass control of the popup element to OpenLayers :(
                 $('#mapPopupName')[0].innerHTML = feature.get('name');
@@ -495,16 +503,20 @@ export default function (vm) {
                             feature.getId()
                     );
                 }
-                // makes sure the 
-                setTimeout(()=> {
-                    vm.popup.setPosition(coord);
-                    view.animate({
-                        center: coord,
-                        resolution: resolution,
-                        duration: 1000,
-                    });
+                setTimeout(() => {
+                    view.animate(
+                        {
+                            center: coord,
+                            resolution: resolution,
+                            duration: 1000,
+                        }
+                    );
                     return true;
-                }, 300)
+                }, 300);
+                setTimeout(() => {
+                    vm.popup.setPosition(coord);
+                    return true;
+                }, 1300);
             },
             {
                 layerFilter: function (layer) {
