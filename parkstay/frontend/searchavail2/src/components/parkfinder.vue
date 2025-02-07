@@ -1136,7 +1136,6 @@ export default {
     .mapPopup {
         position: absolute;
         background-color: white;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
         padding: 15px;
         border-radius: 10px;
         border: 1px solid #cccccc;
