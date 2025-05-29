@@ -1,6 +1,6 @@
 from django.contrib.gis import admin
 from parkstay import models
-
+from django.core.cache import cache
 from django.contrib.admin import AdminSite
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
@@ -114,6 +114,14 @@ class CampgroundAdmin(admin.GISModelAdmin,SummernoteModelAdmin):
 #           print ('NEW S')
 #           pass
 
+@admin.register(models.CampgroundReleaseDate)
+class CampgroundReleaseDateAdmin(admin.ModelAdmin):
+    list_display = ('release_date',)
+
+    def delete_queryset(self, request, queryset):
+        cache.delete('CampgroundReleaseDate') 
+        messages.success(request, f"Your record has been deleted {queryset}")
+        queryset.delete()
  
 class CampgroundGroupAdminCampgroundInline(admin.TabularInline):
       model = models.CampgroundGroup.campgrounds.through

@@ -179,3 +179,17 @@ def get_my_booking_notices():
     return my_booking_notices_obj
 
 
+def get_campground_release_date():
+    release_date_obj = {}    
+    release_date_obj_data = cache.get('CampgroundReleaseDate')
+
+    if release_date_obj_data is None:
+        release_date_query = parkstay_models.CampgroundReleaseDate.objects.all()
+        if release_date_query.count() > 0:
+            release_date_obj['release_date'] = release_date_query[0].release_date.strftime('%Y-%m-%d')
+        else:
+            release_date_obj['release_date'] = None
+        cache.set('CampgroundReleaseDate', json.dumps(release_date_obj),  86400)        
+    else:        
+        release_date_obj = json.loads(release_date_obj_data)            
+    return release_date_obj

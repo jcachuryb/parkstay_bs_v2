@@ -1005,6 +1005,28 @@ class AvailabilityCache(models.Model):
       def __str__(self):
           return str(self.date) + " - ("+self.campground.name+")"
 
+class CampgroundReleaseDate(models.Model):
+    release_date = models.DateField()
+
+    def __str__(self):
+        return str(self.release_date)  
+
+    def save(self, *args, **kwargs):
+        countcheck = 0
+        if self.id is not None:
+            countcheck = 1
+        print (self.id)
+        if CampgroundReleaseDate.objects.count() > countcheck:
+                raise ValidationError('Can only create one release date, edit existing date')
+
+        cache.delete('CampgroundReleaseDate')
+        self.full_clean()
+        super(CampgroundReleaseDate, self).save(*args, **kwargs)      
+
+    def delete(self, *args, **kwargs):
+        cache.delete('CampgroundReleaseDate')  
+        super(CampgroundReleaseDate, self).save(*args, **kwargs)     
+
 class Feature(models.Model):
     TYPE_CHOICES = (
         (0, 'Campground'),
