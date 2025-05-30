@@ -548,11 +548,11 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
             if release_date is not None: 
                 stop_mark_rd = min(max(release_date, start_date), end_date)
                 print (start_date)
-                if start_date > release_date:
+                if end_date > release_date:
                     for i in range((end_date - stop_mark_rd).days):                        
                         results[site['pk']][stop_mark_rd + timedelta(days=i)][0] = 'toofar'  
 
-                if start_date == release_date:
+                if end_date == release_date:
                     for i in range((end_date - stop_mark_rd).days):                        
                         nowtime = datetime.now()
                         nowdatetime_string = nowtime.strftime("%Y-%m-%d")
