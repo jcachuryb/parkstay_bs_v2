@@ -1006,7 +1006,7 @@ class AvailabilityCache(models.Model):
           return str(self.date) + " - ("+self.campground.name+")"
 
 class CampgroundReleaseDate(models.Model):
-    release_date = models.DateField()
+    release_date = models.DateField(help_text="This means no bookings can be booked from this date.")
 
     def __str__(self):
         return str(self.release_date)  
