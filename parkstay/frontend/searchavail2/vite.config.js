@@ -65,7 +65,7 @@ export default defineConfig(({ mode }) => {
             root: path.resolve(__dirname, './src'),
             outDir: path.resolve(
                 __dirname,
-                `../../static/${applicationNameShort}_vue`
+                `../../static/${applicationNameShort}_vue` // searchavail2_vue.js
             ),
             publicPath: ``,
             sourcemap: true,
