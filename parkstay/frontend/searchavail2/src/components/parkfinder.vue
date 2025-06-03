@@ -277,7 +277,6 @@ export default {
             sitesInPersonIcon: sitesInPersonIcon,
             sitesAltIcon: sitesAltIcon,
             locationIcon: locationIcon,
-            paginate: ['filterResults'],
             selectedFeature: null,
             booking_arrival_days: 0,
             screen_width: 0,

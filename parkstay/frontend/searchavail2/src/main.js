@@ -5,7 +5,6 @@ import { createApp } from 'vue';
 import router from './router';
 import App from './App.vue';
 import helpers from '@/utils/helpers';
-import VuePaginate from 'vue-paginate';
 
 import 'jquery-validation';
 import 'ol/ol.css';
@@ -40,6 +39,5 @@ fetch = ((originalFetch) => {
 
 const app = createApp(App);
 
-app.component('paginate', VuePaginate);
 app.use(router);
 router.isReady().then(() => app.mount('#parkfinder'));
