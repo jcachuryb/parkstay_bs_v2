@@ -51,6 +51,13 @@ def build_campground_calender(params):
                else:
                    campground_calender = {'options': {}, 'campsites': {}, 'campsite_ids':[]}
 
+               crd = models.CampgroundReleaseDate.objects.all().order_by('-id')
+               release_start = None
+               release_date_diff = None
+               if crd.count() > 0:                    
+                    release_start = crd[0].release_date
+                    release_date_diff = end_date - crd[0].release_date
+
                campsites = models.Campsite.objects.filter(campground=c)
                # Build Campsite Period Dataset
                for cs in campsites:
@@ -64,6 +71,7 @@ def build_campground_calender(params):
                        nextday = today + timedelta(days=day)
                        nextday_string = nextday.strftime('%Y-%m-%d')
                        campground_calender['campsites'][str(cs.id)][nextday_string] = status[1]
+                    
 
                # campsite bookings cancelled make available
                csbooking_cancelled = models.CampsiteBooking.objects.filter(booking__is_canceled=True, campsite__in=campground_calender['campsite_ids'], date__gte=start_date, date__lte=end_date) 
@@ -121,6 +129,37 @@ def build_campground_calender(params):
 
 
 
+               for cs in campsites:
+                   dayscount = 0
+                   for day in range(0, period_days):
+                       nextday = today + timedelta(days=day)
+                       nextday_string = nextday.strftime('%Y-%m-%d')
+
+                       if release_start:
+                            if nextday == release_start:
+                                nowtime = datetime.now()
+                                nowdatetime_string = nowtime.strftime("%Y-%m-%d")
+                                campground_release_time = '10:00:00'
+                                if cs.campground.release_time:
+                                    campground_release_time = cs.campground.release_time.strftime("%H:%M:%S")
+
+                                campground_opentime = datetime.strptime(nowdatetime_string+' '+campground_release_time, '%Y-%m-%d %H:%M:%S')
+                                if nowtime > campground_opentime:
+                                    pass
+                                else:
+                                    if str(cs.id) in campground_calender['campsites']:
+                                        print ("OPEN TODAY")                                    
+                                        if nextday_string in campground_calender['campsites'][str(cs.id)]:
+                                            campground_calender['campsites'][str(cs.id)][nextday_string] = status[3]                                  
+                                
+                            if nextday > release_start:
+                                if str(cs.id) in campground_calender['campsites']:
+                                    if nextday_string in campground_calender['campsites'][str(cs.id)]:
+                                        campground_calender['campsites'][str(cs.id)][nextday_string] = status[3]                         
+
+
+
+                     
                # campsite bookings
                csbooking = models.CampsiteBooking.objects.filter(booking__is_canceled=False, campsite__in=campground_calender['campsite_ids'], date__gte=start_date, date__lte=end_date) 
                

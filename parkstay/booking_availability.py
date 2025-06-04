@@ -550,7 +550,7 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
                 print (start_date)
                 if end_date > release_date:
                     for i in range((end_date - stop_mark_rd).days):                        
-                        results[site['pk']][stop_mark_rd + timedelta(days=i)][0] = 'toofar'  
+                        results[site['pk']][stop_mark_rd + timedelta(days=i)][0] = 'closed'  
 
                 if end_date == release_date:
                     for i in range((end_date - stop_mark_rd).days):                        
@@ -562,7 +562,7 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
                             pass
                         else:
                             for i in range((end_date - stop_mark_rd).days):
-                                results[site['pk']][stop_mark_rd + timedelta(days=i)][0] = 'toofar'  
+                                results[site['pk']][stop_mark_rd + timedelta(days=i)][0] = 'closed'  
 
                                         
 
