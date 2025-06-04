@@ -2,6 +2,7 @@ var search_avail = {
   var: {
     csrf_token: "",
     selected_site: null,
+    map_loaded_first: false,
     multiplesites: [],
     multiplesites_options: { min_people: 0, max_people: 0, max_vehicle: 0 },
     multiplesites_class_totals: {},
@@ -485,9 +486,8 @@ var search_avail = {
     $("#search-selections").show();
     // search_avail.load_campground_availabilty();
     // need to open the map first before the campground cards will show
-    search_avail.select_filter_tab("map");
     search_avail.select_filter_tab("campgrounds");
-
+    search_avail.select_filter_tab("map");    
     $("#region-park-selection-outer").show();
     $("#region-park-selection-inner").html(value_name);
     $("#ps_search_dropdown").remove();
@@ -1767,4 +1767,10 @@ var search_avail = {
     }
     return dates;
   },
+  focus_map: function () {
+    if($("#map-preview-tab").hasClass("active")) {
+        // document.getElementById('card-preview-tab').scrollIntoView({ behavior: 'smooth', block: 'end' });
+        document.getElementById('search-filters').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
 };

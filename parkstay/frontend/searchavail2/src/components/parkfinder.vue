@@ -25,7 +25,15 @@
 
 
         <div id='map-preview' style='display:none'>
-
+            <div class="loading-map" style='display:none'>
+                <div
+                    class="spinner-border text-primary"
+                    style="width: 6rem; height: 6rem"
+                    role="status"
+                >
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
             <div class="row">
                 <div class="small-12 medium-12 large-12 columns search-params" style='display:none'>
                     <div class="row">
@@ -368,7 +376,7 @@ export default {
             var target = this.suggestions['features'].find(function (el) {
                 return el['properties']['name'] == place;
             });
-            if (target) {
+            if (target) {                
                 var view = this.olmap.getView();
                 // zoom slightly closer in for campgrounds
                 var resolution = vm.resolutions[10];
@@ -489,6 +497,8 @@ export default {
             if (vm.selectedFeature) {
                 fromLonLat = vm.selectedFeature.getGeometry().getCoordinates()
             }
+            
+            search_avail.focus_map()
             view.animate({
                 center: fromLonLat,
                 resolution: resolution,
@@ -1196,5 +1206,16 @@ div.awesomplete {
 
 div.awesomplete>input {
     display: table-cell;
+}
+
+#map-preview {
+    position: relative;
+}
+.loading-map {
+    font-size: 48px;
+    position: absolute;
+    z-index: 1;
+    right: 44%;
+    top: 33%;
 }
 </style>
