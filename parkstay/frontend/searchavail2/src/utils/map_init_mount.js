@@ -243,6 +243,7 @@ export default function (vm) {
                 }
                 vm.updateFilter();
                 vm.buildDistanceArray();
+                search_avail.focus_map()
             },
             dataType: 'json',
         });
@@ -533,6 +534,17 @@ export default function (vm) {
     // hook to update the visible feature list on viewport change
     vm.olmap.getView().on('propertychange', function (ev) {
         vm.updateViewport();
+    });
+    vm.olmap.on('loadstart', function (ev) {
+        if(!search_avail.var.map_loaded_first) {
+            $('#map-preview').find('.loading-map').show();
+        }
+    });
+    vm.olmap.on('loadend', function (ev) {
+        if (!search_avail.var.map_loaded_first) {
+            search_avail.var.map_loaded_first = true
+            $('#map-preview').find('.loading-map').hide();
+        }
     });
 
     $(window).resize(function () {
