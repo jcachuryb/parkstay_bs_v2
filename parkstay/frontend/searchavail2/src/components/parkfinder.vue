@@ -318,20 +318,7 @@ export default {
                 return this.olmap.getView().getCenter();
             }
         },
-        arrivalDateString: {
-            cache: false,
-            get: function () {
-                return $('#checkin').val();
-                //return this.arrivalEl[0].value ? moment(this.arrivalData.getDate()).format('YYYY/MM/DD') : null;
-            }
-        },
-        departureDateString: {
-            cache: false,
-            get: function () {
-                return $('#checkout').val();
-                // return this.departureEl[0].value ? moment(this.departureData.getDate()).format('YYYY/MM/DD') : null;
-            }
-        },
+
         numPeople: {
             cache: false,
             get: function () {
@@ -850,6 +837,7 @@ export default {
             });
 
             this.groundsFilter.clear();
+            console.log(vm.groundsIds)
             this.groundsData.forEach(function (el) {
                 var campgroundType = el.get('campground_type');
                 var campground_id = el.getId();
