@@ -243,7 +243,7 @@ export default function (vm) {
                 }
                 vm.updateFilter();
                 vm.buildDistanceArray();
-                search_avail.focus_map()
+                search_avail.focus_map();
             },
             dataType: 'json',
         });
@@ -445,19 +445,46 @@ export default function (vm) {
                 } else {
                     $('#mapPopupPrice')[0].innerHTML = '';
                 }
-                $('#mapPopupDescription')[0].innerHTML =
-                    feature.get('description');
 
                 // This portion needs to be modified to accomodate the new button
                 // Online/Offline sites is determined by the backend api
                 const isMatch = feature.get('match') === true;
+                let popUpDescription = feature.get('description') || '';
+
                 if (isMatch) {
                     $('#mapPopupButton')[0].className = 'button';
+                    if (feature.get('campground_type') === 0) {
+                        const max_advance_booking = feature.get(
+                            'max_advance_booking'
+                        );
+                        if (
+                            vm.booking_arrival_days > max_advance_booking &&
+                            vm.permission_to_make_advanced_booking == false
+                        ) {
+                            popUpDescription = `Book up to ${max_advance_booking} ${max_advance_booking == 1 ? 'day' : 'days'}`;
+                        } else {
+                            const featureAvailability =
+                                vm.campgroundAvailablity[feature.getId()];
+                            if (
+                                !featureAvailability ||
+                                !featureAvailability?.total_bookable
+                            ) {
+                                popUpDescription = 'No/limited availability';
+                            }
+                        }
+                    } else if (feature.get('campground_type') === 1) {
+                        popUpDescription = 'No bookings';
+                    } else if (feature.get('campground_type') === 2) {
+                        popUpDescription = 'Partner-operated facility';
+                    } else if (feature.get('campground_type') === 4) {
+                        popUpDescription = 'Booking by application';
+                    }
                 } else {
                     $('#mapPopupButton').html('More information');
                     $('#mapPopupButton')[0].className = 'button formButton5';
+                    popUpDescription = 'Does not match filters';
                 }
-
+                $('#mapPopupDescription').html(popUpDescription);
                 if (feature.get('campground_type') == 0) {
                     $('#mapPopupButton').attr(
                         'href',
@@ -505,13 +532,11 @@ export default function (vm) {
                     );
                 }
                 setTimeout(() => {
-                    view.animate(
-                        {
-                            center: coord,
-                            resolution: resolution,
-                            duration: 1000,
-                        }
-                    );
+                    view.animate({
+                        center: coord,
+                        resolution: resolution,
+                        duration: 1000,
+                    });
                     return true;
                 }, 300);
                 setTimeout(() => {
@@ -536,13 +561,13 @@ export default function (vm) {
         vm.updateViewport();
     });
     vm.olmap.on('loadstart', function (ev) {
-        if(!search_avail.var.map_loaded_first) {
+        if (!search_avail.var.map_loaded_first) {
             $('#map-preview').find('.loading-map').show();
         }
     });
     vm.olmap.on('loadend', function (ev) {
         if (!search_avail.var.map_loaded_first) {
-            search_avail.var.map_loaded_first = true
+            search_avail.var.map_loaded_first = true;
             $('#map-preview').find('.loading-map').hide();
         }
     });
