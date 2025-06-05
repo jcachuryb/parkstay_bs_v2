@@ -487,7 +487,7 @@ var search_avail = {
     // search_avail.load_campground_availabilty();
     // need to open the map first before the campground cards will show
     search_avail.select_filter_tab("campgrounds");
-    search_avail.select_filter_tab("map");    
+    search_avail.select_filter_tab("map");
     $("#region-park-selection-outer").show();
     $("#region-park-selection-inner").html(value_name);
     $("#ps_search_dropdown").remove();
@@ -1769,7 +1769,6 @@ var search_avail = {
   },
   focus_map: function () {
     if($("#map-preview-tab").hasClass("active")) {
-        // document.getElementById('card-preview-tab').scrollIntoView({ behavior: 'smooth', block: 'end' });
         document.getElementById('search-filters').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }

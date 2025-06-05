@@ -117,14 +117,14 @@ export default function (vm) {
             }
         });
 
-    $('.filter-features').on('click', function () {
+    $('.filter-features').off("click").on('click', function () {
         console.log('UPDATE FILTERS');
         vm.updateFilter();
         vm.groundsSource.loadSource();
         vm.buildDistanceArray();
     });
 
-    $('.filter-featurescs').on('click', function () {
+    $('.filter-featurescs').off("click").on('click', function () {
         console.log('UPDATE FILTERS');
         vm.updateFilter();
         vm.groundsSource.loadSource();
@@ -208,22 +208,13 @@ export default function (vm) {
 
         if (checkin && checkout) {
             isCustom = true;
-            var arrival = vm.arrivalDateString;
-
-            if (arrival) {
+            const camping_period = search_avail.var?.camping_period
+            
+            if (camping_period) {
+                var arrival = camping_period["checkin"];
                 params.arrival = arrival;
+                params.departure = camping_period["checkout"];
             }
-
-            var departure = vm.departureDateString;
-            if (departure) {
-                params.departure = vm.departureDateString;
-            }
-
-            // params.num_adult = vm.numAdults;
-            // params.num_concessions = vm.numConcessions;
-            // params.num_children = vm.numChildren;
-            // params.num_infants = vm.numInfants;
-
             params.gear_type = vm.gearType;
             params.features = JSON.stringify(vm.features);
             params.featurescs = JSON.stringify(vm.featuresCs);
