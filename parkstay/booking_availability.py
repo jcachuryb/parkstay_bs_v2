@@ -363,12 +363,34 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     parkstay_officers = False    
     gca = get_campground(ground_id)  
     release_date_obj = utils_cache.get_campground_release_date()
-    print (release_date_obj)
-    release_date = None    
 
-    if release_date_obj['release_date'] is not None:
-        release_date = datetime.strptime(release_date_obj['release_date'], "%Y-%m-%d").date()
+    release_date = None
+    booking_open_date = None
+    today = date.today()
+
+    # Check if campground has specific open periods
+    for rd in release_date_obj['release_period']:
+        if rd['campground'] == ground_id:
+            rd_release_date = datetime.strptime(rd['release_date'], "%Y-%m-%d").date()
+            rd_booking_open_date= datetime.strptime(rd['booking_open_date'], "%Y-%m-%d").date()
+            if today >= rd_booking_open_date:
+                release_date = rd_release_date
+                booking_open_date = rd_booking_open_date
+
+    if release_date is None:
+        for rd in release_date_obj['release_period']:
+            if rd['campground'] == None or rd['campground'] == ground_id:
+                rd_release_date = datetime.strptime(rd['release_date'], "%Y-%m-%d").date()
+                rd_booking_open_date = datetime.strptime(rd['booking_open_date'], "%Y-%m-%d").date()
+                if today >= rd_booking_open_date:
+                    release_date = rd_release_date
+                    booking_open_date = rd_booking_open_date                
     
+    # if release_date is None:
+    #     release_date = datetime.strptime(release_date_obj['release_date'], "%Y-%m-%d").date()    
+    print ("RELEASE")
+    print (release_date)
+
     if user:
         if models.ParkstayPermission.objects.filter(email=user.email,permission_group=5).count() > 0:
              can_make_advanced_booking = True
@@ -412,8 +434,9 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
                                                             )
     # prefill all slots as 'open'
     duration = (end_date - start_date).days
+    #duration = (end_date + timedelta(days=1) - start_date).days
     results = {site['pk']: {start_date + timedelta(days=i): ['open', None] for i in range(duration)} for site in sites_array}
-
+ 
     # generate a campground-to-campsite-list map
     campground_map = {ground_id: []}
     for cs in sites_array:
@@ -538,34 +561,44 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     # strike out days after the max_advance_booking
     if user == None or (not can_make_advanced_booking):
         
-        for site in sites_array:            
-            stop = today + timedelta(days=site['data']['campground__max_advance_booking'])            
-            stop_mark = min(max(stop, start_date), end_date)
-            if start_date > stop:
-                for i in range((end_date - stop_mark).days):
-                    results[site['pk']][stop_mark + timedelta(days=i)][0] = 'toofar'
+        for site in sites_array:     
+            if release_date is None:     
+                stop = today + timedelta(days=site['data']['campground__max_advance_booking'])            
+                stop_mark = min(max(stop, start_date), end_date)
+                if start_date > stop:
+                    for i in range((end_date - stop_mark).days):
+                        results[site['pk']][stop_mark + timedelta(days=i)][0] = 'toofar'
     
             if release_date is not None: 
-                stop_mark_rd = min(max(release_date, start_date), end_date)
-                print (start_date)
+                stop_mark_rd = min(max(release_date, start_date), end_date  ) 
+        
                 if end_date > release_date:
-                    for i in range((end_date - stop_mark_rd).days):                        
+                    for i in range((end_date - stop_mark_rd).days):                 
                         results[site['pk']][stop_mark_rd + timedelta(days=i)][0] = 'closed'  
 
                 if end_date == release_date:
-                    for i in range((end_date - stop_mark_rd).days):                        
-                        nowtime = datetime.now()
-                        nowdatetime_string = nowtime.strftime("%Y-%m-%d")
-                        campground_opentime = datetime.strptime(nowdatetime_string+' '+gca["release_time"], '%Y-%m-%d %H:%M:%S')
+                    # print (range((end_date - stop_mark_rd).days))
+                    # for i in range((end_date - stop_mark_rd).days):                        
+                    #     nowtime = datetime.now()
+                    #     nowdatetime_string = nowtime.strftime("%Y-%m-%d")
+                    #     campground_opentime = datetime.strptime(nowdatetime_string+' '+gca["release_time"], '%Y-%m-%d %H:%M:%S')
+                    #     print ('OPEN')
+                    #     print (campground_opentime)
+                    #     if nowtime >= campground_opentime:
+                    #         pass
+                    #     else:
+                    #         for i in range((end_date - stop_mark_rd).days):
+                    #             results[site['pk']][stop_mark_rd + timedelta(days=i)][0] = 'closed'  
 
-                        if nowtime >= campground_opentime:
-                            pass
-                        else:
-                            for i in range((end_date - stop_mark_rd).days):
-                                results[site['pk']][stop_mark_rd + timedelta(days=i)][0] = 'closed'  
-
+                    nowtime = datetime.now()
+                    nowdatetime_string = nowtime.strftime("%Y-%m-%d")
+                    campground_opentime = datetime.strptime(nowdatetime_string+' '+gca["release_time"], '%Y-%m-%d %H:%M:%S')
                                         
-
+                    if nowtime >= campground_opentime:                        
+                        pass
+                    else:   
+                        # Departure date will not have any dates in availability data so need to use previous day.        
+                        results[site['pk']][release_date - timedelta(days=1)][0] = 'closed'                                                                          
 
             # add to restrict the 180 days (max advance open times to a specific open time)   
             if start_date == stop:

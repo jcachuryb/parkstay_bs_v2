@@ -1006,18 +1006,37 @@ class AvailabilityCache(models.Model):
           return str(self.date) + " - ("+self.campground.name+")"
 
 class CampgroundReleaseDate(models.Model):
-    release_date = models.DateField(help_text="This means no bookings can be booked from this date.")
+    booking_open_date = models.DateField(help_text="This is the date the booking for until release period", blank=True, null=True)
+    release_date = models.DateField(help_text="This means no bookings can be booked from this date.", blank=True, null=True)
+    campground = models.ForeignKey('Campground', on_delete=models.CASCADE , related_name='campground_release', blank=True, null=True) 
 
     def __str__(self):
         return str(self.release_date)  
 
     def save(self, *args, **kwargs):
-        countcheck = 0
-        if self.id is not None:
-            countcheck = 1
-        print (self.id)
-        if CampgroundReleaseDate.objects.count() > countcheck:
-                raise ValidationError('Can only create one release date, edit existing date')
+
+        if not self.release_date:            
+            raise ValidationError('Release date is required')     
+        if not self.booking_open_date:
+            raise ValidationError('Booking open date is required')       
+        if self.booking_open_date > self.release_date:
+            raise ValidationError('Booking open date cannot be passed the release date')       
+
+        if CampgroundReleaseDate.objects.filter(release_date=self.release_date, booking_open_date=self.booking_open_date,campground=self.campground).exclude(id=self.id).count() > 0:
+            raise ValidationError('Release period already exists')
+
+        if CampgroundReleaseDate.objects.filter(release_date=self.release_date, campground=self.campground).exclude(id=self.id).count() > 0:
+            if self.release_date:
+                raise ValidationError('Release date already exists {}'.format(self.release_date.strftime("%Y-%m-%d")))            
+            else:
+                raise ValidationError('Release date already exists (None)')           
+
+        # countcheck = 0
+        # if self.id is not None:
+        #     countcheck = 1
+        # print (self.id)
+        # if CampgroundReleaseDate.objects.count() > countcheck:
+        #         raise ValidationError('Can only create one release date, edit existing date')
 
         cache.delete('CampgroundReleaseDate')
         self.full_clean()
@@ -1025,7 +1044,10 @@ class CampgroundReleaseDate(models.Model):
 
     def delete(self, *args, **kwargs):
         cache.delete('CampgroundReleaseDate')  
-        super(CampgroundReleaseDate, self).save(*args, **kwargs)     
+        super(CampgroundReleaseDate, self).save(*args, **kwargs)   
+
+    class Meta:
+        unique_together = [['release_date', 'booking_open_date','campground']]          
 
 class Feature(models.Model):
     TYPE_CHOICES = (
