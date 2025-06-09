@@ -21,7 +21,7 @@ import formatgeojson from 'ol/format/GeoJSON';
 import collection from 'ol/Collection';
 
 export default function (vm) {
-    $('#map').html('');
+    $('#map').empty();
     //vm.booking_arrival_days = search_avail.var.arrival_days;
 
     var features = $('#feature_json').val() ?? '"[]"';
@@ -117,19 +117,23 @@ export default function (vm) {
             }
         });
 
-    $('.filter-features').off("click").on('click', function () {
-        console.log('UPDATE FILTERS');
-        vm.updateFilter();
-        vm.groundsSource.loadSource();
-        vm.buildDistanceArray();
-    });
+    $('.filter-features')
+        .off('click')
+        .on('click', function () {
+            console.log('UPDATE FILTERS');
+            vm.updateFilter();
+            vm.groundsSource.loadSource();
+            vm.buildDistanceArray();
+        });
 
-    $('.filter-featurescs').off("click").on('click', function () {
-        console.log('UPDATE FILTERS');
-        vm.updateFilter();
-        vm.groundsSource.loadSource();
-        vm.buildDistanceArray();
-    });
+    $('.filter-featurescs')
+        .off('click')
+        .on('click', function () {
+            console.log('UPDATE FILTERS');
+            vm.updateFilter();
+            vm.groundsSource.loadSource();
+            vm.buildDistanceArray();
+        });
 
     // generate WMTS tile grid
     vm.projection = ol.proj.getProjection('EPSG:3857');
@@ -202,18 +206,16 @@ export default function (vm) {
         // var urlBase = vm.parkstayUrl+'/api/campground_map_filter/?';
         var urlBase = vm.parkstayUrl + '/api/campground_availabilty_view/?';
         var params = { format: 'json' };
-        var isCustom = false;
         var checkin = $('#checkin');
         var checkout = $('#checkout');
 
         if (checkin && checkout) {
-            isCustom = true;
-            const camping_period = search_avail.var?.camping_period
-            
+            const camping_period = search_avail.var?.camping_period;
+
             if (camping_period) {
-                var arrival = camping_period["checkin"];
+                var arrival = camping_period['checkin'];
                 params.arrival = arrival;
-                params.departure = camping_period["checkout"];
+                params.departure = camping_period['checkout'];
             }
             params.gear_type = vm.gearType;
             params.features = JSON.stringify(vm.features);
@@ -240,12 +242,22 @@ export default function (vm) {
         });
     };
 
-    function getOLIcon(vm, campgroundId, campgroundType, is_match) {
+    function getOLIcon(vm, feature) {
+        const is_match = feature.get('match') ?? true;
+        const campgroundType = feature.get('campground_type');
+        const campgroundId = feature.getId();
+        const max_advance_booking = feature.get('max_advance_booking');
+        const isTimeBookable =
+            vm.booking_arrival_days <= max_advance_booking &&
+            vm.permission_to_make_advanced_booking;
+
         let icon = is_match ? vm.sitesInPersonIcon : vm.sitesNoMatchIcon;
+
         switch (campgroundType) {
             case 0:
                 const hasBookings =
                     vm.campgroundAvailablity[campgroundId].total_bookable > 0;
+
                 icon = is_match
                     ? hasBookings
                         ? vm.sitesOnlineIcon
@@ -272,24 +284,14 @@ export default function (vm) {
         source: vm.groundsSource,
         style: function (feature) {
             var style = feature.get('style');
-            const is_match = feature.get('match') ?? true;
-            const campgroundType = feature.get('campground_type');
-            const campgroundId = feature.getId();
             if (!style) {
                 style = new ol.style.Style({
-                    image: getOLIcon(
-                        vm,
-                        campgroundId,
-                        campgroundType,
-                        is_match
-                    ),
+                    image: getOLIcon(vm, feature),
                     zIndex: -feature.getGeometry().getCoordinates()[1],
                 });
                 feature.set('style', style);
             } else {
-                style.setImage(
-                    getOLIcon(vm, campgroundId, campgroundType, is_match)
-                );
+                style.setImage(getOLIcon(vm, feature));
             }
             return style;
         },
@@ -448,20 +450,20 @@ export default function (vm) {
                         const max_advance_booking = feature.get(
                             'max_advance_booking'
                         );
+                        const isTimeBookable =
+                            vm.booking_arrival_days <= max_advance_booking &&
+                            vm.permission_to_make_advanced_booking;
+                        // TODO: Temporarily disabled this condition
+                        if (isTimeBookable) {
+                            // popUpDescription = `Book up to ${max_advance_booking} ${max_advance_booking == 1 ? 'day' : 'days'}`;
+                        } // else {
+                        const featureAvailability =
+                            vm.campgroundAvailablity[feature.getId()];
                         if (
-                            vm.booking_arrival_days > max_advance_booking &&
-                            vm.permission_to_make_advanced_booking == false
+                            !featureAvailability ||
+                            !featureAvailability?.total_bookable
                         ) {
-                            popUpDescription = `Book up to ${max_advance_booking} ${max_advance_booking == 1 ? 'day' : 'days'}`;
-                        } else {
-                            const featureAvailability =
-                                vm.campgroundAvailablity[feature.getId()];
-                            if (
-                                !featureAvailability ||
-                                !featureAvailability?.total_bookable
-                            ) {
-                                popUpDescription = 'No/limited availability';
-                            }
+                            popUpDescription = 'No/limited availability';
                         }
                     } else if (feature.get('campground_type') === 1) {
                         popUpDescription = 'No bookings';
