@@ -3412,7 +3412,7 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            SORTABLE_COLS = ['id', 'campground_name', 'arrival']
+            SORTABLE_COLS = ['id', 'campground_name', 'campground_site_type',  'arrival']
             #print("MLINE 1.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             search = request.GET.get('search[value]')
             draw = request.GET.get('draw') if request.GET.get('draw') else 1
@@ -3435,7 +3435,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                 sorting_fields = []
                 if sort_column in SORTABLE_COLS:
                     if sort_column == 'campground_site_type':
-                        sort_column = ''
+                        sort_column = 'property_cache__first_campsite_list2__0__name'
                         sorting_fields = ['campground__park__district__region__name','id']
                     elif sort_column == 'campground_name':
                         sort_column = 'campground__name'

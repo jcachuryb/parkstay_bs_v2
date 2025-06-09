@@ -191,6 +191,8 @@ const dtOptions = ref({
     },
     {
       data: "campground_site_type",
+      orderable: true,
+      searchable: false,
       mRender: function (data, type, full) {
         var typeCondensed = {};
         var resultList = [];
@@ -223,8 +225,6 @@ const dtOptions = ref({
         }
         return "<td></td>";
       },
-      orderable: false,
-      searchable: false
     },
     {
       data: "firstname",
@@ -326,6 +326,7 @@ const dtOptions = ref({
     },
 
   ],
+  order: [[0, "desc"]],
 })
 const dtHeaders = ref([
   "Booking number",
