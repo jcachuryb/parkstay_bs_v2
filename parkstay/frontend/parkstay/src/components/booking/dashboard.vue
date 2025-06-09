@@ -133,6 +133,11 @@ const dtOptions = ref({
     url: api_endpoints.bookings,
     dataSrc: "results",
     data: function (d) {
+      const sort = d.order && d.order.length > 0 ? d.order[0] : null;
+      if(sort) {
+        d.sort_direction = sort.dir;
+        d.sort_column = d.columns[sort.column].data;
+      }
       if (filterDateFrom.value) {
         d.arrival = filterDateFrom.value;
       }
@@ -171,7 +176,7 @@ const dtOptions = ref({
   columns: [
     {
       data: "id",
-      orderable: false,
+      orderable: true,
       searchable: false,
       mRender: function (data, type, full) {
         return full.status != "Canceled"
@@ -181,11 +186,13 @@ const dtOptions = ref({
     },
     {
       data: "campground_name",
-      orderable: false,
+      orderable: true,
       searchable: false
     },
     {
       data: "campground_site_type",
+      orderable: true,
+      searchable: false,
       mRender: function (data, type, full) {
         var typeCondensed = {};
         var resultList = [];
@@ -218,8 +225,6 @@ const dtOptions = ref({
         }
         return "<td></td>";
       },
-      orderable: false,
-      searchable: false
     },
     {
       data: "firstname",
@@ -251,7 +256,7 @@ const dtOptions = ref({
     },
     {
       data: "arrival",
-      orderable: false,
+      orderable: true,
       searchable: false,
       mRender: function (data, type, full) {
         return Moment(data).format("DD/MM/YYYY");
@@ -321,7 +326,7 @@ const dtOptions = ref({
     },
 
   ],
-
+  order: [[0, "desc"]],
 })
 const dtHeaders = ref([
   "Booking number",
