@@ -562,9 +562,10 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     if user == None or (not can_make_advanced_booking):
         
         for site in sites_array:     
-            if release_date is None:     
-                stop = today + timedelta(days=site['data']['campground__max_advance_booking'])            
-                stop_mark = min(max(stop, start_date), end_date)
+             
+            stop = today + timedelta(days=site['data']['campground__max_advance_booking'])            
+            stop_mark = min(max(stop, start_date), end_date)
+            if release_date is None:   
                 if start_date > stop:
                     for i in range((end_date - stop_mark).days):
                         results[site['pk']][stop_mark + timedelta(days=i)][0] = 'toofar'
