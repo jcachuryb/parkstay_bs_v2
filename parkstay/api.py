@@ -3412,7 +3412,7 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            
+            SORTABLE_COLS = ['id', 'campground_name', 'arrival']
             #print("MLINE 1.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             search = request.GET.get('search[value]')
             draw = request.GET.get('draw') if request.GET.get('draw') else 1
@@ -3427,6 +3427,23 @@ class BookingViewSet(viewsets.ModelViewSet):
             park = request.GET.get('park')
             canceled = request.GET.get('canceled', None)
             refund_status = request.GET.get('refund_status', None)
+            sort_column= request.GET.get('sort_column', 'id')
+            sort_direction = request.GET.get('sort_direction', 'asc')
+            sort_filter = None
+            sorting_fields = ['campground__name', 'campground__park__district__region__name','id']
+            if sort_column:
+                sorting_fields = []
+                if sort_column in SORTABLE_COLS:
+                    if sort_column == 'campground_site_type':
+                        sort_column = ''
+                        sorting_fields = ['campground__park__district__region__name','id']
+                    elif sort_column == 'campground_name':
+                        sort_column = 'campground__name'
+                        sorting_fields = ['campground__park__district__region__name','id']
+
+                    sort_filter = sort_column if sort_direction == 'asc' else '-' + sort_column
+                    sorting_fields.insert(0, sort_filter)
+
             #print("MLINE 2.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             campground_groups = models.CampgroundGroup.objects.filter(members__in=[request.user.id])
             
@@ -3505,19 +3522,18 @@ class BookingViewSet(viewsets.ModelViewSet):
             filteredresultscount = Booking.objects.filter(booking_query).exclude(booking_type=3).count()
             #print (str(booking_query))
             lu = Booking.objects.all().values('updated').order_by('-updated')
-            data_hash = hashlib.md5(str(str(booking_query)+':'+str(start)+':'+str(length)+":"+str(filteredresultscount)+':'+str(lu[0]['updated'])).encode('utf-8')).hexdigest()
+            sorting_string = ','.join(sorting_fields)
+            data_hash = hashlib.md5(str(str(booking_query)+':'+str(start)+':'+str(length)+":"+str(filteredresultscount)+':'+str(lu[0]['updated'])+':'+sorting_string).encode('utf-8')).hexdigest()
             jsonresults = cache.get('BookingViewSet'+data_hash)
             #bookings = None
             recordsFiltered = 0 
             jsonresults =None
             if jsonresults is None:
+                bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).order_by(*sorting_fields)
                 if length == 'all':
-                     bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','canceled_by_id','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale').order_by('campground__name','campground__park__district__region__name','id')
-
+                    bookings = bookings.values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','canceled_by_id','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale')
                 else:
-                     #bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer__first_name','customer__last_name','customer__email','canceled_by__first_name','canceled_by__last_name','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale').order_by('campground__name','campground__park__district__region__name','id')[int(start):int(start)+int(length)]
-                     bookings = Booking.objects.filter(booking_query).exclude(booking_type=3).values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer_id','canceled_by_id','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale').order_by('campground__name','campground__park__district__region__name','id')[int(start):int(start)+int(length)]
-                #cache.set('BookingViewSet'+data_hash, bookings, 1200)
+                    bookings = bookings.values('id','arrival','departure','campground__id','booking_type','is_canceled','departure','created','customer__id','campground__name','customer_id','canceled_by_id','campground__park__district__region__name','property_cache','send_invoice','cost_total','override_price','cancellation_reason','details','override_reason__text','override_reason_info','cancelation_time','property_cache_stale')[int(start):int(start)+int(length)]
 
                 recordsFiltered = filteredresultscount
                 filteredResults = []

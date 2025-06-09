@@ -837,7 +837,6 @@ export default {
             });
 
             this.groundsFilter.clear();
-            console.log(vm.groundsIds)
             this.groundsData.forEach(function (el) {
                 var campgroundType = el.get('campground_type');
                 var campground_id = el.getId();

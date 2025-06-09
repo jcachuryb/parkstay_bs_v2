@@ -40,7 +40,7 @@
                                         <div v-else-if="campground.campground_type == 0">
                                             <div v-if="booking_arrival_days > campground.max_advance_booking && permission_to_make_advanced_booking == false"
                                                 class='carousel-slide-card-notavailabile'>
-                                                Book up to {{ campground.max_advance_booking }} {{ campground.max_advance_booking == 1 ? 'day' : 'days' }}
+                                                <!-- Book up to {{ campground.max_advance_booking }} {{ campground.max_advance_booking == 1 ? 'day' : 'days' }} -->
                                             </div>
                                             <div v-else>
                                                 <div v-if="campgroundAvailablity[campground.id].total_bookable > 0"
