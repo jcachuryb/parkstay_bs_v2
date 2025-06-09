@@ -34,6 +34,7 @@ def all_campground_campsites(cg_id):
 
 
 def get_campground(campground_id):
+    from parkstay import utils
     cg_array = {}
     campground_dumped_data = cache.get('utils_cache.get_campground('+campground_id+')')
     #campground_dumped_data = None
@@ -95,6 +96,13 @@ def get_campground(campground_id):
         campground['largest_camper'] = max_people
         campground['largest_vehicle'] = max_vehicles
 
+        release_period = utils.get_release_date_for_campground(campground_id)
+        campground['release_date'] = None
+        campground['booking_open_date'] = None
+        if release_period['release_date']:
+            campground['release_date'] = release_period['release_date'].strftime('%Y-%m-%d')
+        if release_period['booking_open_date']:
+            campground['booking_open_date'] = release_period["booking_open_date"].strftime('%Y-%m-%d')
 
 
 

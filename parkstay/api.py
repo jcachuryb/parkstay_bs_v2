@@ -1265,7 +1265,10 @@ def campsite_availablity_view(request,  *args, **kwargs):
         'current_booking_campsite_id': current_booking_campsite_id,
         'current_booking_campsite_class_id': current_booking_campsite_class_id,
         'result' : True,
-        'release_time_friendly' : ground['release_time_friendly']
+        'release_time_friendly' : ground['release_time_friendly'],
+        'release_date' : ground['release_date'],
+        'booking_open_date' : ground['booking_open_date']
+        
     }
 
 

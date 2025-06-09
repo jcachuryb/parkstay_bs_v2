@@ -40,6 +40,9 @@ var search_avail = {
     site_type: null,
     availabity: null,
     max_advance_booking: 60,
+    campground_release_date: null,
+    campground_booking_open_date: null,
+    today_date: null,
     arrival_days: 0,
     permission_to_make_advanced_booking: false,
     arrival: null,
@@ -1017,16 +1020,31 @@ var search_avail = {
       "<center><img style='padding-top: 20px;' height='70' src='/static/ps/img/parkstay_loader_bar_white_500.gif'></center>"
     );
 
-    if (search_avail.var.arrival_days > search_avail.var.max_advance_booking) {
+    var campground_release_date = new Date(search_avail.var.campground_release_date);
+    var campground_departure_date = new Date(search_avail.var.camping_period["checkout"]);
+
+    if (campground_departure_date > campground_release_date) {
       if (search_avail.var.permission_to_make_advanced_booking == true) {
         // permission granted
       } else {
         $("#campsite-availablity-results").html(
-          "<center style='color:red'>Please choose a shorter arrival date.</center>"
+          "<center style='color:red'>Please choose a shorter departure date.</center>"
         );
         return;
       }
     }
+
+
+    // if (search_avail.var.arrival_days > search_avail.var.max_advance_booking) {
+    //   if (search_avail.var.permission_to_make_advanced_booking == true) {
+    //     // permission granted
+    //   } else {
+    //     $("#campsite-availablity-results").html(
+    //       "<center style='color:red'>Please choose a shorter arrival date.</center>"
+    //     );
+    //     return;
+    //   }
+    // }
 
     $.ajax({
       url:

@@ -29,6 +29,14 @@ def get_campground(campground_id):
                 cg_hash['release_time_friendly'] = ground.release_time.strftime("%I:%M %p")
                 cg_hash['max_advance_booking'] = ground.max_advance_booking
 
+                release_period = utils.get_release_date_for_campground(campground_id)
+                cg_hash['release_date'] = None
+                cg_hash['booking_open_date'] = None
+                if release_period['release_date']:
+                    cg_hash['release_date'] = release_period['release_date'].strftime('%Y-%m-%d')
+                if release_period['booking_open_date']:
+                    cg_hash['booking_open_date'] = release_period["booking_open_date"].strftime('%Y-%m-%d')
+
                 if ground.campground_map:
                    cg_hash['campground_map_url'] = ground.campground_map.url
                    cg_hash['campground_map'] = {'path': ground.campground_map.path}
@@ -368,23 +376,27 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     booking_open_date = None
     today = date.today()
 
-    # Check if campground has specific open periods
-    for rd in release_date_obj['release_period']:
-        if rd['campground'] == ground_id:
-            rd_release_date = datetime.strptime(rd['release_date'], "%Y-%m-%d").date()
-            rd_booking_open_date= datetime.strptime(rd['booking_open_date'], "%Y-%m-%d").date()
-            if today >= rd_booking_open_date:
-                release_date = rd_release_date
-                booking_open_date = rd_booking_open_date
+    campground_release_date = utils.get_release_date_for_campground(ground_id)
+    release_date = campground_release_date["release_date"]
+    booking_open_date = campground_release_date["booking_open_date"]
 
-    if release_date is None:
-        for rd in release_date_obj['release_period']:
-            if rd['campground'] == None or rd['campground'] == ground_id:
-                rd_release_date = datetime.strptime(rd['release_date'], "%Y-%m-%d").date()
-                rd_booking_open_date = datetime.strptime(rd['booking_open_date'], "%Y-%m-%d").date()
-                if today >= rd_booking_open_date:
-                    release_date = rd_release_date
-                    booking_open_date = rd_booking_open_date                
+    # Check if campground has specific open periods
+    # for rd in release_date_obj['release_period']:
+    #     if rd['campground'] == ground_id:
+    #         rd_release_date = datetime.strptime(rd['release_date'], "%Y-%m-%d").date()
+    #         rd_booking_open_date= datetime.strptime(rd['booking_open_date'], "%Y-%m-%d").date()
+    #         if today >= rd_booking_open_date:
+    #             release_date = rd_release_date
+    #             booking_open_date = rd_booking_open_date
+
+    # if release_date is None:
+    #     for rd in release_date_obj['release_period']:
+    #         if rd['campground'] == None or rd['campground'] == ground_id:
+    #             rd_release_date = datetime.strptime(rd['release_date'], "%Y-%m-%d").date()
+    #             rd_booking_open_date = datetime.strptime(rd['booking_open_date'], "%Y-%m-%d").date()
+    #             if today >= rd_booking_open_date:
+    #                 release_date = rd_release_date
+    #                 booking_open_date = rd_booking_open_date                
     
     # if release_date is None:
     #     release_date = datetime.strptime(release_date_obj['release_date'], "%Y-%m-%d").date()    

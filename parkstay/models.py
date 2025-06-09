@@ -1037,8 +1037,10 @@ class CampgroundReleaseDate(models.Model):
         # print (self.id)
         # if CampgroundReleaseDate.objects.count() > countcheck:
         #         raise ValidationError('Can only create one release date, edit existing date')
-
+        if self.campground:
+            cache.get('api.get_campground('+str(self.campground.id)+')')            
         cache.delete('CampgroundReleaseDate')
+        
         self.full_clean()
         super(CampgroundReleaseDate, self).save(*args, **kwargs)      
 

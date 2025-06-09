@@ -1978,4 +1978,29 @@ def get_ledger_totals():
     #f.close()
 
 
+def get_release_date_for_campground(campground_id):
+    from parkstay import utils_cache
+    release_date = None
+    today = date.today()
+    release_date_obj = utils_cache.get_campground_release_date()
+    release_period = {"release_date": None,"booking_open_date": None}
 
+    # Check if campground has specific open periods
+    for rd in release_date_obj['release_period']:
+        if rd['campground'] == campground_id:
+            rd_release_date = datetime.strptime(rd['release_date'], "%Y-%m-%d").date()
+            rd_booking_open_date= datetime.strptime(rd['booking_open_date'], "%Y-%m-%d").date()
+            if today >= rd_booking_open_date:
+                release_period["release_date"] = rd_release_date
+                release_period["booking_open_date"] = rd_booking_open_date
+
+    if release_date is None:
+        for rd in release_date_obj['release_period']:
+            if rd['campground'] == None:
+                rd_release_date = datetime.strptime(rd['release_date'], "%Y-%m-%d").date()
+                rd_booking_open_date = datetime.strptime(rd['booking_open_date'], "%Y-%m-%d").date()
+                if today >= rd_booking_open_date:
+                    release_period["release_date"] = rd_release_date
+                    release_period["booking_open_date"] = rd_booking_open_date                
+
+    return release_period

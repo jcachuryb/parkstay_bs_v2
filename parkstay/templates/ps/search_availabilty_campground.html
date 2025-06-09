@@ -760,6 +760,10 @@ window.onload = function() {
        search_avail.var.vehicles.trailer = parseInt('{{ cg.num_trailer }}');
        search_avail.var.vehicles.caravan = parseInt('{{ cg.num_caravan }}');
        search_avail.var.max_advance_booking = '{{ cg.campground.max_advance_booking }}';
+       search_avail.var.campground_release_date = '{{ cg.campground.release_date }}';
+       search_avail.var.campground_booking_open_date = '{{ cg.campground.booking_open_date }}';
+       search_avail.var.today_date = '{{ cg.campground.today_date }}';
+       
        search_avail.var.arrival = {% if cg.arrival %}'{{ cg.arrival }}'{% else %}null{% endif %};
        search_avail.var.departure = {% if cg.departure %}'{{ cg.departure }}'{% else %}null{% endif %};
 
