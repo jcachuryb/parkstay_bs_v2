@@ -1071,17 +1071,17 @@ var search_avail = {
         );
       },
       success: function (data) {
-        if (search_avail.var.permission_to_make_advanced_booking == true) {
-        } else {
-          if (data.booking_time_open == false) {
-            $("#campsite-availablity-results").html(
-              "<div class='alert alert-primary' role='alert'>Booking availability for this campground have not yet open for bookings.  Please try booking after " +
-                data["release_time_friendly"] +
-                "</div>"
-            );
-            return;
-          }
-        }
+        // if (search_avail.var.permission_to_make_advanced_booking == true) {
+        // } else {
+        //   if (data.booking_time_open == false) {
+        //     $("#campsite-availablity-results").html(
+        //       "<div class='alert alert-primary' role='alert'>Booking availability for this campground have not yet open for bookings.  Please try booking after " +
+        //         data["release_time_friendly"] +
+        //         "</div>"
+        //     );
+        //     return;
+        //   }
+        // }
         var tents = $("#filter-checkbox-tent").is(":checked");
         var campervan = $("#filter-checkbox-campervan").is(":checked");
         var campertrailer = $("#filter-checkbox-campertrailer").is(":checked");
@@ -1116,6 +1116,8 @@ var search_avail = {
         var campsitehtmlbox = "";
         var site_type = data.site_type;
         search_avail.var.site_type = data.site_type;
+        search_avail.var.campground_release_date = data.release_date;
+        search_avail.var.campground_booking_open_date = data.booking_open_date;
         var current_booking_campsite_id = data.current_booking_campsite_id;
         var current_booking_campsite_class_id =
           data.current_booking_campsite_class_id;

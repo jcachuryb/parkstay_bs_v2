@@ -2001,7 +2001,7 @@ def get_release_date_for_campground(campground_id):
                         release_period["release_date"] = rd_release_date
                         release_period["booking_open_date"] = rd_booking_open_date
 
-    if release_date is None:
+    if release_period["release_date"] is None:
         for rd in release_date_obj['release_period']:
             if rd['campground'] == None:
                 rd_release_date = datetime.strptime(rd['release_date'], "%Y-%m-%d").date()
