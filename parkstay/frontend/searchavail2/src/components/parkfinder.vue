@@ -1175,6 +1175,10 @@ export default {
     .mapPopupClose:after {
         content: "✖";
     }
+    #mapPopupDescription.popup-notavailable {
+        font-size: 12px;
+        color: red;
+    }
 
     .searchTitle {
         font-size: 150%;

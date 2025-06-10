@@ -443,6 +443,7 @@ export default function (vm) {
                 // Online/Offline sites is determined by the backend api
                 const isMatch = feature.get('match') === true;
                 let popUpDescription = feature.get('description') || '';
+                let featureUnavailable = true;
 
                 if (isMatch) {
                     $('#mapPopupButton')[0].className = 'button';
@@ -464,6 +465,8 @@ export default function (vm) {
                             !featureAvailability?.total_bookable
                         ) {
                             popUpDescription = 'No/limited availability';
+                        } else {
+                            featureUnavailable = false;
                         }
                     } else if (feature.get('campground_type') === 1) {
                         popUpDescription = 'No bookings';
@@ -471,6 +474,8 @@ export default function (vm) {
                         popUpDescription = 'Partner-operated facility';
                     } else if (feature.get('campground_type') === 4) {
                         popUpDescription = 'Booking by application';
+                    } else {
+                        featureUnavailable = false;
                     }
                 } else {
                     $('#mapPopupButton').html('More information');
@@ -478,6 +483,9 @@ export default function (vm) {
                     popUpDescription = 'Does not match filters';
                 }
                 $('#mapPopupDescription').html(popUpDescription);
+                $('#mapPopupDescription').removeClass('popup-notavailable');
+                if (featureUnavailable) $('#mapPopupDescription').addClass('popup-notavailable');
+
                 if (feature.get('campground_type') == 0) {
                     $('#mapPopupButton').attr(
                         'href',
