@@ -247,7 +247,7 @@ const dtOptions = ref({
       },
     },
     {
-      data: "customer_account_phone",
+      data: "customer_booking_phone",
       orderable: false,
       searchable: false,
       mRender: function (data, type, full) {
