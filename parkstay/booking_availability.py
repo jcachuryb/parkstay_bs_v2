@@ -400,8 +400,8 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
     
     # if release_date is None:
     #     release_date = datetime.strptime(release_date_obj['release_date'], "%Y-%m-%d").date()    
-    print ("RELEASE")
-    print (release_date)
+    # print ("RELEASE")
+    # print (release_date)
 
     if user:
         if models.ParkstayPermission.objects.filter(email=user.email,permission_group=5).count() > 0:

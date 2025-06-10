@@ -1431,6 +1431,7 @@ class SearchAvailablityByCampground(TemplateView):
         context['cg']['campground']['campground_map'] = campground_obj['campground']['campground_map'] 
         context['cg']['campground']['max_advance_booking'] = campground_obj['campground']['max_advance_booking']
         context['cg']['campground']['release_date'] = campground_obj['campground']['release_date']
+        context['cg']['campground']['release_time'] = campground_obj['campground']['release_time']        
         context['cg']['campground']['booking_open_date'] = campground_obj['campground']['booking_open_date']
         context['cg']['campground']['today_date'] = today.strftime("%Y-%m-%d")
 

@@ -12,6 +12,7 @@ import json
 import os
 from datetime import timedelta
 from parkstay import utils_cache
+from parkstay import utils
 
 def build_campground_calender(params):
         "Build Full Campground calender as DB is slow to query individually."
@@ -51,12 +52,18 @@ def build_campground_calender(params):
                else:
                    campground_calender = {'options': {}, 'campsites': {}, 'campsite_ids':[]}
 
-               crd = models.CampgroundReleaseDate.objects.all().order_by('-id')
-               release_start = None
-               release_date_diff = None
-               if crd.count() > 0:                    
-                    release_start = crd[0].release_date
-                    release_date_diff = end_date - crd[0].release_date
+               release_period = utils.get_release_date_for_campground(c.id)
+               print (release_period)
+               release_start = release_period["release_date"]
+               release_date_diff = end_date - release_period["release_date"]
+
+
+            #    crd = models.CampgroundReleaseDate.objects.all().order_by('-id')
+            #    release_start = None
+            #    release_date_diff = None
+            #    if crd.count() > 0:                    
+            #         release_start = crd[0].release_date
+            #         release_date_diff = end_date - crd[0].release_date
 
                campsites = models.Campsite.objects.filter(campground=c)
                # Build Campsite Period Dataset
@@ -127,8 +134,6 @@ def build_campground_calender(params):
                            if nextday_string in campground_calender['campsites'][str(closure.campsite.id)]:
                                 campground_calender['campsites'][str(closure.campsite.id)][nextday_string] = status[3]
 
-
-
                for cs in campsites:
                    dayscount = 0
                    for day in range(0, period_days):
@@ -136,21 +141,21 @@ def build_campground_calender(params):
                        nextday_string = nextday.strftime('%Y-%m-%d')
 
                        if release_start:
-                            if nextday == release_start:
-                                nowtime = datetime.now()
-                                nowdatetime_string = nowtime.strftime("%Y-%m-%d")
-                                campground_release_time = '10:00:00'
-                                if cs.campground.release_time:
-                                    campground_release_time = cs.campground.release_time.strftime("%H:%M:%S")
+                            # if nextday == release_start:
+                            #     nowtime = datetime.now()
+                            #     nowdatetime_string = nowtime.strftime("%Y-%m-%d")
+                            #     campground_release_time = '10:00:00'
+                            #     if cs.campground.release_time:
+                            #         campground_release_time = cs.campground.release_time.strftime("%H:%M:%S")
 
-                                campground_opentime = datetime.strptime(nowdatetime_string+' '+campground_release_time, '%Y-%m-%d %H:%M:%S')
-                                if nowtime > campground_opentime:
-                                    pass
-                                else:
-                                    if str(cs.id) in campground_calender['campsites']:
-                                        print ("OPEN TODAY")                                    
-                                        if nextday_string in campground_calender['campsites'][str(cs.id)]:
-                                            campground_calender['campsites'][str(cs.id)][nextday_string] = status[3]                                  
+                            #     campground_opentime = datetime.strptime(nowdatetime_string+' '+campground_release_time, '%Y-%m-%d %H:%M:%S')
+                            #     if nowtime > campground_opentime:
+                            #         pass
+                            #     else:
+                            #         if str(cs.id) in campground_calender['campsites']:
+                            #             print ("OPEN TODAY")                                    
+                            #             if nextday_string in campground_calender['campsites'][str(cs.id)]:
+                            #                 campground_calender['campsites'][str(cs.id)][nextday_string] = status[3]                                  
                                 
                             if nextday > release_start:
                                 if str(cs.id) in campground_calender['campsites']:

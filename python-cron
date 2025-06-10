@@ -15,7 +15,7 @@
 
 */5 * * * *  python3 /app/manage.py update_legacy_campsite_booking >> /app/logs/cron_update_campsite_booking.log 2>&1
 */5 * * * *  python3 /app/manage.py delete_legacy_campsite_booking >> /app/logs/cron_delete_campsite_booking.log 2>&1
-
+*/5 * * * *  python3 /app/manage.py release_availability  >> /app/logs/release_availability.log 2>&1
 
 30 * * * * python3 /app/manage.py build_parkstay_datasets >> /app/logs/build_parkstay_datasets.log 2>&1
 

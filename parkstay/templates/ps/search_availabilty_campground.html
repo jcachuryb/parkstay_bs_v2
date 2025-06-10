@@ -763,6 +763,7 @@ window.onload = function() {
        search_avail.var.campground_release_date = '{{ cg.campground.release_date }}';
        search_avail.var.campground_booking_open_date = '{{ cg.campground.booking_open_date }}';
        search_avail.var.today_date = '{{ cg.campground.today_date }}';
+       search_avail.var.release_time = '{{ cg.campground.release_time }}';
        
        search_avail.var.arrival = {% if cg.arrival %}'{{ cg.arrival }}'{% else %}null{% endif %};
        search_avail.var.departure = {% if cg.departure %}'{{ cg.departure }}'{% else %}null{% endif %};

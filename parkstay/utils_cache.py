@@ -36,7 +36,7 @@ def all_campground_campsites(cg_id):
 def get_campground(campground_id):
     from parkstay import utils
     cg_array = {}
-    campground_dumped_data = cache.get('utils_cache.get_campground('+campground_id+')')
+    campground_dumped_data = cache.get('utils_cache.get_campground('+str(campground_id)+')')
     #campground_dumped_data = None
     if campground_dumped_data is None:
         campground_query = parkstay_models.Campground.objects.get(id=campground_id)
@@ -106,7 +106,7 @@ def get_campground(campground_id):
 
 
 
-        cache.set('utils_cache.get_campground('+campground_id+')', json.dumps(campground),  86400)
+        cache.set('utils_cache.get_campground('+str(campground_id)+')', json.dumps(campground),  86400)
     else:
        campground = json.loads(campground_dumped_data)
 
