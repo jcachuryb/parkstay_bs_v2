@@ -67,7 +67,7 @@ class Command(BaseCommand):
 
         try: 
            if action == 'table':
-               availablity_cache = models.AvailabilityCache.objects.filter(stale=True)
+               availablity_cache = models.AvailabilityCache.objects.filter(stale=True)[:120]
                for a in  availablity_cache:
                    print ("Running for date "+str(a.date)+" for campground "+a.campground.name+" with id "+str(a.campground.id)+"")
                    params['start_date'] = a.date
