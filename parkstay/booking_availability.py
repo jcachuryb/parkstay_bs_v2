@@ -617,7 +617,7 @@ def get_campsite_availability(ground_id, sites_array, start_date, end_date, user
             if start_date == stop:
                 nowtime = datetime.now()
                 nowdatetime_string = nowtime.strftime("%Y-%m-%d")
-                campground_opentime = datetime.strptime(nowdatetime_string+' '+gca["release_time"], '%Y-%m-%d %H:%M:%S')
+                campground_opentime = datetime.strptime(nowdatetime_string+' '+gca["release_time"], '%Y-%m-%d %H:%M:%S')                
                 
                 if nowtime >= campground_opentime:
                     pass

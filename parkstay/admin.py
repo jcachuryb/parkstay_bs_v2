@@ -116,10 +116,11 @@ class CampgroundAdmin(admin.GISModelAdmin,SummernoteModelAdmin):
 
 @admin.register(models.CampgroundReleaseDate)
 class CampgroundReleaseDateAdmin(admin.ModelAdmin):
-    list_display = ('id','booking_open_date','release_date','campground')
+    list_display = ('id','booking_open_date','release_date','campground', 'admin')
     list_filter = ('campground',)
 
     def delete_queryset(self, request, queryset):
+        print ("DELETING")
         cache.delete('CampgroundReleaseDate') 
         messages.success(request, f"Your record has been deleted {queryset}")
         queryset.delete()

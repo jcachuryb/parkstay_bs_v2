@@ -1008,7 +1008,8 @@ class AvailabilityCache(models.Model):
 class CampgroundReleaseDate(models.Model):
     booking_open_date = models.DateField(help_text="This is the date the booking for until release period", blank=True, null=True)
     release_date = models.DateField(help_text="This means no bookings can be booked from this date.", blank=True, null=True)
-    campground = models.ForeignKey('Campground', on_delete=models.CASCADE , related_name='campground_release', blank=True, null=True) 
+    campground = models.ForeignKey('Campground', on_delete=models.CASCADE , related_name='campground_release', blank=True, null=True)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.release_date)  

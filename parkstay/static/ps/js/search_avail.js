@@ -1023,17 +1023,32 @@ var search_avail = {
     var campground_release_date = new Date(search_avail.var.campground_release_date);
     var campground_departure_date = new Date(search_avail.var.camping_period["checkout"]);
 
-    if (campground_departure_date > campground_release_date) {
-      if (search_avail.var.permission_to_make_advanced_booking == true) {
-        // permission granted
-      } else {
-        $("#campsite-availablity-results").html(
-          "<center style='color:red'>Please choose a shorter departure date.</center>"
-        );
-        return;
+    if (search_avail.var.campground_release_date == null || search_avail.var.campground_release_date == 'None') {
+
+        if (search_avail.var.arrival_days > search_avail.var.max_advance_booking) {
+          if (search_avail.var.permission_to_make_advanced_booking == true) {
+            // permission granted
+          } else {
+            $("#campsite-availablity-results").html(
+              "<center style='color:red' release_date='True' >Please choose a shorter arrival date</center>"
+            );
+            return;
+          }
+        }
+
+    } else {
+
+      if (campground_departure_date > campground_release_date) {
+        if (search_avail.var.permission_to_make_advanced_booking == true) {
+          // permission granted
+        } else {
+          $("#campsite-availablity-results").html(
+            "<center style='color:red' max_booking='True' >Please choose a shorter departure date.</center>"
+          );
+          return;
+        }
       }
     }
-
 
     // if (search_avail.var.arrival_days > search_avail.var.max_advance_booking) {
     //   if (search_avail.var.permission_to_make_advanced_booking == true) {
