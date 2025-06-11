@@ -1039,17 +1039,46 @@ class CampgroundReleaseDate(models.Model):
         # if CampgroundReleaseDate.objects.count() > countcheck:
         #         raise ValidationError('Can only create one release date, edit existing date')
         cache.delete('CampgroundReleaseDate')
+        today = timezone.now().date()
         if self.campground:
             cache.delete('api.get_campground('+str(self.campground.id)+')')    
-            cache.delete('utils_cache.get_campground('+str(self.campground.id)+')')
+            cache.delete('utils_cache.get_campground('+str(self.campground.id)+')')            
+
+            for i in range((self.release_date + timedelta(days=1) - today).days):
+                purge_date = today + timedelta(days=i)
+                if AvailabilityCache.objects.filter(campground=self.campground, date=purge_date).count() > 0:
+                    AvailabilityCache.objects.filter(campground=self.campground, date=purge_date).update(stale=True)
+                else:
+                    AvailabilityCache.objects.create(campground=self.campground, date=purge_date,stale=True)                
         else:
             campgrounds = Campground.objects.all()
             for c in campgrounds:                
                 cache.delete('utils_cache.get_campground('+str(c.id)+')')
-                cache.delete('api.get_campground('+str(c.id)+')')                        
+                cache.delete('api.get_campground('+str(c.id)+')')            
+
+                for i in range((self.release_date + timedelta(days=1) - today).days):
+                    purge_date = today + timedelta(days=i)
+                    if AvailabilityCache.objects.filter(campground=c, date=purge_date).count() > 0:
+                        AvailabilityCache.objects.filter(campground=c, date=purge_date).update(stale=True)
+                    else:
+                        AvailabilityCache.objects.create(campground=c, date=purge_date,stale=True)                             
         
         self.full_clean()
         super(CampgroundReleaseDate, self).save(*args, **kwargs)      
+
+        if CampgroundReleaseDate.objects.filter(active=True).count() == 0:
+            print ("No actie campground release dates")            
+            campgrounds = Campground.objects.all()
+            for c in campgrounds: 
+                cache.delete('utils_cache.get_campground('+str(c.id)+')')
+                cache.delete('api.get_campground('+str(c.id)+')')                                
+                for i in range((180)):            
+                    purge_date = today + timedelta(days=i)
+                    if AvailabilityCache.objects.filter(campground=c, date=purge_date).count() > 0:
+                        AvailabilityCache.objects.filter(campground=c, date=purge_date).update(stale=True)
+                    else:
+                        AvailabilityCache.objects.create(campground=c, date=purge_date,stale=True)                
+
 
     def delete(self, *args, **kwargs):
         cache.delete('CampgroundReleaseDate')  

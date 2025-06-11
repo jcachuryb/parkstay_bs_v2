@@ -23,7 +23,7 @@ class Command(BaseCommand):
             nowtime = timezone.now()
             nowtime_local = nowtime.astimezone()
             crd_obj = models.CampgroundReleaseDate.objects.all().order_by('-id')
-            cache.delete('CampgroundReleaseDate')
+            # cache.delete('CampgroundReleaseDate')
 
             for crd in crd_obj:
                 if today == crd.booking_open_date:   
@@ -44,7 +44,8 @@ class Command(BaseCommand):
                                     models.AvailabilityCache.objects.filter(campground=crd.campground, date=purge_date).update(stale=True)
                                 else:
                                     models.AvailabilityCache.objects.create(campground=crd.campground, date=purge_date,stale=True)
-                            cache.delete('utils_cache.get_campground('+str(c.id)+')')                                                        
+                            cache.delete('utils_cache.get_campground('+str(c.id)+')')     
+                            cache.delete('CampgroundReleaseDate')                                                   
                     else:
                         campgrounds = utils_cache.all_campgrounds()
                         for c in campgrounds:     
@@ -67,6 +68,7 @@ class Command(BaseCommand):
                                         models.AvailabilityCache.objects.create(campground=crd.campground, date=purge_date,stale=True)    
                             
                                 cache.delete('utils_cache.get_campground('+str(c.id)+')')
+                                cache.delete('CampgroundReleaseDate')
 
 
                         
