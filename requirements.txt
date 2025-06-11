@@ -1,7 +1,7 @@
 git+https://github.com/dbca-wa/webtemplate2.git#egg=webtemplate_dbca
 git+https://github.com/dbca-wa/dbca-utils@1.1.1#egg=dbca-utils
 psycopg2-binary>=2.9.4
-Django~=5.0.8
+Django==5.2.2
 django-extensions==3.2.3
 ipython==8.29.0
 # social-auth-app-django==5.4.2
@@ -10,14 +10,14 @@ git+https://github.com/dbca-wa/ledger_api_client.git#egg=ledger_api_client
 coverage==4.3.1
 coveralls==1.1
 reportlab==4.2.2
-crispy_bootstrap5==2024.2
+crispy_bootstrap5==2025.6
 django-braces>=1.8.1
 django-datatables-view==1.13.0
 django-reversion==5.0.12
 django-reversion-compare==0.8.6
 git+https://github.com/xzzy/django-preserialize.git#egg=django-preserialize
 django-countries==7.6.1
-git+https://github.com/Tivix/django-cron#egg=django-cron
+git+https://github.com/dbca-wa/django-cron#egg=django-cron
 django-dynamic-fixture==1.9.1
 openpyxl==3.0.7
 datapackage==1.15.2
