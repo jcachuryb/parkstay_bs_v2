@@ -116,8 +116,8 @@ class CampgroundAdmin(admin.GISModelAdmin,SummernoteModelAdmin):
 
 @admin.register(models.CampgroundReleaseDate)
 class CampgroundReleaseDateAdmin(admin.ModelAdmin):
-    list_display = ('id','booking_open_date','release_date','campground', 'active')
-    list_filter = ('campground',)
+    list_display = ('id','booking_open_date','release_date','campground', 'active','force_rebuild')
+    list_filter = ('campground','active')
 
     def delete_queryset(self, request, queryset):
         print ("DELETING")
@@ -438,7 +438,7 @@ class CampsiteBookingLegacyAdmin(admin.ModelAdmin):
 @admin.register(models.AvailabilityCache)
 class AvailablityCacheAdmin(admin.ModelAdmin):
       list_display = ('date','campground','stale')
-      list_filter = ('date','campground',)
+      list_filter = ('date','campground','stale')
 
 admin.site.register(models.Rate)
 admin.site.register(models.Region)

@@ -210,6 +210,5 @@ def get_campground_release_date():
         #     release_date_obj['release_date'] = None
         cache.set('CampgroundReleaseDate', json.dumps(release_date_obj),  86400)        
     else:        
-        release_date_obj = json.loads(release_date_obj_data) 
-    print (release_date_obj)             
+        release_date_obj = json.loads(release_date_obj_data)             
     return release_date_obj

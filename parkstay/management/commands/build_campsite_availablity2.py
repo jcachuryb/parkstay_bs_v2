@@ -67,7 +67,7 @@ class Command(BaseCommand):
 
         try: 
            if action == 'table':
-               availablity_cache = models.AvailabilityCache.objects.filter(stale=True)[:120]
+               availablity_cache = models.AvailabilityCache.objects.filter(stale=True)[:120]               
                for a in  availablity_cache:
                    print ("Running for date "+str(a.date)+" for campground "+a.campground.name+" with id "+str(a.campground.id)+"")
                    params['start_date'] = a.date
@@ -78,11 +78,12 @@ class Command(BaseCommand):
                    datasets.build_campground_daily_calender(params)
                    a.stale=False
                    a.save()
+
            else:
                print ("Start Date")
                print (params['start_date'])
                print ("End Date")
-               print (params['end_date'])
+               print (params['end_date'])   
 
                datasets.build_campground_calender(params)
                datasets.build_campground_daily_calender(params)
@@ -184,3 +185,6 @@ class Command(BaseCommand):
             print (e)
             #Send fail email
             content = "Error message: {}".format(e)
+
+
+
