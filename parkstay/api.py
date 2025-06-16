@@ -3415,7 +3415,7 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            SORTABLE_COLS = ['id', 'campground_name', 'campground_site_type',  'arrival']
+            SORTABLE_COLS = ['id', 'campground_name', 'campground_site_type',  'arrival', 'departure']
             #print("MLINE 1.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             search = request.GET.get('search[value]')
             draw = request.GET.get('draw') if request.GET.get('draw') else 1
@@ -3437,12 +3437,13 @@ class BookingViewSet(viewsets.ModelViewSet):
             if sort_column:
                 sorting_fields = []
                 if sort_column in SORTABLE_COLS:
+                    if sort_column in ['campground_site_type', 'campground_name', 'arrival', 'departure']:
+                        sorting_fields = ['campground__park__district__region__name','id']
+                    
                     if sort_column == 'campground_site_type':
                         sort_column = 'property_cache__first_campsite_list2__0__name'
-                        sorting_fields = ['campground__park__district__region__name','id']
                     elif sort_column == 'campground_name':
                         sort_column = 'campground__name'
-                        sorting_fields = ['campground__park__district__region__name','id']
 
                     sort_filter = sort_column if sort_direction == 'asc' else '-' + sort_column
                     sorting_fields.insert(0, sort_filter)
@@ -3489,7 +3490,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                 if search[:2] == settings.BOOKING_PREFIX:
                     bid = search.replace(settings.BOOKING_PREFIX,"")
                     booking_query &= Q(id=int(bid))
-                else:
+                elif search != '':
                     pass
                     search_only_digit = re.sub('[^0-9]','', search)
                     search_only_words = re.sub('[^a-z|A-Z]','', search)
@@ -3501,8 +3502,8 @@ class BookingViewSet(viewsets.ModelViewSet):
                           booking_query_search |= Q(id=int(search_only_digit))
                     booking_query_search |= Q(campground__name__icontains=search)
                     booking_query_search |= Q(campground__park__district__region__name__icontains=search)
-                    booking_query_search |= Q(details__first_name__contains=search ) 
-                    booking_query_search |= Q(details__last_name__contains=search )
+                    booking_query_search |= Q(details__first_name__icontains=search ) 
+                    booking_query_search |= Q(details__last_name__icontains=search )
                     booking_query_search |= Q(legacy_name__icontains=search)
                     booking_query_search |= Q(details__phone__contains=search)
                     #booking_query_search |= Q(customer__first_name__icontains=search)
