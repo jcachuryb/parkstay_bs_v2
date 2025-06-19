@@ -236,7 +236,7 @@ export default function (vm) {
                 }
                 vm.updateFilter();
                 vm.buildDistanceArray();
-                search_avail.focus_map();
+                // search_avail.focus_map();
             },
             dataType: 'json',
         });
