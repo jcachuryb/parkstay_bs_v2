@@ -533,17 +533,14 @@ export default function (vm) {
                     );
                 }
                 setTimeout(() => {
+                    vm.popup.setPosition(coord);
                     view.animate({
                         center: coord,
                         resolution: resolution,
-                        duration: 1000,
+                        duration: 500,
                     });
                     return true;
-                }, 300);
-                setTimeout(() => {
-                    vm.popup.setPosition(coord);
-                    return true;
-                }, 1300);
+                }, 300);    
             },
             {
                 layerFilter: function (layer) {
