@@ -26,9 +26,10 @@ from ledger_api_client import utils as ledger_api_utils
 #from ledger.payments.bpoint.models import BpointTransaction
 #from ledger.payments.cash.models import CashTransaction
 from rest_framework import viewsets, serializers, status, generics, views
-from parkstay import property_cache 
+from parkstay import property_cache, utils_cache
 from django.utils.safestring import mark_safe
 from django.utils.html import strip_tags
+from django.utils.text import slugify
 
 PARKING_SPACE_CHOICES = (
     (0, 'Parking within site.'),
@@ -2433,3 +2434,33 @@ class ParkEntryRateListener(object):
             price_before = price_before[0]
             price_before.period_end = None
             price_before.save()
+
+class Page(models.Model):
+    title = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
+    content = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_slug = self.slug
+
+
+    def __str__(self):
+        return self.title + ' - ' + self.slug
+
+    def save(self, *args, **kwargs):
+        old_slug = self._original_slug if hasattr(self, '_original_slug') else None
+        remove_old_cache = False
+
+        if not self.slug:
+            self.slug = slugify(self.title)
+        elif old_slug != None and old_slug != self.slug:
+            remove_old_cache = True
+        if Page.objects.filter(slug=self.slug).exists():
+            count = Page.objects.filter(slug__startswith=self.slug).count()
+            self.slug = f"{self.slug}-{count + 1}"
+        super(Page, self).save(*args, **kwargs)
+        utils_cache.set_custom_content_page(self)
+        if remove_old_cache:
+            utils_cache.remove_custom_content_page(old_slug)

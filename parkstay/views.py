@@ -33,7 +33,8 @@ from parkstay.models import (Campground,
                                 Booking,
                                 BookingVehicleRego,
                                 CampsiteRate,
-                                ParkEntryRate
+                                ParkEntryRate,
+                                Page,
                                 )
 from parkstay import models as parkstay_models
 from parkstay import emails
@@ -1559,3 +1560,23 @@ class ViewBookingHistory(LoginRequiredMixin, TemplateView):
         if booking.old_booking:
             self.get_history(booking.old_booking, booking_array)
         return booking_array
+
+
+class PagesView(TemplateView):
+    template_name = 'ps/content/custom_content_page.html'
+    
+    def get(self, request, *args, **kwargs):
+        page_slug = kwargs.get('page_slug', None)
+        if page_slug is None:
+            return redirect(reverse('search_availability_information'))
+        try:
+            cache_key = f'page_content_{page_slug}'
+
+            content = cache.get(cache_key)
+            if content is None:
+                page = Page.objects.get(slug=page_slug)
+                content = utils_cache.set_custom_content_page(page)
+                
+            return render(request, self.template_name, content)
+        except Page.DoesNotExist:
+            return render(request, 'ps/content/page_not_found.html', {'page_slug': page_slug})

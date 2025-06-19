@@ -212,3 +212,28 @@ def get_campground_release_date():
     else:        
         release_date_obj = json.loads(release_date_obj_data)             
     return release_date_obj
+
+
+def remove_custom_content_page(slug):
+    """
+    Remove the custom content page from cache.
+    :param slug: The slug of the page to remove.
+    """
+    cache_key = f'page_content_{slug}'
+    cache.delete(cache_key)
+def set_custom_content_page(page):
+    """
+    Set the custom content page in cache.
+    :param page: The Page object to cache.
+    """
+    cache_key = f'page_content_{page.slug}'
+    item = {
+        'id': page.id,
+        'title': page.title,
+        'slug': page.slug,
+        'content': page.content,
+        'created': page.created.strftime('%Y-%m-%d %H:%M:%S'),
+        'updated_on': page.updated_on.strftime('%Y-%m-%d %H:%M:%S')
+    }
+    cache.set(cache_key, item, 86400 * 30)  # Cache for 30 days
+    return item
