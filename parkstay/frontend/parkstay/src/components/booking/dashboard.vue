@@ -264,7 +264,7 @@ const dtOptions = ref({
     },
     {
       data: "departure",
-      orderable: false,
+      orderable: true,
       searchable: false,
       mRender: function (data, type, full) {
         return Moment(data).format("DD/MM/YYYY");

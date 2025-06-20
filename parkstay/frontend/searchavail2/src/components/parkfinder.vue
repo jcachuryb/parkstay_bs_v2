@@ -485,7 +485,7 @@ export default {
                 fromLonLat = vm.selectedFeature.getGeometry().getCoordinates()
             }
             
-            search_avail.focus_map()
+            // search_avail.focus_map()
             view.animate({
                 center: fromLonLat,
                 resolution: resolution,
