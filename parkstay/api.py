@@ -1025,8 +1025,9 @@ def campground_availabilty_view(request,  *args, **kwargs):
     past_180_days = False
 
     crd_count = cache.get('CampgroundReleaseDateActiveCount')
-    if crd_count is None:
-        crd_count = models.CampgroundReleaseDate.objects.filter(active=True).count()
+    if crd_count is None:    
+        today = date.today()    
+        crd_count = models.CampgroundReleaseDate.objects.filter(active=True, booking_open_date__lt=today).count()
         cache.set('CampgroundReleaseDateActiveCount', crd_count,  144000)   
 
     if int(crd_count) == 0:
@@ -1034,6 +1035,7 @@ def campground_availabilty_view(request,  *args, **kwargs):
         rolling_180_days = today + timedelta(days=180)
         if start_date > rolling_180_days:
             past_180_days = True
+            
         
 
         # astimezone(pytz.timezone('Australia/Perth'))
