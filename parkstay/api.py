@@ -1019,9 +1019,25 @@ def campground_availabilty_view(request,  *args, **kwargs):
     end_date_string = request.GET.get('departure','2022/04/07')
     start_date = datetime.strptime(start_date_string, "%Y/%m/%d").date()
     end_date = datetime.strptime(end_date_string, "%Y/%m/%d").date()
-
+    one_eighty_days_active = False
     date_diff = end_date - start_date
     booking_days = date_diff.days# + 1
+    past_180_days = False
+
+    crd_count = cache.get('CampgroundReleaseDateActiveCount')
+    if crd_count is None:
+        crd_count = models.CampgroundReleaseDate.objects.filter(active=True).count()
+        cache.set('CampgroundReleaseDateActiveCount', crd_count,  144000)   
+
+    if int(crd_count) == 0:
+        today = date.today()
+        rolling_180_days = today + timedelta(days=180)
+        if start_date > rolling_180_days:
+            past_180_days = True
+        
+
+        # astimezone(pytz.timezone('Australia/Perth'))
+        one_eighty_days_active = True
 
     #attributes_data_file = settings.BASE_DIR+"/datasets/campground-attributes.json"
 
@@ -1089,11 +1105,16 @@ def campground_availabilty_view(request,  *args, **kwargs):
                      #
 
                      ########################################
-                     if daily_calender[dc][cid][csid][nextday_string] == 'available':
-                         pass
-                     else:
-                         if int(csid) in site_obj['campground_available'][int(cid)]['sites']:
-                              site_obj['campground_available'][int(cid)]['sites'].remove(int(csid))
+                    if past_180_days is True:                      
+                        site_obj['campground_available'][int(cid)]['sites'] = []
+                        site_obj['campground_available'][int(cid)]['total_available'] = 0
+                        site_obj['campground_available'][int(cid)]['total_bookable'] = 0
+                    else:                        
+                        if daily_calender[dc][cid][csid][nextday_string] == 'available':
+                            pass
+                        else:
+                            if int(csid) in site_obj['campground_available'][int(cid)]['sites']:
+                                site_obj['campground_available'][int(cid)]['sites'].remove(int(csid))
                  site_obj['campground_available'][int(cid)]['total_bookable'] = len(site_obj['campground_available'][int(cid)]['sites'])
 
     for c in campgrounds:

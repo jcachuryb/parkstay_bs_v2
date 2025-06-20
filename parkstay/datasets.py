@@ -19,6 +19,7 @@ def build_campground_calender(params):
         today = date.today()
         start_date = params['start_date']
         period_days = params['period_days']
+        release_start = None
         campground_id = None
         if 'campground_id' in params:
             campground_id = params['campground_id']
@@ -53,10 +54,16 @@ def build_campground_calender(params):
                    campground_calender = {'options': {}, 'campsites': {}, 'campsite_ids':[]}
 
                release_period = utils.get_release_date_for_campground(c.id)
-               release_start = release_period["release_date"]
-               release_date_diff = 0
-               if release_start:
-                    release_date_diff = end_date - release_period["release_date"]
+              
+               if "release_date" in release_period:
+                    if release_period["release_date"] is None:
+                        pass
+                    else:
+                        release_start = release_period["release_date"] - timedelta(days=1)
+                        
+                        release_date_diff = 0
+                        if release_start:
+                            release_date_diff = end_date - release_period["release_date"]
                
            
             #    crd = models.CampgroundReleaseDate.objects.all().order_by('-id')
@@ -163,7 +170,7 @@ def build_campground_calender(params):
                                     if nextday_string in campground_calender['campsites'][str(cs.id)]:
                                         campground_calender['campsites'][str(cs.id)][nextday_string] = status[3]                         
                         else:
-                            if day > 180:
+                            if day > 194:
                                 if str(cs.id) in campground_calender['campsites']:
                                     if nextday_string in campground_calender['campsites'][str(cs.id)]:
                                         campground_calender['campsites'][str(cs.id)][nextday_string] = status[3]                                

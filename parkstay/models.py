@@ -1039,8 +1039,10 @@ class CampgroundReleaseDate(models.Model):
         # print (self.id)
         # if CampgroundReleaseDate.objects.count() > countcheck:
         #         raise ValidationError('Can only create one release date, edit existing date')
+        cache.delete('CampgroundReleaseDateActiveCount')
         cache.delete('CampgroundReleaseDate')
         today = timezone.now().date()
+
         if self.campground:
             cache.delete('api.get_campground('+str(self.campground.id)+')')    
             cache.delete('utils_cache.get_campground('+str(self.campground.id)+')')                         
