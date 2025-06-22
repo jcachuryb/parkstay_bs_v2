@@ -1028,7 +1028,7 @@ def campground_availabilty_view(request,  *args, **kwargs):
     if crd_count is None:    
         today = date.today()    
         crd_count = models.CampgroundReleaseDate.objects.filter(active=True, booking_open_date__lte=today).count()
-        cache.set('CampgroundReleaseDateActiveCount', crd_count,  144000)   
+        cache.set('CampgroundReleaseDateActiveCount', crd_count,  120)   
 
     if int(crd_count) == 0:
         today = date.today()
