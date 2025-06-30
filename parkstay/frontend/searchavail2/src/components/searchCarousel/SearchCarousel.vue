@@ -286,7 +286,7 @@ export default {
 }
 
 .carousel-slide-card-notavailabile {
-    font-size: 12px;
+    font-size: .9rem;
     height: 22px;
     color: red;
 }
