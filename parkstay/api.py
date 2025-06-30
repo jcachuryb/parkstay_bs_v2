@@ -1021,7 +1021,7 @@ def campground_availabilty_view(request,  *args, **kwargs):
     end_date = datetime.strptime(end_date_string, "%Y/%m/%d").date()
     one_eighty_days_active = False
     date_diff = end_date - start_date
-    booking_days = date_diff.days# + 1
+    booking_days = date_diff.days # + 1
     past_180_days = False
 
     crd_count = cache.get('CampgroundReleaseDateActiveCount')
@@ -1105,6 +1105,10 @@ def campground_availabilty_view(request,  *args, **kwargs):
                      #           pass
 
                      #
+                    if booking_days > 14:
+                        site_obj['campground_available'][int(cid)]['sites'] = []
+                        site_obj['campground_available'][int(cid)]['total_available'] = 0
+                        site_obj['campground_available'][int(cid)]['total_bookable'] = 0                        
 
                      ########################################
                     if past_180_days is True:                      

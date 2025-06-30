@@ -363,7 +363,7 @@ def get_campground_booking_range(campground_id, status):
     return filtered_table_array
 
 
-def get_campsite_availability(ground_id, sites_array, start_date, end_date, user = None, change_booking_id=None):
+def get_campsite_availability(ground_id, sites_array, start_date, end_date, user=None, change_booking_id=None):
     is_officer_boolean = False
     can_make_advanced_booking = False
     change_booking_id_obj = None
