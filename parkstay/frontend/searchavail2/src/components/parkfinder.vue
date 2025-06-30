@@ -193,7 +193,7 @@
                             <h4 style="margin: 0"><b id="mapPopupName"></b></h4>
                             <p><i id="mapPopupPrice"></i></p>
                             <img class="thumbnail" id="mapPopupImage" />
-                            <div id="mapPopupDescription" style="font-size: 12px;" />
+                            <div id="mapPopupDescription" style="font-size: .9rem;" />
                             <a id="mapPopupButton" class="button" style="margin-bottom: 0; margin-top: 1em;"
                                 target="_self">See availability</a>
                         </div>
