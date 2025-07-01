@@ -358,6 +358,47 @@ class ClosureReason(ReasonAdmin):
 class OutstandingBookingRecipient(admin.ModelAdmin):
     pass
 
+
+class PageAdminForm(forms.ModelForm):
+    content = forms.CharField(
+        widget=SummernoteWidget(
+            attrs={
+                "summernote": {
+                    "toolbar": [
+                        [
+                            "style",
+                            [
+                                "style",
+                                "bold",
+                                "italic",
+                                "underline",
+                                "strikethrough",
+                                "fontsize",
+                            ],
+                        ],
+                        ["insert", ["link"]],
+                        ["view", ["fullscreen", "help"]],
+                        ["color", ["color"]],
+                        ["para", ["ul", "ol", "paragraph"]],
+                        ["table", ["table"]],
+                    ]
+                }
+            }
+        )
+    )
+
+    class Meta:
+        model = models.Page
+        fields = "__all__"
+
+@admin.register(models.Page)
+class PageAdmin(SummernoteModelAdmin):
+    form = PageAdminForm
+    list_display = ('title', 'slug')
+    search_fields = ('title', 'slug')
+    prepopulated_fields = {'slug': ('title', )}
+    readonly_fields = ['created', 'updated_on']    
+    
 class NoticeForm(forms.ModelForm):
     message = forms.CharField(widget=SummernoteWidget(attrs={'summernote': {'toolbar': [['style', ['bold', 'italic', 'underline', 'strikethrough', 'fontsize']], ['insert', ['link']]]}}))
     

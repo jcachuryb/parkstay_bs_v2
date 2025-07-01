@@ -107,6 +107,7 @@ urlpatterns = [
     re_path(r'^testing-server-with-auth/$', views.TestViewAuth.as_view(), name='test_view'),
     re_path(r'^search-availability/information/', views.SearchAvailablity.as_view(), name='search_availability_information'),
     re_path(r'^search-availability/campground/', views.SearchAvailablityByCampground.as_view(), name='search_availability_campground'),
+    re_path(r'^page/(?P<page_slug>[-\w]+)/$', views.PagesView.as_view(), name='page_detail'),
     re_path(r'^campsites/(?P<ground_id>[0-9]+)/$', views.CampsiteBookingSelector.as_view(), name='campsite_booking_selector'),
     #url(r'^availability/$', views.CampsiteAvailabilitySelector.as_view(), name='campsite_availaiblity_selector'),
     #url(r'^availability_admin/$', views.AvailabilityAdmin.as_view(), name='availability_admin'),
