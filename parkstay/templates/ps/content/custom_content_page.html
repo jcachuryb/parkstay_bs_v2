@@ -1,0 +1,16 @@
+{% extends 'ps/base.html' %} {% load static %} {% load users %} 
+{% block extra_css %}
+
+<link
+  href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
+  rel="stylesheet"
+/>
+{% endblock %} {% block extra_js %} {% endblock %} {% block requirements %} 
+{% endblock %} {% block content %}
+<div class="container" id="content-page-container">
+  <h1>{{ title }}</h1>
+  <br/>
+  {{ content|safe }}
+
+</div>
+{% endblock %}
