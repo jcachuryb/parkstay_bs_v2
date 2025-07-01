@@ -368,6 +368,7 @@ class PageAdminForm(forms.ModelForm):
                         [
                             "style",
                             [
+                                "style",
                                 "bold",
                                 "italic",
                                 "underline",
