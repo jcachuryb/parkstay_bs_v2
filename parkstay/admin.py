@@ -397,8 +397,16 @@ class PageAdmin(SummernoteModelAdmin):
     list_display = ('title', 'slug')
     search_fields = ('title', 'slug')
     prepopulated_fields = {'slug': ('title', )}
-    readonly_fields = ['created', 'updated_on']    
-    
+    readonly_fields = ['created', 'updated_on']
+
+    def delete_queryset(self, request, queryset):
+        for page in queryset:
+            page_slug = page.slug
+            cache_key = f'page_content_{page_slug}'
+            cache.delete(cache_key)
+        queryset.delete()
+
+
 class NoticeForm(forms.ModelForm):
     message = forms.CharField(widget=SummernoteWidget(attrs={'summernote': {'toolbar': [['style', ['bold', 'italic', 'underline', 'strikethrough', 'fontsize']], ['insert', ['link']]]}}))
     
