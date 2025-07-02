@@ -54,7 +54,7 @@ def build_campground_calender(params):
                    campground_calender = {'options': {}, 'campsites': {}, 'campsite_ids':[]}
 
                release_period = utils.get_release_date_for_campground(c.id)
-              
+
                if "release_date" in release_period:
                     if release_period["release_date"] is None:
                         pass
@@ -149,6 +149,7 @@ def build_campground_calender(params):
                         nextday_string = nextday.strftime('%Y-%m-%d')
 
                         if release_start:
+
                             # if nextday == release_start:
                             #     nowtime = datetime.now()
                             #     nowdatetime_string = nowtime.strftime("%Y-%m-%d")

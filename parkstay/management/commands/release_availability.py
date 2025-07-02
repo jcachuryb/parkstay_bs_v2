@@ -43,7 +43,8 @@ class Command(BaseCommand):
                             campground_opentime_string = campground_opentime.strftime("%Y-%m-%d %H:%M")
 
                             campground_opentime = datetime.strptime(booking_open_date+' '+release_time, '%Y-%m-%d %H:%M:%S')
-                            
+                            print ("Campground Open Time: " +campground_opentime_string)
+                            print ("Now Time: " +nowtime_local_string)
                             if nowtime_local_string == campground_opentime_string or crd.force_rebuild is True:  
                                 cache.delete('CampgroundReleaseDate')                          
                                 params = {}

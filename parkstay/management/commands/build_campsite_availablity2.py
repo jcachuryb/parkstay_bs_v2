@@ -32,6 +32,11 @@ class Command(BaseCommand):
         params['today'] = date.today()
         if action == 'full':
             params['start_date'] = params['today']
+            if campground_id_arg:
+                try:
+                    params['campground_id'] = int(campground_id_arg)
+                except:
+                    pass
             #period_days = 90
             #params['start_date'] = datetime.strptime('2022-02-17', "%Y-%m-%d").date()
             params['period_days'] = 730
