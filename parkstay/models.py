@@ -1829,7 +1829,7 @@ class Booking(models.Model):
             #    'Fee': r.entry_fee,
             #    'vehicle_type_name': vehicle_map[r.type]
             #}
-            booking_vehicles.append({'Rego': rego_number, 'Type': vehicle_map[v.type], 'EntryFee': v.entry_fee, 'ParkEntryFee': v.park_entry_fee})
+            booking_vehicles.append({'Rego': rego_number, 'Type': vehicle_map[v.type], 'EntryFee': v.entry_fee})
         return booking_vehicles
 
 

@@ -693,7 +693,7 @@ const print = function () {
               bk[field] = booking.vehicle_payment_status
                 .map(r => {
                   var val = Object.keys(r).map(k => {
-                    if (k == "Fee" || k == "original_type") {
+                    if (["Fee", "original_type", "ParkEntryFee"].includes(k)) {
                       return "avoid";
                     }
                     if (k == "Paid") {
