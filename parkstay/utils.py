@@ -283,8 +283,15 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
     #old_booking_id = None
     #if old_booking:
     #    old_booking_id = old_booking
-
+    sites_array = []
     campsite_qs = Campsite.objects.filter(pk__in=sites_qs)
+    ground = {"id": campsite_qs[0].campground.id}     
+    sites_qs = booking_availability.get_campsites_for_campground(ground,'all')   
+
+
+    for s in sites_qs:        
+        sites_array.append({'pk': s['id'], 'data': s})
+
     num_adult_pool = num_adult
     num_concession_pool = num_concession
     num_child_pool = num_child
@@ -297,7 +304,9 @@ def create_booking_by_site(request,sites_qs, start_date, end_date, num_adult=0, 
     with transaction.atomic():
         # get availability for campsite, error out if booked/closed
         user = overridden_by
-        availability = get_campsite_availability(campsite_qs, start_date, end_date,user_logged_in, old_booking)
+            
+        availability = booking_availability.get_campsite_availability(campsite_qs[0].campground.id,sites_array, start_date, end_date,user_logged_in, old_booking)
+
         for site_id, dates in availability.items():
             if not override_checks:
                 if updating_booking:
