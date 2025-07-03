@@ -1032,7 +1032,7 @@ def campground_availabilty_view(request,  *args, **kwargs):
 
     if int(crd_count) == 0:
         today = date.today()
-        rolling_180_days = today + timedelta(days=180)
+        rolling_180_days = today + timedelta(days=179)
         if start_date > rolling_180_days:
             past_180_days = True
             
