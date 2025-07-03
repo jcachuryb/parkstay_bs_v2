@@ -1019,16 +1019,16 @@ def campground_availabilty_view(request,  *args, **kwargs):
     end_date_string = request.GET.get('departure','2022/04/07')
     start_date = datetime.strptime(start_date_string, "%Y/%m/%d").date()
     end_date = datetime.strptime(end_date_string, "%Y/%m/%d").date()
-    one_eighty_days_active = False
+    # one_eighty_days_active = False
     date_diff = end_date - start_date
     booking_days = date_diff.days # + 1
     past_180_days = False
 
-    crd_count = cache.get('CampgroundReleaseDateActiveCount')
-    if crd_count is None:    
-        today = date.today()    
-        crd_count = models.CampgroundReleaseDate.objects.filter(active=True, booking_open_date__lte=today).count()
-        cache.set('CampgroundReleaseDateActiveCount', crd_count,  120)
+    # crd_count = cache.get('CampgroundReleaseDateActiveCount')
+    # if crd_count is None:    
+    #     today = date.today()    
+    #     crd_count = models.CampgroundReleaseDate.objects.filter(active=True, booking_open_date__lte=today).count()
+    #     cache.set('CampgroundReleaseDateActiveCount', crd_count,  120)
 
     # if int(crd_count) == 0:
     #     today = date.today()
@@ -1041,7 +1041,7 @@ def campground_availabilty_view(request,  *args, **kwargs):
         
 
         # astimezone(pytz.timezone('Australia/Perth'))
-        one_eighty_days_active = True
+        # one_eighty_days_active = True
 
     #attributes_data_file = settings.BASE_DIR+"/datasets/campground-attributes.json"
 
