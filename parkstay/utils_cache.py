@@ -106,7 +106,7 @@ def get_campground(campground_id):
 
 
 
-        cache.set('utils_cache.get_campground('+str(campground_id)+')', json.dumps(campground),  86400)
+        cache.set('utils_cache.get_campground('+str(campground_id)+')', json.dumps(campground),  3600)
     else:
        campground = json.loads(campground_dumped_data)
 

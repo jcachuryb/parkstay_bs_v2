@@ -1984,7 +1984,7 @@ def get_release_date_for_campground(campground_id):
     today = date.today()
     release_date_obj = utils_cache.get_campground_release_date()
     release_period = {"release_date": None,"booking_open_date": None}
-    
+        
     campground = Campground.objects.get(id=campground_id)    
     nowtime = datetime.now()        
     release_time = campground.release_time.strftime("%H:%M:%S")

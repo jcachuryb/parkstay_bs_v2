@@ -1101,26 +1101,31 @@ def campground_availabilty_view(request,  *args, **kwargs):
              
 
              for cid in campground_ids:
-                 campground_release_date = utils.get_release_date_for_campground(cid)                 
+                #  campground_release_date = utils.get_release_date_for_campground(cid) 
+                 campground_info = utils_cache.get_campground(cid) 
+                 
                  campsite_ids = list(daily_calender[dc][cid].keys())
+                 past_180_days = False                    
+                 if campground_info["campground"]['release_date'] is None:
+                    today = date.today()
+                    rolling_180_days = today + timedelta(days=180)
+                    if start_date > rolling_180_days:
+                        past_180_days = True    
+                                      
                  for csid in campsite_ids:
                     ## add feature properties check here: ##
                     #if cid in attributes_obj['campgrounds']:
                     #     if csid in attributes_obj['campgrounds'][cid]['campsites']:
                     #           pass
                     #
-                    past_180_days = False
-                    if campground_release_date['release_date'] is None:
-                        today = date.today()
-                        rolling_180_days = today + timedelta(days=180)
-                        if start_date > rolling_180_days:
-                            past_180_days = True                        
+                    
 
                     if booking_days > 14:
                         site_obj['campground_available'][int(cid)]['sites'] = []
                         site_obj['campground_available'][int(cid)]['total_available'] = 0
                         site_obj['campground_available'][int(cid)]['total_bookable'] = 0                        
 
+                    
                      ########################################
                     if past_180_days is True:                      
                         site_obj['campground_available'][int(cid)]['sites'] = []
