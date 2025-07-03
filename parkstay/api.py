@@ -1028,13 +1028,15 @@ def campground_availabilty_view(request,  *args, **kwargs):
     if crd_count is None:    
         today = date.today()    
         crd_count = models.CampgroundReleaseDate.objects.filter(active=True, booking_open_date__lte=today).count()
-        cache.set('CampgroundReleaseDateActiveCount', crd_count,  120)   
+        cache.set('CampgroundReleaseDateActiveCount', crd_count,  120)
 
-    if int(crd_count) == 0:
-        today = date.today()
-        rolling_180_days = today + timedelta(days=179)
-        if start_date > rolling_180_days:
-            past_180_days = True
+    # if int(crd_count) == 0:
+    #     today = date.today()
+    #     rolling_180_days = today + timedelta(days=180)
+    #     print ("CC")
+    #     print (start_date)
+    #     if start_date > rolling_180_days:
+    #         past_180_days = True
             
         
 
@@ -1096,15 +1098,24 @@ def campground_availabilty_view(request,  *args, **kwargs):
 
         for dc in daily_calender:
              campground_ids = list(daily_calender[dc].keys())
+             
+
              for cid in campground_ids:
+                 campground_release_date = utils.get_release_date_for_campground(cid)                 
                  campsite_ids = list(daily_calender[dc][cid].keys())
                  for csid in campsite_ids:
-                     ## add feature properties check here: ##
-                     #if cid in attributes_obj['campgrounds']:
-                     #     if csid in attributes_obj['campgrounds'][cid]['campsites']:
-                     #           pass
+                    ## add feature properties check here: ##
+                    #if cid in attributes_obj['campgrounds']:
+                    #     if csid in attributes_obj['campgrounds'][cid]['campsites']:
+                    #           pass
+                    #
+                    past_180_days = False
+                    if campground_release_date['release_date'] is None:
+                        today = date.today()
+                        rolling_180_days = today + timedelta(days=180)
+                        if start_date > rolling_180_days:
+                            past_180_days = True                        
 
-                     #
                     if booking_days > 14:
                         site_obj['campground_available'][int(cid)]['sites'] = []
                         site_obj['campground_available'][int(cid)]['total_available'] = 0
